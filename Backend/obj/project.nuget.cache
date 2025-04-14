@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "KFVvHhWMaCQ=",
+  "dgSpecHash": "zj2vnQRnpJo=",
   "success": true,
-  "projectFilePath": "/home/punkholic/random/work/pos/nexus-pos/backend-new/Backend/Backend.csproj",
+  "projectFilePath": "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/Backend.csproj",
   "expectedPackageFiles": [
     "/home/punkholic/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/punkholic/.nuget/packages/microsoft.aspnetcore.openapi/8.0.14/microsoft.aspnetcore.openapi.8.0.14.nupkg.sha512",

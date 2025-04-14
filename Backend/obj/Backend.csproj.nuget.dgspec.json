@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/home/punkholic/random/work/pos/nexus-pos/backend-new/Backend/Backend.csproj": {}
+    "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/Backend.csproj": {}
   },
   "projects": {
-    "/home/punkholic/random/work/pos/nexus-pos/backend-new/Backend/Backend.csproj": {
+    "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/punkholic/random/work/pos/nexus-pos/backend-new/Backend/Backend.csproj",
+        "projectUniqueName": "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "/home/punkholic/random/work/pos/nexus-pos/backend-new/Backend/Backend.csproj",
+        "projectPath": "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/Backend.csproj",
         "packagesPath": "/home/punkholic/.nuget/packages/",
-        "outputPath": "/home/punkholic/random/work/pos/nexus-pos/backend-new/Backend/obj/",
+        "outputPath": "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/home/punkholic/.nuget/NuGet/NuGet.Config"
