@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import Alert from '../components/Alert';
 
 export const AddSupplier = () => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
-        supplierName: '',
+        name: '',
         phone: '',
-        companyName: '',
-        panVatNo: '',
-        address: '',
         email: '',
+        address: '',
+        company: '',
+        pan: '',
+        city: '',
+        contactPerson: ''
     });
+    const [showAlert, setShowAlert] = useState(false);
+    const [alertMessage, setAlertMessage] = useState('');
+    const [alertType, setAlertType] = useState<'success' | 'error'>('success');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -21,12 +28,41 @@ export const AddSupplier = () => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission here
-        console.log(formData);
-        // After successful submission, navigate back to suppliers page
-        navigate('/parties/suppliers');
+        setIsSubmitting(true);
+        
+        try {
+            const response = await fetch('/api/Supplier', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData),
+            });
+            
+            if (response.ok) {
+                setAlertMessage('Supplier added successfully!');
+                setAlertType('success');
+                setShowAlert(true);
+                
+                // Wait for 2 seconds before navigating
+                setTimeout(() => {
+                    navigate('/parties/suppliers');
+                }, 2000);
+            } else {
+                const errorData = await response.json();
+                setAlertMessage(`Error: ${errorData.message || 'Failed to add supplier'}`);
+                setAlertType('error');
+                setShowAlert(true);
+            }
+        } catch (error) {
+            setAlertMessage('Error connecting to the server. Please try again.');
+            setAlertType('error');
+            setShowAlert(true);
+        } finally {
+            setIsSubmitting(false);
+        }
     };
 
     const handleCancel = () => {
@@ -38,7 +74,6 @@ export const AddSupplier = () => {
             minHeight: '100vh',
             background: '#f8f9fa',
         },
-       
         mainContent: {
             padding: '2rem',
             marginTop: '64px',
@@ -82,6 +117,11 @@ export const AddSupplier = () => {
                 boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
             },
         },
+        buttonContainer: {
+            display: 'flex',
+            gap: '1rem',
+            marginTop: '2rem',
+        },
         submitButton: {
             background: '#dc4c39',
             color: 'white',
@@ -93,6 +133,23 @@ export const AddSupplier = () => {
             cursor: 'pointer',
             '&:hover': {
                 background: '#c82333',
+            },
+            '&:disabled': {
+                background: '#e9a8a8',
+                cursor: 'not-allowed',
+            },
+        },
+        cancelButton: {
+            background: '#6c757d',
+            color: 'white',
+            padding: '0.75rem 1.5rem',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            '&:hover': {
+                background: '#5a6268',
             },
         },
     };
@@ -110,8 +167,8 @@ export const AddSupplier = () => {
                                 <label style={styles.label}>Supplier Name</label>
                                 <input
                                     type="text"
-                                    name="supplierName"
-                                    value={formData.supplierName}
+                                    name="name"
+                                    value={formData.name}
                                     onChange={handleChange}
                                     style={styles.input}
                                     required
@@ -135,19 +192,19 @@ export const AddSupplier = () => {
                                 <label style={styles.label}>Company Name</label>
                                 <input
                                     type="text"
-                                    name="companyName"
-                                    value={formData.companyName}
+                                    name="company"
+                                    value={formData.company}
                                     onChange={handleChange}
                                     style={styles.input}
                                     required
                                 />
                             </div>
                             <div style={styles.formGroup}>
-                                <label style={styles.label}>PAN No / VAT No</label>
+                                <label style={styles.label}>PAN No</label>
                                 <input
                                     type="text"
-                                    name="panVatNo"
-                                    value={formData.panVatNo}
+                                    name="pan"
+                                    value={formData.pan}
                                     onChange={handleChange}
                                     style={styles.input}
                                     required
@@ -167,6 +224,17 @@ export const AddSupplier = () => {
                                     required
                                 />
                             </div>
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>City</label>
+                                <input
+                                    type="text"
+                                    name="city"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                    required
+                                />
+                            </div>
                         </div>
 
                         <div style={styles.formRow}>
@@ -181,14 +249,46 @@ export const AddSupplier = () => {
                                     required
                                 />
                             </div>
+                            <div style={styles.formGroup}>
+                                <label style={styles.label}>Contact Person</label>
+                                <input
+                                    type="text"
+                                    name="contactPerson"
+                                    value={formData.contactPerson}
+                                    onChange={handleChange}
+                                    style={styles.input}
+                                    required
+                                />
+                            </div>
                         </div>
 
-                        <button type="submit" style={styles.submitButton}>
-                            Add Supplier
-                        </button>
+                        <div style={styles.buttonContainer}>
+                            <button 
+                                type="submit" 
+                                style={styles.submitButton}
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? 'Adding...' : 'Add Supplier'}
+                            </button>
+                            <button 
+                                type="button" 
+                                style={styles.cancelButton}
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </button>
+                        </div>
                     </form>
                 </div>
             </main>
+            
+            {showAlert && (
+                <Alert 
+                    message={alertMessage} 
+                    type={alertType} 
+                    onClose={() => setShowAlert(false)} 
+                />
+            )}
         </div>
     );
 }; 

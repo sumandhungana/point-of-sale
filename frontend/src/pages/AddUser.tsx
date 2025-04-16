@@ -5,6 +5,8 @@ import { useNavigate } from 'react-router-dom';
 
 export const AddUser = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     username: '',
     enable: false,
@@ -37,10 +39,36 @@ export const AddUser = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
-    // Handle form submission
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/User', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert('User created successfully!');
+        navigate('/user');
+      } else {
+        try {
+          const errorData = await response.json();
+          throw new Error(errorData.message || 'Failed to create user');
+        } catch (error) {
+          throw new Error('User already exists');
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -165,6 +193,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter username"
+                      required
                     />
                   </div>
                   <div style={styles.inputGroup}>
@@ -199,6 +228,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter password"
+                      required
                     />
                   </div>
                   <div style={styles.inputGroup}>
@@ -208,6 +238,7 @@ export const AddUser = () => {
                       value={formData.branch}
                       onChange={handleInputChange}
                       style={styles.select}
+                      required
                     >
                       <option value="">Select Branch</option>
                       <option value="branch1">Branch 1</option>
@@ -224,6 +255,7 @@ export const AddUser = () => {
                       value={formData.permission}
                       onChange={handleInputChange}
                       style={styles.select}
+                      required
                     >
                       <option value="">Select Permission</option>
                       <option value="admin">Admin</option>
@@ -238,6 +270,7 @@ export const AddUser = () => {
                       value={formData.parent}
                       onChange={handleInputChange}
                       style={styles.select}
+                      required
                     >
                       <option value="">Select Parent</option>
                       <option value="parent1">Parent 1</option>
@@ -262,6 +295,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter name"
+                      required
                     />
                   </div>
                   <div style={styles.inputGroup}>
@@ -273,6 +307,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter address"
+                      required
                     />
                   </div>
                 </div>
@@ -287,6 +322,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter company name"
+                      required
                     />
                   </div>
                   <div style={styles.inputGroup}>
@@ -298,6 +334,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter email"
+                      required
                     />
                   </div>
                 </div>
@@ -312,6 +349,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter phone number"
+                      required
                     />
                   </div>
                   <div style={styles.inputGroup}>
@@ -323,6 +361,7 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter PAN number"
+                      required
                     />
                   </div>
                 </div>
@@ -337,14 +376,27 @@ export const AddUser = () => {
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="Enter remarks"
+                      required
                     />
                   </div>
                 </div>
               </div>
             </div>
 
+            {error && (
+              <div style={{ color: 'red', marginBottom: '1rem' }}>
+                {error}
+              </div>
+            )}
+
             <div style={styles.saveButtonContainer}>
-              <button type="submit" style={styles.saveButton}>Save</button>
+              <button 
+                type="submit" 
+                style={styles.saveButton}
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : 'Save'}
+              </button>
             </div>
           </form>
         </div>

@@ -40,5 +40,5 @@ public class StaffSalary
     
     // Navigation property
     [ForeignKey("StaffId")]
-    public Staff Staff { get; set; } = null!;
+    public Staff? Staff { get; set; } // make it nullable
 } 

@@ -1,0 +1,2442 @@
+{
+	"info": {
+		"_postman_id": "546f246b-043f-4e4a-9f6f-ed030153d112",
+		"name": "Khatabook API",
+		"description": "Collection for testing POS System API endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17280776"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/User",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"User"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/User/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"User",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testuser\",\n    \"email\": \"test@example.com\",\n    \"password\": \"Test123!\",\n    \"firstName\": \"Test\",\n    \"lastName\": \"User\",\n    \"role\": \"Staff\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/User",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"User"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"username\": \"updateduser\",\n    \"email\": \"updated@example.com\",\n    \"firstName\": \"Updated\",\n    \"lastName\": \"User\",\n    \"role\": \"Admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/User/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"User",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/User/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"User",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Customer",
+			"item": [
+				{
+					"name": "Get All Customers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Customer by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Customer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"phone\": \"1234567890\",\n    \"email\": \"john@example.com\",\n    \"address\": \"123 Main St\",\n    \"company\": \"NY\",\n    \"pan\": \"4323\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Customer",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"John Updated\",\n    \"email\": \"john.updated@example.com\",\n    \"phone\": \"9876543210\",\n    \"address\": \"456 New St\",\n    \"city\": \"Los Angeles\",\n    \"state\": \"CA\",\n    \"zipCode\": \"90001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Customer",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Customer/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Customer",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Category",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Category",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Category by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Category/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Category",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Category",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Electronics\",\n    \"description\": \"Electronic items and gadgets\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Category",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Category"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Category",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Updated Electronics\",\n    \"description\": \"Updated description for electronic items\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Category/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Category",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Category",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Category/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Category",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Item",
+			"item": [
+				{
+					"name": "Get All Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Item",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Item"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Item by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Item/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Item",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Item",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Laptop\",\n    \"primaryUnit\": \"PCS\",\n    \"secondaryUnit\": \"BOX\",\n    \"isSecondaryUnitEnabled\": true,\n    \"categoryId\": 1,\n    \"salesPrice\": 999.99,\n    \"purchasePrice\": 800.00,\n    \"taxIncluded\": true,\n    \"openingStock\": 10.00,\n    \"lowStockAlert\": 5.00,\n    \"vatPercentage\": 13.00,\n    \"vatPercentageToday\": 13.00,\n    \"imageUrl\": \"https://example.com/laptop.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Item",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Item"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Item",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Updated Laptop\",\n    \"primaryUnit\": \"PCS\",\n    \"secondaryUnit\": \"BOX\",\n    \"isSecondaryUnitEnabled\": true,\n    \"categoryId\": 1,\n    \"salesPrice\": 1099.99,\n    \"purchasePrice\": 900.00,\n    \"taxIncluded\": true,\n    \"openingStock\": 15.00,\n    \"lowStockAlert\": 7.00,\n    \"vatPercentage\": 13.00,\n    \"vatPercentageToday\": 13.00,\n    \"imageUrl\": \"https://example.com/updated-laptop.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Item/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Item",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Item",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Item/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Item",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Bill",
+			"item": [
+				{
+					"name": "Get All Bills",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Bill",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Bill"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Bill by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Bill/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Bill",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Bill",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": 1,\n    \"totalAmount\": 1999.99,\n    \"paymentStatus\": \"Pending\",\n    \"items\": [\n        {\n            \"itemId\": 1,\n            \"quantity\": 2,\n            \"unitPrice\": 999.99\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Bill",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Bill"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Bill",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"customerId\": 1,\n    \"totalAmount\": 2099.99,\n    \"paymentStatus\": \"Paid\",\n    \"items\": [\n        {\n            \"itemId\": 1,\n            \"quantity\": 2,\n            \"unitPrice\": 1049.99\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Bill/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Bill",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Bill",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Bill/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Bill",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Payment",
+			"item": [
+				{
+					"name": "Get All Payments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Payment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payment by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Payment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Payment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"billId\": 1,\n    \"amount\": 1999.99,\n    \"paymentMethod\": \"Credit Card\",\n    \"paymentStatus\": \"Completed\",\n    \"transactionId\": \"TRX123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Payment"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Payment",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"billId\": 1,\n    \"amount\": 2099.99,\n    \"paymentMethod\": \"Cash\",\n    \"paymentStatus\": \"Refunded\",\n    \"transactionId\": \"TRX123456-UPDATED\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Payment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Payment",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Payment",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payments by Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/Date/2024-03-20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Payment",
+								"Date",
+								"2024-03-20"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payments by Date Range",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Payment/DateRange?startDate=2024-03-01&endDate=2024-03-31",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Payment",
+								"DateRange"
+							],
+							"query": [
+								{
+									"key": "startDate",
+									"value": "2024-03-01"
+								},
+								{
+									"key": "endDate",
+									"value": "2024-03-31"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Staff",
+			"item": [
+				{
+					"name": "Get All Staff",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Staff",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Staff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Staff by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Staff/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Staff",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Staff",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"John Doe\",\n    \"address\": \"123 Staff St\",\n    \"phone\": \"9876543210\",\n    \"email\": \"john.doe@example.com\",\n    \"remarks\": \"Senior Staff Member\",\n    \"profileImageUrl\": \"https://example.com/profile.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Staff",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Staff"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Staff",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"John Updated\",\n    \"address\": \"456 Updated St\",\n    \"phone\": \"9876543211\",\n    \"email\": \"john.updated@example.com\",\n    \"remarks\": \"Updated remarks\",\n    \"profileImageUrl\": \"https://example.com/updated-profile.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Staff/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Staff",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Staff",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Staff/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Staff",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Supplier",
+			"item": [
+				{
+					"name": "Get All Suppliers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Supplier",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Supplier"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Supplier by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Supplier/9",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Supplier",
+								"9"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Supplier",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Tech Supplies Inc\",\n    \"email\": \"contact@techsupplies.com\",\n    \"phone\": \"1234567890\",\n    \"address\": \"123 Supplier St\",\n    \"company\": \"test\",\n    \"pan\": \"123\",\n    \"contactPerson\": \"John Supplier\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Supplier",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Supplier"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Supplier",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Updated Tech Supplies Inc\",\n    \"email\": \"updated@techsupplies.com\",\n    \"phone\": \"9876543210\",\n    \"address\": \"456 Updated St\",\n    \"city\": \"Los Angeles\",\n    \"state\": \"CA\",\n    \"zipCode\": \"90001\",\n    \"contactPerson\": \"Jane Supplier\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Supplier/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Supplier",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Supplier",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Supplier/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Supplier",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Role",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Role/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Role",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Manager\",\n    \"description\": \"Store Manager Role\",\n    \"permissions\": [\"manage_staff\", \"manage_inventory\", \"view_reports\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Role",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Role"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Senior Manager\",\n    \"description\": \"Senior Store Manager Role\",\n    \"permissions\": [\"manage_staff\", \"manage_inventory\", \"view_reports\", \"manage_finances\"]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Role/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Role",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Role/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Role",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "AppSettings",
+			"item": [
+				{
+					"name": "Get All Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/AppSettings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"AppSettings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Setting by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/AppSettings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"AppSettings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Setting",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"key\": \"tax_rate\",\n    \"value\": \"10\",\n    \"description\": \"Default tax rate percentage\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/AppSettings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"AppSettings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Setting",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"key\": \"tax_rate\",\n    \"value\": \"12\",\n    \"description\": \"Updated tax rate percentage\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/AppSettings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"AppSettings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Setting",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/AppSettings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"AppSettings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "InvoiceSettings",
+			"item": [
+				{
+					"name": "Get All Invoice Settings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/InvoiceSettings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"InvoiceSettings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Invoice Setting by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/InvoiceSettings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"InvoiceSettings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Invoice Setting",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"companyName\": \"My Store\",\n    \"address\": \"123 Store St\",\n    \"phone\": \"1234567890\",\n    \"email\": \"store@example.com\",\n    \"taxNumber\": \"TAX123456\",\n    \"invoicePrefix\": \"INV\",\n    \"invoiceFooter\": \"Thank you for your business!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/InvoiceSettings",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"InvoiceSettings"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Invoice Setting",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"companyName\": \"Updated Store\",\n    \"address\": \"456 Updated St\",\n    \"phone\": \"9876543210\",\n    \"email\": \"updated@example.com\",\n    \"taxNumber\": \"TAX654321\",\n    \"invoicePrefix\": \"INV-UPDATED\",\n    \"invoiceFooter\": \"Thank you for choosing us!\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/InvoiceSettings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"InvoiceSettings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Invoice Setting",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/InvoiceSettings/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"InvoiceSettings",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "StaffAttendance",
+			"item": [
+				{
+					"name": "Get All Attendance Records",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffAttendance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffAttendance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Attendance by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffAttendance/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffAttendance",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Attendance Record",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"staffId\": 1,\n    \"date\": \"2024-03-20\",\n    \"checkIn\": \"09:00:00\",\n    \"checkOut\": \"17:00:00\",\n    \"status\": \"Present\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffAttendance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffAttendance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Attendance Record",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"staffId\": 1,\n    \"date\": \"2024-03-20\",\n    \"checkIn\": \"09:30:00\",\n    \"checkOut\": \"17:30:00\",\n    \"status\": \"Late\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffAttendance/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffAttendance",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Attendance Record",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffAttendance/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffAttendance",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Staff Attendance by Staff ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffAttendance/Staff/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffAttendance",
+								"Staff",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Staff Attendance by Date",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffAttendance/Date/2024-03-20",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffAttendance",
+								"Date",
+								"2024-03-20"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "StaffSalary",
+			"item": [
+				{
+					"name": "Get All Salary Records",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffSalary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffSalary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Salary by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffSalary/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffSalary",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Salary Record",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"staffId\": 1,\n    \"month\": 3,\n    \"year\": 2024,\n    \"selectedDate\": \"2024-03-20T00:00:00\",\n    \"isSlideOn\": false,\n    \"calculationDate\": \"2024-03-20T00:00:00\",\n    \"salaryType\": \"monthly\",\n    \"amount\": 3000.00,\n    \"permission\": \"full\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffSalary",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffSalary"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Salary Record",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"staffId\": 1,\n    \"month\": 3,\n    \"year\": 2024,\n    \"selectedDate\": \"2024-03-20T00:00:00\",\n    \"isSlideOn\": true,\n    \"calculationDate\": \"2024-03-20T00:00:00\",\n    \"salaryType\": \"monthly\",\n    \"amount\": 3500.00,\n    \"permission\": \"full\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffSalary/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffSalary",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Salary Record",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/StaffSalary/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"StaffSalary",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PaymentGateway",
+			"item": [
+				{
+					"name": "Get All Payment Gateways",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/PaymentGateway",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"PaymentGateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Payment Gateway by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/PaymentGateway/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"PaymentGateway",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Payment Gateway",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Stripe\",\n    \"apiKey\": \"sk_test_123456789\",\n    \"secretKey\": \"sk_secret_123456789\",\n    \"isActive\": true,\n    \"description\": \"Stripe payment gateway integration\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/PaymentGateway",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"PaymentGateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Payment Gateway",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Stripe Updated\",\n    \"apiKey\": \"sk_test_987654321\",\n    \"secretKey\": \"sk_secret_987654321\",\n    \"isActive\": true,\n    \"description\": \"Updated Stripe payment gateway integration\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/PaymentGateway/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"PaymentGateway",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Payment Gateway",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/PaymentGateway/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"PaymentGateway",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SmsGateway",
+			"item": [
+				{
+					"name": "Get All SMS Gateways",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SmsGateway",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SmsGateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get SMS Gateway by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SmsGateway/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SmsGateway",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create SMS Gateway",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Twilio\",\n    \"apiKey\": \"twilio_api_key\",\n    \"secretKey\": \"twilio_secret_key\",\n    \"isActive\": true,\n    \"description\": \"Twilio SMS gateway integration\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SmsGateway",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SmsGateway"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update SMS Gateway",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Twilio Updated\",\n    \"apiKey\": \"twilio_api_key_updated\",\n    \"secretKey\": \"twilio_secret_key_updated\",\n    \"isActive\": true,\n    \"description\": \"Updated Twilio SMS gateway integration\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SmsGateway/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SmsGateway",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete SMS Gateway",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SmsGateway/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SmsGateway",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Transaction",
+			"item": [
+				{
+					"name": "Get All Transactions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Transaction",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Transaction by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Transaction/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Transaction",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Transaction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"type\": \"Sale\",\n    \"amount\": 1999.99,\n    \"paymentMethod\": \"Credit Card\",\n    \"status\": \"Completed\",\n    \"description\": \"Sale transaction\",\n    \"referenceId\": \"TRX123456\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Transaction",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Transaction"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Transaction",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"type\": \"Refund\",\n    \"amount\": 1999.99,\n    \"paymentMethod\": \"Credit Card\",\n    \"status\": \"Refunded\",\n    \"description\": \"Refund transaction\",\n    \"referenceId\": \"TRX123456-REFUND\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/Transaction/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Transaction",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Transaction",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/Transaction/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"Transaction",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "SalesBill",
+			"item": [
+				{
+					"name": "Get All Sales Bills",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesBill",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesBill"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Sales Bill by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesBill/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesBill",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Sales Bill",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"customerId\": 1,\n    \"billDate\": \"2024-03-20\",\n    \"totalAmount\": 1999.99,\n    \"discountAmount\": 100.00,\n    \"taxAmount\": 200.00,\n    \"netAmount\": 2099.99,\n    \"paymentStatus\": \"Pending\",\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"quantity\": 2,\n            \"unitPrice\": 999.99,\n            \"discount\": 50.00,\n            \"tax\": 100.00,\n            \"total\": 2099.98\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesBill",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesBill"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sales Bill",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"customerId\": 1,\n    \"billDate\": \"2024-03-20\",\n    \"totalAmount\": 2499.99,\n    \"discountAmount\": 150.00,\n    \"taxAmount\": 250.00,\n    \"netAmount\": 2599.99,\n    \"paymentStatus\": \"Paid\",\n    \"items\": [\n        {\n            \"id\": 1,\n            \"productId\": 1,\n            \"quantity\": 3,\n            \"unitPrice\": 999.99,\n            \"discount\": 75.00,\n            \"tax\": 125.00,\n            \"total\": 3149.97\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesBill/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesBill",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Sales Bill",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesBill/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesBill",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Permission",
+			"item": [
+				{
+					"name": "Get All Permissions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5120/api/Permission",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5120",
+							"path": ["api", "Permission"]
+						}
+					}
+				},
+				{
+					"name": "Get Permission by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5120/api/Permission/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5120",
+							"path": ["api", "Permission", "1"]
+						}
+					}
+				},
+				{
+					"name": "Get Permissions by Module",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5120/api/Permission/Module/Organization",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5120",
+							"path": ["api", "Permission", "Module", "Organization"]
+						}
+					}
+				},
+				{
+					"name": "Create Permission",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 40,\n    \"module\": \"NewModule\",\n    \"permissionName\": \"New Permission\",\n    \"createdAt\": \"2024-01-01T00:00:00Z\",\n    \"updatedAt\": \"2024-01-01T00:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5120/api/Permission",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5120",
+							"path": ["api", "Permission"]
+						}
+					}
+				},
+				{
+					"name": "Update Permission",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"module\": \"Organization\",\n    \"permissionName\": \"Updated Permission Name\",\n    \"createdAt\": \"2024-01-01T00:00:00Z\",\n    \"updatedAt\": \"2024-01-01T00:00:00Z\"\n}"
+						},
+						"url": {
+							"raw": "http://localhost:5120/api/Permission/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5120",
+							"path": ["api", "Permission", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Permission",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5120/api/Permission/1",
+							"protocol": "http",
+							"host": ["localhost"],
+							"port": "5120",
+							"path": ["api", "Permission", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "SalesBillItem",
+			"item": [
+				{
+					"name": "Get Sales Bill Items by Bill ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/SalesBillItem/Bill/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"SalesBillItem",
+								"Bill",
+								"1"
+							]
+						}
+					}, 
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Services",
+			"item": [
+				{
+					"name": "Get All Services",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/Service",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Service"
+							]
+						},
+						"description": "Retrieves all services"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Service by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/Service/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Service",
+								"1"
+							]
+						},
+						"description": "Retrieves a specific service by ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Service",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Haircut\",\n    \"description\": \"Basic haircut service\",\n    \"price\": 20.00,\n    \"tax\": 5.0,\n    \"taxIncluded\": true,\n    \"taxIncludedAmount\": 21.00,\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Service",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Service"
+							]
+						},
+						"description": "Creates a new service"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Service",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"name\": \"Haircut\",\n    \"description\": \"Basic haircut service\",\n    \"price\": 25.00,\n    \"tax\": 5.0,\n    \"taxIncluded\": true,\n    \"taxIncludedAmount\": 26.25,\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/Service/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Service",
+								"1"
+							]
+						},
+						"description": "Updates an existing service"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Service",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/Service/1",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"Service",
+								"1"
+							]
+						},
+						"description": "Deletes a service"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "RentalItem",
+			"item": [
+				{
+					"name": "Get All Rental Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/RentalItem",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RentalItem"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Rental Item by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/RentalItem/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RentalItem", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Rental Item",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"rentalItemName\": \"Party Tent\",\n    \"phoneNumber\": \"1234567890\",\n    \"address\": \"123 Rental St\",\n    \"rentalAmount\": 1000.00,\n    \"rentalPeriod\": \"Daily\",\n    \"startDate\": \"2024-03-20T00:00:00Z\",\n    \"endDate\": \"2024-03-21T00:00:00Z\",\n    \"remarks\": \"Large party tent for outdoor events\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/RentalItem",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RentalItem"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Rental Item",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"id\": 1,\n    \"rentalItemName\": \"Updated Party Tent\",\n    \"phoneNumber\": \"9876543210\",\n    \"address\": \"456 Updated St\",\n    \"rentalAmount\": 1200.00,\n    \"rentalPeriod\": \"Weekly\",\n    \"startDate\": \"2024-03-20T00:00:00Z\",\n    \"endDate\": \"2024-03-27T00:00:00Z\",\n    \"remarks\": \"Updated remarks for the rental item\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/RentalItem/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RentalItem", "1"]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Rental Item",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/RentalItem/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["api", "RentalItem", "1"]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:5120",
+			"type": "string"
+		}
+	]
+}

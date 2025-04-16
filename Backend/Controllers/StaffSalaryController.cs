@@ -59,6 +59,10 @@ public class StaffSalaryController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<StaffSalary>> CreateStaffSalary(StaffSalary staffSalary)
     {
+        staffSalary.SelectedDate = DateTime.SpecifyKind(staffSalary.SelectedDate, DateTimeKind.Utc);
+        staffSalary.CalculationDate = DateTime.SpecifyKind(staffSalary.CalculationDate, DateTimeKind.Utc);
+        staffSalary.CreatedAt = DateTime.UtcNow;
+        staffSalary.UpdatedAt = DateTime.UtcNow;
         _context.StaffSalaries.Add(staffSalary);
         await _context.SaveChangesAsync();
 

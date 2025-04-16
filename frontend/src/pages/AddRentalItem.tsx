@@ -5,6 +5,8 @@ import Navbar from '../components/Navbar';
 
 export const AddRentalItem = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     rentalItemName: '',
     phoneNumber: '',
@@ -24,10 +26,37 @@ export const AddRentalItem = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Here you would typically send the data to your backend
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/RentalItem', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          rentalAmount: parseFloat(formData.rentalAmount),
+          startDate: new Date(formData.startDate).toISOString(),
+          endDate: new Date(formData.endDate).toISOString()
+        }),
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert('Rental item created successfully!');
+        navigate('/rental-items');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create rental item');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -195,6 +224,7 @@ export const AddRentalItem = () => {
                     style={styles.input}
                     placeholder="Enter rental amount"
                     required
+                    step="0.01"
                   />
                 </div>
                 <div style={styles.formGroup}>
@@ -207,10 +237,9 @@ export const AddRentalItem = () => {
                     required
                   >
                     <option value="">Select rental period</option>
-                    <option value="hourly">Hourly</option>
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
+                    <option value="Daily">Daily</option>
+                    <option value="Weekly">Weekly</option>
+                    <option value="Monthly">Monthly</option>
                   </select>
                 </div>
               </div>
@@ -220,7 +249,7 @@ export const AddRentalItem = () => {
                 <div style={styles.dateGroup}>
                   <label style={styles.label}>Start Date</label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     name="startDate"
                     value={formData.startDate}
                     onChange={handleInputChange}
@@ -231,7 +260,7 @@ export const AddRentalItem = () => {
                 <div style={styles.dateGroup}>
                   <label style={styles.label}>End Date</label>
                   <input
-                    type="date"
+                    type="datetime-local"
                     name="endDate"
                     value={formData.endDate}
                     onChange={handleInputChange}
@@ -255,6 +284,12 @@ export const AddRentalItem = () => {
                 </div>
               </div>
 
+              {error && (
+                <div style={{ color: 'red', marginBottom: '1rem' }}>
+                  {error}
+                </div>
+              )}
+
               {/* Buttons */}
               <div style={styles.buttonContainer}>
                 <button 
@@ -264,8 +299,12 @@ export const AddRentalItem = () => {
                 >
                   Cancel
                 </button>
-                <button type="submit" style={styles.saveButton}>
-                  💾 Save
+                <button 
+                  type="submit" 
+                  style={styles.saveButton}
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : '💾 Save'}
                 </button>
               </div>
             </form>

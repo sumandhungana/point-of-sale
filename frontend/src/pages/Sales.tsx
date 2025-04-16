@@ -1,11 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Sidebar } from '../components/Sidebar';
+import Navbar from '../components/Navbar';
 
 export const Sales = () => {
   const navigate = useNavigate();
 
   const styles = {
     container: {
+      width: '100%',
       padding: '2rem',
     },
     card: {
@@ -173,53 +176,64 @@ export const Sales = () => {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <div style={styles.searchContainer}>
-          <input
-            type="text"
-            placeholder="Search sales..."
-            style={styles.searchInput}
-          />
-          <button style={styles.reminderButton}>
-            <span>📝</span> Bulk Reminder
-          </button>
-        </div>
-        <div style={styles.filterContainer}>
-          <select style={styles.dropdown}>
-            <option value="">Filter by Status</option>
-            <option value="paid">Paid</option>
-            <option value="pending">Pending</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          <select style={styles.dropdown}>
-            <option value="">Sort by Date</option>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-          </select>
-        </div>
-        <div style={styles.infoCard}>
-          <div style={styles.infoSection}>
-            <div style={styles.infoTitle}>Total Sales</div>
-            <div style={styles.infoValue}>₹1,23,456</div>
-            <button style={styles.viewReportButton}>View Report</button>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <Sidebar />
+      <div style={{ 
+        flex: 1, 
+        paddingTop: '60px',
+        minHeight: '100vh',
+        background: '#f8f9fa',
+      }}>
+        <Navbar />
+        <div style={styles.container}>
+          <div style={styles.card}>
+            <div style={styles.searchContainer}>
+              <input
+                type="text"
+                placeholder="Search sales..."
+                style={styles.searchInput}
+              />
+              <button style={styles.reminderButton}>
+                <span>📝</span> Bulk Reminder
+              </button>
+            </div>
+            <div style={styles.filterContainer}>
+              <select style={styles.dropdown}>
+                <option value="">Filter by Status</option>
+                <option value="paid">Paid</option>
+                <option value="pending">Pending</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+              <select style={styles.dropdown}>
+                <option value="">Sort by Date</option>
+                <option value="newest">Newest First</option>
+                <option value="oldest">Oldest First</option>
+              </select>
+            </div>
+            <div style={styles.infoCard}>
+              <div style={styles.infoSection}>
+                <div style={styles.infoTitle}>Total Sales</div>
+                <div style={styles.infoValue}>₹1,23,456</div>
+                <button style={styles.viewReportButton}>View Report</button>
+              </div>
+              <div style={styles.infoSection}>
+                <div style={styles.infoTitle}>Pending Amount</div>
+                <div style={styles.infoValue}>₹45,678</div>
+                <button style={styles.viewReportButton}>View Details</button>
+              </div>
+              <div style={styles.infoSection}>
+                <div style={styles.infoTitle}>Total Bills</div>
+                <div style={styles.infoValue}>234</div>
+                <button style={styles.viewReportButton}>View All</button>
+              </div>
+            </div>
+            <div style={styles.actionButtons}>
+              <button style={styles.returnButton}>Return Item</button>
+              <button style={styles.addBillButton} onClick={handleAddBill}>
+                Add New Bill
+              </button>
+            </div>
           </div>
-          <div style={styles.infoSection}>
-            <div style={styles.infoTitle}>Pending Amount</div>
-            <div style={styles.infoValue}>₹45,678</div>
-            <button style={styles.viewReportButton}>View Details</button>
-          </div>
-          <div style={styles.infoSection}>
-            <div style={styles.infoTitle}>Total Bills</div>
-            <div style={styles.infoValue}>234</div>
-            <button style={styles.viewReportButton}>View All</button>
-          </div>
-        </div>
-        <div style={styles.actionButtons}>
-          <button style={styles.returnButton}>Return Item</button>
-          <button style={styles.addBillButton} onClick={handleAddBill}>
-            Add New Bill
-          </button>
         </div>
       </div>
     </div>

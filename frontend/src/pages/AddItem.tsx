@@ -1,23 +1,46 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
+interface Category {
+  id: number;
+  name: string;
+}
+
 export const AddItem = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    itemName: '',
+    name: '',
     primaryUnit: '',
     secondaryUnit: '',
     isSecondaryUnitEnabled: false,
-    category: '',
+    categoryId: '',
     salesPrice: '',
     purchasePrice: '',
-    isTaxIncluded: false,
+    taxIncluded: false,
     openingStock: '',
     lowStockAlert: '',
     vatPercentage: '',
-    asOfDate: new Date().toISOString().split('T')[0],
-    isVatEditable: false,
+    vatPercentageToday: '',
+    imageUrl: '',
   });
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/Category');
+        const data = await response.json();
+        setCategories(data);
+      } catch (err) {
+        setError('Failed to fetch categories');
+        console.error('Error fetching categories:', err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -27,25 +50,54 @@ export const AddItem = () => {
     }));
   };
 
-  const toggleSecondaryUnit = () => {
-    setFormData(prev => ({
-      ...prev,
-      isSecondaryUnitEnabled: !prev.isSecondaryUnitEnabled
-    }));
-  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-  const toggleTaxIncluded = () => {
-    setFormData(prev => ({
-      ...prev,
-      isTaxIncluded: !prev.isTaxIncluded
-    }));
-  };
+    try {
+      const response = await fetch('/api/Item', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+        ...formData,
+        categoryId: parseInt(formData.categoryId),
+        salesPrice: parseFloat(formData.salesPrice),
+        purchasePrice: parseFloat(formData.purchasePrice),
+        openingStock: parseFloat(formData.openingStock),
+        lowStockAlert: parseFloat(formData.lowStockAlert),
+        vatPercentage: parseFloat(formData.vatPercentage),
+        vatPercentageToday: parseFloat(formData.vatPercentage),
+      }),
+    });
 
-  const toggleVatEditable = () => {
-    setFormData(prev => ({
-      ...prev,
-      isVatEditable: !prev.isVatEditable
-    }));
+      if (response.status === 200 || response.status === 201) {
+        // Reset form after successful submission
+        setFormData({
+          name: '',
+          primaryUnit: '',
+          secondaryUnit: '',
+          isSecondaryUnitEnabled: false,
+          categoryId: '',
+          salesPrice: '',
+          purchasePrice: '',
+          taxIncluded: false,
+          openingStock: '',
+          lowStockAlert: '',
+          vatPercentage: '',
+          vatPercentageToday: '',
+          imageUrl: '',
+        });
+        alert('Item created successfully!');
+      }
+    } catch (err) {
+      setError('Failed to create item');
+      console.error('Error creating item:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -188,7 +240,7 @@ export const AddItem = () => {
     taxSlideButton: {
       width: '60px',
       height: '30px',
-      background: formData.isTaxIncluded ? '#28a745' : '#6c757d',
+      background: formData.taxIncluded ? '#28a745' : '#6c757d',
       borderRadius: '15px',
       position: 'relative' as const,
       cursor: 'pointer',
@@ -200,13 +252,13 @@ export const AddItem = () => {
       borderRadius: '50%',
       position: 'absolute' as const,
       top: '2px',
-      left: formData.isTaxIncluded ? '32px' : '2px',
+      left: formData.taxIncluded ? '32px' : '2px',
       transition: 'transform 0.3s ease',
     },
     vatSlideButton: {
       width: '60px',
       height: '30px',
-      background: formData.isVatEditable ? '#28a745' : '#6c757d',
+      background: formData.vatPercentage ? '#28a745' : '#6c757d',
       borderRadius: '15px',
       position: 'relative' as const,
       cursor: 'pointer',
@@ -218,7 +270,7 @@ export const AddItem = () => {
       borderRadius: '50%',
       position: 'absolute' as const,
       top: '2px',
-      left: formData.isVatEditable ? '32px' : '2px',
+      left: formData.vatPercentage ? '32px' : '2px',
       transition: 'transform 0.3s ease',
     },
     priceContainer: {
@@ -282,191 +334,210 @@ export const AddItem = () => {
       <Sidebar />
       <div style={{ 
         flex: 1, 
-          paddingTop: '60px',
+        paddingTop: '60px',
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>
         <Navbar />
         <div style={styles.container}>
-          <div style={styles.card}>
-            <div style={styles.photoSection}>
-              <div style={styles.photoPlaceholder}>
-                <div style={styles.photoIcon}>📷</div>
-                <div>Add Item Photo</div>
+          <form onSubmit={handleSubmit}>
+            <div style={styles.card}>
+              <div style={styles.photoSection}>
+                <div style={styles.photoPlaceholder}>
+                  <div style={styles.photoIcon}>📷</div>
+                  <div>Add Item Photo</div>
+                </div>
               </div>
-            </div>
-            <div style={styles.formSection}>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Item Name</label>
-                <input
-                  type="text"
-                  name="itemName"
-                  value={formData.itemName}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Enter item name"
-                />
-              </div>
-              <div style={styles.unitsContainer}>
-                <div style={styles.primaryUnitContainer}>
-                  <label style={styles.label}>Primary Unit</label>
+              <div style={styles.formSection}>
+                <div style={styles.formGroup}>
+                  <label style={styles.label}>Item Name</label>
                   <input
                     type="text"
-                    name="primaryUnit"
-                    value={formData.primaryUnit}
-                    onChange={handleInputChange}
-                    style={styles.unitInput}
-                    placeholder="e.g., kg"
-                  />
-                </div>
-                <div style={styles.secondaryUnitContainer}>
-                  <div style={{ flex: 1 }}>
-                    <label style={styles.label}>Secondary Unit</label>
-                    <select
-                      name="secondaryUnit"
-                      value={formData.secondaryUnit}
-                      onChange={handleInputChange}
-                      style={styles.select}
-                      disabled={!formData.isSecondaryUnitEnabled}
-                    >
-                      <option value="">Select unit</option>
-                      <option value="g">g</option>
-                      <option value="mg">mg</option>
-                      <option value="ml">ml</option>
-                      <option value="l">l</option>
-                      <option value="piece">piece</option>
-                      <option value="dozen">dozen</option>
-                    </select>
-                  </div>
-                  <div 
-                    style={styles.secondaryUnitSlideButton}
-                    onClick={toggleSecondaryUnit}
-                  >
-                    <div style={styles.secondaryUnitSlideCircle} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div style={styles.section}>
-            <h2 style={styles.sectionTitle}>Select Items Category</h2>
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Category</label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleInputChange}
-                style={styles.select}
-              >
-                <option value="">Select category</option>
-                <option value="food">Food</option>
-                <option value="beverages">Beverages</option>
-                <option value="electronics">Electronics</option>
-                <option value="clothing">Clothing</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div style={styles.priceContainer}>
-              <div style={styles.priceField}>
-                <label style={styles.label}>Sales Price</label>
-                <input
-                  type="number"
-                  name="salesPrice"
-                  value={formData.salesPrice}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Enter sales price"
-                />
-              </div>
-              <div style={styles.priceField}>
-                <label style={styles.label}>Purchase Price</label>
-                <input
-                  type="number"
-                  name="purchasePrice"
-                  value={formData.purchasePrice}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Enter purchase price"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div style={styles.section}>
-            <div style={styles.taxContainer}>
-              <h2 style={styles.taxLabel}>Tax Included</h2>
-              <div 
-                style={styles.taxSlideButton}
-                onClick={toggleTaxIncluded}
-              >
-                <div style={styles.taxSlideCircle} />
-              </div>
-            </div>
-            <div style={styles.stockContainer}>
-              <div style={styles.stockField}>
-                <label style={styles.label}>Opening Stock</label>
-                <input
-                  type="number"
-                  name="openingStock"
-                  value={formData.openingStock}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Enter count"
-                />
-              </div>
-              <div style={styles.stockField}>
-                <label style={styles.label}>Low Stock Alert</label>
-                <input
-                  type="number"
-                  name="lowStockAlert"
-                  value={formData.lowStockAlert}
-                  onChange={handleInputChange}
-                  style={styles.input}
-                  placeholder="Enter count"
-                />
-              </div>
-            </div>
-          </div>
-
-          <div style={styles.section}>
-            <div style={styles.vatContainer}>
-              <div style={styles.vatField}>
-                <div style={{ flex: 1 }}>
-                  <label style={styles.vatLabel}>Add tax and VAT details</label>
-                  <input
-                    type="number"
-                    name="vatPercentage"
-                    value={formData.vatPercentage}
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
                     style={styles.input}
-                    placeholder="VAT %"
-                    disabled={!formData.isVatEditable}
+                    placeholder="Enter item name"
+                    required
                   />
                 </div>
-                <div 
-                  style={styles.vatSlideButton}
-                  onClick={toggleVatEditable}
-                >
-                  <div style={styles.vatSlideCircle} />
+                <div style={styles.unitsContainer}>
+                  <div style={styles.primaryUnitContainer}>
+                    <label style={styles.label}>Primary Unit</label>
+                    <input
+                      type="text"
+                      name="primaryUnit"
+                      value={formData.primaryUnit}
+                      onChange={handleInputChange}
+                      style={styles.unitInput}
+                      placeholder="e.g., kg"
+                      required
+                    />
+                  </div>
+                  <div style={styles.secondaryUnitContainer}>
+                    <div style={{ flex: 1 }}>
+                      <label style={styles.label}>Secondary Unit</label>
+                      <select
+                        name="secondaryUnit"
+                        value={formData.secondaryUnit}
+                        onChange={handleInputChange}
+                        style={styles.select}
+                        disabled={!formData.isSecondaryUnitEnabled}
+                      >
+                        <option value="">Select unit</option>
+                        <option value="g">g</option>
+                        <option value="mg">mg</option>
+                        <option value="ml">ml</option>
+                        <option value="l">l</option>
+                        <option value="piece">piece</option>
+                        <option value="dozen">dozen</option>
+                      </select>
+                    </div>
+                    <div 
+                      style={styles.secondaryUnitSlideButton}
+                      onClick={() => setFormData(prev => ({ ...prev, isSecondaryUnitEnabled: !prev.isSecondaryUnitEnabled }))}
+                    >
+                      <div style={styles.secondaryUnitSlideCircle} />
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div style={{ flex: 1 }}>
-                <label style={styles.vatLabel}>As of date today</label>
-                <input
-                  type="date"
-                  name="asOfDate"
-                  value={formData.asOfDate}
+            </div>
+
+            <div style={styles.section}>
+              <h2 style={styles.sectionTitle}>Select Items Category</h2>
+              <div style={styles.formGroup}>
+                <label style={styles.label}>Category</label>
+                <select
+                  name="categoryId"
+                  value={formData.categoryId}
                   onChange={handleInputChange}
-                  style={styles.input}
-                />
+                  style={styles.select}
+                  required
+                >
+                  <option value="">Select category</option>
+                  {categories.map(category => (
+                    <option key={category.id} value={category.id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div style={styles.priceContainer}>
+                <div style={styles.priceField}>
+                  <label style={styles.label}>Sales Price</label>
+                  <input
+                    type="number"
+                    name="salesPrice"
+                    value={formData.salesPrice}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    placeholder="Enter sales price"
+                    required
+                    step="0.01"
+                  />
+                </div>
+                <div style={styles.priceField}>
+                  <label style={styles.label}>Purchase Price</label>
+                  <input
+                    type="number"
+                    name="purchasePrice"
+                    value={formData.purchasePrice}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    placeholder="Enter purchase price"
+                    required
+                    step="0.01"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          <button style={styles.saveButton}>
-            Save Items
-          </button>
+            <div style={styles.section}>
+              <div style={styles.taxContainer}>
+                <h2 style={styles.taxLabel}>Tax Included</h2>
+                <div 
+                  style={styles.taxSlideButton}
+                  onClick={() => setFormData(prev => ({ ...prev, taxIncluded: !prev.taxIncluded }))}
+                >
+                  <div style={styles.taxSlideCircle} />
+                </div>
+              </div>
+              <div style={styles.stockContainer}>
+                <div style={styles.stockField}>
+                  <label style={styles.label}>Opening Stock</label>
+                  <input
+                    type="number"
+                    name="openingStock"
+                    value={formData.openingStock}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    placeholder="Enter count"
+                    required
+                    step="0.01"
+                  />
+                </div>
+                <div style={styles.stockField}>
+                  <label style={styles.label}>Low Stock Alert</label>
+                  <input
+                    type="number"
+                    name="lowStockAlert"
+                    value={formData.lowStockAlert}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    placeholder="Enter count"
+                    required
+                    step="0.01"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div style={styles.section}>
+              <div style={styles.vatContainer}>
+                <div style={styles.vatField}>
+                  <div style={{ flex: 1 }}>
+                    <label style={styles.vatLabel}>VAT Percentage</label>
+                    <input
+                      type="number"
+                      name="vatPercentage"
+                      value={formData.vatPercentage}
+                      onChange={handleInputChange}
+                      style={styles.input}
+                      placeholder="VAT %"
+                      required
+                      step="0.01"
+                    />
+                  </div>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={styles.vatLabel}>Image URL</label>
+                  <input
+                    type="text"
+                    name="imageUrl"
+                    value={formData.imageUrl}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    placeholder="Enter image URL"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {error && (
+              <div style={{ color: 'red', marginBottom: '1rem' }}>
+                {error}
+              </div>
+            )}
+
+            <button 
+              type="submit" 
+              style={styles.saveButton}
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save Item'}
+            </button>
+          </form>
         </div>
       </div>
     </div>

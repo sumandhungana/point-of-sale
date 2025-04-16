@@ -35,10 +35,37 @@ export const AddService = () => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission
-    console.log(formData);
+    
+    try {
+      const response = await fetch('/api/Service', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          serviceName: formData.serviceName,
+          price: parseFloat(formData.price),
+          taxIncluded: formData.taxIncluded,
+          taxIncludedAmount: parseFloat(formData.taxIncludedAmount),
+          tax: parseFloat(formData.tax),
+          vat: formData.vat,
+          imagePath: '' // You can add image path handling here if needed
+        })
+      });
+
+      if (response.ok) {
+        alert('Service created successfully!');
+        navigate('/service');
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to create service: ${errorData.message || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Error creating service:', error);
+      alert('An error occurred while creating the service');
+    }
   };
 
   const styles = {

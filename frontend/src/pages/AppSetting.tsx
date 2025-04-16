@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
 export const AppSetting = () => {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [settingsId, setSettingsId] = useState<number | null>(null);
   const [formData, setFormData] = useState({
     // Side menu style
     sideMenuBgColor: '#343a40',
@@ -30,6 +33,29 @@ export const AppSetting = () => {
     language: 'English',
   });
 
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/AppSettings');
+        if (response.ok) {
+          const data = await response.json();
+          if (data && data.length > 0) {
+            const firstSetting = data[0];
+            setSettingsId(firstSetting.id);
+            setFormData(prev => ({
+              ...prev,
+              ...firstSetting
+            }));
+          }
+        }
+      } catch (err) {
+        console.error('Error fetching settings:', err);
+      }
+    };
+
+    fetchSettings();
+  }, []);
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -38,10 +64,43 @@ export const AppSetting = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Here you would typically send the data to your backend
+    setLoading(true);
+    setError(null);
+
+    try {
+      const url = settingsId 
+        ? `/api/AppSettings/${settingsId}`
+        : '/api/AppSettings';
+      
+      const method = settingsId ? 'PUT' : 'POST';
+      const body = settingsId 
+        ? { ...formData, id: settingsId }
+        : formData;
+
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        alert('Settings saved successfully!');
+        if (!settingsId) {
+          const data = await response.json();
+          setSettingsId(data.id);
+        }
+      } else {
+        throw new Error('Failed to save settings');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred while saving settings');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -519,10 +578,20 @@ export const AppSetting = () => {
 
             {/* Save Button */}
             <div style={styles.buttonContainer}>
-              <button type="submit" style={styles.saveButton}>
-                💾 Save
+              <button 
+                type="submit" 
+                style={styles.saveButton}
+                disabled={loading}
+              >
+                {loading ? 'Saving...' : '💾 Save'}
               </button>
             </div>
+
+            {error && (
+              <div style={{ color: 'red', marginTop: '1rem', textAlign: 'center' }}>
+                {error}
+              </div>
+            )}
           </form>
         </div>
       </div>

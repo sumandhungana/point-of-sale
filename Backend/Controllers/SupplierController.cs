@@ -45,7 +45,8 @@ public class SupplierController : ControllerBase
     {
         supplier.CreatedAt = DateTime.UtcNow;
         supplier.UpdatedAt = DateTime.UtcNow;
-        
+
+
         _context.Suppliers.Add(supplier);
         
         try

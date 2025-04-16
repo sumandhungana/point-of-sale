@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
+using Backend.Data.Seeders;
 
 namespace Backend.Data;
 
@@ -52,7 +53,8 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
+
+        PermissionSeeder.Seed(modelBuilder);
         // Configure User model
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Username)

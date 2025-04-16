@@ -1,11 +1,35 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import { useNavigate } from 'react-router-dom';
 
 export const AddStaff: React.FC = () => {
+  const navigate = useNavigate();
   const [isSlideOn, setIsSlideOn] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth());
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    address: '',
+    phone: '',
+    email: '',
+    remarks: '',
+    profileImageUrl: '',
+  });
+
+  const [salaryData, setSalaryData] = useState({
+    month: new Date().getMonth(),
+    year: new Date().getFullYear(),
+    selectedDate: new Date().toISOString(),
+    isSlideOn: false,
+    calculationDate: new Date().toISOString(),
+    salaryType: 'monthly',
+    amount: '',
+    permission: 'full',
+  });
 
   const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -24,6 +48,75 @@ export const AddStaff: React.FC = () => {
 
   const daysInMonth = getDaysInMonth(currentYear, currentMonth);
   const firstDayOfMonth = getFirstDayOfMonth(currentYear, currentMonth);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSalaryInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setSalaryData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    try {
+      // First API call to create staff
+      const staffResponse = await fetch('/api/Staff', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!staffResponse.ok) {
+        throw new Error('Failed to create staff');
+      }
+
+      const staffData = await staffResponse.json();
+      const staffId = staffData.id;
+
+      // Second API call to create staff salary
+      const salaryResponse = await fetch('/api/StaffSalary', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...salaryData,
+          staffId,
+          month: currentMonth,
+          year: currentYear,
+          selectedDate: selectedDate?.toISOString() || new Date().toISOString(),
+          isSlideOn,
+          calculationDate: new Date().toISOString(),
+        }),
+      });
+
+      if (!salaryResponse.ok) {
+        throw new Error('Failed to create salary record');
+      }
+
+      // Navigate to staff list or show success message
+      alert('Staff and salary record created successfully!');
+      navigate('/staff');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const styles = {
     container: {
@@ -270,9 +363,8 @@ export const AddStaff: React.FC = () => {
     <div style={styles.container}>
       <Sidebar />
       <div style={styles.main}>
-      
         <div style={styles.card}>
-          <form style={styles.form}>
+          <form style={styles.form} onSubmit={handleSubmit}>
             <div style={styles.sections}>
               {/* First Section - Image */}
               <div style={styles.section}>
@@ -283,11 +375,24 @@ export const AddStaff: React.FC = () => {
               <div style={styles.section}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Staff Name</label>
-                  <input type="text" style={styles.input} />
+                  <input 
+                    type="text" 
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    style={styles.input} 
+                    required
+                  />
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Address</label>
-                  <input type="text" style={styles.input} />
+                  <input 
+                    type="text" 
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    style={styles.input} 
+                  />
                 </div>
               </div>
 
@@ -295,11 +400,23 @@ export const AddStaff: React.FC = () => {
               <div style={styles.section}>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Phone Number</label>
-                  <input type="tel" style={styles.input} />
+                  <input 
+                    type="tel" 
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    style={styles.input} 
+                  />
                 </div>
                 <div style={styles.formGroup}>
                   <label style={styles.label}>Email</label>
-                  <input type="email" style={styles.input} />
+                  <input 
+                    type="email" 
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    style={styles.input} 
+                  />
                 </div>
               </div>
             </div>
@@ -307,9 +424,13 @@ export const AddStaff: React.FC = () => {
             {/* Remarks Section */}
             <div style={styles.formGroup}>
               <label style={styles.label}>Remarks</label>
-              <textarea style={styles.textarea} />
+              <textarea 
+                name="remarks"
+                value={formData.remarks}
+                onChange={handleInputChange}
+                style={styles.textarea} 
+              />
             </div>
-        
           </form>
         </div>
 
@@ -386,12 +507,22 @@ export const AddStaff: React.FC = () => {
             <div style={styles.salaryFields}>
               <div style={styles.fieldGroup}>
                 <label style={styles.fieldLabel}>Salary Calculation Date</label>
-                <input type="date" style={styles.fieldInput} />
+                <input 
+                  type="date" 
+                  name="calculationDate"
+                  value={salaryData.calculationDate.split('T')[0]}
+                  onChange={handleSalaryInputChange}
+                  style={styles.fieldInput} 
+                />
               </div>
               <div style={styles.fieldGroup}>
                 <label style={styles.fieldLabel}>Salary Type</label>
-                <select style={styles.select}>
-                  <option value="">Select Type</option>
+                <select 
+                  name="salaryType"
+                  value={salaryData.salaryType}
+                  onChange={handleSalaryInputChange}
+                  style={styles.select}
+                >
                   <option value="monthly">Monthly</option>
                   <option value="weekly">Weekly</option>
                   <option value="daily">Daily</option>
@@ -399,12 +530,24 @@ export const AddStaff: React.FC = () => {
               </div>
               <div style={styles.fieldGroup}>
                 <label style={styles.fieldLabel}>Salary Amount</label>
-                <input type="number" style={styles.fieldInput} placeholder="Enter amount" />
+                <input 
+                  type="number" 
+                  name="amount"
+                  value={salaryData.amount}
+                  onChange={handleSalaryInputChange}
+                  style={styles.fieldInput} 
+                  placeholder="Enter amount" 
+                  required
+                />
               </div>
               <div style={styles.fieldGroup}>
                 <label style={styles.fieldLabel}>Permission</label>
-                <select style={styles.select}>
-                  <option value="">Select Permission</option>
+                <select 
+                  name="permission"
+                  value={salaryData.permission}
+                  onChange={handleSalaryInputChange}
+                  style={styles.select}
+                >
                   <option value="full">Full Access</option>
                   <option value="limited">Limited Access</option>
                   <option value="restricted">Restricted Access</option>
@@ -412,7 +555,19 @@ export const AddStaff: React.FC = () => {
               </div>
             </div>
           </div>
-          <button style={styles.saveButton}>Save</button>
+          {error && (
+            <div style={{ color: 'red', marginBottom: '1rem' }}>
+              {error}
+            </div>
+          )}
+          <button 
+            type="submit" 
+            style={styles.saveButton}
+            disabled={loading}
+            onClick={handleSubmit}
+          >
+            {loading ? 'Saving...' : 'Save'}
+          </button>
         </div>
       </div>
     </div>

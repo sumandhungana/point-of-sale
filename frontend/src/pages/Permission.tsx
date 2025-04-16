@@ -1,9 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
+interface Permission {
+  id: number;
+  module: string;
+  permissionName: string;
+}
+
+interface Role {
+  id: number;
+  name: string;
+  status: string;
+  description: string;
+}
+
 export const Permission = () => {
   const [selectedRole, setSelectedRole] = useState('');
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const [rolesResponse, permissionsResponse] = await Promise.all([
+          fetch('/api/Role'),
+          fetch('/api/Permission')
+        ]);
+
+        if (!rolesResponse.ok || !permissionsResponse.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const rolesData = await rolesResponse.json();
+        const permissionsData = await permissionsResponse.json();
+
+        setRoles(rolesData);
+        setPermissions(permissionsData);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  // Group permissions by module
+  const groupedPermissions = permissions.reduce((acc, permission) => {
+    if (!acc[permission.module]) {
+      acc[permission.module] = [];
+    }
+    acc[permission.module].push(permission);
+    return acc;
+  }, {} as Record<string, Permission[]>);
 
   const styles = {
     container: {
@@ -61,67 +116,17 @@ export const Permission = () => {
       fontSize: '0.9rem',
       color: '#495057',
     },
+    errorMessage: {
+      color: 'red',
+      textAlign: 'center' as const,
+      marginBottom: '1rem',
+    },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      marginBottom: '1rem',
+      color: '#495057',
+    },
   };
-
-  const permissionCards = [
-    {
-      title: 'Organization',
-      permissions: [
-        'view organization info', 'update organization info', 'view search',
-        'view an branch', 'create branch', 'update branch', 'delete branch'
-      ]
-    },
-    {
-      title: 'Reseller',
-      permissions: [
-        'view reseller', 'add reseller', 'edit reseller', 'update reseller', 'delete reseller'
-      ]
-    },
-    {
-      title: 'User',
-      permissions: [
-        'view user', 'add user', 'edit user', 'update user', 'reset user password'
-      ]
-    },
-    {
-      title: 'Report',
-      permissions: ['view report', 'view all report']
-    },
-    {
-      title: 'Staff',
-      permissions: [
-        'view entry', 'add entry', 'edit entry', 'delete entry', 'Update entry'
-      ]
-    },
-    {
-      title: 'Notification',
-      permissions: ['view notification', 'delete notification']
-    },
-    {
-      title: 'Customer',
-      permissions: [
-        'view Customer', 'create Customer', 'edit Customer', 'update Customer', 'delete Customer'
-      ]
-    },
-    {
-      title: 'Suppliers',
-      permissions: [
-        'view Supplier', 'create Supplier', 'edit Supplier', 'update Supplier', 'delete Supplier'
-      ]
-    },
-    {
-      title: 'Bill',
-      permissions: [
-        'view bill', 'add bill', 'edit bill', 'update bill', 'delete bill'
-      ]
-    },
-    {
-      title: 'Inventory',
-      permissions: [
-        'view inventory', 'add inventory', 'edit inventory', 'update inventory', 'delete inventory'
-      ]
-    },
-  ];
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -140,28 +145,35 @@ export const Permission = () => {
               style={styles.select}
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
+              disabled={loading}
             >
               <option value="">Select Role</option>
-              <option value="admin">Admin</option>
-              <option value="manager">Manager</option>
-              <option value="staff">Staff</option>
+              {roles.map((role) => (
+                <option key={role.id} value={role.id}>
+                  {role.name}
+                </option>
+              ))}
             </select>
           </div>
+
+          {loading && <div style={styles.loadingMessage}>Loading data...</div>}
+          {error && <div style={styles.errorMessage}>{error}</div>}
 
           <h2 style={styles.sectionHeader}>Permission Role</h2>
 
           <div style={styles.cardGrid}>
-            {permissionCards.map((card, index) => (
-              <div key={index} style={styles.card}>
-                <h3 style={styles.cardHeader}>{card.title}</h3>
+            {Object.entries(groupedPermissions).map(([module, modulePermissions]) => (
+              <div key={module} style={styles.card}>
+                <h3 style={styles.cardHeader}>{module}</h3>
                 <div style={styles.checkboxGroup}>
-                  {card.permissions.map((permission, pIndex) => (
-                    <label key={pIndex} style={styles.checkboxLabel}>
+                  {modulePermissions.map((permission) => (
+                    <label key={permission.id} style={styles.checkboxLabel}>
                       <input
                         type="checkbox"
-                        name={`${card.title.toLowerCase()}-${permission}`}
+                        name={`${module}-${permission.permissionName}`}
+                        disabled={!selectedRole}
                       />
-                      {permission}
+                      {permission.permissionName}
                     </label>
                   ))}
                 </div>

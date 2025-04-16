@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 export const AddRole = () => {
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    roleName: '',
+    name: '',
     status: 'active',
     description: '',
   });
@@ -17,9 +21,32 @@ export const AddRole = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/Role', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert('Role created successfully!');
+        navigate('/role');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create role');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -117,8 +144,8 @@ export const AddRole = () => {
                   <label style={styles.label}>Role Name</label>
                   <input
                     type="text"
-                    name="roleName"
-                    value={formData.roleName}
+                    name="name"
+                    value={formData.name}
                     onChange={handleInputChange}
                     style={styles.input}
                     required
@@ -135,6 +162,7 @@ export const AddRole = () => {
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
+                    <option value="manage_staff">Manage Staff</option>
                   </select>
                 </div>
               </div>
@@ -150,9 +178,19 @@ export const AddRole = () => {
                 />
               </div>
 
+              {error && (
+                <div style={{ color: 'red', marginBottom: '1rem' }}>
+                  {error}
+                </div>
+              )}
+
               <div style={styles.buttonGroup}>
-                <button type="submit" style={styles.saveButton}>
-                  Save
+                <button 
+                  type="submit" 
+                  style={styles.saveButton}
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>

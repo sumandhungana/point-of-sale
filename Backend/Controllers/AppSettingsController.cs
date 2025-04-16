@@ -88,8 +88,8 @@ public class AppSettingsController : ControllerBase
                 throw;
             }
         }
+        return CreatedAtAction(nameof(GetAppSettings), new { id = appSettings.Id }, appSettings);
 
-        return NoContent();
     }
 
     // DELETE: api/AppSettings/5

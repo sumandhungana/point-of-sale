@@ -1,15 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { useNavigate } from 'react-router-dom';
 
 export const AddPaymentGateway = () => {
+  const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     paymentMode: '',
     description: '',
     isActive: false,
+    imagePath: '',
     verificationUrl: '',
     publicKey: '',
     secretKey: '',
@@ -30,14 +35,41 @@ export const AddPaymentGateway = () => {
       const reader = new FileReader();
       reader.onloadend = () => {
         setSelectedImage(reader.result as string);
+        setFormData(prev => ({
+          ...prev,
+          imagePath: file.name
+        }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch('/api/PaymentGateway', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.status === 200 || response.status === 201) {
+        alert('Payment Gateway created successfully!');
+        navigate('/payment-gateway');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create Payment Gateway');
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -173,6 +205,7 @@ export const AddPaymentGateway = () => {
                     required
                   >
                     <option value="">Select Payment Mode</option>
+                    <option value="cash">Cash</option>
                     <option value="credit_card">Credit Card</option>
                     <option value="debit_card">Debit Card</option>
                     <option value="upi">UPI</option>
@@ -224,6 +257,7 @@ export const AddPaymentGateway = () => {
                   placeholder="Click to upload file"
                   style={styles.input}
                   readOnly
+                  value={formData.imagePath}
                 />
               </div>
 
@@ -265,9 +299,19 @@ export const AddPaymentGateway = () => {
                 />
               </div>
 
+              {error && (
+                <div style={{ color: 'red', marginBottom: '1rem' }}>
+                  {error}
+                </div>
+              )}
+
               <div style={styles.buttonGroup}>
-                <button type="submit" style={styles.saveButton}>
-                  Save
+                <button 
+                  type="submit" 
+                  style={styles.saveButton}
+                  disabled={loading}
+                >
+                  {loading ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>

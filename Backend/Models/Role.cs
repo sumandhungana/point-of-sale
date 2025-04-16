@@ -12,7 +12,15 @@ public class Role
     [Required]
     [StringLength(50)]
     public string Name { get; set; } = null!;
-    
+
+    [Required]
+    public string Status { get; set; } = null!;
+
+    [Required]
+    [StringLength(255)]
+    public string Description { get; set; } = null!;
+
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
