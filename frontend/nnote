@@ -23,3 +23,5 @@ space and button fixed http://localhost:3000/parties/customers/statements/2
 
 show items
 http://localhost:3000/bills/sales
+
+rental item name search autocomplete

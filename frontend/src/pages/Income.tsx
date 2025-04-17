@@ -3,25 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
-interface SalesBill {
+interface Income {
   id: number;
-  billNumber: string;
-  billDate: string;
+  incomeNo: string;
+  date: string;
   amount: number;
   paymentMode: string;
   remarks: string | null;
   photoPath: string | null;
-  customer: {
+  category: {
     name: string;
-    email?: string;
-    phone?: string;
-    address?: string;
+  };
+  item: {
+    name: string;
+    imageUrl: string | null;
   };
 }
 
-export const Sales = () => {
+export const Income = () => {
   const navigate = useNavigate();
-  const [salesBills, setSalesBills] = useState<SalesBill[]>([]);
+  const [incomes, setIncomes] = useState<Income[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,41 +30,23 @@ export const Sales = () => {
   const [dateSort, setDateSort] = useState('');
 
   useEffect(() => {
-    fetchSalesBills();
+    fetchIncomes();
   }, []);
 
-  const fetchSalesBills = async () => {
-    setLoading(true);
-    setError(null);
+  const fetchIncomes = async () => {
     try {
-      const response = await fetch('/api/SalesBill');
+      const response = await fetch('/api/Income');
       if (!response.ok) {
-        throw new Error('Failed to fetch sales bills');
+        throw new Error('Failed to fetch incomes');
       }
       const data = await response.json();
-      setSalesBills(data);
+      setIncomes(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }
   };
-
-  const filteredSalesBills = salesBills.filter(bill => {
-    const matchesSearch = 
-      bill.billNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bill.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bill.paymentMode.toLowerCase().includes(searchQuery.toLowerCase());
-
-    return matchesSearch;
-  }).sort((a, b) => {
-    if (dateSort === 'newest') {
-      return new Date(b.billDate).getTime() - new Date(a.billDate).getTime();
-    } else if (dateSort === 'oldest') {
-      return new Date(a.billDate).getTime() - new Date(b.billDate).getTime();
-    }
-    return 0;
-  });
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -77,9 +60,29 @@ export const Sales = () => {
     setDateSort(e.target.value);
   };
 
-  const handleAddBill = () => {
-    navigate('/sales/add');
+  const handleAddIncome = () => {
+    navigate('/bills/income/add');
   };
+
+  const filteredIncomes = incomes
+    .filter(income => {
+      const matchesSearch = 
+        income.incomeNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        income.category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        income.item.name.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesStatus = !statusFilter || income.paymentMode === statusFilter;
+      
+      return matchesSearch && matchesStatus;
+    })
+    .sort((a, b) => {
+      if (dateSort === 'newest') {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      } else if (dateSort === 'oldest') {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      }
+      return 0;
+    });
 
   const styles = {
     container: {
@@ -129,11 +132,6 @@ export const Sales = () => {
       fontSize: '1rem',
       minWidth: '200px',
     },
-    border: {
-      border: '1px solid #dee2e6',
-      marginTop: '1rem',
-      marginBottom: '1rem',
-    },
     infoCard: {
       display: 'flex',
       gap: '1rem',
@@ -167,13 +165,13 @@ export const Sales = () => {
       fontSize: '0.875rem',
       marginTop: '0.5rem',
     },
-    salesList: {
+    incomeList: {
       display: 'flex',
       flexDirection: 'column' as const,
       gap: '1rem',
-      marginTop: '1rem',
+      marginTop: '1.5rem',
     },
-    salesCard: {
+    incomeCard: {
       display: 'flex',
       gap: '1rem',
       padding: '1rem',
@@ -182,7 +180,7 @@ export const Sales = () => {
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       transition: 'transform 0.2s, box-shadow 0.2s',
       cursor: 'pointer',
-      ':hover': {
+      '&:hover': {
         transform: 'translateY(-2px)',
         boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
       },
@@ -218,7 +216,7 @@ export const Sales = () => {
       flexDirection: 'column' as const,
       gap: '0.5rem',
     },
-    billNumber: {
+    incomeNo: {
       fontSize: '1.1rem',
       fontWeight: 'bold',
       color: '#212529',
@@ -231,34 +229,23 @@ export const Sales = () => {
     detailPill: {
       padding: '0.25rem 0.75rem',
       background: '#f8f9fa',
-      borderRadius: '20px',
+      borderRadius: '9999px',
       fontSize: '0.875rem',
       color: '#495057',
     },
     amountContainer: {
       flex: '0 0 120px',
       display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'flex-end',
+      alignItems: 'center',
       justifyContent: 'center',
     },
     amount: {
       fontSize: '1.25rem',
       fontWeight: 'bold',
       color: '#28a745',
-      background: '#f0fff0',
+      background: '#e8f5e9',
       padding: '0.5rem 1rem',
       borderRadius: '4px',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
     },
     actionButtons: {
       display: 'flex',
@@ -275,6 +262,16 @@ export const Sales = () => {
       cursor: 'pointer',
       fontSize: '1rem',
       fontWeight: 'bold',
+    },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#6c757d',
+    },
+    errorMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#dc3545',
     },
   };
 
@@ -293,7 +290,7 @@ export const Sales = () => {
             <div style={styles.searchContainer}>
               <input
                 type="text"
-                placeholder="Search sales bills..."
+                placeholder="Search incomes..."
                 style={styles.searchInput}
                 value={searchQuery}
                 onChange={handleSearchChange}
@@ -311,7 +308,7 @@ export const Sales = () => {
                 <option value="">Filter by Status</option>
                 <option value="paid">Paid</option>
                 <option value="pending">Pending</option>
-                <option value="partial">Partial</option>
+                <option value="cancelled">Cancelled</option>
               </select>
               <select 
                 style={styles.dropdown}
@@ -325,9 +322,9 @@ export const Sales = () => {
             </div>
             <div style={styles.infoCard}>
               <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Sales</div>
+                <div style={styles.infoTitle}>Total Income</div>
                 <div style={styles.infoValue}>
-                  ₹{salesBills.reduce((sum, bill) => sum + bill.amount, 0).toLocaleString()}
+                  ₹{incomes.reduce((sum, income) => sum + income.amount, 0).toLocaleString()}
                 </div>
                 <button style={styles.viewReportButton}>View Report</button>
               </div>
@@ -337,30 +334,31 @@ export const Sales = () => {
                 <button style={styles.viewReportButton}>View Details</button>
               </div>
               <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Bills</div>
-                <div style={styles.infoValue}>{salesBills.length}</div>
+                <div style={styles.infoTitle}>Total Entries</div>
+                <div style={styles.infoValue}>{incomes.length}</div>
                 <button style={styles.viewReportButton}>View All</button>
               </div>
             </div>
             <div style={styles.actionButtons}>
-              <button style={styles.addButton} onClick={handleAddBill}>
-                Add New Bill
+              <button style={styles.addButton} onClick={handleAddIncome}>
+                Add New Income
               </button>
             </div>
           </div>
-            <div style={styles.salesList}>
+        </div>
+            <div style={styles.incomeList}>
               {loading ? (
-                <div style={styles.loadingMessage}>Loading sales bills...</div>
+                <div style={styles.loadingMessage}>Loading incomes...</div>
               ) : error ? (
                 <div style={styles.errorMessage}>{error}</div>
               ) : (
-                filteredSalesBills.map((bill) => (
-                  <div key={bill.id} style={styles.salesCard}>
+                filteredIncomes.map((income) => (
+                  <div key={income.id} style={styles.incomeCard}>
                     <div style={styles.imageContainer}>
-                      {bill.photoPath ? (
+                      {income.photoPath ? (
                         <img 
-                          src={bill.photoPath} 
-                          alt={bill.billNumber}
+                          src={income.photoPath} 
+                          alt={income.incomeNo}
                           style={styles.image}
                         />
                       ) : (
@@ -370,34 +368,36 @@ export const Sales = () => {
                       )}
                     </div>
                     <div style={styles.detailsContainer}>
-                      <div style={styles.billNumber}>{bill.billNumber}</div>
+                      <div style={styles.incomeNo}>{income.incomeNo}</div>
                       <div style={styles.detailsRow}>
                         <span style={styles.detailPill}>
-                          Customer: {bill.customer.name}
+                          Category: {income.category.name}
                         </span>
                         <span style={styles.detailPill}>
-                          Payment: {bill.paymentMode}
+                          Item: {income.item.name}
                         </span>
                         <span style={styles.detailPill}>
-                          Date: {new Date(bill.billDate).toLocaleDateString()}
+                          Payment: {income.paymentMode}
+                        </span>
+                        <span style={styles.detailPill}>
+                          Date: {new Date(income.date).toLocaleDateString()}
                         </span>
                       </div>
-                      {bill.remarks && (
+                      {income.remarks && (
                         <div style={styles.detailPill}>
-                          Remarks: {bill.remarks}
+                          Remarks: {income.remarks}
                         </div>
                       )}
                     </div>
                     <div style={styles.amountContainer}>
                       <div style={styles.amount}>
-                        ₹{bill.amount.toLocaleString()}
+                        ₹{income.amount.toLocaleString()}
                       </div>
                     </div>
                   </div>
                 ))
               )}
             </div>
-        </div>
       </div>
     </div>
   );

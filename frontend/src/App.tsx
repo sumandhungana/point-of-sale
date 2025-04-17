@@ -42,6 +42,15 @@ import { AddUser } from './pages/AddUser';
 import { RentalItem } from './pages/RentalItem';
 import { AddRentalItem } from './pages/AddRentalItem';
 import { AppSetting } from './pages/AppSetting';
+import { Purchase } from './pages/Purchase';
+import { Expenses } from './pages/Expenses';
+import { AddExpenses } from './pages/AddExpenses';
+import { Income } from './pages/Income';
+import { Cashbook } from './pages/Cashbook';
+import { AddPurchase } from './pages/AddPurchase';
+import { AddIncome } from './pages/AddIncome';
+import { AddCashbook } from './pages/AddCashbook';
+import { AddCategory } from './pages/AddCategory';
 
 // Placeholder components for routes
 const Branch = () => <div>Branch Page</div>;
@@ -77,6 +86,78 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/category/add/:pageName"
+            element={
+              <PrivateRoute>
+                <AddCategory />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/income/add"
+            element={
+              <PrivateRoute>
+                <AddIncome />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/cashbook/add"
+            element={
+              <PrivateRoute>
+                <AddCashbook />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/purchase/add"
+            element={
+              <PrivateRoute>
+                <AddPurchase />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/expenses/add"
+            element={
+              <PrivateRoute>
+                <AddExpenses />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/purchase"
+            element={
+              <PrivateRoute>
+                <Purchase />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/income"
+            element={
+              <PrivateRoute>
+                <Income />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/cashbook"
+            element={
+              <PrivateRoute>
+                <Cashbook />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/expenses"
+            element={
+              <PrivateRoute>
+                <Expenses />
               </PrivateRoute>
             }
           />

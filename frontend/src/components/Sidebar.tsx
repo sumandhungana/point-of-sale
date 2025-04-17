@@ -60,7 +60,7 @@ const navItems: NavItem[] = [
           { title: 'Sales', path: '/bills/sales', icon: '💰' },
           { title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
           { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
-          { title: 'Income', path: '/bills/expenses', icon: '💸' },
+          { title: 'Income', path: '/bills/income', icon: '💸' },
           { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
         ],
       },

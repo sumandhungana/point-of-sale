@@ -348,6 +348,68 @@ CREATE TABLE sales_bill_items (
 
 -- done
 
+CREATE TABLE Cashbook (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  cashbook_no VARCHAR(50) NOT NULL UNIQUE,
+  date DATE NOT NULL,
+  category_id INT NOT NULL,
+  item_id INT NOT NULL,
+  payment_mode ENUM('cash', 'card', 'bank_transfer', 'upi') NOT NULL,
+  amount DECIMAL(12, 2) NOT NULL,
+  remarks TEXT,
+  photo_path VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (category_id) REFERENCES Categories(id),
+  FOREIGN KEY (item_id) REFERENCES Items(id)
+);
+CREATE TABLE Income (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  income_no VARCHAR(50) NOT NULL UNIQUE,
+  date DATE NOT NULL,
+  category_id INT NOT NULL,
+  item_id INT NOT NULL,
+  payment_mode ENUM('cash', 'card', 'bank_transfer', 'upi') NOT NULL,
+  amount DECIMAL(12, 2) NOT NULL,
+  remarks TEXT,
+  photo_path VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (category_id) REFERENCES Categories(id),
+  FOREIGN KEY (item_id) REFERENCES Items(id)
+);
+CREATE TABLE Expenses (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  expenses_no VARCHAR(50) NOT NULL UNIQUE,
+  date DATE NOT NULL,
+  category_id INT NOT NULL,
+  item_id INT NOT NULL,
+  payment_mode ENUM('cash', 'card', 'bank_transfer', 'upi') NOT NULL,
+  amount DECIMAL(12, 2) NOT NULL,
+  remarks TEXT,
+  photo_path VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (category_id) REFERENCES Categories(id),
+  FOREIGN KEY (item_id) REFERENCES Items(id)
+);
+
+CREATE TABLE Purchase (
+  id INT PRIMARY KEY AUTO_INCREMENT,
+  purchase_no VARCHAR(50) NOT NULL UNIQUE,
+  date DATE NOT NULL,
+  category_id INT NOT NULL,
+  item_id INT NOT NULL,
+  payment_mode ENUM('cash', 'card', 'bank_transfer', 'upi') NOT NULL,
+  amount DECIMAL(12, 2) NOT NULL,
+  remarks TEXT,
+  photo_path VARCHAR(255),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (category_id) REFERENCES Categories(id),
+  FOREIGN KEY (item_id) REFERENCES Items(id)
+);
+
 
 
 

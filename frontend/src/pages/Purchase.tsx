@@ -3,25 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
-interface SalesBill {
+interface Purchase {
   id: number;
-  billNumber: string;
-  billDate: string;
+  purchaseNo: string;
+  date: string;
   amount: number;
   paymentMode: string;
   remarks: string | null;
   photoPath: string | null;
-  customer: {
+  category: {
     name: string;
-    email?: string;
-    phone?: string;
-    address?: string;
+  };
+  item: {
+    name: string;
+    imageUrl: string | null;
   };
 }
 
-export const Sales = () => {
+export const Purchase = () => {
   const navigate = useNavigate();
-  const [salesBills, setSalesBills] = useState<SalesBill[]>([]);
+  const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -29,19 +30,19 @@ export const Sales = () => {
   const [dateSort, setDateSort] = useState('');
 
   useEffect(() => {
-    fetchSalesBills();
+    fetchPurchases();
   }, []);
 
-  const fetchSalesBills = async () => {
+  const fetchPurchases = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/SalesBill');
+      const response = await fetch('/api/Purchase');
       if (!response.ok) {
-        throw new Error('Failed to fetch sales bills');
+        throw new Error('Failed to fetch purchases');
       }
       const data = await response.json();
-      setSalesBills(data);
+      setPurchases(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -49,18 +50,19 @@ export const Sales = () => {
     }
   };
 
-  const filteredSalesBills = salesBills.filter(bill => {
+  const filteredPurchases = purchases.filter(purchase => {
     const matchesSearch = 
-      bill.billNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bill.customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      bill.paymentMode.toLowerCase().includes(searchQuery.toLowerCase());
+      purchase.purchaseNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      purchase.category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      purchase.item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      purchase.paymentMode.toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchesSearch;
   }).sort((a, b) => {
     if (dateSort === 'newest') {
-      return new Date(b.billDate).getTime() - new Date(a.billDate).getTime();
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
     } else if (dateSort === 'oldest') {
-      return new Date(a.billDate).getTime() - new Date(b.billDate).getTime();
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
     }
     return 0;
   });
@@ -75,10 +77,6 @@ export const Sales = () => {
 
   const handleDateSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setDateSort(e.target.value);
-  };
-
-  const handleAddBill = () => {
-    navigate('/sales/add');
   };
 
   const styles = {
@@ -167,39 +165,22 @@ export const Sales = () => {
       fontSize: '0.875rem',
       marginTop: '0.5rem',
     },
-    salesList: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    salesCard: {
+    detailCard: {
       display: 'flex',
       gap: '1rem',
       padding: '1rem',
       background: 'white',
       borderRadius: '8px',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-      cursor: 'pointer',
-      ':hover': {
-        transform: 'translateY(-2px)',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-      },
+      marginTop: '1rem',
     },
-    imageContainer: {
+    imageSection: {
       flex: '0 0 100px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       background: '#f8f9fa',
       borderRadius: '4px',
-      overflow: 'hidden',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover' as const,
     },
     placeholderImage: {
       width: '80px',
@@ -212,53 +193,28 @@ export const Sales = () => {
       color: '#6c757d',
       fontSize: '0.875rem',
     },
-    detailsContainer: {
-      flex: 1,
+    infoRow: {
       display: 'flex',
-      flexDirection: 'column' as const,
       gap: '0.5rem',
     },
-    billNumber: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
+    infoLabel: {
+      color: '#6c757d',
+      minWidth: '80px',
+    },
+    infoText: {
       color: '#212529',
     },
-    detailsRow: {
-      display: 'flex',
-      flexWrap: 'wrap' as const,
-      gap: '0.5rem',
-    },
-    detailPill: {
-      padding: '0.25rem 0.75rem',
-      background: '#f8f9fa',
-      borderRadius: '20px',
-      fontSize: '0.875rem',
-      color: '#495057',
-    },
-    amountContainer: {
+    amountSection: {
       flex: '0 0 120px',
       display: 'flex',
       flexDirection: 'column' as const,
       alignItems: 'flex-end',
       justifyContent: 'center',
     },
-    amount: {
+    amountValue: {
       fontSize: '1.25rem',
       fontWeight: 'bold',
       color: '#28a745',
-      background: '#f0fff0',
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
     },
     actionButtons: {
       display: 'flex',
@@ -266,7 +222,17 @@ export const Sales = () => {
       gap: '1rem',
       marginTop: '2rem',
     },
-    addButton: {
+    returnButton: {
+      padding: '0.75rem 1.5rem',
+      background: '#dc4c39',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      fontSize: '1rem',
+      fontWeight: 'bold',
+    },
+    addBillButton: {
       padding: '0.75rem 1.5rem',
       background: '#28a745',
       color: 'white',
@@ -276,6 +242,103 @@ export const Sales = () => {
       fontSize: '1rem',
       fontWeight: 'bold',
     },
+    purchaseList: {
+      marginTop: '2rem',
+    },
+    purchaseCard: {
+      background: 'white',
+      borderRadius: '12px',
+      padding: '1.5rem',
+      marginBottom: '1rem',
+      boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1.5rem',
+      transition: 'transform 0.2s ease-in-out',
+      '&:hover': {
+        transform: 'translateY(-2px)',
+      },
+    },
+    imageContainer: {
+      width: '80px',
+      height: '80px',
+      borderRadius: '8px',
+      overflow: 'hidden',
+      flexShrink: 0,
+      background: '#f8f9fa',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    image: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const,
+    },
+    purchaseInfo: {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column' as const,
+      gap: '0.75rem',
+    },
+    purchaseHeader: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+    },
+    purchaseNo: {
+      fontSize: '1.2rem',
+      fontWeight: 'bold',
+      color: '#212529',
+    },
+    purchaseDate: {
+      fontSize: '0.9rem',
+      color: '#6c757d',
+      padding: '0.25rem 0.5rem',
+      background: '#f8f9fa',
+      borderRadius: '4px',
+    },
+    purchaseDetails: {
+      display: 'flex',
+      flexWrap: 'wrap' as const,
+      gap: '1rem',
+      fontSize: '0.9rem',
+      color: '#495057',
+    },
+    detailItem: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      padding: '0.25rem 0.75rem',
+      background: '#f8f9fa',
+      borderRadius: '4px',
+    },
+    detailLabel: {
+      color: '#6c757d',
+      fontWeight: '500',
+    },
+    purchaseAmount: {
+      fontSize: '1.3rem',
+      fontWeight: 'bold',
+      color: '#28a745',
+      padding: '0.5rem 1rem',
+      background: '#e8f5e9',
+      borderRadius: '6px',
+    },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      color: '#495057',
+      marginTop: '2rem',
+    },
+    errorMessage: {
+      color: 'red',
+      textAlign: 'center' as const,
+      marginTop: '2rem',
+    },
+  };
+
+  const handleAddBill = () => {
+    navigate('/bills/purchase/add');
   };
 
   return (
@@ -293,7 +356,7 @@ export const Sales = () => {
             <div style={styles.searchContainer}>
               <input
                 type="text"
-                placeholder="Search sales bills..."
+                placeholder="Search purchases..."
                 style={styles.searchInput}
                 value={searchQuery}
                 onChange={handleSearchChange}
@@ -311,7 +374,7 @@ export const Sales = () => {
                 <option value="">Filter by Status</option>
                 <option value="paid">Paid</option>
                 <option value="pending">Pending</option>
-                <option value="partial">Partial</option>
+                <option value="cancelled">Cancelled</option>
               </select>
               <select 
                 style={styles.dropdown}
@@ -325,78 +388,89 @@ export const Sales = () => {
             </div>
             <div style={styles.infoCard}>
               <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Sales</div>
-                <div style={styles.infoValue}>
-                  ₹{salesBills.reduce((sum, bill) => sum + bill.amount, 0).toLocaleString()}
-                </div>
+                <div style={styles.infoTitle}>Total Purchases</div>
+                <div style={styles.infoValue}>₹1,23,456</div>
                 <button style={styles.viewReportButton}>View Report</button>
               </div>
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>₹0</div>
+                <div style={styles.infoValue}>₹45,678</div>
                 <button style={styles.viewReportButton}>View Details</button>
               </div>
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Total Bills</div>
-                <div style={styles.infoValue}>{salesBills.length}</div>
+                <div style={styles.infoValue}>234</div>
                 <button style={styles.viewReportButton}>View All</button>
               </div>
             </div>
             <div style={styles.actionButtons}>
-              <button style={styles.addButton} onClick={handleAddBill}>
-                Add New Bill
+              <button style={styles.returnButton}>Return Item</button>
+              <button style={styles.addBillButton} onClick={handleAddBill}>
+                Add New Purchase
               </button>
             </div>
           </div>
-            <div style={styles.salesList}>
-              {loading ? (
-                <div style={styles.loadingMessage}>Loading sales bills...</div>
-              ) : error ? (
-                <div style={styles.errorMessage}>{error}</div>
-              ) : (
-                filteredSalesBills.map((bill) => (
-                  <div key={bill.id} style={styles.salesCard}>
-                    <div style={styles.imageContainer}>
-                      {bill.photoPath ? (
-                        <img 
-                          src={bill.photoPath} 
-                          alt={bill.billNumber}
-                          style={styles.image}
-                        />
-                      ) : (
-                        <div style={styles.placeholderImage}>
-                          No Photo
+
+          <div style={styles.purchaseList}>
+            {loading ? (
+              <div style={styles.loadingMessage}>Loading purchases...</div>
+            ) : error ? (
+              <div style={styles.errorMessage}>{error}</div>
+            ) : (
+              filteredPurchases.map((purchase) => (
+                <div key={purchase.id} style={styles.purchaseCard}>
+                  <div style={styles.imageContainer}>
+                    {purchase.photoPath ? (
+                      <img 
+                        src={purchase.photoPath} 
+                        alt={purchase.item.name}
+                        style={styles.image}
+                      />
+                    ) : (
+                      <div style={styles.placeholderImage}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                          <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                      </div>
+                    )}
+                  </div>
+                  <div style={styles.purchaseInfo}>
+                    <div style={styles.purchaseHeader}>
+                      <span style={styles.purchaseNo}>{purchase.purchaseNo}</span>
+                      <span style={styles.purchaseDate}>
+                        {new Date(purchase.date).toLocaleDateString()}
+                      </span>
+                    </div>
+                    <div style={styles.purchaseDetails}>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Category:</span>
+                        {purchase.category.name}
+                      </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Item:</span>
+                        {purchase.item.name}
+                      </div>
+                      <div style={styles.detailItem}>
+                        <span style={styles.detailLabel}>Payment:</span>
+                        {purchase.paymentMode}
+                      </div>
+                      {purchase.remarks && (
+                        <div style={styles.detailItem}>
+                          <span style={styles.detailLabel}>Remarks:</span>
+                          {purchase.remarks}
                         </div>
                       )}
-                    </div>
-                    <div style={styles.detailsContainer}>
-                      <div style={styles.billNumber}>{bill.billNumber}</div>
-                      <div style={styles.detailsRow}>
-                        <span style={styles.detailPill}>
-                          Customer: {bill.customer.name}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Payment: {bill.paymentMode}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Date: {new Date(bill.billDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {bill.remarks && (
-                        <div style={styles.detailPill}>
-                          Remarks: {bill.remarks}
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.amountContainer}>
-                      <div style={styles.amount}>
-                        ₹{bill.amount.toLocaleString()}
-                      </div>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
+                  <div style={styles.purchaseAmount}>
+                    ${purchase.amount.toFixed(2)}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>
