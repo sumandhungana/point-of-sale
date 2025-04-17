@@ -20,9 +20,16 @@ public class RentalItemController : ControllerBase
 
     // GET: api/RentalItem
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<RentalItem>>> GetRentalItems()
+    public async Task<ActionResult<RentalItemResponseDto>> GetRentalItems()
     {
-        return await _context.RentalItems.ToListAsync();
+        var rentalItems = await _context.RentalItems.ToListAsync();
+        var response = new RentalItemResponseDto
+        {
+            RentalItem = rentalItems,
+            youGive = 234,
+            advanceAmount = 435
+        };
+        return response;
     }
 
     // GET: api/RentalItem/5
@@ -113,3 +120,10 @@ public class RentalItemController : ControllerBase
         return _context.RentalItems.Any(e => e.Id == id);
     }
 } 
+
+public class RentalItemResponseDto
+{
+    public List<RentalItem> RentalItem { get; set; } = new();
+    public decimal youGive { get; set; }
+    public decimal advanceAmount { get; set; }
+}

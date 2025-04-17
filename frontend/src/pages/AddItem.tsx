@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
@@ -26,6 +26,9 @@ export const AddItem = () => {
     vatPercentageToday: '',
     imageUrl: '',
   });
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -100,6 +103,37 @@ export const AddItem = () => {
     }
   };
 
+  const handlePhotoClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: file.name
+      }));
+      
+      // Create preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: previewUrl
+      }));
+    }
+  };
+
+  // Clean up the object URL when component unmounts or when a new file is selected
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   const styles = {
     container: {
       width: '100%',
@@ -138,14 +172,23 @@ export const AddItem = () => {
       justifyContent: 'center',
       cursor: 'pointer',
       position: 'relative' as const,
+      overflow: 'hidden',
+      background: imagePreview ? `url(${imagePreview})` : '#f8f9fa',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
     },
     photoPlaceholder: {
       textAlign: 'center' as const,
       color: '#6c757d',
+      zIndex: 1,
+      background: imagePreview ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
+      padding: '1rem',
+      borderRadius: '4px',
     },
     photoIcon: {
       fontSize: '3rem',
       marginBottom: '0.5rem',
+      color: imagePreview ? 'white' : '#6c757d',
     },
     formSection: {
       flex: 1,
@@ -342,10 +385,19 @@ export const AddItem = () => {
         <div style={styles.container}>
           <form onSubmit={handleSubmit}>
             <div style={styles.card}>
-              <div style={styles.photoSection}>
+              <div style={styles.photoSection} onClick={handlePhotoClick}>
+                <input
+                  type="file"
+                  ref={fileInputRef}
+                  style={{ display: 'none' }}
+                  onChange={handleFileChange}
+                  accept="image/*"
+                />
                 <div style={styles.photoPlaceholder}>
                   <div style={styles.photoIcon}>📷</div>
-                  <div>Add Item Photo</div>
+                  <div style={{ color: imagePreview ? 'white' : '#6c757d' }}>
+                    {selectedFile ? selectedFile.name : 'Add Item Photo'}
+                  </div>
                 </div>
               </div>
               <div style={styles.formSection}>

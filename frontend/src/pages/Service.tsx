@@ -1,19 +1,64 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+
+interface Service {
+  id: number;
+  serviceName: string;
+  price: number;
+  taxIncluded: boolean;
+  taxIncludedAmount: number;
+  tax: number | null;
+  vat: number | null;
+  imagePath: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface ServiceResponse {
+  service: Service[];
+  netMonthlySales: number;
+  grossMonthlySales: number;
+  totalItems: number;
+}
 
 export const Service = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
+  const [services, setServices] = useState<Service[]>([]);
+  const [netMonthlySales, setNetMonthlySales] = useState(0);
+  const [grossMonthlySales, setGrossMonthlySales] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const services = [
-    { id: 1, name: 'Haircut', price: '$25.00' },
-    { id: 2, name: 'Manicure', price: '$35.00' },
-    { id: 3, name: 'Massage', price: '$60.00' },
-    { id: 4, name: 'Facial', price: '$45.00' },
-  ];
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const response = await fetch('http://localhost:5120/api/Service');
+        if (!response.ok) {
+          throw new Error('Failed to fetch services');
+        }
+        const data: ServiceResponse = await response.json();
+        setServices(data.service);
+        setNetMonthlySales(data.netMonthlySales);
+        setGrossMonthlySales(data.grossMonthlySales);
+        setTotalItems(data.totalItems);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchServices();
+  }, []);
+
+  const filteredServices = services.filter(service => 
+    service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const styles = {
     container: {
@@ -118,7 +163,8 @@ export const Service = () => {
       flex: 1,
       padding: '1rem',
       display: 'flex',
-      alignItems: 'center',
+      flexDirection: 'column' as const,
+      gap: '0.5rem',
     },
     serviceName: {
       fontSize: '1.1rem',
@@ -129,6 +175,10 @@ export const Service = () => {
       fontSize: '1rem',
       color: '#28a745',
       fontWeight: 'bold',
+    },
+    serviceInfo: {
+      fontSize: '0.9rem',
+      color: '#6c757d',
     },
     addButtonContainer: {
       display: 'flex',
@@ -148,7 +198,53 @@ export const Service = () => {
       alignItems: 'center',
       gap: '0.5rem',
     },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#6c757d',
+    },
+    errorMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#dc3545',
+    },
   };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.loadingMessage}>Loading services...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.errorMessage}>{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -165,11 +261,11 @@ export const Service = () => {
           <div style={styles.salesCard}>
             <div style={styles.salesSection}>
               <div style={styles.salesTitle}>Net Monthly Sales</div>
-              <div style={styles.salesAmount}>$45,678.90</div>
+              <div style={styles.salesAmount}>${netMonthlySales.toFixed(2)}</div>
             </div>
             <div style={styles.salesSection}>
               <div style={styles.salesTitle}>Gross Monthly Sales</div>
-              <div style={styles.salesAmount}>$56,789.00</div>
+              <div style={styles.salesAmount}>${grossMonthlySales.toFixed(2)}</div>
             </div>
           </div>
 
@@ -195,19 +291,29 @@ export const Service = () => {
 
           <div style={styles.sectionHeader}>
             <div style={styles.sectionTitle}>Services</div>
-            <div style={styles.totalServices}>Total Services: {services.length}</div>
+            <div style={styles.totalServices}>Total Services: {totalItems}</div>
           </div>
 
           <div style={styles.servicesGrid}>
-            {services.map(service => (
+            {filteredServices.map(service => (
               <div key={service.id} style={styles.serviceCard}>
                 <div style={styles.serviceImage}>
                   <div style={styles.imagePlaceholder}>📷</div>
                   <div style={styles.priceLabel}>Service Price</div>
-                  <div style={styles.servicePrice}>{service.price}</div>
+                  <div style={styles.servicePrice}>${service.price.toFixed(2)}</div>
                 </div>
                 <div style={styles.serviceDetails}>
-                  <div style={styles.serviceName}>{service.name}</div>
+                  <div style={styles.serviceName}>{service.serviceName}</div>
+                  <div style={styles.serviceInfo}>
+                    {service.taxIncluded ? 'Tax Included' : 'Tax Excluded'} | 
+                    Tax: {service.tax?.toFixed(2) || '0'}% | 
+                    VAT: {service.vat?.toFixed(2) || '0'}%
+                  </div>
+                  {service.taxIncluded && (
+                    <div style={styles.serviceInfo}>
+                      Total with Tax: ${service.taxIncludedAmount.toFixed(2)}
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

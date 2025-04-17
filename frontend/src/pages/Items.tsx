@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+
+interface Item {
+  id: number;
+  name: string;
+  salesPrice: number;
+  openingStock: number;
+  imageUrl: string;
+  category: {
+    name: string;
+  };
+}
 
 interface InfoCard {
   title: string;
@@ -15,17 +26,39 @@ export const Items = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [filterBy, setFilterBy] = useState('all');
+  const [items, setItems] = useState<Item[]>([]);
+  const [totalSalesPrice, setTotalSalesPrice] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchItems = async () => {
+      try {
+        const response = await fetch('http://localhost:5120/api/Item');
+        const data = await response.json();
+        setItems(data.items);
+        setTotalSalesPrice(data.totalSalesPrice);
+        setTotalItems(data.totalItems);
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchItems();
+  }, []);
 
   const infoCards: InfoCard[] = [
     {
       title: 'Total Value Stock',
-      value: '₹1,23,456',
+      value: `₹${totalSalesPrice.toLocaleString()}`,
       icon: '📦',
       color: '#4CAF50',
     },
     {
-      title: 'Low Stock Items',
-      value: '12 Items',
+      title: 'Total Items',
+      value: `${totalItems} Items`,
       icon: '⚠️',
       color: '#F44336',
     },
@@ -290,6 +323,27 @@ export const Items = () => {
     },
   };
 
+  const filteredItems = items.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = filterBy === 'all' || 
+      (filterBy === 'inStock' && item.openingStock > 0) ||
+      (filterBy === 'outOfStock' && item.openingStock <= 0);
+    return matchesSearch && matchesFilter;
+  });
+
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    switch (sortBy) {
+      case 'name':
+        return a.name.localeCompare(b.name);
+      case 'price':
+        return a.salesPrice - b.salesPrice;
+      case 'stock':
+        return a.openingStock - b.openingStock;
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div style={styles.container}>
       <Sidebar />
@@ -353,92 +407,41 @@ export const Items = () => {
           <a href="#" style={styles.actionLink}>Count Items</a>
         </div>
 
-        <div style={styles.itemsContainer}>
-          <div style={styles.itemCard}>
-            <img
-              src="https://via.placeholder.com/60"
-              alt="Item"
-              style={styles.itemImage}
-            />
-            <h3 style={styles.itemName}>Sample Item Name</h3>
-          </div>
-          <div style={styles.priceCard}>
-            <div style={styles.priceInfo}>
-              <span style={styles.priceLabel}>Sale Price</span>
-              <span style={styles.priceValue}>₹1,234</span>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>Loading items...</div>
+        ) : (
+          sortedItems.map((item) => (
+            <div key={item.id} style={styles.itemsContainer}>
+              <div style={styles.itemCard}>
+                <img
+                  src={item.imageUrl || 'https://via.placeholder.com/60'}
+                  alt={item.name}
+                  style={styles.itemImage}
+                />
+                <h3 style={styles.itemName}>{item.name}</h3>
+              </div>
+              <div style={styles.priceCard}>
+                <div style={styles.priceInfo}>
+                  <span style={styles.priceLabel}>Sale Price</span>
+                  <span style={styles.priceValue}>₹{item.salesPrice.toLocaleString()}</span>
+                </div>
+                <div style={styles.stockInfo}>
+                  <span style={styles.priceLabel}>Stock</span>
+                  <span style={styles.stockValue}>{item.openingStock}</span>
+                </div>
+                <div style={styles.actionButtons}>
+                  <button style={{ ...styles.actionButton, ...styles.inButton }}>
+                    +IN
+                  </button>
+                  <button style={{ ...styles.actionButton, ...styles.outButton }}>
+                    -OUT
+                  </button>
+                </div>
+              </div>
             </div>
-            <div style={styles.stockInfo}>
-              <span style={styles.priceLabel}>Stock</span>
-              <span style={styles.stockValue}>50</span>
-            </div>
-            <div style={styles.actionButtons}>
-              <button style={{ ...styles.actionButton, ...styles.inButton }}>
-                +IN
-              </button>
-              <button style={{ ...styles.actionButton, ...styles.outButton }}>
-                -OUT
-              </button>
-            </div>
-          </div>
-        </div>
+          ))
+        )}
 
-        <div style={styles.itemsContainer}>
-          <div style={styles.itemCard}>
-            <img
-              src="https://via.placeholder.com/60"
-              alt="Item"
-              style={styles.itemImage}
-            />
-            <h3 style={styles.itemName}>Premium Headphones</h3>
-          </div>
-          <div style={styles.priceCard}>
-            <div style={styles.priceInfo}>
-              <span style={styles.priceLabel}>Sale Price</span>
-              <span style={styles.priceValue}>₹5,999</span>
-            </div>
-            <div style={styles.stockInfo}>
-              <span style={styles.priceLabel}>Stock</span>
-              <span style={styles.stockValue}>12</span>
-            </div>
-            <div style={styles.actionButtons}>
-              <button style={{ ...styles.actionButton, ...styles.inButton }}>
-                +IN
-              </button>
-              <button style={{ ...styles.actionButton, ...styles.outButton }}>
-                -OUT
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div style={styles.itemsContainer}>
-          <div style={styles.itemCard}>
-            <img
-              src="https://via.placeholder.com/60"
-              alt="Item"
-              style={styles.itemImage}
-            />
-            <h3 style={styles.itemName}>Wireless Mouse</h3>
-          </div>
-          <div style={styles.priceCard}>
-            <div style={styles.priceInfo}>
-              <span style={styles.priceLabel}>Sale Price</span>
-              <span style={styles.priceValue}>₹899</span>
-            </div>
-            <div style={styles.stockInfo}>
-              <span style={styles.priceLabel}>Stock</span>
-              <span style={styles.stockValue}>25</span>
-            </div>
-            <div style={styles.actionButtons}>
-              <button style={{ ...styles.actionButton, ...styles.inButton }}>
-                +IN
-              </button>
-              <button style={{ ...styles.actionButton, ...styles.outButton }}>
-                -OUT
-              </button>
-            </div>
-          </div>
-        </div>
         <div style={styles.buttonContainer}>
           <button
             style={styles.addButton}

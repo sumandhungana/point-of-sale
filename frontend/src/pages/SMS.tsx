@@ -1,10 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 
+interface SmsGateway {
+  id: number;
+  partnerName: string;
+  active: boolean;
+  form: string;
+  token: string;
+  apiUrl: string;
+  testSms: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const SMS = () => {
   const navigate = useNavigate();
+  const [smsGateways, setSmsGateways] = useState<SmsGateway[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchSmsGateways = async () => {
+      try {
+        const response = await fetch('http://localhost:5120/api/SmsGateway');
+        if (!response.ok) {
+          throw new Error('Failed to fetch SMS gateways');
+        }
+        const data = await response.json();
+        setSmsGateways(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSmsGateways();
+  }, []);
+
+  const filteredGateways = smsGateways.filter(gateway =>
+    gateway.partnerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    gateway.form.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const styles = {
     container: {
       width: '100%',
@@ -67,14 +108,68 @@ export const SMS = () => {
       fontWeight: '500',
       cursor: 'pointer',
     },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#6c757d',
+    },
+    errorMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#dc3545',
+    },
+    statusBadge: {
+      display: 'inline-block',
+      padding: '0.25rem 0.5rem',
+      borderRadius: '4px',
+      fontSize: '0.875rem',
+      fontWeight: '500',
+    },
+    activeBadge: {
+      background: '#d4edda',
+      color: '#155724',
+    },
+    inactiveBadge: {
+      background: '#f8d7da',
+      color: '#721c24',
+    },
   };
 
-  // Dummy data for the table
-  const smsGateways = [
-    { id: 1, name: 'Gateway 1', partner: 'Partner A', active: true },
-    { id: 2, name: 'Gateway 2', partner: 'Partner B', active: false },
-    { id: 3, name: 'Gateway 3', partner: 'Partner C', active: true },
-  ];
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.loadingMessage}>Loading SMS gateways...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.errorMessage}>{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -92,7 +187,9 @@ export const SMS = () => {
             <div style={styles.header}>
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search by partner or form..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 style={styles.searchBar}
               />
             </div>
@@ -102,21 +199,30 @@ export const SMS = () => {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  <th style={styles.th}>S.N</th>
-                  <th style={styles.th}>Name</th>
-                  <th style={styles.th}>SMS Partner</th>
-                  <th style={styles.th}>Active</th>
+                  <th style={styles.th}>ID</th>
+                  <th style={styles.th}>Partner Name</th>
+                  <th style={styles.th}>Form</th>
+                  <th style={styles.th}>API URL</th>
+                  <th style={styles.th}>Status</th>
+                  <th style={styles.th}>Test SMS</th>
                 </tr>
               </thead>
               <tbody>
-                {smsGateways.map((gateway) => (
+                {filteredGateways.map((gateway) => (
                   <tr key={gateway.id}>
                     <td style={styles.td}>{gateway.id}</td>
-                    <td style={styles.td}>{gateway.name}</td>
-                    <td style={styles.td}>{gateway.partner}</td>
+                    <td style={styles.td}>{gateway.partnerName}</td>
+                    <td style={styles.td}>{gateway.form}</td>
+                    <td style={styles.td}>{gateway.apiUrl}</td>
                     <td style={styles.td}>
-                      {gateway.active ? 'Yes' : 'No'}
+                      <span style={{
+                        ...styles.statusBadge,
+                        ...(gateway.active ? styles.activeBadge : styles.inactiveBadge)
+                      }}>
+                        {gateway.active ? 'Active' : 'Inactive'}
+                      </span>
                     </td>
+                    <td style={styles.td}>{gateway.testSms || '-'}</td>
                   </tr>
                 ))}
               </tbody>

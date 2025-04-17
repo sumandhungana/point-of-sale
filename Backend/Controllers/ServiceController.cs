@@ -18,9 +18,19 @@ public class ServiceController : ControllerBase
 
     // GET: api/Service
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Service>>> GetServices()
+    public async Task<ActionResult<ServiceResponseDto>> GetServices()
     {
-        return await _context.Services.ToListAsync();
+        var services = await _context.Services.ToListAsync();
+        var response = new ServiceResponseDto
+        {
+            Service = services,
+            // NetMonthlySales = services.Sum(s => s.NetMonthlySales),
+            // GrossMonthlySales = services.Sum(s => s.GrossMonthlySales),
+            NetMonthlySales = 2334,
+            GrossMonthlySales = 435,
+            TotalItems = services.Count
+        };
+        return response;
     }
 
     // GET: api/Service/5
@@ -108,3 +118,11 @@ public class ServiceController : ControllerBase
         return _context.Services.Any(e => e.Id == id);
     }
 } 
+
+public class ServiceResponseDto
+{
+    public List<Service> Service { get; set; } = new();
+    public decimal NetMonthlySales { get; set; }
+    public decimal GrossMonthlySales { get; set; }
+    public int TotalItems { get; set; }
+}

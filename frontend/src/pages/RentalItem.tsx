@@ -1,10 +1,78 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
+interface RentalItem {
+  id: number;
+  rentalItemName: string;
+  phoneNumber: string;
+  address: string;
+  rentalAmount: number;
+  rentalPeriod: string;
+  startDate: string;
+  endDate: string;
+  remarks: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface RentalResponse {
+  rentalItem: RentalItem[];
+  youGive: number;
+  advanceAmount: number;
+}
+
 export const RentalItem = () => {
   const navigate = useNavigate();
+  const [rentalItems, setRentalItems] = useState<RentalItem[]>([]);
+  const [youGive, setYouGive] = useState(0);
+  const [advanceAmount, setAdvanceAmount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filter, setFilter] = useState('');
+  const [sort, setSort] = useState('');
+
+  useEffect(() => {
+    const fetchRentalItems = async () => {
+      try {
+        const response = await fetch('http://localhost:5120/api/RentalItem');
+        if (!response.ok) {
+          throw new Error('Failed to fetch rental items');
+        }
+        const data: RentalResponse = await response.json();
+        setRentalItems(data.rentalItem);
+        setYouGive(data.youGive);
+        setAdvanceAmount(data.advanceAmount);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRentalItems();
+  }, []);
+
+  const filteredItems = rentalItems.filter(item => 
+    item.rentalItemName.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    switch (sort) {
+      case 'name_asc':
+        return a.rentalItemName.localeCompare(b.rentalItemName);
+      case 'name_desc':
+        return b.rentalItemName.localeCompare(a.rentalItemName);
+      case 'date_asc':
+        return new Date(a.startDate).getTime() - new Date(b.startDate).getTime();
+      case 'date_desc':
+        return new Date(b.startDate).getTime() - new Date(a.startDate).getTime();
+      default:
+        return 0;
+    }
+  });
 
   const styles = {
     container: {
@@ -154,7 +222,39 @@ export const RentalItem = () => {
       justifyContent: 'flex-end',
       marginTop: '2rem',
     },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#6c757d',
+    },
+    errorMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#dc3545',
+    },
   };
+
+  if (loading) {
+    return (
+      <div style={styles.container}>
+        <Sidebar />
+        <div style={styles.main}>
+          <div style={styles.loadingMessage}>Loading rental items...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={styles.container}>
+        <Sidebar />
+        <div style={styles.main}>
+          <div style={styles.errorMessage}>{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -168,6 +268,8 @@ export const RentalItem = () => {
               <input
                 type="text"
                 placeholder="Search..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 style={styles.searchInput}
               />
             </div>
@@ -177,13 +279,21 @@ export const RentalItem = () => {
           </div>
 
           <div style={styles.filterContainer}>
-            <select style={styles.dropdown}>
+            <select 
+              value={filter} 
+              onChange={(e) => setFilter(e.target.value)}
+              style={styles.dropdown}
+            >
               <option value="">Filter By</option>
               <option value="name">Name</option>
               <option value="status">Status</option>
               <option value="date">Date</option>
             </select>
-            <select style={styles.dropdown}>
+            <select 
+              value={sort} 
+              onChange={(e) => setSort(e.target.value)}
+              style={styles.dropdown}
+            >
               <option value="">Sort By</option>
               <option value="name_asc">Name (A-Z)</option>
               <option value="name_desc">Name (Z-A)</option>
@@ -196,47 +306,37 @@ export const RentalItem = () => {
             <div style={styles.summaryGrid}>
               <div style={styles.summaryItem}>
                 <span style={styles.summaryLabel}>You Give</span>
-                <span style={styles.summaryAmount}>₹15,000</span>
+                <span style={styles.summaryAmount}>₹{youGive.toFixed(2)}</span>
               </div>
               <div style={styles.summaryItem}>
                 <span style={styles.summaryLabel}>Advance Amount</span>
-                <span style={styles.summaryAmount}>₹5,000</span>
+                <span style={styles.summaryAmount}>₹{advanceAmount.toFixed(2)}</span>
               </div>
             </div>
           </div>
 
-          <div style={styles.rentalCard}>
-            <div style={styles.rentalInfo}>
-              <div style={styles.imagePlaceholder}>📷</div>
-              <div style={styles.rentalDetails}>
-                <div style={styles.rentalName}>Camera DSLR</div>
-                <div style={styles.rentalTime}>Time: 2 hours</div>
+          {sortedItems.map(item => (
+            <div key={item.id} style={styles.rentalCard}>
+              <div style={styles.rentalInfo}>
+                <div style={styles.imagePlaceholder}>📷</div>
+                <div style={styles.rentalDetails}>
+                  <div style={styles.rentalName}>{item.rentalItemName}</div>
+                  <div style={styles.rentalTime}>
+                    Period: {item.rentalPeriod} | 
+                    Start: {new Date(item.startDate).toLocaleDateString()} | 
+                    End: {new Date(item.endDate).toLocaleDateString()}
+                  </div>
+                  <div style={styles.rentalTime}>
+                    Phone: {item.phoneNumber} | Address: {item.address}
+                  </div>
+                  {item.remarks && (
+                    <div style={styles.rentalTime}>Remarks: {item.remarks}</div>
+                  )}
+                </div>
               </div>
+              <div style={styles.rentalAmount}>₹{item.rentalAmount.toFixed(2)}</div>
             </div>
-            <div style={styles.rentalAmount}>₹2,500</div>
-          </div>
-
-          <div style={styles.rentalCard}>
-            <div style={styles.rentalInfo}>
-              <div style={styles.imagePlaceholder}>🎥</div>
-              <div style={styles.rentalDetails}>
-                <div style={styles.rentalName}>Video Camera</div>
-                <div style={styles.rentalTime}>Day: 1</div>
-              </div>
-            </div>
-            <div style={styles.rentalAmount}>₹3,500</div>
-          </div>
-
-          <div style={styles.rentalCard}>
-            <div style={styles.rentalInfo}>
-              <div style={styles.imagePlaceholder}>🎤</div>
-              <div style={styles.rentalDetails}>
-                <div style={styles.rentalName}>Microphone Set</div>
-                <div style={styles.rentalTime}>Hour: 4</div>
-              </div>
-            </div>
-            <div style={styles.rentalAmount}>₹1,500</div>
-          </div>
+          ))}
 
           <div style={styles.addButtonContainer}>
             <button 

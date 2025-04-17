@@ -1,10 +1,53 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 
+interface PaymentGateway {
+  id: number;
+  name: string;
+  paymentMode: string;
+  description: string;
+  isActive: boolean;
+  imagePath: string | null;
+  verificationUrl: string;
+  publicKey: string;
+  secretKey: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const PaymentGateway = () => {
   const navigate = useNavigate();
+  const [gateways, setGateways] = useState<PaymentGateway[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchGateways = async () => {
+      try {
+        const response = await fetch('http://localhost:5120/api/PaymentGateway');
+        if (!response.ok) {
+          throw new Error('Failed to fetch payment gateways');
+        }
+        const data = await response.json();
+        setGateways(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGateways();
+  }, []);
+
+  const filteredGateways = gateways.filter(gateway =>
+    gateway.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    gateway.paymentMode.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const styles = {
     container: {
       width: '100%',
@@ -55,6 +98,7 @@ export const PaymentGateway = () => {
       display: 'flex',
       justifyContent: 'flex-end',
       width: '100%',
+      marginTop: '1rem',
     },
     addButton: {
       padding: '0.75rem 1.5rem',
@@ -66,14 +110,68 @@ export const PaymentGateway = () => {
       fontWeight: '500',
       cursor: 'pointer',
     },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#6c757d',
+    },
+    errorMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#dc3545',
+    },
+    statusBadge: {
+      display: 'inline-block',
+      padding: '0.25rem 0.5rem',
+      borderRadius: '4px',
+      fontSize: '0.875rem',
+      fontWeight: '500',
+    },
+    activeBadge: {
+      background: '#d4edda',
+      color: '#155724',
+    },
+    inactiveBadge: {
+      background: '#f8d7da',
+      color: '#721c24',
+    },
   };
 
-  // Dummy data for the table
-  const gateways = [
-    { id: 1, name: 'Gateway 1', partner: 'Partner A', active: true },
-    { id: 2, name: 'Gateway 2', partner: 'Partner B', active: false },
-    { id: 3, name: 'Gateway 3', partner: 'Partner C', active: true },
-  ];
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.loadingMessage}>Loading payment gateways...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.errorMessage}>{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -91,7 +189,9 @@ export const PaymentGateway = () => {
             <div style={styles.header}>
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search by name or payment mode..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 style={styles.searchBar}
               />
             </div>
@@ -101,20 +201,27 @@ export const PaymentGateway = () => {
             <table style={styles.table}>
               <thead>
                 <tr>
-                  <th style={styles.th}>S.N</th>
+                  <th style={styles.th}>ID</th>
                   <th style={styles.th}>Name</th>
-                  <th style={styles.th}>Gateway Partner</th>
-                  <th style={styles.th}>Active</th>
+                  <th style={styles.th}>Payment Mode</th>
+                  <th style={styles.th}>Description</th>
+                  <th style={styles.th}>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {gateways.map((gateway) => (
+                {filteredGateways.map((gateway) => (
                   <tr key={gateway.id}>
                     <td style={styles.td}>{gateway.id}</td>
                     <td style={styles.td}>{gateway.name}</td>
-                    <td style={styles.td}>{gateway.partner}</td>
+                    <td style={styles.td}>{gateway.paymentMode}</td>
+                    <td style={styles.td}>{gateway.description}</td>
                     <td style={styles.td}>
-                      {gateway.active ? 'Yes' : 'No'}
+                      <span style={{
+                        ...styles.statusBadge,
+                        ...(gateway.isActive ? styles.activeBadge : styles.inactiveBadge)
+                      }}>
+                        {gateway.isActive ? 'Active' : 'Inactive'}
+                      </span>
                     </td>
                   </tr>
                 ))}

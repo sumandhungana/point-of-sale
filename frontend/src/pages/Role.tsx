@@ -1,10 +1,49 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 
+interface Role {
+  id: number;
+  name: string;
+  status: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  rolePermissions: any[];
+}
+
 export const Role = () => {
   const navigate = useNavigate();
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const response = await fetch('http://localhost:5120/api/Role');
+        if (!response.ok) {
+          throw new Error('Failed to fetch roles');
+        }
+        const data = await response.json();
+        setRoles(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
+  const filteredRoles = roles.filter(role =>
+    role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    role.status.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const styles = {
     container: {
       width: '100%',
@@ -60,6 +99,10 @@ export const Role = () => {
       background: '#f8d7da',
       color: '#721c24',
     },
+    manageStaffStatus: {
+      background: '#cce5ff',
+      color: '#004085',
+    },
     description: {
       color: '#6c757d',
       fontSize: '0.9rem',
@@ -80,29 +123,71 @@ export const Role = () => {
       fontWeight: '500',
       cursor: 'pointer',
     },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#6c757d',
+    },
+    errorMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#dc3545',
+    },
   };
 
-  // Dummy data for roles
-  const roles = [
-    {
-      id: 1,
-      name: 'Administrator',
-      status: 'active',
-      description: 'Full access to all system features and settings',
-    },
-    {
-      id: 2,
-      name: 'Manager',
-      status: 'active',
-      description: 'Can manage staff and view reports',
-    },
-    {
-      id: 3,
-      name: 'Staff',
-      status: 'inactive',
-      description: 'Basic access to perform daily tasks',
-    },
-  ];
+  const getStatusStyle = (status: string) => {
+    switch (status) {
+      case 'active':
+        return styles.activeStatus;
+      case 'manage_staff':
+        return styles.manageStaffStatus;
+      default:
+        return styles.inactiveStatus;
+    }
+  };
+
+  const formatStatus = (status: string) => {
+    if (!status) return 'Inactive';
+    return status.split('_').map(word => 
+      word.charAt(0).toUpperCase() + word.slice(1)
+    ).join(' ');
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.loadingMessage}>Loading roles...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '50px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.errorMessage}>{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -120,6 +205,8 @@ export const Role = () => {
             <input
               type="text"
               placeholder="Search role..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
               style={styles.searchBar}
             />
           </div>
@@ -128,16 +215,18 @@ export const Role = () => {
 
           <h2 style={styles.sectionHeader}>Role List</h2>
 
-          {roles.map((role) => (
+          {filteredRoles.map((role) => (
             <div key={role.id} style={styles.card}>
               <div style={styles.roleName}>{role.name}</div>
               <div style={{
                 ...styles.status,
-                ...(role.status === 'active' ? styles.activeStatus : styles.inactiveStatus),
+                ...getStatusStyle(role.status),
               }}>
-                {role.status.charAt(0).toUpperCase() + role.status.slice(1)}
+                {formatStatus(role.status)}
               </div>
-              <div style={styles.description}>{role.description}</div>
+              <div style={styles.description}>
+                {role.description || 'No description available'}
+              </div>
             </div>
           ))}
 
