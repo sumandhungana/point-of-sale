@@ -4,30 +4,32 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models;
 
-public class SalesBill
+public class Income
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     
     [Required]
-    [StringLength(100)]
-    public string BillNumber { get; set; } = null!;
+    [StringLength(50)]
+    public string IncomeNo { get; set; } = null!;
     
     [Required]
     [Column(TypeName = "date")]
-    public DateTime BillDate { get; set; }
+    public DateTime Date { get; set; }
     
     [Required]
-    [ForeignKey("Customer")]
-    public int CustomerId { get; set; }
+    public int CategoryId { get; set; }
     
     [Required]
-    [Column(TypeName = "varchar(10)")]
-    public string PaymentMode { get; set; } = null!; // cash, card, upi, bank
+    public int ItemId { get; set; }
     
     [Required]
-    [Column(TypeName = "decimal(10,2)")]
+    [Column(TypeName = "varchar(20)")]
+    public string PaymentMode { get; set; } = null!; // cash, card, bank_transfer, upi
+    
+    [Required]
+    [Column(TypeName = "decimal(12,2)")]
     public decimal Amount { get; set; }
     
     public string? Remarks { get; set; }
@@ -38,9 +40,7 @@ public class SalesBill
     [Column(TypeName = "timestamp with time zone")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
-    [Column(TypeName = "timestamp with time zone")]
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-    
-    // Navigation property
-    public virtual Customer? Customer { get; set; }
+    // Navigation properties
+    public Category? Category { get; set; }
+    public Item? Item { get; set; }
 } 

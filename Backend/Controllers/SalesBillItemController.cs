@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace Backend.Controllers;
 
@@ -10,10 +12,12 @@ namespace Backend.Controllers;
 public class SalesBillItemController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly ILogger<SalesBillItemController> _logger;
 
-    public SalesBillItemController(ApplicationDbContext context)
+    public SalesBillItemController(ApplicationDbContext context, ILogger<SalesBillItemController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     // GET: api/SalesBillItem
@@ -21,8 +25,8 @@ public class SalesBillItemController : ControllerBase
     public async Task<ActionResult<IEnumerable<SalesBillItem>>> GetSalesBillItems()
     {
         return await _context.SalesBillItems
-            .Include(s => s.Product)
             .Include(s => s.SalesBill)
+            .Include(s => s.Item)
             .ToListAsync();
     }
 
@@ -31,8 +35,8 @@ public class SalesBillItemController : ControllerBase
     public async Task<ActionResult<SalesBillItem>> GetSalesBillItem(int id)
     {
         var salesBillItem = await _context.SalesBillItems
-            .Include(s => s.Product)
             .Include(s => s.SalesBill)
+            .Include(s => s.Item)
             .FirstOrDefaultAsync(s => s.Id == id);
 
         if (salesBillItem == null)
@@ -48,7 +52,7 @@ public class SalesBillItemController : ControllerBase
     public async Task<ActionResult<IEnumerable<SalesBillItem>>> GetSalesBillItemsByBillId(int billId)
     {
         return await _context.SalesBillItems
-            .Include(s => s.Product)
+            .Include(s => s.Item)
             .Include(s => s.SalesBill)
             .Where(s => s.SalesBillId == billId)
             .ToListAsync();
@@ -56,76 +60,82 @@ public class SalesBillItemController : ControllerBase
 
     // POST: api/SalesBillItem
     [HttpPost]
-    public async Task<ActionResult<SalesBillItem>> CreateSalesBillItem(SalesBillItem salesBillItem)
+    public async Task<ActionResult<SalesBillItem>> CreateSalesBillItem([FromForm] SalesBillItemCreateDto salesBillItemDto)
     {
-        // Calculate prices
-        salesBillItem.TotalPrice = salesBillItem.Quantity * salesBillItem.UnitPrice;
-        salesBillItem.FinalPrice = salesBillItem.TotalPrice;
-
-        if (salesBillItem.Discount.HasValue)
+        try
         {
-            salesBillItem.FinalPrice -= salesBillItem.Discount.Value;
-        }
+            var salesBillItem = new SalesBillItem
+            {
+                SalesBillId = salesBillItemDto.SalesBillId,
+                ItemId = salesBillItemDto.ItemId,
+                Quantity = salesBillItemDto.Quantity,
+                UnitPrice = salesBillItemDto.UnitPrice,
+                TotalPrice = salesBillItemDto.Quantity * salesBillItemDto.UnitPrice,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
 
-        if (salesBillItem.Tax.HasValue)
+            _context.SalesBillItems.Add(salesBillItem);
+            await _context.SaveChangesAsync();
+
+            // Update the SalesBill amount
+            var salesBill = await _context.SalesBills.FindAsync(salesBillItemDto.SalesBillId);
+            if (salesBill != null)
+            {
+                salesBill.Amount = await _context.SalesBillItems
+                    .Where(s => s.SalesBillId == salesBillItemDto.SalesBillId)
+                    .SumAsync(s => s.TotalPrice);
+                salesBill.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+
+            return CreatedAtAction(nameof(GetSalesBillItem), new { id = salesBillItem.Id }, salesBillItem);
+        }
+        catch (Exception ex)
         {
-            salesBillItem.FinalPrice += salesBillItem.Tax.Value;
+            _logger.LogError(ex, "Error creating sales bill item");
+            return BadRequest(ex.Message);
         }
-
-        _context.SalesBillItems.Add(salesBillItem);
-        await _context.SaveChangesAsync();
-
-        // Update bill totals
-        await UpdateBillTotals(salesBillItem.SalesBillId);
-
-        return CreatedAtAction(nameof(GetSalesBillItem), new { id = salesBillItem.Id }, salesBillItem);
     }
 
     // PUT: api/SalesBillItem/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSalesBillItem(int id, SalesBillItem salesBillItem)
+    public async Task<IActionResult> UpdateSalesBillItem(int id, [FromForm] SalesBillItemUpdateDto salesBillItemDto)
     {
-        if (id != salesBillItem.Id)
-        {
-            return BadRequest();
-        }
-
-        // Calculate prices
-        salesBillItem.TotalPrice = salesBillItem.Quantity * salesBillItem.UnitPrice;
-        salesBillItem.FinalPrice = salesBillItem.TotalPrice;
-
-        if (salesBillItem.Discount.HasValue)
-        {
-            salesBillItem.FinalPrice -= salesBillItem.Discount.Value;
-        }
-
-        if (salesBillItem.Tax.HasValue)
-        {
-            salesBillItem.FinalPrice += salesBillItem.Tax.Value;
-        }
-
-        _context.Entry(salesBillItem).State = EntityState.Modified;
-
         try
         {
-            await _context.SaveChangesAsync();
-            
-            // Update bill totals
-            await UpdateBillTotals(salesBillItem.SalesBillId);
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!SalesBillItemExists(id))
+            var salesBillItem = await _context.SalesBillItems.FindAsync(id);
+            if (salesBillItem == null)
             {
                 return NotFound();
             }
-            else
-            {
-                throw;
-            }
-        }
 
-        return NoContent();
+            salesBillItem.Quantity = salesBillItemDto.Quantity;
+            salesBillItem.UnitPrice = salesBillItemDto.UnitPrice;
+            salesBillItem.TotalPrice = salesBillItemDto.Quantity * salesBillItemDto.UnitPrice;
+            salesBillItem.UpdatedAt = DateTime.UtcNow;
+
+            _context.Entry(salesBillItem).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+
+            // Update the SalesBill amount
+            var salesBill = await _context.SalesBills.FindAsync(salesBillItem.SalesBillId);
+            if (salesBill != null)
+            {
+                salesBill.Amount = await _context.SalesBillItems
+                    .Where(s => s.SalesBillId == salesBillItem.SalesBillId)
+                    .SumAsync(s => s.TotalPrice);
+                salesBill.UpdatedAt = DateTime.UtcNow;
+                await _context.SaveChangesAsync();
+            }
+
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating sales bill item");
+            return BadRequest(ex.Message);
+        }
     }
 
     // DELETE: api/SalesBillItem/5
@@ -138,32 +148,40 @@ public class SalesBillItemController : ControllerBase
             return NotFound();
         }
 
-        var billId = salesBillItem.SalesBillId;
+        var salesBillId = salesBillItem.SalesBillId;
         _context.SalesBillItems.Remove(salesBillItem);
         await _context.SaveChangesAsync();
 
-        // Update bill totals
-        await UpdateBillTotals(billId);
-
-        return NoContent();
-    }
-
-    private async Task UpdateBillTotals(int billId)
-    {
-        var bill = await _context.SalesBills
-            .Include(b => b.SalesBillItems)
-            .FirstOrDefaultAsync(b => b.Id == billId);
-
-        if (bill != null)
+        // Update the SalesBill amount
+        var salesBill = await _context.SalesBills.FindAsync(salesBillId);
+        if (salesBill != null)
         {
-            bill.TotalAmount = bill.SalesBillItems.Sum(i => i.TotalPrice);
-            bill.GrandTotal = bill.SalesBillItems.Sum(i => i.FinalPrice);
+            salesBill.Amount = await _context.SalesBillItems
+                .Where(s => s.SalesBillId == salesBillId)
+                .SumAsync(s => s.TotalPrice);
+            salesBill.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
         }
+
+        return NoContent();
     }
 
     private bool SalesBillItemExists(int id)
     {
         return _context.SalesBillItems.Any(e => e.Id == id);
     }
+}
+
+public class SalesBillItemCreateDto
+{
+    public int SalesBillId { get; set; }
+    public int ItemId { get; set; }
+    public decimal Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
+}
+
+public class SalesBillItemUpdateDto
+{
+    public decimal Quantity { get; set; }
+    public decimal UnitPrice { get; set; }
 } 

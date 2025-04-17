@@ -41,6 +41,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<Role> Roles { get; set; } = null!;
     public DbSet<RolePermission> RolePermissions { get; set; } = null!;
     public DbSet<StaffSalary> StaffSalaries { get; set; } = null!;
+    public DbSet<Cashbook> Cashbooks { get; set; } = null!;
+    public DbSet<Income> Incomes { get; set; } = null!;
+    public DbSet<Expenses> Expenses { get; set; } = null!;
+    public DbSet<Purchase> Purchases { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -101,44 +105,37 @@ public class ApplicationDbContext : DbContext
 
         // Configure SalesBill model
         modelBuilder.Entity<SalesBill>()
-            .Property(s => s.TotalAmount)
+            .Property(s => s.Amount)
             .HasPrecision(10, 2);
 
         modelBuilder.Entity<SalesBill>()
-            .Property(s => s.Discount)
-            .HasPrecision(10, 2);
+            .Property(s => s.PaymentMode)
+            .HasColumnType("varchar(10)");
 
         modelBuilder.Entity<SalesBill>()
-            .Property(s => s.Tax)
-            .HasPrecision(10, 2);
-
-        modelBuilder.Entity<SalesBill>()
-            .Property(s => s.GrandTotal)
-            .HasPrecision(10, 2);
+            .Property(s => s.BillNumber)
+            .HasColumnType("varchar(10)");
 
         // Configure SalesBillItem model
-        modelBuilder.Entity<SalesBillItem>()
-            .Property(s => s.Quantity)
-            .HasPrecision(10, 2);
-
-        modelBuilder.Entity<SalesBillItem>()
-            .Property(s => s.UnitPrice)
-            .HasPrecision(10, 2);
-
-        modelBuilder.Entity<SalesBillItem>()
-            .Property(s => s.TotalPrice)
-            .HasPrecision(10, 2);
-
-        modelBuilder.Entity<SalesBillItem>()
-            .Property(s => s.Discount)
-            .HasPrecision(10, 2);
-
-        modelBuilder.Entity<SalesBillItem>()
-            .Property(s => s.Tax)
-            .HasPrecision(10, 2);
-
-        modelBuilder.Entity<SalesBillItem>()
-            .Property(s => s.FinalPrice)
-            .HasPrecision(10, 2);
+        modelBuilder.Entity<SalesBillItem>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Quantity).HasPrecision(10, 2);
+            entity.Property(e => e.UnitPrice).HasPrecision(10, 2);
+            entity.Property(e => e.TotalPrice).HasPrecision(10, 2);
+            entity.Property(e => e.Discount).HasPrecision(10, 2);
+            entity.Property(e => e.Tax).HasPrecision(10, 2);
+            entity.Property(e => e.FinalPrice).HasPrecision(10, 2);
+            
+            entity.HasOne(e => e.SalesBill)
+                .WithMany()
+                .HasForeignKey(e => e.SalesBillId)
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 } 

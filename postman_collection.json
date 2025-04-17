@@ -1,0 +1,473 @@
+{
+  "info": {
+    "name": "Nexus POS API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Purchase",
+      "item": [
+        {
+          "name": "Get All Purchases",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Purchase",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Purchase"]
+            }
+          }
+        },
+        {
+          "name": "Get Purchase by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Purchase/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Purchase", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Purchase",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "PurchaseNo",
+                  "value": "PUR-001",
+                  "type": "text"
+                },
+                {
+                  "key": "Date",
+                  "value": "2024-04-15",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoryId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ItemId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PaymentMode",
+                  "value": "cash",
+                  "type": "text"
+                },
+                {
+                  "key": "Amount",
+                  "value": "1000.00",
+                  "type": "text"
+                },
+                {
+                  "key": "Remarks",
+                  "value": "Test purchase",
+                  "type": "text"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/Purchase",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Purchase"]
+            }
+          }
+        },
+        {
+          "name": "Update Purchase",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "PurchaseNo",
+                  "value": "PUR-001",
+                  "type": "text"
+                },
+                {
+                  "key": "Date",
+                  "value": "2024-04-15",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoryId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ItemId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PaymentMode",
+                  "value": "cash",
+                  "type": "text"
+                },
+                {
+                  "key": "Amount",
+                  "value": "1500.00",
+                  "type": "text"
+                },
+                {
+                  "key": "Remarks",
+                  "value": "Updated purchase",
+                  "type": "text"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/Purchase/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Purchase", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Purchase",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Purchase/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Purchase", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Income",
+      "item": [
+        {
+          "name": "Get All Incomes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Income",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Income"]
+            }
+          }
+        },
+        {
+          "name": "Get Income by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Income/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Income", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Income",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "IncomeNo",
+                  "value": "INC-001",
+                  "type": "text"
+                },
+                {
+                  "key": "Date",
+                  "value": "2024-04-15",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoryId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ItemId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PaymentMode",
+                  "value": "cash",
+                  "type": "text"
+                },
+                {
+                  "key": "Amount",
+                  "value": "1000.00",
+                  "type": "text"
+                },
+                {
+                  "key": "Remarks",
+                  "value": "Test income",
+                  "type": "text"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/Income",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Income"]
+            }
+          }
+        },
+        {
+          "name": "Update Income",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "IncomeNo",
+                  "value": "INC-001",
+                  "type": "text"
+                },
+                {
+                  "key": "Date",
+                  "value": "2024-04-15",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoryId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ItemId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PaymentMode",
+                  "value": "cash",
+                  "type": "text"
+                },
+                {
+                  "key": "Amount",
+                  "value": "1500.00",
+                  "type": "text"
+                },
+                {
+                  "key": "Remarks",
+                  "value": "Updated income",
+                  "type": "text"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/Income/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Income", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Income",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Income/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Income", "1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        {
+          "name": "Get All Expenses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Expenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Expenses"]
+            }
+          }
+        },
+        {
+          "name": "Get Expense by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Expenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "ExpensesNo",
+                  "value": "EXP-001",
+                  "type": "text"
+                },
+                {
+                  "key": "Date",
+                  "value": "2024-04-15",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoryId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ItemId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PaymentMode",
+                  "value": "cash",
+                  "type": "text"
+                },
+                {
+                  "key": "Amount",
+                  "value": "1000.00",
+                  "type": "text"
+                },
+                {
+                  "key": "Remarks",
+                  "value": "Test expense",
+                  "type": "text"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/Expenses",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Expenses"]
+            }
+          }
+        },
+        {
+          "name": "Update Expense",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "ExpensesNo",
+                  "value": "EXP-001",
+                  "type": "text"
+                },
+                {
+                  "key": "Date",
+                  "value": "2024-04-15",
+                  "type": "text"
+                },
+                {
+                  "key": "CategoryId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "ItemId",
+                  "value": "1",
+                  "type": "text"
+                },
+                {
+                  "key": "PaymentMode",
+                  "value": "cash",
+                  "type": "text"
+                },
+                {
+                  "key": "Amount",
+                  "value": "1500.00",
+                  "type": "text"
+                },
+                {
+                  "key": "Remarks",
+                  "value": "Updated expense",
+                  "type": "text"
+                },
+                {
+                  "key": "Photo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/Expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Expenses", "1"]
+            }
+          }
+        },
+        {
+          "name": "Delete Expense",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/Expenses/1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "Expenses", "1"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
