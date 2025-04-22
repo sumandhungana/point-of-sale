@@ -78,7 +78,7 @@ export const Sales = () => {
   };
 
   const handleAddBill = () => {
-    navigate('/sales/add');
+    navigate('/bills/sales/add');
   };
 
   const styles = {

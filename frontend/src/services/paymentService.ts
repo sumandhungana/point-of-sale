@@ -1,0 +1,80 @@
+export interface PaymentReceived {
+    partyId: number;
+    amount: number;
+    remarks: string;
+    date: string;
+    billPath: string;
+}
+
+export interface PaymentHistory {
+    id: number;
+    partyId: number;
+    partyName: string;
+    amount: number;
+    remarks: string;
+    date: string;
+    billPath: string;
+    type: string;
+    oldBalance: number;
+    newBalance: number;
+    createdAt: string;
+}
+
+export const createPaymentReceived = async (payment: PaymentReceived) => {
+    try {
+        const response = await fetch('/api/PaymentsReceived', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payment)
+        });
+        return response.json();
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error.message;
+        }
+        throw 'An unknown error occurred';
+    }
+};
+
+export const getPaymentHistory = async (partyId: number): Promise<PaymentHistory[]> => {
+    try {
+        const response = await fetch(`/api/PaymentsGiven/history/party/${partyId}`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch payment history');
+        }
+        return response.json();
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error.message;
+        }
+        throw 'An unknown error occurred';
+    }
+};
+
+export interface PaymentGiven {
+    partyId: number;
+    amount: number;
+    remarks: string;
+    date: string;
+    billPath: string;
+}
+
+export const createPaymentGiven = async (payment: PaymentGiven) => {
+    try {
+        const response = await fetch('/api/PaymentsGiven', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payment)
+        });
+        return response.json();
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error.message;
+        }
+        throw 'An unknown error occurred';
+    }
+}; 

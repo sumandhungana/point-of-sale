@@ -23,7 +23,7 @@ export const Role = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await fetch('http://localhost:5120/api/Role');
+        const response = await fetch('/api/Role');
         if (!response.ok) {
           throw new Error('Failed to fetch roles');
         }

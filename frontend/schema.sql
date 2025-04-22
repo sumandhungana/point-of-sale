@@ -413,6 +413,28 @@ CREATE TABLE Purchase (
 
 
 
+CREATE TABLE payments_received (
+    id SERIAL PRIMARY KEY, -- Use AUTO_INCREMENT if MySQL
+    party_id INT NOT NULL, -- foreign key to customer or party table
+    amount DECIMAL(10, 2) NOT NULL,
+    remarks TEXT NOT NULL,
+    date DATE NOT NULL,
+    bill_path VARCHAR(255), -- store filename or file URL/path
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE payments_given (
+    id SERIAL PRIMARY KEY, -- Use AUTO_INCREMENT if MySQL
+    party_id INT NOT NULL, -- foreign key to customer or party table
+    amount DECIMAL(10, 2) NOT NULL,
+    remarks TEXT NOT NULL,
+    date DATE NOT NULL,
+    bill_path VARCHAR(255), -- store filename or file URL/path
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
 
 
 

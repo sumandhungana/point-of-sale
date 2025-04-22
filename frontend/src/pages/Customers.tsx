@@ -1,6 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import { getCustomers, Customer } from '../services/customerService';
+import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
+import { toast } from 'react-toastify';
+
+interface CustomerWithBalance extends Customer {
+    balance: number;
+    paymentHistory: PaymentHistory[];
+}
+
+interface OverallTotals {
+    given: number;
+    received: number;
+    online: number;
+}
 
 export const Customers = () => {
     const navigate = useNavigate();
@@ -9,6 +23,43 @@ export const Customers = () => {
     const [sortBy, setSortBy] = useState('name');
     const [viewReport, setViewReport] = useState(false);
     const [openCashbook, setOpenCashbook] = useState(false);
+    const [customers, setCustomers] = useState<CustomerWithBalance[]>([]);
+    const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchCustomers = async () => {
+            try {
+                const data = await getCustomers();
+                const customersWithBalance = await Promise.all(
+                    data.map(async (customer) => {
+                        try {
+                            const paymentHistory = await getPaymentHistory(customer.id);
+                            const balance = paymentHistory.reduce((acc, payment) => {
+                                if (payment.type === 'Received') {
+                                    return acc + payment.amount;
+                                } else {
+                                    return acc - payment.amount;
+                                }
+                            }, 0);
+                            return { ...customer, balance, paymentHistory };
+                        } catch (err) {
+                            console.error(`Failed to fetch payment history for customer ${customer.id}:`, err);
+                            return { ...customer, balance: 0, paymentHistory: [] };
+                        }
+                    })
+                );
+                setCustomers(customersWithBalance);
+                setLoading(false);
+            } catch (err) {
+                setError('Failed to load customers');
+                setLoading(false);
+            }
+        };
+
+        fetchCustomers();
+    }, []);
 
     const handleAddCustomer = () => {
         navigate('/parties/customers/add');
@@ -284,15 +335,15 @@ export const Customers = () => {
                 <div style={styles.cardsContainer}>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Give</div>
-                        <div style={styles.cardAmount}>रू25,000</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.given.toLocaleString()}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Receive</div>
-                        <div style={styles.cardAmount}>रू15,000</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.received.toLocaleString()}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>Online Collection</div>
-                        <div style={styles.cardAmount}>रू10,000</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.online.toLocaleString()}</div>
                     </div>
                 </div>
 
@@ -327,75 +378,33 @@ export const Customers = () => {
                     </div>
                 </div>
 
-                <div 
-                    style={styles.customerCard}
-                    onClick={() => handleCustomerClick('1')}
-                >
-                    <div style={styles.customerInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.customerDetails}>
-                            <h3 style={styles.customerName}>John Doe</h3>
-                            <p style={styles.workingHours}>Working Hours: 9 AM - 6 PM</p>
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '2rem' }}>Loading customers...</div>
+                ) : error ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</div>
+                ) : (
+                    customers.map((customer) => (
+                        <div 
+                            key={customer.id}
+                            style={styles.customerCard}
+                            onClick={() => handleCustomerClick(customer.id.toString())}
+                        >
+                            <div style={styles.customerInfo}>
+                                <div style={styles.profileImage} />
+                                <div style={styles.customerDetails}>
+                                    <h3 style={styles.customerName}>{customer.name}</h3>
+                                    <p style={styles.workingHours}>Working Hours: 0</p>
+                                </div>
+                                <div style={{
+                                    ...styles.customerAmount,
+                                    color: customer.balance >= 0 ? '#28a745' : '#dc3545'
+                                }}>
+                                    ₹{Math.abs(customer.balance).toLocaleString()}
+                                </div>
+                            </div>
                         </div>
-                        <div style={styles.customerAmount}>Rs. 15,000</div>
-                    </div>
-                </div>
-
-                <div 
-                    style={styles.customerCard}
-                    onClick={() => handleCustomerClick('2')}
-                >
-                    <div style={styles.customerInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.customerDetails}>
-                            <div style={styles.customerName}>Sarah Smith</div>
-                            <div style={styles.workingHours}>Working Hours: 6 hours / day</div>
-                        </div>
-                        <div style={styles.customerAmount}>रू 3,500</div>
-                    </div>
-                </div>
-
-                <div 
-                    style={styles.customerCard}
-                    onClick={() => handleCustomerClick('3')}
-                >
-                    <div style={styles.customerInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.customerDetails}>
-                            <div style={styles.customerName}>Michael Johnson</div>
-                            <div style={styles.workingHours}>Working Hours: 7 hours / day</div>
-                        </div>
-                        <div style={styles.customerAmount}>रू 4,200</div>
-                    </div>
-                </div>
-
-                <div 
-                    style={styles.customerCard}
-                    onClick={() => handleCustomerClick('4')}
-                >
-                    <div style={styles.customerInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.customerDetails}>
-                            <div style={styles.customerName}>Emma Wilson</div>
-                            <div style={styles.workingHours}>Working Hours: 5 hours / day</div>
-                        </div>
-                        <div style={styles.customerAmount}>रू 2,800</div>
-                    </div>
-                </div>
-
-                <div 
-                    style={styles.customerCard}
-                    onClick={() => handleCustomerClick('5')}
-                >
-                    <div style={styles.customerInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.customerDetails}>
-                            <div style={styles.customerName}>David Brown</div>
-                            <div style={styles.workingHours}>Working Hours: 9 hours / day</div>
-                        </div>
-                        <div style={styles.customerAmount}>रू 6,500</div>
-                    </div>
-                </div>
+                    ))
+                )}
 
                 <button 
                     style={styles.addCustomerButton}
@@ -403,11 +412,6 @@ export const Customers = () => {
                 >
                     + Add Customer
                 </button>
-
-                <div>
-                    <h2>Customer List</h2>
-                    {/* Add your customer table or list here */}
-                </div>
             </main>
         </div>
     );

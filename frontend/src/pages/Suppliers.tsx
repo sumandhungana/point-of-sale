@@ -1,6 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import { getCustomers, Customer } from '../services/customerService';
+import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
+import { toast } from 'react-toastify';
+
+interface SupplierWithBalance extends Customer {
+    balance: number;
+    paymentHistory: PaymentHistory[];
+}
+
+interface OverallTotals {
+    given: number;
+    received: number;
+    online: number;
+}
 
 export const Suppliers = () => {
     const navigate = useNavigate();
@@ -9,9 +23,70 @@ export const Suppliers = () => {
     const [sortBy, setSortBy] = useState('name');
     const [viewReport, setViewReport] = useState(false);
     const [openCashbook, setOpenCashbook] = useState(false);
+    const [suppliers, setSuppliers] = useState<SupplierWithBalance[]>([]);
+    const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        const fetchSuppliers = async () => {
+            try {
+                const data = await getCustomers();
+                const suppliersData = data.filter(customer => customer.isSupplier);
+                const suppliersWithBalance = await Promise.all(
+                    suppliersData.map(async (supplier) => {
+                        try {
+                            const paymentHistory = await getPaymentHistory(supplier.id);
+                            const balance = paymentHistory.reduce((acc, payment) => {
+                                if (payment.type === 'Received') {
+                                    return acc + payment.amount;
+                                } else {
+                                    return acc - payment.amount;
+                                }
+                            }, 0);
+                            return { ...supplier, balance, paymentHistory };
+                        } catch (err) {
+                            console.error(`Failed to fetch payment history for supplier ${supplier.id}:`, err);
+                            return { ...supplier, balance: 0, paymentHistory: [] };
+                        }
+                    })
+                );
+                setSuppliers(suppliersWithBalance);
+
+                // Calculate overall totals
+                const totals = suppliersWithBalance.reduce((acc, supplier) => {
+                    supplier.paymentHistory.forEach(payment => {
+                        if (payment.type === 'Given') {
+                            acc.given += payment.amount;
+                        } else if (payment.type === 'Received') {
+                            acc.received += payment.amount;
+                        }
+                    });
+                    return acc;
+                }, { given: 0, received: 0, online: 0 });
+
+                setOverallTotals(totals);
+                setLoading(false);
+            } catch (err) {
+                setError('Failed to load suppliers');
+                setLoading(false);
+                toast.error('Failed to load suppliers');
+            }
+        };
+
+        fetchSuppliers();
+    }, []);
 
     const handleAddSupplier = () => {
         navigate('/parties/suppliers/add');
+    };
+
+    const handleBulkReminder = () => {
+        navigate('/parties/suppliers/list-report-pdf');
+    };
+
+    const handleSupplierClick = (supplierId: string) => {
+        navigate(`/parties/suppliers/${supplierId}`);
     };
 
     const styles = {
@@ -21,7 +96,6 @@ export const Suppliers = () => {
         },
         mainContent: {
             padding: '2rem',
-            marginTop: '64px',
         },
         searchContainer: {
             background: 'white',
@@ -150,6 +224,12 @@ export const Suppliers = () => {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             marginBottom: '1rem',
             marginTop: '1rem',
+            cursor: 'pointer',
+            transition: 'transform 0.2s, box-shadow 0.2s',
+            '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+            },
         },
         supplierInfo: {
             display: 'flex',
@@ -209,7 +289,6 @@ export const Suppliers = () => {
     return (
         <div style={styles.container}>
             <Sidebar />
-            
             <main style={styles.mainContent}>
                 <div style={styles.searchContainer}>
                     <div style={styles.searchBar}>
@@ -220,7 +299,10 @@ export const Suppliers = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={styles.searchInput}
                         />
-                        <button style={{ ...styles.button, ...styles.primaryButton }}>
+                        <button 
+                            style={{ ...styles.button, ...styles.primaryButton }}
+                            onClick={handleBulkReminder}
+                        >
                             Bulk Reminder
                         </button>
                     </div>
@@ -269,15 +351,15 @@ export const Suppliers = () => {
                 <div style={styles.cardsContainer}>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Give</div>
-                        <div style={styles.cardAmount}>रू25,000</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.given.toLocaleString()}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Receive</div>
-                        <div style={styles.cardAmount}>रू15,000</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.received.toLocaleString()}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>Online Collection</div>
-                        <div style={styles.cardAmount}>रू10,000</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.online.toLocaleString()}</div>
                     </div>
                 </div>
 
@@ -312,38 +394,33 @@ export const Suppliers = () => {
                     </div>
                 </div>
 
-                <div style={styles.supplierCard}>
-                    <div style={styles.supplierInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.supplierDetails}>
-                            <div style={styles.supplierName}>John Doe</div>
-                            <div style={styles.workingHours}>Working Hours: 8 hours / day</div>
+                {loading ? (
+                    <div style={{ textAlign: 'center', padding: '2rem' }}>Loading suppliers...</div>
+                ) : error ? (
+                    <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</div>
+                ) : (
+                    suppliers.map((supplier) => (
+                        <div 
+                            key={supplier.id}
+                            style={styles.supplierCard}
+                            onClick={() => handleSupplierClick(supplier.id.toString())}
+                        >
+                            <div style={styles.supplierInfo}>
+                                <div style={styles.profileImage} />
+                                <div style={styles.supplierDetails}>
+                                    <h3 style={styles.supplierName}>{supplier.name}</h3>
+                                    <p style={styles.workingHours}>Contact: {supplier.ContactPerson || 'N/A'}</p>
+                                </div>
+                                <div style={{
+                                    ...styles.supplierAmount,
+                                    color: supplier.balance >= 0 ? '#28a745' : '#dc3545'
+                                }}>
+                                    ₹{Math.abs(supplier.balance).toLocaleString()}
+                                </div>
+                            </div>
                         </div>
-                        <div style={styles.supplierAmount}>रू 5,000</div>
-                    </div>
-                </div>
-
-                <div style={styles.supplierCard}>
-                    <div style={styles.supplierInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.supplierDetails}>
-                            <div style={styles.supplierName}>Sarah Smith</div>
-                            <div style={styles.workingHours}>Working Hours: 6 hours / day</div>
-                        </div>
-                        <div style={styles.supplierAmount}>रू 3,500</div>
-                    </div>
-                </div>
-
-                <div style={styles.supplierCard}>
-                    <div style={styles.supplierInfo}>
-                        <div style={styles.profileImage} />
-                        <div style={styles.supplierDetails}>
-                            <div style={styles.supplierName}>Michael Johnson</div>
-                            <div style={styles.workingHours}>Working Hours: 7 hours / day</div>
-                        </div>
-                        <div style={styles.supplierAmount}>रू 4,200</div>
-                    </div>
-                </div>
+                    ))
+                )}
 
                 <button 
                     style={styles.addSupplierButton}
@@ -351,11 +428,6 @@ export const Suppliers = () => {
                 >
                     + Add Supplier
                 </button>
-
-                <div>
-                    <h2>Supplier List</h2>
-                    {/* Add your supplier table or list here */}
-                </div>
             </main>
         </div>
     );

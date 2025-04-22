@@ -27,7 +27,7 @@ export const PaymentGateway = () => {
   useEffect(() => {
     const fetchGateways = async () => {
       try {
-        const response = await fetch('http://localhost:5120/api/PaymentGateway');
+        const response = await fetch('/api/PaymentGateway');
         if (!response.ok) {
           throw new Error('Failed to fetch payment gateways');
         }

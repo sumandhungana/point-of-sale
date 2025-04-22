@@ -25,7 +25,7 @@ export const SMS = () => {
   useEffect(() => {
     const fetchSmsGateways = async () => {
       try {
-        const response = await fetch('http://localhost:5120/api/SmsGateway');
+        const response = await fetch('/api/SmsGateway');
         if (!response.ok) {
           throw new Error('Failed to fetch SMS gateways');
         }

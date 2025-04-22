@@ -42,7 +42,7 @@ export const Dashboard = () => {
     },
     cardsContainer: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
+      gridTemplateColumns: 'repeat(4, 1fr)',
       gap: '1.5rem',
       marginBottom: '2rem',
     },

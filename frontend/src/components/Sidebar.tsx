@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import logo from '../assets/logo.png';
 
 interface NavItem {
   title: string;
@@ -171,6 +172,42 @@ export const Sidebar = () => {
   const { user } = useAuth();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+
+  // Function to find all parent paths for the current location
+  const findParentPaths = (items: NavItem[], currentPath: string): string[] => {
+    const parentPaths: string[] = [];
+    
+    const findParents = (items: NavItem[], path: string): boolean => {
+      for (const item of items) {
+        if (item.children) {
+          if (item.children.some(child => 
+            child.path === path || 
+            (child.children && findParents([child], path))
+          )) {
+            parentPaths.push(item.path);
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    findParents(items, currentPath);
+    return parentPaths;
+  };
+
+  // Update expanded items when location changes
+  useEffect(() => {
+    const parentPaths = findParentPaths(navItems, location.pathname);
+    setExpandedItems(prev => {
+      const newExpanded = { ...prev };
+      parentPaths.forEach(path => {
+        newExpanded[path] = true;
+      });
+      return newExpanded;
+    });
+  }, [location.pathname]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -195,6 +232,18 @@ export const Sidebar = () => {
       top: 0,
       overflowY: 'auto' as const,
       padding: '1rem 0',
+    },
+    logoContainer: {
+      padding: '1rem',
+      borderBottom: '1px solid #dee2e6',
+      marginBottom: '1rem',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    logo: {
+      maxWidth: '80%',
+      height: 'auto',
     },
     userSection: {
       padding: '1rem',
@@ -396,31 +445,71 @@ export const Sidebar = () => {
     },
   };
 
-  const isActive = (path: string) => {
-    return location.pathname.startsWith(path);
+  const isActive = (path: string, item: NavItem) => {
+    // Special handling for root paths
+    if (path === '/') {
+      return false;
+    }
+
+    // Check if the current path starts with the item's path
+    const isPathActive = location.pathname.startsWith(path);
+    
+    // If this is a parent item, check if any of its children are active
+    if (item.children) {
+      const hasActiveChild = item.children.some(child => {
+        // For nested children, check if the current path exactly matches or starts with the child path
+        if (child.children) {
+          return child.children.some(nestedChild => 
+            location.pathname === nestedChild.path || 
+            location.pathname.startsWith(nestedChild.path)
+          );
+        }
+        return location.pathname === child.path || 
+               location.pathname.startsWith(child.path);
+      });
+      return hasActiveChild;
+    }
+    
+    return isPathActive;
+  };
+
+  const toggleItem = (path: string) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [path]: !prev[path]
+    }));
   };
 
   const renderNavItems = (items: NavItem[], level = 0) => {
-    return items.map((item) => (
-      <li key={item.path} style={level > 0 ? styles.nestedNavItem : styles.navItem}>
-        <Link
-          to={item.path}
-          style={{
-            ...styles.navLink,
-            ...(isActive(item.path) ? styles.activeNavLink : {}),
-            paddingLeft: `${0.75 + (level * 0.5)}rem`,
-          }}
-        >
-          <span style={styles.navIcon}>{item.icon}</span>
-          <span style={styles.navText}>{item.title}</span>
-        </Link>
-        {item.children && (
-          <ul style={styles.nestedNavItems}>
-            {renderNavItems(item.children, level + 1)}
-          </ul>
-        )}
-      </li>
-    ));
+    return items.map((item) => {
+      const hasChildren = !!item.children?.length;
+      const isExpanded = expandedItems[item.path];
+      const active = isActive(item.path, item);
+
+      return (
+        <li key={item.path} style={level > 0 ? styles.nestedNavItem : styles.navItem}>
+          <div
+            onClick={() => hasChildren ? toggleItem(item.path) : navigate(item.path)}
+            style={{
+              ...styles.navLink,
+              ...(active ? styles.activeNavLink : {}),
+              cursor: 'pointer',
+              paddingLeft: `${0.75 + (level * 0.5)}rem`,
+            }}
+          >
+            <span style={styles.navIcon}>{item.icon}</span>
+            <span style={styles.navText}>{item.title}</span>
+            {hasChildren && <span style={{ marginLeft: 'auto' }}>{isExpanded ? '▾' : '▸'}</span>}
+          </div>
+
+          {hasChildren && isExpanded && (
+            <ul style={styles.nestedNavItems}>
+              {renderNavItems(item.children!, level + 1)}
+            </ul>
+          )}
+        </li>
+      );
+    });
   };
 
   const handleAddKhatabook = () => {
@@ -430,6 +519,9 @@ export const Sidebar = () => {
 
   return (
     <div style={styles.sidebar}>
+      <div style={styles.logoContainer}>
+        <img src={logo} alt="Logo" style={styles.logo} />
+      </div>
       <div 
         style={styles.userSection}
         onClick={() => setIsPopupOpen(true)}
@@ -482,17 +574,10 @@ export const Sidebar = () => {
       )}
 
       <div style={styles.navSection}>
-        {navItems.map((group) => (
-          <div key={group.path} style={styles.navGroup}>
-            <div style={styles.navGroupTitle}>
-              <span>{group.icon}</span>
-              {group.title}
-            </div>
-            <ul style={styles.navItems}>
-              {renderNavItems(group.children || [])}
-            </ul>
-          </div>
-        ))}
+        <ul style={styles.navItems}>
+          {renderNavItems(navItems)}
+        </ul>
+
       </div>
     </div>
   );

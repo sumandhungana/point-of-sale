@@ -39,6 +39,7 @@ export const AddSalesBill = () => {
           throw new Error('Failed to fetch customers');
         }
         const data = await response.json();
+        console.log(data);
         setCustomers(data);
       } catch (err) {
         setError('Error loading customers');
@@ -79,7 +80,7 @@ export const AddSalesBill = () => {
         throw new Error('Failed to create sales bill');
       }
       alert('Sales bill created successfully!');
-      navigate('/sales');
+      navigate('/bills/sales');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

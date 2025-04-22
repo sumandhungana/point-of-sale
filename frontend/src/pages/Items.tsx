@@ -34,7 +34,7 @@ export const Items = () => {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await fetch('http://localhost:5120/api/Item');
+        const response = await fetch('/api/Item');
         const data = await response.json();
         setItems(data.items);
         setTotalSalesPrice(data.totalSalesPrice);

@@ -1,27 +1,27 @@
-user role mathi logo
-login garesi dashbord default khulnu paro
-sidebar ma click garesi aaune
-
-ssuppliers page ma view report ra open cashbook hatayera online collection vako thau ma view report rakhnu paro
-
-http://localhost:3000/parties/customers/statement/1 edit click garda respective page
-
-
-bills ko purchase... haru similar
-
-
-
-user role click garda sano banaune
-
-dashboard 4 in a row, tqext in center
-
-
-invoid statement for single statement http://localhost:3000/parties/customers/statements/2
-
+user role mathi logo - doen
+sidebar ma click garesi aaune - done
+ssuppliers page ma view report ra open cashbook hatayera online collection vako thau ma view report rakhnu paro - done
+user role click garda sano banaune - done
+bills ko purchase... haru similar - done
+dashboard 4 in a row, tqext in center - done
+rental item name search autocomplete
+show items http://localhost:3000/bills/sales
 space and button fixed http://localhost:3000/parties/customers/statements/2
 
 
-show items
-http://localhost:3000/bills/sales
 
-rental item name search autocomplete
+
+
+
+
+
+
+
+
+
+
+
+
+login garesi dashbord default khulnu paro
+http://localhost:3000/parties/customers/statement/1 edit click garda respective page
+invoid statement for single statement http://localhost:3000/parties/customers/statements/2

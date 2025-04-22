@@ -1,5 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { POS } from './pages/POS';
@@ -51,6 +53,9 @@ import { AddPurchase } from './pages/AddPurchase';
 import { AddIncome } from './pages/AddIncome';
 import { AddCashbook } from './pages/AddCashbook';
 import { AddCategory } from './pages/AddCategory';
+import { YouGave } from './pages/YouGave';
+import { YouReceived } from './pages/YouReceived';
+import { SupplierStatements } from './pages/SupplierStatements';
 
 // Placeholder components for routes
 const Branch = () => <div>Branch Page</div>;
@@ -79,6 +84,7 @@ const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
+        <ToastContainer position="top-right" autoClose={3000} />
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
@@ -86,6 +92,22 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <Dashboard />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/parties/customers/statements/you-gave/:id"
+            element={
+              <PrivateRoute>
+                <YouGave />
+              </PrivateRoute> 
+            }
+          />
+          <Route
+            path="/parties/customers/statements/you-received/:id"
+            element={
+              <PrivateRoute>
+                <YouReceived />
               </PrivateRoute>
             }
           />
@@ -307,7 +329,7 @@ const App: React.FC = () => {
           />
          
           <Route
-            path="/sales/add-bill"
+            path="/bills/sales/add"
             element={
               <PrivateRoute>
                 <AddSalesBill />
@@ -448,6 +470,7 @@ const App: React.FC = () => {
           <Route path="/add-user" element={<AddUser />} />
           <Route path="/app-settings" element={<AppSetting />} />
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/parties/suppliers/:id" element={<SupplierStatements />} />
         </Routes>
       </Router>
     </AuthProvider>

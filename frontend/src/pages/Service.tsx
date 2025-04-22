@@ -37,7 +37,7 @@ export const Service = () => {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const response = await fetch('http://localhost:5120/api/Service');
+        const response = await fetch('/api/Service');
         if (!response.ok) {
           throw new Error('Failed to fetch services');
         }

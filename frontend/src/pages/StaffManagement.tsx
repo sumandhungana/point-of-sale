@@ -354,7 +354,7 @@ export const StaffManagement = () => {
             ...styles.staffCard,
             cursor: 'pointer',
           }}
-          onClick={() => navigate('/staff/payment')}
+          onClick={() => navigate('/staff/payment/1')}
         >
           <div style={styles.staffHeader}>
             <div style={styles.staffInfo}>

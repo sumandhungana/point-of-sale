@@ -13,7 +13,8 @@ export const AddSupplier = () => {
         company: '',
         pan: '',
         city: '',
-        contactPerson: ''
+        contactPerson: '',
+        isSupplier: true
     });
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
@@ -33,7 +34,7 @@ export const AddSupplier = () => {
         setIsSubmitting(true);
         
         try {
-            const response = await fetch('/api/Supplier', {
+            const response = await fetch('/api/Customer', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

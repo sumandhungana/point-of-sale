@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
 
-export const CustomerStatements = () => {
+export const SupplierStatements = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const [reminderDate, setReminderDate] = useState<string>('');
@@ -13,12 +13,13 @@ export const CustomerStatements = () => {
     const [isLoading, setIsLoading] = useState(true);
     const datePickerRef = useRef<HTMLDivElement>(null);
     
-    // Demo customer data - in a real app, this would come from an API
-    const customerData = {
+    // Demo supplier data - in a real app, this would come from an API
+    const supplierData = {
         name: 'John Doe',
         phoneNumber: '+1 (555) 123-4567',
-        profileImage: null, // In a real app, this would be a URL to the customer's image
+        profileImage: null,
         receivedAmount: 15000,
+        contactPerson: 'Jane Smith'
     };
 
     useEffect(() => {
@@ -62,24 +63,20 @@ export const CustomerStatements = () => {
     }, {} as Record<string, Record<string, any[]>>);
 
     const handleCall = () => {
-        // In a real app, this would open the phone dialer or initiate a call
-        console.log(`Calling ${customerData.phoneNumber}`);
-        window.open(`tel:${customerData.phoneNumber.replace(/\D/g, '')}`, '_blank');
+        console.log(`Calling ${supplierData.phoneNumber}`);
+        window.open(`tel:${supplierData.phoneNumber.replace(/\D/g, '')}`, '_blank');
     };
 
     const handleBack = () => {
-        // Navigate back to the customers page
-        navigate('/parties/customers');
+        navigate('/parties/suppliers');
     };
 
     const handleProfileClick = () => {
-        // Navigate to the customer profile page
-        navigate(`/parties/customers/profile/${id}`);
+        navigate(`/parties/suppliers/profile/${id}`);
     };
 
     const handleTransactionClick = (transactionId: number) => {
-        // Navigate to the CustomerTransaction page with the transaction ID
-        navigate(`/parties/customers/statement/${transactionId}`);
+        navigate(`/parties/suppliers/statement/${transactionId}`);
     };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,7 +85,6 @@ export const CustomerStatements = () => {
     };
 
     const handleSetReminder = () => {
-        // Handle setting the reminder with the selected date
         console.log(`Setting reminder for date: ${reminderDate}`);
     };
 
@@ -100,7 +96,6 @@ export const CustomerStatements = () => {
         setShowDatePicker(false);
     };
 
-    // Close date picker when clicking outside
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
@@ -115,15 +110,15 @@ export const CustomerStatements = () => {
     }, []);
 
     const handleReport = () => {
-        navigate(`/parties/customers/statements/report/${id}`);
+        navigate(`/parties/suppliers/statements/report/${id}`);
     };
 
     const styles = {
         container: {
+            marginLeft: '250px',
             minHeight: '100vh',
             background: '#f8f9fa',
         },
-        
         mainContent: {
             padding: '2rem',
             marginTop: '64px',
@@ -186,7 +181,7 @@ export const CustomerStatements = () => {
             height: '100%',
             objectFit: 'cover' as const,
         },
-        customerName: {
+        supplierName: {
             fontSize: '1.5rem',
             fontWeight: 'bold',
             color: '#212529',
@@ -543,19 +538,19 @@ export const CustomerStatements = () => {
                         <button 
                             style={styles.backButton} 
                             onClick={handleBack}
-                            aria-label="Go back to customers"
+                            aria-label="Go back to suppliers"
                         >
                             ← Back
                         </button>
                         <div 
                             style={styles.profileImageContainer}
                             onClick={handleProfileClick}
-                            title="View customer profile"
+                            title="View supplier profile"
                         >
-                            {customerData.profileImage ? (
+                            {supplierData.profileImage ? (
                                 <img 
-                                    src={customerData.profileImage} 
-                                    alt={customerData.name} 
+                                    src={supplierData.profileImage} 
+                                    alt={supplierData.name} 
                                     style={styles.profileImage} 
                                 />
                             ) : (
@@ -565,18 +560,21 @@ export const CustomerStatements = () => {
                         <button 
                             style={styles.callButton} 
                             onClick={handleCall}
-                            aria-label={`Call ${customerData.name}`}
-                            title={customerData.phoneNumber}
+                            aria-label={`Call ${supplierData.name}`}
+                            title={supplierData.phoneNumber}
                         >
                             📞 Call
                         </button>
                     </div>
                     <div 
-                        style={styles.customerName}
+                        style={styles.supplierName}
                         onClick={handleProfileClick}
-                        title="View customer profile"
+                        title="View supplier profile"
                     >
-                        {customerData.name}
+                        {supplierData.name}
+                    </div>
+                    <div style={{ color: '#6c757d', marginBottom: '0.5rem' }}>
+                        Contact: {supplierData.contactPerson}
                     </div>
                 </div>
 
@@ -584,11 +582,11 @@ export const CustomerStatements = () => {
                     <div style={styles.amountRow}>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>You Received Amount</div>
-                            <div style={styles.amountValue}>₹{customerData.receivedAmount.toLocaleString()}</div>
+                            <div style={styles.amountValue}>₹{supplierData.receivedAmount.toLocaleString()}</div>
                         </div>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>The Amount</div>
-                            <div style={styles.amountValue}>₹{customerData.receivedAmount.toLocaleString()}</div>
+                            <div style={styles.amountValue}>₹{supplierData.receivedAmount.toLocaleString()}</div>
                         </div>
                     </div>
                     <div style={styles.reminderRow}>
@@ -689,7 +687,7 @@ export const CustomerStatements = () => {
                                                         ₹{transaction.oldBalance.toLocaleString()}
                                                     </div>
                                                     <div style={styles.currentAmount}>
-                                                        रू {transaction.currentBalance.toLocaleString()}
+                                                        ₹{transaction.currentBalance.toLocaleString()}
                                                     </div>
                                                 </div>
                                             </div>
@@ -751,7 +749,7 @@ export const CustomerStatements = () => {
                                                         ₹{transaction.oldBalance.toLocaleString()}
                                                     </div>
                                                     <div style={styles.currentAmount}>
-                                                        रू {transaction.currentBalance.toLocaleString()}
+                                                        ₹{transaction.currentBalance.toLocaleString()}
                                                     </div>
                                                 </div>
                                             </div>
@@ -759,12 +757,10 @@ export const CustomerStatements = () => {
                                     </div>
                                 ))}
                             </div>
-
-                          
                         </>
                     )}
                     <div style={styles.actionButtonsContainer}>
-                            <button style={{...styles.actionButton, ...styles.giveButton}} onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}>
+                        <button style={{...styles.actionButton, ...styles.giveButton}} onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}>
                             💸 You Gave
                         </button>
                         <button style={{...styles.actionButton, ...styles.receiveButton}} onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}>
@@ -772,8 +768,6 @@ export const CustomerStatements = () => {
                         </button>
                     </div>
                 </div>
-
-             
             </main>
 
             {showDatePicker && (

@@ -49,7 +49,7 @@ export const BillsAndPrintSelling = () => {
   useEffect(() => {
     const fetchInvoiceSettings = async () => {
       try {
-        const response = await fetch('http://localhost:5120/api/InvoiceSettings');
+        const response = await fetch('/api/InvoiceSettings');
         const data = await response.json();
         if (data.length > 0) {
           const lowestIdSetting = data.reduce((prev: any, current: any) => 
