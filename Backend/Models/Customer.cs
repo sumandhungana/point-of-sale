@@ -25,6 +25,11 @@ public class Customer
     
     [StringLength(20)]
     public string? Pan { get; set; }
+
+    [StringLength(100)]
+    public string? ContactPerson { get; set; }
+
+    public bool isSupplier { get; set; } = false;
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     

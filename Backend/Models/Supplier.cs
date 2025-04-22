@@ -26,6 +26,7 @@ public class Supplier
     [StringLength(20)]
     public string? Pan { get; set; }
     
+    [Required]
     [StringLength(100)]
     public string? ContactPerson { get; set; }
     

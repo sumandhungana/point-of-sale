@@ -56,24 +56,35 @@ public class ItemController : ControllerBase
 
     // POST: api/Item
     [HttpPost]
-    public async Task<ActionResult<Item>> CreateItem([FromForm] ItemCreateDto itemDto)
+    public async Task<ActionResult<Item>> CreateItem([FromBody] ItemCreateDto itemDto)
     {
         try
         {
+            // Check if category exists
+            var category = await _context.Categories.FindAsync(itemDto.CategoryId);
+            if (category == null)
+            {
+                return BadRequest("Category not found");
+            }
+
             var item = new Item
             {
                 Name = itemDto.Name,
+                PrimaryUnit = itemDto.PrimaryUnit,
+                SecondaryUnit = itemDto.SecondaryUnit,
+                IsSecondaryUnitEnabled = itemDto.IsSecondaryUnitEnabled,
                 CategoryId = itemDto.CategoryId,
                 SalesPrice = itemDto.SalesPrice,
                 PurchasePrice = itemDto.PurchasePrice,
+                TaxIncluded = itemDto.TaxIncluded,
+                OpeningStock = itemDto.OpeningStock,
+                LowStockAlert = itemDto.LowStockAlert,
+                VatPercentage = itemDto.VatPercentage,
+                VatPercentageToday = itemDto.VatPercentageToday,
+                ImageUrl = itemDto.ImageUrl,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
-
-            if (itemDto.Image != null)
-            {
-                item.ImageUrl = await FileUploadHelper.UploadFileAsync(itemDto.Image, _logger);
-            }
 
             _context.Items.Add(item);
             await _context.SaveChangesAsync();
@@ -159,10 +170,18 @@ public class ItemController : ControllerBase
 public class ItemCreateDto
 {
     public string Name { get; set; } = string.Empty;
+    public string PrimaryUnit { get; set; } = string.Empty;
+    public string? SecondaryUnit { get; set; }
+    public bool IsSecondaryUnitEnabled { get; set; }
     public int CategoryId { get; set; }
     public decimal SalesPrice { get; set; }
     public decimal PurchasePrice { get; set; }
-    public IFormFile? Image { get; set; }
+    public bool TaxIncluded { get; set; }
+    public decimal OpeningStock { get; set; }
+    public decimal? LowStockAlert { get; set; }
+    public decimal? VatPercentage { get; set; }
+    public decimal? VatPercentageToday { get; set; }
+    public string? ImageUrl { get; set; }
 }
 
 public class ItemUpdateDto

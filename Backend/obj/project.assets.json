@@ -3397,11 +3397,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/Backend.csproj",
+      "projectUniqueName": "/home/punkholic/random/work/point_of_sale/Backend/Backend.csproj",
       "projectName": "Backend",
-      "projectPath": "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/Backend.csproj",
+      "projectPath": "/home/punkholic/random/work/point_of_sale/Backend/Backend.csproj",
       "packagesPath": "/home/punkholic/.nuget/packages/",
-      "outputPath": "/home/punkholic/random/work/pos/nexus-pos/new-pos/Backend/obj/",
+      "outputPath": "/home/punkholic/random/work/point_of_sale/Backend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/punkholic/.nuget/NuGet/NuGet.Config"
@@ -3477,7 +3477,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.407/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.408/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

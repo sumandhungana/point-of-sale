@@ -25,6 +25,20 @@ public class CustomerController : ControllerBase
         return await _context.Customers.ToListAsync();
     }
 
+    // GET: api/Customer/suppliers
+    [HttpGet("suppliers")]
+    public async Task<ActionResult<IEnumerable<Customer>>> GetSuppliers()
+    {
+        return await _context.Customers.Where(c => c.isSupplier).ToListAsync();
+    }
+
+    // GET: api/Customer/customers
+    [HttpGet("customers")]
+    public async Task<ActionResult<IEnumerable<Customer>>> GetOnlyCustomers()
+    {
+        return await _context.Customers.Where(c => !c.isSupplier).ToListAsync();
+    }
+
     // GET: api/Customer/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Customer>> GetCustomer(int id)
@@ -43,6 +57,11 @@ public class CustomerController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
     {
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+
         customer.CreatedAt = DateTime.UtcNow;
         customer.UpdatedAt = DateTime.UtcNow;
         
@@ -68,6 +87,11 @@ public class CustomerController : ControllerBase
         if (id != customer.Id)
         {
             return BadRequest();
+        }
+
+        if (!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
         }
 
         customer.UpdatedAt = DateTime.UtcNow;
