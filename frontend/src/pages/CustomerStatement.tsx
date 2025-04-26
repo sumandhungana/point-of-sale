@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+
+interface TransactionData {
+    customerName: string;
+    totalAmount: number;
+    phoneNumber: string;
+    details: string;
+    remarks: string;
+    sms: string;
+}
 
 export const CustomerStatement = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
+    const transactionData = location.state?.transaction as TransactionData;
+
     const [formData, setFormData] = useState({
-        customerName: '',
-        totalAmount: '',
-        phoneNumber: '',
-        details: '',
-        remarks: '',
-        sms: '',
+        customerName: transactionData?.customerName || '',
+        totalAmount: transactionData?.totalAmount?.toString() || '',
+        phoneNumber: transactionData?.phoneNumber || '',
+        details: transactionData?.details || '',
+        remarks: transactionData?.remarks || '',
+        sms: transactionData?.sms || '',
     });
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -51,7 +63,24 @@ export const CustomerStatement = () => {
             minHeight: '100vh',
             background: '#f8f9fa',
         },
-      
+        backButton: {
+            position: 'absolute' as const,
+            top: '80px',
+            padding: '8px 16px',
+            marginLeft: '30px',
+            background: '#f8f9fa',
+            border: '1px solid #dee2e6',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            color: '#495057',
+            '&:hover': {
+                background: '#e9ecef',
+            },
+        },
         mainContent: {
             padding: '2rem',
             marginTop: '64px',
@@ -164,7 +193,12 @@ export const CustomerStatement = () => {
     return (
         <div style={styles.container}>
             <Sidebar />
-          
+            <button 
+                style={styles.backButton} 
+                onClick={() => navigate(-1)}
+            >
+                ← Back
+            </button>
             <main style={styles.mainContent}>
                 <div style={styles.formContainer}>
                     <div style={styles.formRow}>

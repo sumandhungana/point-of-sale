@@ -69,6 +69,12 @@ public class IncomeController : ControllerBase
                 return BadRequest($"Category with ID {incomeDto.CategoryId} does not exist");
             }
 
+            string photoPath = null;
+            if (incomeDto.Photo != null)
+            {
+                photoPath = await FileUploadHelper.UploadFileAsync(incomeDto.Photo, _logger);
+            }
+
             var income = new Income
             {
                 IncomeNo = incomeDto.IncomeNo,
@@ -78,13 +84,9 @@ public class IncomeController : ControllerBase
                 PaymentMode = incomeDto.PaymentMode,
                 Amount = incomeDto.Amount,
                 Remarks = incomeDto.Remarks,
+                PhotoPath = photoPath,
                 CreatedAt = DateTime.UtcNow
             };
-
-            if (incomeDto.Photo != null)
-            {
-                income.PhotoPath = await FileUploadHelper.UploadFileAsync(incomeDto.Photo, _logger);
-            }
 
             _context.Incomes.Add(income);
             await _context.SaveChangesAsync();

@@ -26,10 +26,11 @@ export const AddSalesBill = () => {
     paymentStatus: 'Pending',
     billNumber: '',
     paymentMode: 'cash',
-    photoPath: '',
+    photoPath: null as File | null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -64,16 +65,24 @@ export const AddSalesBill = () => {
     setError(null);
 
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('BillNumber', formData.billNumber);
+      formDataToSend.append('BillDate', formData.billDate);
+      formDataToSend.append('CustomerId', selectedCustomer?.id.toString() || '');
+      formDataToSend.append('PaymentMode', formData.paymentMode);
+      formDataToSend.append('TotalAmount', formData.totalAmount.toString());
+      formDataToSend.append('DiscountAmount', formData.discountAmount.toString());
+      formDataToSend.append('TaxAmount', formData.taxAmount.toString());
+      formDataToSend.append('NetAmount', formData.netAmount.toString());
+      formDataToSend.append('PaymentStatus', formData.paymentStatus);
+
+      if (formData.photoPath) {
+        formDataToSend.append('Photo', formData.photoPath);
+      }
+
       const response = await fetch('/api/SalesBill', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          customerId: selectedCustomer?.id,
-          customer: selectedCustomer?.id,
-        }),
+        body: formDataToSend,
       });
 
       if (!response.ok) {
@@ -85,6 +94,22 @@ export const AddSalesBill = () => {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setFormData(prev => ({
+        ...prev,
+        photoPath: file
+      }));
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -369,24 +394,26 @@ export const AddSalesBill = () => {
             </div>
 
             <div style={styles.formGroup}>
-              <label style={styles.label}>Photo Upload</label>
-              <label style={styles.fileLabel}>
-                Choose File
-                <input
-                  type="file"
-                  style={styles.fileInput}
-                  accept="image/*"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) {
-                      setFormData(prev => ({
-                        ...prev,
-                        photoPath: file.name
-                      }));
-                    }
-                  }}
-                />
+              <label style={styles.label}>Photo</label>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                accept="image/*"
+                style={styles.fileInput}
+                id="photo-upload"
+              />
+              <label htmlFor="photo-upload" style={styles.fileLabel}>
+                {selectedImage ? 'Change Photo' : 'Upload Photo'}
               </label>
+              {selectedImage && (
+                <div style={{ marginTop: '1rem' }}>
+                  <img
+                    src={selectedImage}
+                    alt="Selected"
+                    style={{ maxWidth: '200px', borderRadius: '4px' }}
+                  />
+                </div>
+              )}
             </div>
 
             {error && <div style={styles.error}>{error}</div>}

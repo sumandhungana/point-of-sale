@@ -69,6 +69,12 @@ public class PurchaseController : ControllerBase
                 return BadRequest($"Category with ID {purchaseDto.CategoryId} does not exist");
             }
 
+            string photoPath = null;
+            if (purchaseDto.Photo != null)
+            {
+                photoPath = await FileUploadHelper.UploadFileAsync(purchaseDto.Photo, _logger);
+            }
+
             var purchase = new Purchase
             {
                 PurchaseNo = purchaseDto.PurchaseNo,
@@ -78,13 +84,9 @@ public class PurchaseController : ControllerBase
                 PaymentMode = purchaseDto.PaymentMode,
                 Amount = purchaseDto.Amount,
                 Remarks = purchaseDto.Remarks,
+                PhotoPath = photoPath,
                 CreatedAt = DateTime.UtcNow
             };
-
-            if (purchaseDto.Photo != null)
-            {
-                purchase.PhotoPath = await FileUploadHelper.UploadFileAsync(purchaseDto.Photo, _logger);
-            }
 
             _context.Purchases.Add(purchase);
             await _context.SaveChangesAsync();

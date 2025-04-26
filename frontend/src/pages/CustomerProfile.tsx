@@ -1,24 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
+import { toast } from 'react-toastify';
+
+interface CustomerData {
+    id: number;
+    name: string;
+    phone: string | null;
+    email: string | null;
+    address: string | null;
+    company: string | null;
+    pan: string | null;
+    contactPerson: string | null;
+    isSupplier: boolean;
+    createdAt: string;
+    updatedAt: string;
+    bankAccount: string | null;
+    cashBalance: number;
+    profileImage: string | null;
+    customerSmsSetting: boolean;
+    smsLanguage: boolean;
+    transactionHistoryCheck: boolean;
+}
 
 export const CustomerProfile = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
-    const [partyType, setPartyType] = useState<'customer' | 'supplier'>('customer');
-    const [profileImage, setProfileImage] = useState<string | null>(null);
-    const [formData, setFormData] = useState({
-        customerName: '',
-        mobileNumber: '',
-        address: '',
-        panNumber: '',
-        bankAccount: '',
-        cash: '',
-    });
-    const [settings, setSettings] = useState({
+    const [isLoading, setIsLoading] = useState(true);
+    const [customerData, setCustomerData] = useState<CustomerData>({
+        id: parseInt(id || '0'),
+        name: '',
+        phone: null,
+        email: null,
+        address: null,
+        company: null,
+        pan: null,
+        contactPerson: null,
+        isSupplier: false,
+        createdAt: '',
+        updatedAt: '',
+        bankAccount: null,
+        cashBalance: 0,
+        profileImage: null,
         customerSmsSetting: false,
         smsLanguage: false,
-        transactionHistoryCheck: false,
+        transactionHistoryCheck: false
+    });
+
+    useEffect(() => {
+        const fetchCustomerData = async () => {
+            try {
+                if (!id) return;
+                const response = await fetch(`/api/Customer/${id}`);
+                if (!response.ok) {
+                    throw new Error('Failed to fetch customer data');
+                }
+                const data = await response.json();
+                setCustomerData(data);
+                setFormData({
+                    customerName: data.name,
+                    mobileNumber: data.phone || '',
+                    address: data.address || '',
+                    panNumber: data.pan || '',
+                    bankAccount: data.bankAccount || '',
+                    cash: data.cashBalance || 0,
+                });
+                setSettings({
+                    customerSmsSetting: data.customerSmsSetting,
+                    smsLanguage: data.smsLanguage,
+                    transactionHistoryCheck: data.transactionHistoryCheck,
+                });
+                setProfileImage(data.profileImage);
+                setPartyType(data.isSupplier ? 'supplier' : 'customer');
+            } catch (error) {
+                console.error('Error fetching customer data:', error);
+                toast.error('Failed to fetch customer data');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchCustomerData();
+    }, [id]);
+
+    const [partyType, setPartyType] = useState<'customer' | 'supplier'>(customerData.isSupplier ? 'supplier' : 'customer');
+    const [profileImage, setProfileImage] = useState<string | null>(customerData.profileImage);
+    const [formData, setFormData] = useState({
+        customerName: customerData.name,
+        mobileNumber: customerData.phone || '',
+        address: customerData.address || '',
+        panNumber: customerData.pan || '',
+        bankAccount: customerData.bankAccount || '',
+        cash: customerData.cashBalance || 0,
+    });
+    const [settings, setSettings] = useState({
+        customerSmsSetting: customerData.customerSmsSetting,
+        smsLanguage: customerData.smsLanguage,
+        transactionHistoryCheck: customerData.transactionHistoryCheck,
     });
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,10 +131,43 @@ export const CustomerProfile = () => {
         }));
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle form submission here
-        console.log(formData, settings);
+        try {
+            const customerId = id || '0';
+            const response = await fetch(`/api/Customer/${customerId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    id: parseInt(customerId),
+                    name: formData.customerName,
+                    phone: formData.mobileNumber || null,
+                    email: customerData.email,
+                    address: formData.address || null,
+                    company: customerData.company,
+                    pan: formData.panNumber || null,
+                    contactPerson: customerData.contactPerson,
+                    bankAccount: formData.bankAccount || null,
+                    cashBalance: String(formData.cash),
+                    profileImage: profileImage,
+                    customerSmsSetting: settings.customerSmsSetting,
+                    smsLanguage: settings.smsLanguage,
+                    transactionHistoryCheck: settings.transactionHistoryCheck
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to update customer');
+            }
+
+            toast.success('Customer updated successfully');
+            navigate(`/parties/customers/statements/${customerId}`);
+        } catch (error) {
+            console.error('Error updating customer:', error);
+            toast.error('Failed to update customer');
+        }
     };
 
     const handleDelete = () => {
@@ -69,7 +180,24 @@ export const CustomerProfile = () => {
             minHeight: '100vh',
             background: '#f8f9fa',
         },
-       
+        backButton: {
+            position: 'absolute' as const,
+            top: '80px',
+            padding: '8px 16px',
+            marginLeft: '30px',
+            background: '#f8f9fa',
+            border: '1px solid #dee2e6',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            color: '#495057',
+            '&:hover': {
+                background: '#e9ecef',
+            },
+        },
         mainContent: {
             padding: '2rem',
             marginTop: '64px',
@@ -81,6 +209,12 @@ export const CustomerProfile = () => {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             maxWidth: '800px',
             margin: '0 auto',
+            '@media print': {
+                boxShadow: 'none',
+                padding: '0',
+                maxWidth: '100%',
+                pageBreakAfter: 'always',
+            },
         },
         profileTitle: {
             fontSize: '1.5rem',
@@ -94,6 +228,9 @@ export const CustomerProfile = () => {
             flexDirection: 'column' as const,
             alignItems: 'center',
             marginBottom: '2rem',
+            '@media print': {
+                pageBreakInside: 'avoid',
+            },
         },
         profileImage: {
             width: '150px',
@@ -180,6 +317,9 @@ export const CustomerProfile = () => {
             display: 'flex',
             gap: '2rem',
             marginBottom: '1.5rem',
+            '@media print': {
+                pageBreakInside: 'avoid',
+            },
         },
         formGroup: {
             flex: 1,
@@ -220,6 +360,9 @@ export const CustomerProfile = () => {
             justifyContent: 'flex-end',
             marginTop: '2rem',
             gap: '1rem',
+            '@media print': {
+                display: 'none',
+            },
         },
         saveButton: {
             padding: '0.75rem 1.5rem',
@@ -252,7 +395,12 @@ export const CustomerProfile = () => {
     return (
         <div style={styles.container}>
             <Sidebar />
-        
+            <button 
+                style={styles.backButton} 
+                onClick={() => navigate(-1)}
+            >
+                ← Back
+            </button>
             <main style={styles.mainContent}>
                 <div style={styles.profileContainer}>
                     <div style={styles.imageContainer}>

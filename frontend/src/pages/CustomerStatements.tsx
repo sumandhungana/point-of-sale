@@ -1,25 +1,72 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
+
+interface CustomerData {
+    id: number;
+    name: string;
+    phone: string | null;
+    email: string | null;
+    address: string | null;
+    company: string | null;
+    pan: string | null;
+    contactPerson: string | null;
+    isSupplier: boolean;
+    createdAt: string;
+    updatedAt: string;
+    bankAccount: string | null;
+    cashBalance: number;
+    profileImage: string | null;
+    customerSmsSetting: boolean;
+    smsLanguage: boolean;
+    transactionHistoryCheck: boolean;
+    paymentHistory: PaymentHistory[];
+}
 
 export const CustomerStatements = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
     const [reminderDate, setReminderDate] = useState<string>('');
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
     const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    const datePickerRef = useRef<HTMLDivElement>(null);
     
-    // Demo customer data - in a real app, this would come from an API
-    const customerData = {
-        name: 'John Doe',
-        phoneNumber: '+1 (555) 123-4567',
-        profileImage: null, // In a real app, this would be a URL to the customer's image
-        receivedAmount: 15000,
+    // Get customer data from navigation state
+    const customerData = location.state?.customer as CustomerData || {
+        name: 'Loading...',
+        phone: null,
+        email: null,
+        address: null,
+        company: null,
+        pan: null,
+        contactPerson: null,
+        isSupplier: false,
+        createdAt: '',
+        updatedAt: '',
+        bankAccount: null,
+        cashBalance: 0,
+        profileImage: null,
+        customerSmsSetting: false,
+        smsLanguage: false,
+        transactionHistoryCheck: false,
+        paymentHistory: paymentHistory
     };
+
+    // Calculate totals from payment history
+    const calculateTotals = (history: PaymentHistory[]) => {
+        return paymentHistory.reduce((acc, payment) => {
+            if (payment.type === 'Given') {
+                acc.given += Math.abs(payment.oldBalance - payment.newBalance);
+            } else if (payment.type === 'Received') {
+                acc.received += Math.abs(payment.oldBalance - payment.newBalance);
+            }
+            return acc;
+        }, { given: 0, received: 0 });
+    };
+    const totals = calculateTotals(customerData.paymentHistory);
 
     useEffect(() => {
         const fetchPaymentHistory = async () => {
@@ -41,14 +88,10 @@ export const CustomerStatements = () => {
     const groupedTransactions = paymentHistory.reduce((groups, transaction) => {
         const date = new Date(transaction.date).toISOString().split('T')[0];
         const type = transaction.type === 'Given' ? 'payment_out' : 'payment_in';
-        
-        if (!groups[type]) {
-            groups[type] = {};
+        if (!groups[date]) {
+            groups[date] = [];
         }
-        if (!groups[type][date]) {
-            groups[type][date] = [];
-        }
-        groups[type][date].push({
+        groups[date].push({
             id: transaction.id,
             date: date,
             type: type,
@@ -56,15 +99,19 @@ export const CustomerStatements = () => {
             oldBalance: transaction.oldBalance,
             currentBalance: transaction.newBalance,
             remarks: transaction.remarks,
-            time: new Date(transaction.date).toLocaleTimeString()
+            time: new Date(transaction.createdAt).toLocaleTimeString(),
+            timestamp: new Date(transaction.createdAt).getTime()
         });
         return groups;
-    }, {} as Record<string, Record<string, any[]>>);
+    }, {} as Record<string, any[]>);
 
     const handleCall = () => {
-        // In a real app, this would open the phone dialer or initiate a call
-        console.log(`Calling ${customerData.phoneNumber}`);
-        window.open(`tel:${customerData.phoneNumber.replace(/\D/g, '')}`, '_blank');
+        if (!customerData.phone) {
+            toast.error('No phone number available');
+            return;
+        }
+        console.log(`Calling ${customerData.phone}`);
+        window.open(`tel:${customerData.phone.replace(/\D/g, '')}`, '_blank');
     };
 
     const handleBack = () => {
@@ -73,18 +120,48 @@ export const CustomerStatements = () => {
     };
 
     const handleProfileClick = () => {
-        // Navigate to the customer profile page
-        navigate(`/parties/customers/profile/${id}`);
+        navigate(`/parties/customers/profile/${id}`, {
+            state: {
+                customer: {
+                    id: customerData.id,
+                    name: customerData.name,
+                    phone: customerData.phone,
+                    email: customerData.email,
+                    address: customerData.address,
+                    company: customerData.company,
+                    pan: customerData.pan,
+                    contactPerson: customerData.contactPerson,
+                    isSupplier: customerData.isSupplier,
+                    createdAt: customerData.createdAt,
+                    updatedAt: customerData.updatedAt,
+                    bankAccount: customerData.bankAccount,
+                    cashBalance: customerData.cashBalance,
+                    profileImage: customerData.profileImage,
+                    customerSmsSetting: customerData.customerSmsSetting,
+                    smsLanguage: customerData.smsLanguage,
+                    transactionHistoryCheck: customerData.transactionHistoryCheck
+                }
+            }
+        });
     };
 
-    const handleTransactionClick = (transactionId: number) => {
-        // Navigate to the CustomerTransaction page with the transaction ID
-        navigate(`/parties/customers/statement/${transactionId}`);
+    const handleTransactionClick = (transaction: any) => {
+        navigate(`/parties/customers/statement/${transaction.id}`, {
+            state: {
+                transaction: {
+                    customerName: customerData.name,
+                    totalAmount: Math.abs(transaction.amount),
+                    phoneNumber: customerData.phone,
+                    details: `${transaction.type === 'payment_in' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.date).toLocaleDateString()}`,
+                    remarks: transaction.remarks,
+                    sms: `Dear ${customerData.name}, your payment of ₹${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: ₹${transaction.currentBalance}. Thank you for your business.`
+                }
+            }
+        });
     };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setReminderDate(e.target.value);
-        setShowDatePicker(false);
     };
 
     const handleSetReminder = () => {
@@ -92,30 +169,14 @@ export const CustomerStatements = () => {
         console.log(`Setting reminder for date: ${reminderDate}`);
     };
 
-    const openDatePicker = () => {
-        setShowDatePicker(true);
-    };
-
-    const closeDatePicker = () => {
-        setShowDatePicker(false);
-    };
-
-    // Close date picker when clicking outside
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
-            if (datePickerRef.current && !datePickerRef.current.contains(event.target as Node)) {
-                setShowDatePicker(false);
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     const handleReport = () => {
-        navigate(`/parties/customers/statements/report/${id}`);
+        navigate(`/parties/customers/statements/report/${id}`, {
+            state: {
+                customer: customerData,
+                paymentHistory: paymentHistory,
+                totals: totals
+            }
+        });
     };
 
     const styles = {
@@ -250,106 +311,18 @@ export const CustomerStatements = () => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            marginTop: '1rem',
         },
         reminderLabel: {
             fontSize: '1rem',
             color: '#495057',
             fontWeight: '500',
         },
-        datePickerButton: {
-            padding: '0.5rem 1rem',
-            background: '#dc4c39',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            '&:hover': {
-                background: '#c82333',
-            },
-        },
-        datePickerInput: {
-            display: 'none',
-        },
-        datePickerOverlay: {
-            position: 'fixed' as const,
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-        },
-        datePickerPopup: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            width: '300px',
-            maxWidth: '90%',
-        },
-        datePickerHeader: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1.5rem',
-        },
-        datePickerTitle: {
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-            color: '#212529',
-        },
-        datePickerCloseButton: {
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            color: '#6c757d',
-            '&:hover': {
-                color: '#212529',
-            },
-        },
-        datePickerInputVisible: {
-            width: '100%',
-            padding: '0.75rem',
+        dateInput: {
+            padding: '0.5rem',
             border: '1px solid #ced4da',
             borderRadius: '4px',
-            fontSize: '1rem',
-            marginBottom: '1.5rem',
-        },
-        datePickerActions: {
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '1rem',
-        },
-        datePickerActionButton: {
-            padding: '0.5rem 1rem',
-            border: 'none',
-            borderRadius: '4px',
             fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-        },
-        datePickerCancelButton: {
-            background: '#6c757d',
-            color: 'white',
-            '&:hover': {
-                background: '#5a6268',
-            },
-        },
-        datePickerConfirmButton: {
-            background: '#dc4c39',
-            color: 'white',
-            '&:hover': {
-                background: '#c82333',
-            },
         },
         transactionsContainer: {
             background: 'white',
@@ -465,6 +438,13 @@ export const CustomerStatements = () => {
             border: '1px solid #28a745',
             borderRadius: '4px',
         },
+        currentAmountRed: {
+            color: '#dc3545',
+            border: '1px solid #dc3545',
+        },
+        currentAmountRedNoBorder: {
+            color: '#dc3545',
+        },
         paymentIn: {
             color: '#28a745',
         },
@@ -566,7 +546,7 @@ export const CustomerStatements = () => {
                             style={styles.callButton} 
                             onClick={handleCall}
                             aria-label={`Call ${customerData.name}`}
-                            title={customerData.phoneNumber}
+                            title={customerData.phone || 'No phone number available'}
                         >
                             📞 Call
                         </button>
@@ -584,30 +564,21 @@ export const CustomerStatements = () => {
                     <div style={styles.amountRow}>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>You Received Amount</div>
-                            <div style={styles.amountValue}>₹{customerData.receivedAmount.toLocaleString()}</div>
+                            <div style={styles.amountValue}>₹{totals.received - totals.given < 0 ? 0 : totals.received - totals.given}</div>
                         </div>
                         <div style={styles.amountItem}>
-                            <div style={styles.amountLabel}>The Amount</div>
-                            <div style={styles.amountValue}>₹{customerData.receivedAmount.toLocaleString()}</div>
+                            <div style={styles.amountLabel}>You Gave Amount</div>
+                            <div style={{...styles.amountValue, ...styles.currentAmountRedNoBorder}}>₹{totals.given - totals.received < 0 ? 0 : totals.given - totals.received}</div>
                         </div>
                     </div>
                     <div style={styles.reminderRow}>
                         <div style={styles.reminderLabel}>Set Date Reminder</div>
-                        <div>
-                            <input 
-                                type="date" 
-                                id="reminderDate" 
-                                value={reminderDate} 
-                                onChange={handleDateChange}
-                                style={styles.datePickerInput}
-                            />
-                            <button 
-                                style={styles.datePickerButton}
-                                onClick={openDatePicker}
-                            >
-                                📅 {reminderDate ? new Date(reminderDate).toLocaleDateString() : 'Select Date'}
-                            </button>
-                        </div>
+                        <input 
+                            type="date" 
+                            value={reminderDate} 
+                            onChange={handleDateChange}
+                            style={styles.dateInput}
+                        />
                     </div>
                 </div>
 
@@ -635,133 +606,69 @@ export const CustomerStatements = () => {
                             No transactions found
                         </div>
                     ) : (
-                        <>
-                            {/* Payment In Section */}
-                            <div style={styles.transactionSection}>
-                                <h4 style={styles.sectionTitle}>Payment In</h4>
-                                {Object.entries(groupedTransactions['payment_in'] || {}).map(([date, dateTransactions]) => (
-                                    <div key={date} style={styles.dateGroup}>
-                                        <div style={styles.dateLabel}>
-                                            {new Date(date).toLocaleDateString('en-US', { 
-                                                weekday: 'long', 
-                                                year: 'numeric', 
-                                                month: 'long', 
-                                                day: 'numeric' 
-                                            })}
-                                        </div>
-                                        {dateTransactions.map(transaction => (
-                                            <div 
-                                                key={transaction.id} 
-                                                style={styles.transactionCard}
-                                                onClick={() => handleTransactionClick(transaction.id)}
-                                            >
-                                                <div style={styles.transactionInfo}>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Payment Type:</div>
-                                                        <div style={{
-                                                            ...styles.transactionValue,
-                                                            ...styles.paymentIn
-                                                        }}>
-                                                            {transaction.type === 'payment_in' ? 'Payment In' : 'Payment Out'}
-                                                        </div>
-                                                    </div>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Date/Time:</div>
-                                                        <div style={styles.transactionValue}>
-                                                            {new Date(transaction.date).toLocaleDateString()} {transaction.time}
-                                                        </div>
-                                                    </div>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Balance:</div>
-                                                        <div style={styles.transactionValue}>
-                                                            ₹{transaction.oldBalance.toLocaleString()}
-                                                        </div>
-                                                    </div>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Remarks:</div>
-                                                        <div style={styles.transactionValue}>
-                                                            {transaction.remarks}
-                                                        </div>
+                        <div style={styles.transactionSection}>
+                            {Object.entries(groupedTransactions)
+                                .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+                                .map(([date, dateTransactions]) => (
+                                <div key={date} style={styles.dateGroup}>
+                                    <div style={styles.dateLabel}>
+                                        {new Date(date).toLocaleDateString('en-US', { 
+                                            weekday: 'long', 
+                                            year: 'numeric', 
+                                            month: 'long', 
+                                            day: 'numeric' 
+                                        })}
+                                    </div>
+                                    {dateTransactions
+                                        .sort((a, b) => b.timestamp - a.timestamp)
+                                        .map(transaction => (
+                                        <div 
+                                            key={transaction.id} 
+                                            style={styles.transactionCard}
+                                            onClick={() => handleTransactionClick(transaction)}
+                                        >
+                                            <div style={styles.transactionInfo}>
+                                                <div style={styles.transactionRow}>
+                                                    <div style={styles.transactionLabel}>Payment Type:</div>
+                                                    <div style={{
+                                                        ...styles.transactionValue,
+                                                        ...(transaction.type === 'payment_in' ? styles.paymentIn : styles.paymentOut)
+                                                    }}>
+                                                        {transaction.type === 'payment_in' ? 'Payment In' : 'Payment Out'}
                                                     </div>
                                                 </div>
-                                                <div style={styles.transactionAmounts}>
-                                                    <div style={styles.oldAmount}>
+                                                <div style={styles.transactionRow}>
+                                                    <div style={styles.transactionLabel}>Date/Time:</div>
+                                                    <div style={styles.transactionValue}>
+                                                        {new Date(transaction.date).toLocaleDateString()} {transaction.time}
+                                                    </div>
+                                                </div>
+                                                <div style={styles.transactionRow}>
+                                                    <div style={styles.transactionLabel}>Balance:</div>
+                                                    <div style={styles.transactionValue}>
                                                         ₹{transaction.oldBalance.toLocaleString()}
                                                     </div>
-                                                    <div style={styles.currentAmount}>
-                                                        रू {transaction.currentBalance.toLocaleString()}
+                                                </div>
+                                                <div style={styles.transactionRow}>
+                                                    <div style={styles.transactionLabel}>Remarks:</div>
+                                                    <div style={styles.transactionValue}>
+                                                        {transaction.remarks}
                                                     </div>
                                                 </div>
                                             </div>
-                                        ))}
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Payment Out Section */}
-                            <div style={styles.transactionSection}>
-                                <h4 style={styles.sectionTitle}>Payment Out</h4>
-                                {Object.entries(groupedTransactions['payment_out'] || {}).map(([date, dateTransactions]) => (
-                                    <div key={date} style={styles.dateGroup}>
-                                        <div style={styles.dateLabel}>
-                                            {new Date(date).toLocaleDateString('en-US', { 
-                                                weekday: 'long', 
-                                                year: 'numeric', 
-                                                month: 'long', 
-                                                day: 'numeric' 
-                                            })}
-                                        </div>
-                                        {dateTransactions.map(transaction => (
-                                            <div 
-                                                key={transaction.id} 
-                                                style={styles.transactionCard}
-                                                onClick={() => handleTransactionClick(transaction.id)}
-                                            >
-                                                <div style={styles.transactionInfo}>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Payment Type:</div>
-                                                        <div style={{
-                                                            ...styles.transactionValue,
-                                                            ...styles.paymentOut
-                                                        }}>
-                                                            {transaction.type === 'payment_in' ? 'Payment In' : 'Payment Out'}
-                                                        </div>
-                                                    </div>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Date/Time:</div>
-                                                        <div style={styles.transactionValue}>
-                                                            {new Date(transaction.date).toLocaleDateString()} {transaction.time}
-                                                        </div>
-                                                    </div>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Balance:</div>
-                                                        <div style={styles.transactionValue}>
-                                                            ₹{transaction.oldBalance.toLocaleString()}
-                                                        </div>
-                                                    </div>
-                                                    <div style={styles.transactionRow}>
-                                                        <div style={styles.transactionLabel}>Remarks:</div>
-                                                        <div style={styles.transactionValue}>
-                                                            {transaction.remarks}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div style={styles.transactionAmounts}>
-                                                    <div style={styles.oldAmount}>
-                                                        ₹{transaction.oldBalance.toLocaleString()}
-                                                    </div>
-                                                    <div style={styles.currentAmount}>
-                                                        रू {transaction.currentBalance.toLocaleString()}
-                                                    </div>
+                                            <div style={styles.transactionAmounts}>
+                                                <div style={{
+                                                    ...styles.currentAmount,
+                                                    ...(transaction.type === 'payment_out' ? styles.currentAmountRed : {})
+                                                }}>
+                                                    रू {Math.abs(transaction.amount)}
                                                 </div>
                                             </div>
-                                        ))} 
-                                    </div>
-                                ))}
-                            </div>
-
-                          
-                        </>
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+                        </div>
                     )}
                     <div style={styles.actionButtonsContainer}>
                             <button style={{...styles.actionButton, ...styles.giveButton}} onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}>
@@ -775,45 +682,6 @@ export const CustomerStatements = () => {
 
              
             </main>
-
-            {showDatePicker && (
-                <div style={styles.datePickerOverlay}>
-                    <div style={styles.datePickerPopup} ref={datePickerRef}>
-                        <div style={styles.datePickerHeader}>
-                            <div style={styles.datePickerTitle}>Select Date</div>
-                            <button 
-                                style={styles.datePickerCloseButton}
-                                onClick={closeDatePicker}
-                            >
-                                ×
-                            </button>
-                        </div>
-                        <input 
-                            type="date" 
-                            value={reminderDate} 
-                            onChange={handleDateChange}
-                            style={styles.datePickerInputVisible}
-                        />
-                        <div style={styles.datePickerActions}>
-                            <button 
-                                style={{...styles.datePickerActionButton, ...styles.datePickerCancelButton}}
-                                onClick={closeDatePicker}
-                            >
-                                Cancel
-                            </button>
-                            <button 
-                                style={{...styles.datePickerActionButton, ...styles.datePickerConfirmButton}}
-                                onClick={() => {
-                                    handleSetReminder();
-                                    closeDatePicker();
-                                }}
-                            >
-                                Confirm
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 }; 

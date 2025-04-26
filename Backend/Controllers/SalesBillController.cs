@@ -49,10 +49,16 @@ public class SalesBillController : ControllerBase
 
     // POST: api/SalesBill
     [HttpPost]
-    public async Task<ActionResult<SalesBill>> CreateSalesBill([FromBody] SalesBillRequest request)
+    public async Task<ActionResult<SalesBill>> CreateSalesBill([FromForm] SalesBillRequest request)
     {
         try
         {
+            string photoPath = null;
+            if (request.Photo != null)
+            {
+                photoPath = await FileUploadHelper.UploadFileAsync(request.Photo, _logger);
+            }
+
             var salesBill = new SalesBill
             {
                 BillNumber = request.BillNumber,
@@ -61,7 +67,7 @@ public class SalesBillController : ControllerBase
                 PaymentMode = request.PaymentMode,
                 Amount = request.NetAmount,
                 Remarks = $"Total: {request.TotalAmount}, Discount: {request.DiscountAmount}, Tax: {request.TaxAmount}, Status: {request.PaymentStatus}",
-                PhotoPath = request.PhotoPath,
+                PhotoPath = photoPath,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -169,8 +175,7 @@ public class SalesBillRequest
     public decimal TaxAmount { get; set; }
     public decimal NetAmount { get; set; }
     public string PaymentStatus { get; set; } = null!;
-    public string? PhotoPath { get; set; }
-    
+    public IFormFile? Photo { get; set; }
 }
 
 

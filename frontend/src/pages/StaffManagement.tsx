@@ -1,11 +1,71 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+interface StaffSalary {
+  id: number;
+  staffId: number;
+  month: number;
+  year: number;
+  selectedDate: string;
+  isSlideOn: boolean;
+  calculationDate: string;
+  salaryType: string;
+  amount: number;
+  permission: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface StaffAttendance {
+  id: number;
+  staffId: number;
+  date: string;
+  status: string;
+  note: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface Staff {
+  id: number;
+  name: string;
+  phone: string;
+  address: string;
+  email: string;
+  remarks: string;
+  profileImageUrl: string;
+  createdAt: string;
+  updatedAt: string;
+  staffSalaries: StaffSalary[];
+  staffAttendances: StaffAttendance[];
+}
 
 export const StaffManagement = () => {
   const navigate = useNavigate();
   const [permissionInput, setPermissionInput] = useState('');
   const [permissions, setPermissions] = useState<string[]>([]);
+  const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterBy, setFilterBy] = useState('');
+  const [sortBy, setSortBy] = useState('');
+
+  useEffect(() => {
+    const fetchStaff = async () => {
+      try {
+        const response = await axios.get('/api/Staff');
+        setStaffList(response.data);
+      } catch (error) {
+        console.error('Error fetching staff:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchStaff();
+  }, []);
 
   const handlePermissionKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && permissionInput.trim()) {
@@ -23,6 +83,50 @@ export const StaffManagement = () => {
     month: 'long',
     day: 'numeric',
   });
+
+  // Calculate totals from staff data
+  const totalDue = staffList.reduce((sum, staff) => {
+    const latestSalary = staff.staffSalaries[0];
+    return sum + (latestSalary?.amount || 0);
+  }, 0);
+
+  const totalAdvance = staffList.reduce((sum, staff) => {
+    const advancePayments = staff.staffSalaries.filter(s => s.salaryType === 'Advance');
+    return sum + advancePayments.reduce((advanceSum, salary) => advanceSum + salary.amount, 0);
+  }, 0);
+
+  // Calculate attendance counts
+  const todayAttendances = staffList.reduce((acc, staff) => {
+    const todayAttendance = staff.staffAttendances.find(a => 
+      new Date(a.date).toDateString() === new Date().toDateString()
+    );
+    if (todayAttendance) {
+      acc[todayAttendance.status] = (acc[todayAttendance.status] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
+
+  // Filter and sort staff
+  const filteredStaff = staffList
+    .filter(staff => {
+      if (!searchQuery) return true;
+      return staff.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+             staff.phone?.toLowerCase().includes(searchQuery.toLowerCase());
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case 'name_asc':
+          return a.name.localeCompare(b.name);
+        case 'name_desc':
+          return b.name.localeCompare(a.name);
+        case 'date_asc':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'date_desc':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        default:
+          return 0;
+      }
+    });
 
   const styles = {
     container: {
@@ -283,24 +387,24 @@ export const StaffManagement = () => {
             </thead>
             <tbody>
               <tr>
-                <td style={{ ...styles.td, ...styles.amountCell }}>₹25,000</td>
-                <td style={{ ...styles.td, ...styles.amountCell }}>₹10,000</td>
+                <td style={{ ...styles.td, ...styles.amountCell }}>₹{totalDue.toLocaleString()}</td>
+                <td style={{ ...styles.td, ...styles.amountCell }}>₹{totalAdvance.toLocaleString()}</td>
                 <td style={styles.td}>
                   <div style={styles.attendanceCell}>
                     <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>15</span>
+                      <span style={styles.attendanceValue}>{todayAttendances['Present'] || 0}</span>
                       <span style={styles.attendanceLabel}>Present</span>
                     </div>
                     <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>2</span>
+                      <span style={styles.attendanceValue}>{todayAttendances['Absent'] || 0}</span>
                       <span style={styles.attendanceLabel}>Absent</span>
                     </div>
                     <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>1</span>
-                      <span style={styles.attendanceLabel}>Home</span>
+                      <span style={styles.attendanceValue}>{todayAttendances['Half Day'] || 0}</span>
+                      <span style={styles.attendanceLabel}>Half Day</span>
                     </div>
                     <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>1</span>
+                      <span style={styles.attendanceValue}>{todayAttendances['Leave'] || 0}</span>
                       <span style={styles.attendanceLabel}>Leave</span>
                     </div>
                   </div>
@@ -320,8 +424,10 @@ export const StaffManagement = () => {
                 <span style={styles.searchIcon}>🔍</span>
                 <input
                   type="text"
-                  placeholder="Search..."
+                  placeholder="Search by name or phone..."
                   style={styles.searchInput}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <button style={styles.reminderButton}>
@@ -329,81 +435,109 @@ export const StaffManagement = () => {
               </button>
             </div>
             <div style={styles.buttonRow}>
-              <select style={styles.dropdown}>
+              <select 
+                style={styles.dropdown}
+                value={filterBy}
+                onChange={(e) => setFilterBy(e.target.value)}
+              >
                 <option value="">Filter By</option>
-                <option value="name">Name</option>
-                <option value="department">Department</option>
-                <option value="status">Status</option>
+                <option value="monthly">Monthly Salary</option>
+                <option value="daily">Daily Salary</option>
+                <option value="full">Full Permission</option>
+                <option value="restricted">Restricted Permission</option>
               </select>
             </div>
             <div style={styles.buttonRow}>
-              <select style={styles.dropdown}>
+              <select 
+                style={styles.dropdown}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
                 <option value="">Sort By</option>
                 <option value="name_asc">Name (A-Z)</option>
                 <option value="name_desc">Name (Z-A)</option>
-                <option value="date_asc">Date (Oldest)</option>
-                <option value="date_desc">Date (Newest)</option>
+                <option value="salary_asc">Salary (Low to High)</option>
+                <option value="salary_desc">Salary (High to Low)</option>
               </select>
             </div>
           </div>
         
         </div>
 
-        <div 
-          style={{
-            ...styles.staffCard,
-            cursor: 'pointer',
-          }}
-          onClick={() => navigate('/staff/payment/1')}
-        >
-          <div style={styles.staffHeader}>
-            <div style={styles.staffInfo}>
-              <div style={styles.imagePlaceholder}>👤</div>
-              <div style={styles.staffDetails}>
-                <div style={styles.staffName}>John Doe</div>
-                <div style={styles.salaryPattern}>Monthly Salary</div>
-              </div>
-            </div>
-            <div style={styles.amount}>₹25,000</div>
-          </div>
-          <div style={styles.divider} />
-          <div style={styles.permissionSection}>
-            <div style={styles.permissionInput}>
-              <label style={styles.permissionLabel}>Add Permission</label>
-              <input
-                type="text"
-                value={permissionInput}
-                onChange={(e) => setPermissionInput(e.target.value)}
-                onKeyDown={handlePermissionKeyDown}
-                placeholder="Type to add permission and press Enter..."
-                style={styles.permissionField}
-              />
-              <div style={styles.permissionTags}>
-                {permissions.map((permission, index) => (
-                  <div key={index} style={styles.permissionTag}>
-                    {permission}
-                    <span 
-                      style={styles.removeTag}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removePermission(index);
-                      }}
-                    >
-                      ×
-                    </span>
+        {isLoading ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>Loading staff data...</div>
+        ) : (
+          filteredStaff.map(staff => (
+            <div 
+              key={staff.id}
+              style={{
+                ...styles.staffCard,
+                cursor: 'pointer',
+              }}
+              onClick={() => navigate(`/staff/payment/${staff.id}`)}
+            >
+              <div style={styles.staffHeader}>
+                <div style={styles.staffInfo}>
+                  <div style={styles.imagePlaceholder}>
+                    {staff.profileImageUrl ? (
+                      <img 
+                        src={staff.profileImageUrl} 
+                        alt={staff.name}
+                        style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                      />
+                    ) : '👤'}
                   </div>
-                ))}
+                  <div style={styles.staffDetails}>
+                    <div style={styles.staffName}>{staff.name}</div>
+                    <div style={styles.salaryPattern}>
+                      {staff.staffSalaries[0]?.salaryType || 'No salary record'}
+                    </div>
+                  </div>
+                </div>
+                <div style={styles.amount}>
+                  ₹{staff.staffSalaries[0]?.amount.toLocaleString() || '0'}
+                </div>
+              </div>
+              <div style={styles.divider} />
+              <div style={styles.permissionSection}>
+                <div style={styles.permissionInput}>
+                  <label style={styles.permissionLabel}>Add Permission</label>
+                  <input
+                    type="text"
+                    value={permissionInput}
+                    onChange={(e) => setPermissionInput(e.target.value)}
+                    onKeyDown={handlePermissionKeyDown}
+                    placeholder="Type to add permission and press Enter..."
+                    style={styles.permissionField}
+                  />
+                  <div style={styles.permissionTags}>
+                    {permissions.map((permission, index) => (
+                      <div key={index} style={styles.permissionTag}>
+                        {permission}
+                        <span 
+                          style={styles.removeTag}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removePermission(index);
+                          }}
+                        >
+                          ×
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <select style={styles.attendanceDropdown}>
+                  <option value="">Today's Attendance</option>
+                  <option value="present">Present</option>
+                  <option value="absent">Absent</option>
+                  <option value="halfday">Half Day</option>
+                  <option value="leave">Leave</option>
+                </select>
               </div>
             </div>
-            <select style={styles.attendanceDropdown}>
-              <option value="">Today's Attendance</option>
-              <option value="present">Present</option>
-              <option value="absent">Absent</option>
-              <option value="halfday">Half Day</option>
-              <option value="leave">Leave</option>
-            </select>
-          </div>
-        </div>
+          ))
+        )}
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
           <button 
             style={styles.addStaffButton}

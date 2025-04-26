@@ -27,7 +27,7 @@ app.UseHttpsRedirection();
 
 // Add custom middleware
 app.UseMiddleware<RequestLoggingMiddleware>();
-
+app.UseStaticFiles();
 app.UseAuthorization();
 
 app.MapControllers();

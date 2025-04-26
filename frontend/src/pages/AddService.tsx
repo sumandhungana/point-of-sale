@@ -6,6 +6,8 @@ import Navbar from '../components/Navbar';
 export const AddService = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     serviceName: '',
     price: '',
@@ -30,8 +32,10 @@ export const AddService = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Handle file upload logic here
-      console.log('Selected file:', file);
+      setSelectedFile(file);
+      // Create preview URL for the selected image
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
     }
   };
 
@@ -39,20 +43,22 @@ export const AddService = () => {
     e.preventDefault();
     
     try {
+      const formDataToSend = new FormData();
+      formDataToSend.append('serviceName', formData.serviceName);
+      formDataToSend.append('price', formData.price);
+      formDataToSend.append('taxIncluded', formData.taxIncluded.toString());
+      formDataToSend.append('taxIncludedAmount', formData.taxIncludedAmount);
+      formDataToSend.append('tax', formData.tax);
+      formDataToSend.append('vat', formData.vat);
+      
+      if (selectedFile) {
+        formDataToSend.append('Image', selectedFile);
+        console.log(selectedFile);
+      }
+
       const response = await fetch('/api/Service', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          serviceName: formData.serviceName,
-          price: parseFloat(formData.price),
-          taxIncluded: formData.taxIncluded,
-          taxIncludedAmount: parseFloat(formData.taxIncludedAmount),
-          tax: parseFloat(formData.tax),
-          vat: formData.vat,
-          imagePath: '' // You can add image path handling here if needed
-        })
+        body: formDataToSend,
       });
 
       if (response.ok) {
@@ -67,6 +73,15 @@ export const AddService = () => {
       alert('An error occurred while creating the service');
     }
   };
+
+  // Clean up the object URL when component unmounts or when a new file is selected
+  React.useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
 
   const styles = {
     container: {
@@ -88,17 +103,25 @@ export const AddService = () => {
     imagePlaceholder: {
       width: '200px',
       height: '200px',
-      background: '#f8f9fa',
+      background: imagePreview ? `url(${imagePreview})` : '#f8f9fa',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
       borderRadius: '8px',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       cursor: 'pointer',
       marginBottom: '1rem',
+      position: 'relative' as const,
+      overflow: 'hidden',
     },
     imageIcon: {
       fontSize: '3rem',
-      color: '#6c757d',
+      color: imagePreview ? 'white' : '#6c757d',
+      zIndex: 1,
+      background: imagePreview ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
+      padding: '1rem',
+      borderRadius: '4px',
     },
     imageLabel: {
       fontSize: '1rem',

@@ -1,0 +1,49 @@
+{
+  "Files": [
+    {
+      "Id": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/373e33e8-3757-47c5-882e-b41be48abb26.png",
+      "PackagePath": "staticwebassets/uploads/373e33e8-3757-47c5-882e-b41be48abb26.png"
+    },
+    {
+      "Id": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/446204e9-fb09-4a11-a65e-5ffb68bc39f8.png",
+      "PackagePath": "staticwebassets/uploads/446204e9-fb09-4a11-a65e-5ffb68bc39f8.png"
+    },
+    {
+      "Id": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/7339e1c2-5f67-4a64-8667-6c6a9c4dfc38.png",
+      "PackagePath": "staticwebassets/uploads/7339e1c2-5f67-4a64-8667-6c6a9c4dfc38.png"
+    },
+    {
+      "Id": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/ae9cc2a7-170e-4b4e-b321-73c73a7db261.png",
+      "PackagePath": "staticwebassets/uploads/ae9cc2a7-170e-4b4e-b321-73c73a7db261.png"
+    },
+    {
+      "Id": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/bcbc8f7b-ac9e-4879-9ebc-afabdf2c50d4.png",
+      "PackagePath": "staticwebassets/uploads/bcbc8f7b-ac9e-4879-9ebc-afabdf2c50d4.png"
+    },
+    {
+      "Id": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/cf5eff0f-7733-499d-88ff-7665fbb8ee5e.png",
+      "PackagePath": "staticwebassets/uploads/cf5eff0f-7733-499d-88ff-7665fbb8ee5e.png"
+    },
+    {
+      "Id": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/e66b8f16-10cb-40d9-9dd9-63b1267e07ae.png",
+      "PackagePath": "staticwebassets/uploads/e66b8f16-10cb-40d9-9dd9-63b1267e07ae.png"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.Backend.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.build.Backend.props",
+      "PackagePath": "build\\Backend.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildMultiTargeting.Backend.props",
+      "PackagePath": "buildMultiTargeting\\Backend.props"
+    },
+    {
+      "Id": "obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Backend.props",
+      "PackagePath": "buildTransitive\\Backend.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

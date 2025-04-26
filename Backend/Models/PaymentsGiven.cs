@@ -22,8 +22,7 @@ namespace Backend.Models
         [Required]
         public DateTime Date { get; set; }
 
-        [Required]
-        public string BillPath { get; set; }
+        public string? BillPath { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -25,3 +25,15 @@ space and button fixed http://localhost:3000/parties/customers/statements/2
 login garesi dashbord default khulnu paro
 http://localhost:3000/parties/customers/statement/1 edit click garda respective page
 invoid statement for single statement http://localhost:3000/parties/customers/statements/2
+
+
+
+
+
+
+http://localhost:3000/parties/customers/statements/you-gave/8 show current date - done
+select date ma popup parena http://localhost:3000/parties/customers/statements/8 - done
+CustomerStatementsReport.tsx purano - done
+http://localhost:3000/parties/customers/statement/6 name dont link to customer table
+back button sab ma - done
+customer name click garda profile ma data aaunu paro - done

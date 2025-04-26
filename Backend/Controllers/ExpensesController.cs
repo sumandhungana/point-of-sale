@@ -55,6 +55,12 @@ public class ExpensesController : ControllerBase
     {
         try
         {
+            string photoPath = null;
+            if (expenseDto.Photo != null)
+            {
+                photoPath = await FileUploadHelper.UploadFileAsync(expenseDto.Photo, _logger);
+            }
+
             var expense = new Expenses
             {
                 ExpensesNo = expenseDto.ExpensesNo,
@@ -64,13 +70,9 @@ public class ExpensesController : ControllerBase
                 PaymentMode = expenseDto.PaymentMode,
                 Amount = expenseDto.Amount,
                 Remarks = expenseDto.Remarks,
+                PhotoPath = photoPath,
                 CreatedAt = DateTime.UtcNow
             };
-
-            if (expenseDto.Photo != null)
-            {
-                expense.PhotoPath = await FileUploadHelper.UploadFileAsync(expenseDto.Photo, _logger);
-            }
 
             _context.Expenses.Add(expense);
             await _context.SaveChangesAsync();

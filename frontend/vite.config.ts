@@ -6,13 +6,19 @@ import path from 'path'
 export default defineConfig({
   plugins: [react()],
   server: {
+    allowedHosts: true,
     port: 3000,
     proxy: {
       '/api': {
         target: 'http://localhost:5120',
         changeOrigin: true,
         secure: false,
-      }
+      },
+      '/uploads': {
+        target: 'http://localhost:5120',
+        changeOrigin: true,
+        secure: false,
+      } 
     }
   },
   resolve: {

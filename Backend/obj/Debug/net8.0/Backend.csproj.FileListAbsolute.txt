@@ -408,3 +408,4 @@
 /home/punkholic/random/work/point_of_sale/Backend/obj/Debug/net8.0/Backend.pdb
 /home/punkholic/random/work/point_of_sale/Backend/obj/Debug/net8.0/Backend.genruntimeconfig.cache
 /home/punkholic/random/work/point_of_sale/Backend/obj/Debug/net8.0/ref/Backend.dll
+/home/punkholic/random/work/point_of_sale/Backend/bin/Debug/net8.0/Backend.staticwebassets.runtime.json

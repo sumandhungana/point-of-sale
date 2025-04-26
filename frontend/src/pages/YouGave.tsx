@@ -10,7 +10,7 @@ export const YouGave = () => {
     const [formData, setFormData] = useState({
         amount: '',
         remarks: '',
-        date: '',
+        date: new Date().toISOString().split('T')[0],
         bill: null as File | null
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +30,7 @@ export const YouGave = () => {
 
             await createPaymentGiven(paymentData);
             toast.success('Payment recorded successfully!');
-            navigate(`/parties/customers/statement/${id}`);
+            navigate(`/parties/customers/statements/${id}`);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to record payment');
         } finally {
@@ -59,6 +59,24 @@ export const YouGave = () => {
         container: {
             minHeight: '100vh',
             background: '#f8f9fa',
+        },
+        backButton: {
+            position: 'absolute' as const,
+            top: '80px',
+            padding: '8px 16px',
+            marginLeft: '30px',
+            background: '#f8f9fa',
+            border: '1px solid #dee2e6',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            fontSize: '14px',
+            color: '#495057',
+            '&:hover': {
+                background: '#e9ecef',
+            },
         },
         mainContent: {
             padding: '2rem',
@@ -139,6 +157,12 @@ export const YouGave = () => {
     return (
         <div style={styles.container}>
             <Sidebar />
+            <button 
+                style={styles.backButton} 
+                onClick={() => navigate(-1)}
+            >
+                ← Back
+            </button>
             <main style={styles.mainContent}>
                 <div style={styles.formContainer}>
                     <h2 style={styles.formTitle}>Record Payment Given</h2>

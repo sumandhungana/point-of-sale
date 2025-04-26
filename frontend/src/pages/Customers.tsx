@@ -51,6 +51,24 @@ export const Customers = () => {
                     })
                 );
                 setCustomers(customersWithBalance);
+
+                // Calculate overall totals
+                const totals = customersWithBalance.reduce((acc, customer) => {
+                    customer.paymentHistory.forEach(payment => {
+                        if (payment.type === 'Given') {
+                            acc.given += payment.amount;
+                        } else if (payment.type === 'Received') {
+                            acc.received += payment.amount;
+                        }
+                        // Assuming online payments are marked with a specific payment mode
+                        // if (payment.paymentMode === 'online') {
+                        //     acc.online += payment.amount;
+                        // }
+                    });
+                    return acc;
+                }, { given: 0, received: 0, online: 0 });
+
+                setOverallTotals(totals);
                 setLoading(false);
             } catch (err) {
                 setError('Failed to load customers');
@@ -69,8 +87,19 @@ export const Customers = () => {
         navigate('/parties/customers/list-report-pdf');
     };
 
-    const handleCustomerClick = (customerId: string) => {
-        navigate(`/parties/customers/statements/${customerId}`);
+    const handleCustomerClick = (customer: CustomerWithBalance) => {
+        navigate(`/parties/customers/statements/${customer.id}`, { 
+            state: { 
+                customer: {
+                    name: customer.name,
+                    phoneNumber: customer.phone,
+                    // profileImage: customer.profileImageUrl,
+                    profileImage: "",
+                    balance: customer.balance,
+                    paymentHistory: customer.paymentHistory
+                }
+            } 
+        });
     };
 
     const styles = {
@@ -387,7 +416,7 @@ export const Customers = () => {
                         <div 
                             key={customer.id}
                             style={styles.customerCard}
-                            onClick={() => handleCustomerClick(customer.id.toString())}
+                            onClick={() => handleCustomerClick(customer)}
                         >
                             <div style={styles.customerInfo}>
                                 <div style={styles.profileImage} />

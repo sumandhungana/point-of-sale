@@ -56,7 +56,7 @@ public class ItemController : ControllerBase
 
     // POST: api/Item
     [HttpPost]
-    public async Task<ActionResult<Item>> CreateItem([FromBody] ItemCreateDto itemDto)
+    public async Task<ActionResult<Item>> CreateItem([FromForm] ItemCreateDto itemDto)
     {
         try
         {
@@ -65,6 +65,12 @@ public class ItemController : ControllerBase
             if (category == null)
             {
                 return BadRequest("Category not found");
+            }
+
+            string imageUrl = null;
+            if (itemDto.Image != null)
+            {
+                imageUrl = await FileUploadHelper.UploadFileAsync(itemDto.Image, _logger);
             }
 
             var item = new Item
@@ -81,7 +87,7 @@ public class ItemController : ControllerBase
                 LowStockAlert = itemDto.LowStockAlert,
                 VatPercentage = itemDto.VatPercentage,
                 VatPercentageToday = itemDto.VatPercentageToday,
-                ImageUrl = itemDto.ImageUrl,
+                ImageUrl = imageUrl,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -181,7 +187,7 @@ public class ItemCreateDto
     public decimal? LowStockAlert { get; set; }
     public decimal? VatPercentage { get; set; }
     public decimal? VatPercentageToday { get; set; }
-    public string? ImageUrl { get; set; }
+    public IFormFile? Image { get; set; }
 }
 
 public class ItemUpdateDto

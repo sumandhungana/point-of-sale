@@ -11,7 +11,7 @@ export const AddItem = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
+  const [formDataState, setFormDataState] = useState({
     name: '',
     primaryUnit: '',
     secondaryUnit: '',
@@ -47,7 +47,7 @@ export const AddItem = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormDataState(prev => ({
       ...prev,
       [name]: value
     }));
@@ -59,26 +59,28 @@ export const AddItem = () => {
     setError(null);
 
     try {
+      const formData = new FormData();
+      
+      // Add all form fields to FormData
+      Object.entries(formDataState).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+          formData.append(key, value.toString());
+        }
+      });
+      
+      // Add image file if selected
+      if (selectedFile) {
+        formData.append('image', selectedFile);
+      }
+
       const response = await fetch('/api/Item', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-        ...formData,
-        categoryId: parseInt(formData.categoryId),
-        salesPrice: parseFloat(formData.salesPrice),
-        purchasePrice: parseFloat(formData.purchasePrice),
-        openingStock: parseFloat(formData.openingStock),
-        lowStockAlert: parseFloat(formData.lowStockAlert),
-        vatPercentage: parseFloat(formData.vatPercentage),
-        vatPercentageToday: parseFloat(formData.vatPercentage),
-      }),
-    });
+        body: formData,
+      });
 
       if (response.status === 200 || response.status === 201) {
         // Reset form after successful submission
-        setFormData({
+        setFormDataState({
           name: '',
           primaryUnit: '',
           secondaryUnit: '',
@@ -93,10 +95,15 @@ export const AddItem = () => {
           vatPercentageToday: '',
           imageUrl: '',
         });
+        setSelectedFile(null);
+        setImagePreview(null);
         alert('Item created successfully!');
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create item');
       }
     } catch (err) {
-      setError('Failed to create item');
+      setError(err instanceof Error ? err.message : 'Failed to create item');
       console.error('Error creating item:', err);
     } finally {
       setLoading(false);
@@ -111,14 +118,14 @@ export const AddItem = () => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
-      setFormData(prev => ({
+      setFormDataState(prev => ({
         ...prev,
         imageUrl: file.name
       }));
       
       // Create preview URL for the selected image
       const previewUrl = URL.createObjectURL(file);
-      setFormData(prev => ({
+      setFormDataState(prev => ({
         ...prev,
         imageUrl: previewUrl
       }));
@@ -265,7 +272,7 @@ export const AddItem = () => {
     secondaryUnitSlideButton: {
       width: '60px',
       height: '30px',
-      background: formData.isSecondaryUnitEnabled ? '#28a745' : '#6c757d',
+      background: formDataState.isSecondaryUnitEnabled ? '#28a745' : '#6c757d',
       borderRadius: '15px',
       position: 'relative' as const,
       cursor: 'pointer',
@@ -277,13 +284,13 @@ export const AddItem = () => {
       borderRadius: '50%',
       position: 'absolute' as const,
       top: '2px',
-      left: formData.isSecondaryUnitEnabled ? '32px' : '2px',
+      left: formDataState.isSecondaryUnitEnabled ? '32px' : '2px',
       transition: 'transform 0.3s ease',
     },
     taxSlideButton: {
       width: '60px',
       height: '30px',
-      background: formData.taxIncluded ? '#28a745' : '#6c757d',
+      background: formDataState.taxIncluded ? '#28a745' : '#6c757d',
       borderRadius: '15px',
       position: 'relative' as const,
       cursor: 'pointer',
@@ -295,13 +302,13 @@ export const AddItem = () => {
       borderRadius: '50%',
       position: 'absolute' as const,
       top: '2px',
-      left: formData.taxIncluded ? '32px' : '2px',
+      left: formDataState.taxIncluded ? '32px' : '2px',
       transition: 'transform 0.3s ease',
     },
     vatSlideButton: {
       width: '60px',
       height: '30px',
-      background: formData.vatPercentage ? '#28a745' : '#6c757d',
+      background: formDataState.vatPercentage ? '#28a745' : '#6c757d',
       borderRadius: '15px',
       position: 'relative' as const,
       cursor: 'pointer',
@@ -313,7 +320,7 @@ export const AddItem = () => {
       borderRadius: '50%',
       position: 'absolute' as const,
       top: '2px',
-      left: formData.vatPercentage ? '32px' : '2px',
+      left: formDataState.vatPercentage ? '32px' : '2px',
       transition: 'transform 0.3s ease',
     },
     priceContainer: {
@@ -406,7 +413,7 @@ export const AddItem = () => {
                   <input
                     type="text"
                     name="name"
-                    value={formData.name}
+                    value={formDataState.name}
                     onChange={handleInputChange}
                     style={styles.input}
                     placeholder="Enter item name"
@@ -419,7 +426,7 @@ export const AddItem = () => {
                     <input
                       type="text"
                       name="primaryUnit"
-                      value={formData.primaryUnit}
+                      value={formDataState.primaryUnit}
                       onChange={handleInputChange}
                       style={styles.unitInput}
                       placeholder="e.g., kg"
@@ -431,10 +438,10 @@ export const AddItem = () => {
                       <label style={styles.label}>Secondary Unit</label>
                       <select
                         name="secondaryUnit"
-                        value={formData.secondaryUnit}
+                        value={formDataState.secondaryUnit}
                         onChange={handleInputChange}
                         style={styles.select}
-                        disabled={!formData.isSecondaryUnitEnabled}
+                        disabled={!formDataState.isSecondaryUnitEnabled}
                       >
                         <option value="">Select unit</option>
                         <option value="g">g</option>
@@ -447,7 +454,7 @@ export const AddItem = () => {
                     </div>
                     <div 
                       style={styles.secondaryUnitSlideButton}
-                      onClick={() => setFormData(prev => ({ ...prev, isSecondaryUnitEnabled: !prev.isSecondaryUnitEnabled }))}
+                      onClick={() => setFormDataState(prev => ({ ...prev, isSecondaryUnitEnabled: !prev.isSecondaryUnitEnabled }))}
                     >
                       <div style={styles.secondaryUnitSlideCircle} />
                     </div>
@@ -462,7 +469,7 @@ export const AddItem = () => {
                 <label style={styles.label}>Category</label>
                 <select
                   name="categoryId"
-                  value={formData.categoryId}
+                  value={formDataState.categoryId}
                   onChange={handleInputChange}
                   style={styles.select}
                   required
@@ -481,7 +488,7 @@ export const AddItem = () => {
                   <input
                     type="number"
                     name="salesPrice"
-                    value={formData.salesPrice}
+                    value={formDataState.salesPrice}
                     onChange={handleInputChange}
                     style={styles.input}
                     placeholder="Enter sales price"
@@ -494,7 +501,7 @@ export const AddItem = () => {
                   <input
                     type="number"
                     name="purchasePrice"
-                    value={formData.purchasePrice}
+                    value={formDataState.purchasePrice}
                     onChange={handleInputChange}
                     style={styles.input}
                     placeholder="Enter purchase price"
@@ -510,7 +517,7 @@ export const AddItem = () => {
                 <h2 style={styles.taxLabel}>Tax Included</h2>
                 <div 
                   style={styles.taxSlideButton}
-                  onClick={() => setFormData(prev => ({ ...prev, taxIncluded: !prev.taxIncluded }))}
+                  onClick={() => setFormDataState(prev => ({ ...prev, taxIncluded: !prev.taxIncluded }))}
                 >
                   <div style={styles.taxSlideCircle} />
                 </div>
@@ -521,7 +528,7 @@ export const AddItem = () => {
                   <input
                     type="number"
                     name="openingStock"
-                    value={formData.openingStock}
+                    value={formDataState.openingStock}
                     onChange={handleInputChange}
                     style={styles.input}
                     placeholder="Enter count"
@@ -534,7 +541,7 @@ export const AddItem = () => {
                   <input
                     type="number"
                     name="lowStockAlert"
-                    value={formData.lowStockAlert}
+                    value={formDataState.lowStockAlert}
                     onChange={handleInputChange}
                     style={styles.input}
                     placeholder="Enter count"
@@ -553,7 +560,7 @@ export const AddItem = () => {
                     <input
                       type="number"
                       name="vatPercentage"
-                      value={formData.vatPercentage}
+                      value={formDataState.vatPercentage}
                       onChange={handleInputChange}
                       style={styles.input}
                       placeholder="VAT %"
@@ -567,7 +574,7 @@ export const AddItem = () => {
                   <input
                     type="text"
                     name="imageUrl"
-                    value={formData.imageUrl}
+                    value={formDataState.imageUrl}
                     onChange={handleInputChange}
                     style={styles.input}
                     placeholder="Enter image URL"

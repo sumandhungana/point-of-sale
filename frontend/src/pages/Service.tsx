@@ -298,8 +298,7 @@ export const Service = () => {
             {filteredServices.map(service => (
               <div key={service.id} style={styles.serviceCard}>
                 <div style={styles.serviceImage}>
-                  <div style={styles.imagePlaceholder}>📷</div>
-                  <div style={styles.priceLabel}>Service Price</div>
+                    <img src={service.imagePath} alt={service.serviceName} style={styles.serviceImage} />
                   <div style={styles.servicePrice}>${service.price.toFixed(2)}</div>
                 </div>
                 <div style={styles.serviceDetails}>

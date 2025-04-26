@@ -1,5 +1,5 @@
 using System;
-using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Backend.Models;
 
@@ -7,26 +7,18 @@ public class Customer
 {
     public int Id { get; set; }
     
-    [Required]
-    [StringLength(100)]
     public string Name { get; set; } = string.Empty;
     
-    [StringLength(20)]
     public string? Phone { get; set; }
     
-    [StringLength(100)]
-    [EmailAddress]
     public string? Email { get; set; }
     
     public string? Address { get; set; }
     
-    [StringLength(100)]
     public string? Company { get; set; }
     
-    [StringLength(20)]
     public string? Pan { get; set; }
 
-    [StringLength(100)]
     public string? ContactPerson { get; set; }
 
     public bool isSupplier { get; set; } = false;
@@ -34,4 +26,18 @@ public class Customer
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+
+    // New fields from CustomerProfile form
+    public string? BankAccount { get; set; }
+
+    [Column(TypeName = "decimal(18,2)")]
+    public decimal CashBalance { get; set; }
+
+    public string? ProfileImage { get; set; }
+
+    public bool CustomerSmsSetting { get; set; } = false;
+
+    public bool SmsLanguage { get; set; } = false;
+
+    public bool TransactionHistoryCheck { get; set; } = false;
 } 
