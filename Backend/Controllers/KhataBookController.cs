@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.Data;
+using Backend.Services;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Npgsql;
@@ -18,41 +19,109 @@ namespace Backend.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IConfiguration _configuration;
+        private readonly SchemaConfigurationService _schemaConfig;
         private const string SCHEMA_PREFIX = "khata_";
         private static readonly Regex SchemaNameRegex = new Regex(@"^[a-zA-Z][a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
-        public KhataBookController(ApplicationDbContext context, IConfiguration configuration)
+        public KhataBookController(
+            ApplicationDbContext context, 
+            IConfiguration configuration,
+            SchemaConfigurationService schemaConfig)
         {
             _context = context;
             _configuration = configuration;
+            _schemaConfig = schemaConfig;
         }
 
         // Schema Management Endpoints
         [HttpPost("{id}/switch-schema")]
         public async Task<IActionResult> SwitchSchema(int id)
         {
-            var khataBook = await _context.KhataBooks.FindAsync(id);
-            if (khataBook == null)
-            {
-                return NotFound("KhataBook not found");
-            }
-
             try
             {
+                var khataBook = await _context.KhataBooks.FindAsync(id);
+                if (khataBook == null)
+                {
+                    return NotFound("KhataBook not found");
+                }
+
+                if (string.IsNullOrEmpty(khataBook.SchemaName))
+                {
+                    return BadRequest("KhataBook does not have an associated schema");
+                }
+
+                // First verify the schema exists
                 using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
                 {
                     await connection.OpenAsync();
                     using (var command = connection.CreateCommand())
                     {
-                        command.CommandText = $"SET search_path TO {khataBook.SchemaName}";
-                        await command.ExecuteNonQueryAsync();
+                        command.CommandText = @"
+                            SELECT EXISTS (
+                                SELECT 1 
+                                FROM information_schema.schemata 
+                                WHERE schema_name = @schemaName
+                            )";
+                        command.Parameters.AddWithValue("@schemaName", khataBook.SchemaName);
+                        var schemaExists = (bool)await command.ExecuteScalarAsync();
+
+                        if (!schemaExists)
+                        {
+                            return NotFound($"Schema {khataBook.SchemaName} does not exist");
+                        }
                     }
                 }
-                return Ok($"Switched to schema: {khataBook.SchemaName}");
+
+                // Set the schema in the configuration
+                await _schemaConfig.SetCurrentSchemaAsync(khataBook.SchemaName);
+
+                // Reload the DbContext with the new schema
+                await _context.ReloadWithSchemaAsync(khataBook.SchemaName);
+
+                // Verify the schema switch was successful
+                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
+                {
+                    await connection.OpenAsync();
+                    using (var command = connection.CreateCommand())
+                    {
+                        // Get list of tables in the schema
+                        command.CommandText = @"
+                            SELECT table_name 
+                            FROM information_schema.tables 
+                            WHERE table_schema = @schemaName 
+                            AND table_type = 'BASE TABLE'
+                            ORDER BY table_name";
+                        command.Parameters.AddWithValue("@schemaName", khataBook.SchemaName);
+
+                        var tables = new List<string>();
+                        using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                tables.Add(reader.GetString(0));
+                            }
+                        }
+
+                        return Ok(new
+                        {
+                            message = $"Successfully switched to schema: {khataBook.SchemaName}",
+                            schema = khataBook.SchemaName,
+                            tables
+                        });
+                    }
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Error switching schema: {ex.Message}");
+                // Reset to default schema on error
+                await _schemaConfig.ResetToDefaultSchemaAsync();
+                await _context.ReloadWithSchemaAsync("initSchema");
+
+                return StatusCode(500, new
+                {
+                    error = $"Error switching schema: {ex.Message}",
+                    details = ex.StackTrace
+                });
             }
         }
 
@@ -216,7 +285,7 @@ namespace Backend.Controllers
                     // Create schema
                     using (var command = connection.CreateCommand())
                     {
-                        var createSchemaSql = $"CREATE SCHEMA IF NOT EXISTS {schemaName}";
+                        var createSchemaSql = $"CREATE SCHEMA IF NOT EXISTS \"{schemaName}\"";
                         executedQueries.Add(createSchemaSql);
                         command.CommandText = createSchemaSql;
                         await command.ExecuteNonQueryAsync();
@@ -273,7 +342,7 @@ namespace Backend.Controllers
                                     string defaultValue = reader.IsDBNull(4) ? null : reader.GetString(4);
                                     string isIdentity = reader.GetString(5);
 
-                                    var columnDef = new StringBuilder($"{columnName} {dataType}");
+                                    var columnDef = new StringBuilder($"\"{columnName}\" {dataType}");
                                     
                                     if (maxLength.HasValue)
                                         columnDef.Append($"({maxLength})");
@@ -314,7 +383,7 @@ namespace Backend.Controllers
                             {
                                 while (await reader.ReadAsync())
                                 {
-                                    primaryKeys.Add(reader.GetString(0));
+                                    primaryKeys.Add($"\"{reader.GetString(0)}\"");
                                 }
                             }
                         }
@@ -323,7 +392,7 @@ namespace Backend.Controllers
                         using (var command = connection.CreateCommand())
                         {
                             var createTableSql = new StringBuilder();
-                            createTableSql.Append($"CREATE TABLE {schemaName}.{tableName} (");
+                            createTableSql.Append($"CREATE TABLE \"{schemaName}\".\"{tableName}\" (");
                             createTableSql.Append(string.Join(", ", columns));
 
                             if (primaryKeys.Any())
@@ -380,7 +449,10 @@ namespace Backend.Controllers
                         {
                             using (var command = connection.CreateCommand())
                             {
-                                var addFkSql = $"ALTER TABLE {schemaName}.{tableName} ADD CONSTRAINT {constraintName} FOREIGN KEY ({columnName}) REFERENCES {schemaName}.{foreignTable} ({foreignColumn})";
+                                var addFkSql = $@"ALTER TABLE ""{schemaName}"".""{tableName}"" 
+                                    ADD CONSTRAINT ""{constraintName}"" 
+                                    FOREIGN KEY (""{columnName}"") 
+                                    REFERENCES ""{schemaName}"".""{foreignTable}"" (""{foreignColumn}"")";
                                 executedQueries.Add(addFkSql);
                                 command.CommandText = addFkSql;
                                 await command.ExecuteNonQueryAsync();
@@ -412,7 +484,7 @@ namespace Backend.Controllers
                         await connection.OpenAsync();
                         using (var command = connection.CreateCommand())
                         {
-                            var dropSchemaSql = $"DROP SCHEMA IF EXISTS {schemaName} CASCADE";
+                            var dropSchemaSql = $"DROP SCHEMA IF EXISTS \"{schemaName}\" CASCADE";
                             executedQueries.Add(dropSchemaSql);
                             command.CommandText = dropSchemaSql;
                             await command.ExecuteNonQueryAsync();

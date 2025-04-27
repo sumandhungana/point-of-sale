@@ -80,7 +80,7 @@ export const Customers = () => {
     };
 
     const handleBulkReminder = () => {
-        navigate('/parties/customers/list-report-pdf');
+
     };
 
     const handleCustomerClick = (customer: CustomerWithBalance) => {
@@ -325,6 +325,10 @@ export const Customers = () => {
         },
     };
 
+    const handleListReportPdf = () => {
+        navigate('/parties/customers/list-report-pdf');
+    };
+
     return (
         <div style={styles.container}>
             <Sidebar />
@@ -382,7 +386,7 @@ export const Customers = () => {
                             <button style={{ ...styles.button, ...styles.secondaryButton }}>
                                 Filter
                             </button>
-                            <button style={{ ...styles.button, ...styles.secondaryButton }}>
+                            <button style={{ ...styles.button, ...styles.secondaryButton }} onClick={handleListReportPdf}>
                                 PDF
                             </button>
                         </div>

@@ -1,23 +1,37 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Backend.Models;
 using Backend.Data.Seeders;
+using Backend.Services;
+using System.Data;
+using Npgsql;
 
 namespace Backend.Data;
 
 public class ApplicationDbContext : DbContext
 {
+    private readonly SchemaConfigurationService _schemaConfig;
+    private string _currentSchema;
+
     public required string ConnectionString { get; set; }
 
     public ApplicationDbContext()
     {
         ConnectionString = "Host=localhost;Database=backend;Username=postgres;Password=postgres";
+        _currentSchema = "initSchema";
+        _schemaConfig = null!;
     }
 
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        SchemaConfigurationService schemaConfig) 
         : base(options)
     {
-        ConnectionString = "Host=localhost;Database=backend;Username=postgres;Password=postgres";
+        _schemaConfig = schemaConfig;
+        _currentSchema = schemaConfig.GetCurrentSchema();
     }
+
+    public string GetCurrentSchema() => _currentSchema;
 
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;
@@ -47,7 +61,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Purchase> Purchases { get; set; } = null!;
     public DbSet<PaymentsReceived> PaymentsReceived { get; set; } = null!;
     public DbSet<PaymentsGiven> PaymentsGiven { get; set; } = null!;
-    public DbSet<KhataBook> KhataBooks { get; set; }
+    public DbSet<KhataBook> KhataBooks { get; set; } = null!;
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -60,9 +74,9 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        // Set default schema to initSchema
-        modelBuilder.HasDefaultSchema("initSchema");
+        
+        // Set the schema for all entities
+        modelBuilder.HasDefaultSchema(_currentSchema);
 
         PermissionSeeder.Seed(modelBuilder);
             
@@ -144,5 +158,38 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(e => e.ItemId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
+    }
+
+    public async Task ReloadWithSchemaAsync(string schemaName)
+    {
+        try
+        {
+            // Close any existing connections
+            await Database.CloseConnectionAsync();
+
+            // Update the current schema
+            _currentSchema = schemaName;
+
+            // Clear the change tracker
+            ChangeTracker.Clear();
+
+            // Force a reload of the model by reopening the connection
+            await Database.OpenConnectionAsync();
+
+            // Set the search path for the current connection
+            using (var command = Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = $"SET search_path TO \"{_currentSchema}\"";
+                if (command.Connection?.State != ConnectionState.Open)
+                {
+                    await command.Connection?.OpenAsync();
+                }
+                await command.ExecuteNonQueryAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to reload schema: {ex.Message}", ex);
+        }
     }
 } 

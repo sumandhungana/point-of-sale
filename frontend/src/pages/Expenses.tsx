@@ -79,8 +79,8 @@ export const Expenses = () => {
     setDateSort(e.target.value);
   };
 
-  const handleAddExpense = () => {
-    navigate('/bills/expenses/add');
+  const handleExpenseClick = (expense: Expense) => {
+    navigate('/bills/expenses/add', { state: { expense } });
   };
 
   const styles = {
@@ -345,7 +345,7 @@ export const Expenses = () => {
               </div>
             </div>
             <div style={styles.actionButtons}>
-              <button style={styles.addButton} onClick={handleAddExpense}>
+              <button style={styles.addButton} onClick={() => navigate('/bills/expenses/add')}>
                 Add New Expense
               </button>
             </div>
@@ -356,7 +356,11 @@ export const Expenses = () => {
                 <div style={styles.errorMessage}>{error}</div>
               ) : (
                 filteredExpenses.map((expense) => (
-                  <div key={expense.id} style={styles.expenseCard}>
+                  <div 
+                    key={expense.id} 
+                    style={styles.expenseCard}
+                    onClick={() => handleExpenseClick(expense)}
+                  >
                     <div style={styles.imageContainer}>
                       {expense.photoPath ? (
                         <img 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { salesConfig } from '../config/sales';
 
@@ -11,23 +11,35 @@ interface Customer {
   address?: string;
 }
 
+interface SalesBill {
+  id: number;
+  billNumber: string;
+  billDate: string;
+  amount: number;
+  paymentMode: string;
+  remarks: string | null;
+  photoPath: string | null;
+  customer: Customer;
+}
+
 export const AddSalesBill = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialData = location.state?.bill as SalesBill | undefined;
+  const isEditMode = !!initialData;
+
   const [showPartySearch, setShowPartySearch] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [partySearch, setPartySearch] = useState('');
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [formData, setFormData] = useState({
-    customerId: 0,
-    billDate: new Date().toISOString().split('T')[0],
-    totalAmount: 0,
-    discountAmount: 0,
-    taxAmount: 0,
-    netAmount: 0,
-    paymentStatus: 'Pending',
-    billNumber: '',
-    paymentMode: 'cash',
-    photoPath: null as File | null,
+    BillNumber: '',
+    BillDate: new Date().toISOString().split('T')[0],
+    CustomerId: 0,
+    PaymentMode: 'cash',
+    Amount: 0,
+    Remarks: '',
+    PhotoPath: null as string | null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +53,6 @@ export const AddSalesBill = () => {
           throw new Error('Failed to fetch customers');
         }
         const data = await response.json();
-        console.log(data);
         setCustomers(data);
       } catch (err) {
         setError('Error loading customers');
@@ -50,37 +61,56 @@ export const AddSalesBill = () => {
     };
 
     const fetchLastBillNumber = async () => {
-      try {
-        const response = await fetch('/api/SalesBill/last');
-        if (!response.ok) {
-          throw new Error('Failed to fetch last bill number');
+      if (isEditMode) {
+        setFormData(prev => ({
+          ...prev,
+          BillNumber: initialData.billNumber,
+          BillDate: initialData.billDate,
+          Amount: initialData.amount,
+          PaymentMode: initialData.paymentMode,
+          Remarks: initialData.remarks || '',
+          PhotoPath: initialData.photoPath,
+          CustomerId: initialData.customer.id,
+        }));
+        setSelectedCustomer(initialData.customer);
+        setPartySearch(initialData.customer.name);
+        if (initialData.photoPath) {
+          setSelectedImage(initialData.photoPath);
         }
-        const data = await response.json();
-        const lastNumber = data.lastBillNumber || '0';
-        const nextNumber = parseInt(lastNumber.replace(salesConfig.billNumber.prefix, '')) + 1;
-        const paddedNumber = nextNumber.toString().padStart(salesConfig.billNumber.padding, '0');
-        const newBillNumber = `${salesConfig.billNumber.prefix}${paddedNumber}`;
-        
-        setFormData(prev => ({
-          ...prev,
-          billNumber: newBillNumber
-        }));
-      } catch (err) {
-        console.error('Error fetching last bill number:', err);
-        // If API fails, generate a default number
-        const defaultNumber = `${salesConfig.billNumber.prefix}${'1'.padStart(salesConfig.billNumber.padding, '0')}`;
-        setFormData(prev => ({
-          ...prev,
-          billNumber: defaultNumber
-        }));
+      } else {
+        try {
+          const response = await fetch('/api/SalesBill/last');
+          if (!response.ok) {
+            throw new Error('Failed to fetch last bill number');
+          }
+          const data = await response.json();
+          const lastNumber = data.lastBillNumber || '0';
+          const nextNumber = parseInt(lastNumber.replace(salesConfig.billNumber.prefix, '')) + 1;
+          const paddedNumber = nextNumber.toString().padStart(salesConfig.billNumber.padding, '0');
+          const newBillNumber = `${salesConfig.billNumber.prefix}${paddedNumber}`;
+          
+          setFormData(prev => ({
+            ...prev,
+            BillNumber: newBillNumber,
+            CustomerId: 0,
+          }));
+        } catch (err) {
+          console.error('Error fetching last bill number:', err);
+          const defaultNumber = `${salesConfig.billNumber.prefix}${'1'.padStart(salesConfig.billNumber.padding, '0')}`;
+          setFormData(prev => ({
+            ...prev,
+            BillNumber: defaultNumber,
+            CustomerId: 0,
+          }));
+        }
       }
     };
 
     fetchCustomers();
     fetchLastBillNumber();
-  }, []);
+  }, [isEditMode, initialData]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -94,30 +124,36 @@ export const AddSalesBill = () => {
     setError(null);
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('BillNumber', formData.billNumber);
-      formDataToSend.append('BillDate', formData.billDate);
-      formDataToSend.append('CustomerId', selectedCustomer?.id.toString() || '');
-      formDataToSend.append('PaymentMode', formData.paymentMode);
-      formDataToSend.append('TotalAmount', formData.totalAmount.toString());
-      formDataToSend.append('DiscountAmount', formData.discountAmount.toString());
-      formDataToSend.append('TaxAmount', formData.taxAmount.toString());
-      formDataToSend.append('NetAmount', formData.netAmount.toString());
-      formDataToSend.append('PaymentStatus', formData.paymentStatus);
+      const requestData = {
+        BillNumber: formData.BillNumber,
+        BillDate: formData.BillDate,
+        CustomerId: selectedCustomer?.id || 0,
+        PaymentMode: formData.PaymentMode,
+        Amount: formData.Amount,
+        Remarks: formData.Remarks,
+        PhotoPath: selectedImage,
+        Id: isEditMode ? initialData.id : 0
+      };
 
-      if (formData.photoPath) {
-        formDataToSend.append('Photo', formData.photoPath);
+      const url = isEditMode ? `/api/SalesBill/${initialData.id}` : '/api/SalesBill';
+      const method = isEditMode ? 'PUT' : 'POST';
+      if(isEditMode){
+        requestData.Id = initialData.id;
       }
-
-      const response = await fetch('/api/SalesBill', {
-        method: 'POST',
-        body: formDataToSend,
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create sales bill');
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} sales bill`);
       }
-      alert('Sales bill created successfully!');
+
+      alert(`Sales bill ${isEditMode ? 'updated' : 'created'} successfully!`);
       navigate('/bills/sales');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -131,7 +167,7 @@ export const AddSalesBill = () => {
       const file = e.target.files[0];
       setFormData(prev => ({
         ...prev,
-        photoPath: file
+        PhotoPath: URL.createObjectURL(file)
       }));
 
       const reader = new FileReader();
@@ -207,17 +243,6 @@ export const AddSalesBill = () => {
         background: '#f8f9fa',
       },
     },
-    addButton: {
-      position: 'absolute' as const,
-      right: '0.5rem',
-      top: '50%',
-      transform: 'translateY(-50%)',
-      background: 'none',
-      border: 'none',
-      cursor: 'pointer',
-      fontSize: '1.25rem',
-      color: '#28a745',
-    },
     textarea: {
       width: '100%',
       padding: '0.5rem',
@@ -272,8 +297,8 @@ export const AddSalesBill = () => {
                   <label style={styles.label}>Sales Bill Number</label>
                   <input
                     type="text"
-                    name="billNumber"
-                    value={formData.billNumber}
+                    name="BillNumber"
+                    value={formData.BillNumber}
                     onChange={handleInputChange}
                     style={styles.input}
                     required
@@ -286,8 +311,8 @@ export const AddSalesBill = () => {
                   <label style={styles.label}>Date</label>
                   <input
                     type="date"
-                    name="billDate"
-                    value={formData.billDate}
+                    name="BillDate"
+                    value={formData.BillDate}
                     onChange={handleInputChange}
                     style={styles.input}
                     required
@@ -329,98 +354,42 @@ export const AddSalesBill = () => {
               </div>
             </div>
 
-            <div style={styles.formRow}>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Total Amount</label>
-                  <input
-                    type="number"
-                    name="totalAmount"
-                    value={formData.totalAmount}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-              </div>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Discount Amount</label>
-                  <input
-                    type="number"
-                    name="discountAmount"
-                    value={formData.discountAmount}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-              </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Amount</label>
+              <input
+                type="number"
+                name="Amount"
+                value={formData.Amount}
+                onChange={handleInputChange}
+                style={styles.input}
+                required
+              />
             </div>
 
-            <div style={styles.formRow}>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Tax Amount</label>
-                  <input
-                    type="number"
-                    name="taxAmount"
-                    value={formData.taxAmount}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-              </div>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Net Amount</label>
-                  <input
-                    type="number"
-                    name="netAmount"
-                    value={formData.netAmount}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
-              </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Payment Mode</label>
+              <select
+                name="PaymentMode"
+                value={formData.PaymentMode}
+                onChange={handleInputChange}
+                style={styles.input}
+                required
+              >
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="upi">UPI</option>
+                <option value="bank">Bank Transfer</option>
+              </select>
             </div>
 
-            <div style={styles.formRow}>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Payment Mode</label>
-                  <select
-                    name="paymentMode"
-                    value={formData.paymentMode}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  >
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="upi">UPI</option>
-                    <option value="bank">Bank Transfer</option>
-                  </select>
-                </div>
-              </div>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Payment Status</label>
-                  <select
-                    name="paymentStatus"
-                    value={formData.paymentStatus}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Paid">Paid</option>
-                    <option value="Partial">Partial</option>
-                  </select>
-                </div>
-              </div>
+            <div style={styles.formGroup}>
+              <label style={styles.label}>Remarks</label>
+              <textarea
+                name="Remarks"
+                value={formData.Remarks}
+                onChange={handleInputChange}
+                style={styles.textarea}
+              />
             </div>
 
             <div style={styles.formGroup}>
@@ -461,7 +430,7 @@ export const AddSalesBill = () => {
                 style={styles.saveButton}
                 disabled={loading}
               >
-                {loading ? 'Saving...' : 'Save Bill'}
+                {loading ? 'Saving...' : isEditMode ? 'Edit Bill' : 'Save Bill'}
               </button>
             </div>
           </form>

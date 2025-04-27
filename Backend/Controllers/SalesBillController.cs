@@ -5,6 +5,7 @@ using Backend.Models;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 namespace Backend.Controllers;
 
@@ -49,14 +50,32 @@ public class SalesBillController : ControllerBase
 
     // POST: api/SalesBill
     [HttpPost]
-    public async Task<ActionResult<SalesBill>> CreateSalesBill([FromForm] SalesBillRequest request)
+    public async Task<ActionResult<SalesBill>> CreateSalesBill([FromBody] SalesBillRequest request)
     {
         try
         {
-            string photoPath = null;
-            if (request.Photo != null)
+            if (!ModelState.IsValid)
             {
-                photoPath = await FileUploadHelper.UploadFileAsync(request.Photo, _logger);
+                return BadRequest(ModelState);
+            }
+
+            string photoPath = null;
+            if (!string.IsNullOrEmpty(request.Base64Image))
+            {
+                try
+                {
+                    // Convert base64 to IFormFile
+                    var formFile = await ConvertBase64ToFormFile(request.Base64Image);
+                    if (formFile != null)
+                    {
+                        photoPath = await FileUploadHelper.UploadFileAsync(formFile, _logger);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing base64 image");
+                    return BadRequest("Invalid image data");
+                }
             }
 
             var salesBill = new SalesBill
@@ -65,8 +84,8 @@ public class SalesBillController : ControllerBase
                 BillDate = request.BillDate.ToUniversalTime(),
                 CustomerId = request.CustomerId,
                 PaymentMode = request.PaymentMode,
-                Amount = request.NetAmount,
-                Remarks = $"Total: {request.TotalAmount}, Discount: {request.DiscountAmount}, Tax: {request.TaxAmount}, Status: {request.PaymentStatus}",
+                Amount = request.Amount,
+                Remarks = request.Remarks,
                 PhotoPath = photoPath,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -91,14 +110,44 @@ public class SalesBillController : ControllerBase
 
     // PUT: api/SalesBill/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSalesBill(int id, [FromForm] SalesBillUpdateDto salesBillDto)
+    public async Task<IActionResult> UpdateSalesBill(int id, [FromBody] SalesBillUpdateDto salesBillDto)
     {
         try
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var salesBill = await _context.SalesBills.FindAsync(id);
             if (salesBill == null)
             {
                 return NotFound();
+            }
+
+            // Handle image update
+            if (!string.IsNullOrEmpty(salesBillDto.Base64Image))
+            {
+                try
+                {
+                    // Delete old photo if exists
+                    if (!string.IsNullOrEmpty(salesBill.PhotoPath))
+                    {
+                        FileUploadHelper.DeleteFile(salesBill.PhotoPath);
+                    }
+
+                    // Convert base64 to IFormFile and upload
+                    var formFile = await ConvertBase64ToFormFile(salesBillDto.Base64Image);
+                    if (formFile != null)
+                    {
+                        salesBill.PhotoPath = await FileUploadHelper.UploadFileAsync(formFile, _logger);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error processing base64 image");
+                    return BadRequest("Invalid image data");
+                }
             }
 
             salesBill.BillNumber = salesBillDto.BillNumber;
@@ -109,21 +158,10 @@ public class SalesBillController : ControllerBase
             salesBill.Remarks = salesBillDto.Remarks;
             salesBill.UpdatedAt = DateTime.UtcNow;
 
-            if (salesBillDto.Photo != null)
-            {
-                // Delete old photo if exists
-                if (!string.IsNullOrEmpty(salesBill.PhotoPath))
-                {
-                    FileUploadHelper.DeleteFile(salesBill.PhotoPath);
-                }
-                // Upload new photo
-                salesBill.PhotoPath = await FileUploadHelper.UploadFileAsync(salesBillDto.Photo, _logger);
-            }
-
             _context.Entry(salesBill).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(salesBill);
         }
         catch (Exception ex)
         {
@@ -154,6 +192,39 @@ public class SalesBillController : ControllerBase
         return NoContent();
     }
 
+    private async Task<IFormFile> ConvertBase64ToFormFile(string base64String)
+    {
+        try
+        {
+            // Remove the data URL prefix if present
+            var base64Data = base64String.Contains(",") 
+                ? base64String.Split(',')[1] 
+                : base64String;
+
+            // Decode base64 string
+            var bytes = Convert.FromBase64String(base64Data);
+
+            // Create a memory stream from the bytes
+            var stream = new MemoryStream(bytes);
+
+            // Create a form file
+            var formFile = new FormFile(
+                stream,
+                0,
+                bytes.Length,
+                "image",
+                $"image_{Guid.NewGuid()}.jpg"
+            );
+
+            return formFile;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error converting base64 to form file");
+            throw;
+        }
+    }
+
     private bool SalesBillExists(int id)
     {
         return _context.SalesBills.Any(e => e.Id == id);
@@ -162,26 +233,8 @@ public class SalesBillController : ControllerBase
 
 public class SalesBillRequest
 {
-    [Required]
-    public string BillNumber { get; set; } = null!;
-    
-    [Required]
-    public string PaymentMode { get; set; } = null!;
-    
-    public int CustomerId { get; set; }
-    public DateTime BillDate { get; set; }
-    public decimal TotalAmount { get; set; }
-    public decimal DiscountAmount { get; set; }
-    public decimal TaxAmount { get; set; }
-    public decimal NetAmount { get; set; }
-    public string PaymentStatus { get; set; } = null!;
-    public IFormFile? Photo { get; set; }
-}
-
-
-public class SalesBillUpdateDto
-{
-    [Required]
+    [Required(ErrorMessage = "Bill number is required")]
+    [StringLength(100)]
     public string BillNumber { get; set; } = null!;
     
     [Required]
@@ -190,7 +243,8 @@ public class SalesBillUpdateDto
     [Required]
     public int CustomerId { get; set; }
     
-    [Required]
+    [Required(ErrorMessage = "Payment mode is required")]
+    [StringLength(10)]
     public string PaymentMode { get; set; } = null!;
     
     [Required]
@@ -198,5 +252,29 @@ public class SalesBillUpdateDto
     
     public string? Remarks { get; set; }
     
-    public IFormFile? Photo { get; set; }
+    public string? Base64Image { get; set; }
+}
+
+public class SalesBillUpdateDto
+{
+    [Required(ErrorMessage = "Bill number is required")]
+    [StringLength(100)]
+    public string BillNumber { get; set; } = null!;
+    
+    [Required]
+    public DateTime BillDate { get; set; }
+    
+    [Required]
+    public int CustomerId { get; set; }
+    
+    [Required(ErrorMessage = "Payment mode is required")]
+    [StringLength(10)]
+    public string PaymentMode { get; set; } = null!;
+    
+    [Required]
+    public decimal Amount { get; set; }
+    
+    public string? Remarks { get; set; }
+    
+    public string? Base64Image { get; set; }
 } 

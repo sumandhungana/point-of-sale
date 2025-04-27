@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
@@ -14,8 +14,24 @@ interface Item {
   name: string;
 }
 
+interface Income {
+  id: number;
+  incomeNo: string;
+  date: string;
+  amount: number;
+  paymentMode: string;
+  remarks: string | null;
+  photoPath: string | null;
+  category: Category;
+  item: Item;
+}
+
 export const AddIncome = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialData = location.state?.income as Income | undefined;
+  const isEditMode = !!initialData;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -58,25 +74,43 @@ export const AddIncome = () => {
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
 
-        // Handle last income number
-        if (lastIncomeResponse.ok) {
-          const lastIncomeData = await lastIncomeResponse.json();
-          const lastNumber = lastIncomeData.lastIncomeNo || '0';
-          const nextNumber = parseInt(lastNumber.replace(billsConfig.income.prefix, '')) + 1;
-          const paddedNumber = nextNumber.toString().padStart(billsConfig.income.padding, '0');
-          const newIncomeNo = `${billsConfig.income.prefix}${paddedNumber}`;
-          
+        if (isEditMode) {
           setFormData(prev => ({
             ...prev,
-            incomeNo: newIncomeNo
+            incomeNo: initialData.incomeNo,
+            date: initialData.date,
+            amount: initialData.amount.toString(),
+            paymentMode: initialData.paymentMode,
+            remarks: initialData.remarks || '',
           }));
+          setSelectedCategory(initialData.category);
+          setSelectedItem(initialData.item);
+          setCategorySearchQuery(initialData.category.name);
+          setItemSearch(initialData.item.name);
+          if (initialData.photoPath) {
+            setSelectedImage(initialData.photoPath);
+          }
         } else {
-          // If API fails, generate a default number
-          const defaultNumber = `${billsConfig.income.prefix}${'1'.padStart(billsConfig.income.padding, '0')}`;
-          setFormData(prev => ({
-            ...prev,
-            incomeNo: defaultNumber
-          }));
+          // Handle last income number
+          if (lastIncomeResponse.ok) {
+            const lastIncomeData = await lastIncomeResponse.json();
+            const lastNumber = lastIncomeData.lastIncomeNo || '0';
+            const nextNumber = parseInt(lastNumber.replace(billsConfig.income.prefix, '')) + 1;
+            const paddedNumber = nextNumber.toString().padStart(billsConfig.income.padding, '0');
+            const newIncomeNo = `${billsConfig.income.prefix}${paddedNumber}`;
+            
+            setFormData(prev => ({
+              ...prev,
+              incomeNo: newIncomeNo
+            }));
+          } else {
+            // If API fails, generate a default number
+            const defaultNumber = `${billsConfig.income.prefix}${'1'.padStart(billsConfig.income.padding, '0')}`;
+            setFormData(prev => ({
+              ...prev,
+              incomeNo: defaultNumber
+            }));
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
@@ -86,7 +120,7 @@ export const AddIncome = () => {
     };
 
     fetchData();
-  }, []);
+  }, [isEditMode, initialData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -130,18 +164,23 @@ export const AddIncome = () => {
       if (formData.photo) {
         formDataToSend.append('Photo', formData.photo);
       }
+      if(isEditMode){
+        formDataToSend.append('Id', initialData.id.toString());
+      }
+      const url = isEditMode ? `/api/Income/${initialData.id}` : '/api/Income';
+      const method = isEditMode ? 'PUT' : 'POST';
 
-      const response = await fetch('/api/Income', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         body: formDataToSend,
       });
 
       if (response.status === 200 || response.status === 201) {
-        alert('Income entry created successfully!');
+        alert(`Income entry ${isEditMode ? 'updated' : 'created'} successfully!`);
         navigate('/bills/income');
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create income entry');
+        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} income entry`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -359,7 +398,7 @@ export const AddIncome = () => {
         <Navbar />
         <div style={styles.container}>
           <div style={styles.card}>
-            <h1 style={styles.heading}>Add New Income</h1>
+            <h1 style={styles.heading}>{isEditMode ? 'Edit Income' : 'Add New Income'}</h1>
             <form style={styles.form} onSubmit={handleSubmit}>
               <div style={styles.row}>
                 <div style={styles.inputGroup}>
@@ -542,7 +581,7 @@ export const AddIncome = () => {
                   style={styles.saveButton}
                   disabled={loading}
                 >
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? 'Saving...' : isEditMode ? 'Edit Income' : 'Save Income'}
                 </button>
               </div>
             </form>

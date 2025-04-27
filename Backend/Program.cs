@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Middleware;
+using Backend.Services;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +14,14 @@ builder.Services.AddSwaggerGen();
 
 // Configure PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+           .ReplaceService<IModelCacheKeyFactory, CustomModelCacheKeyFactory>();
+});
+
+// Add SchemaConfigurationService
+builder.Services.AddSingleton<IWebHostEnvironment>(builder.Environment);
+builder.Services.AddScoped<SchemaConfigurationService>();
 
 var app = builder.Build();
 

@@ -40,8 +40,8 @@ user icon click garda ko user ma form chha tesma CURD - done
 you give and you receive page button eautai thau ma
 
 
-ani each user ma new khatabook
 UI sano sab page ko
+ani each user ma new khatabook
 current statement download in statement page
 
 http://localhost:3000/parties/customers/statements/you-gave/8 show current date - done

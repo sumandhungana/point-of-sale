@@ -81,6 +81,10 @@ export const Sales = () => {
     navigate('/bills/sales/add');
   };
 
+  const handleBillClick = (bill: SalesBill) => {
+    navigate('/bills/sales/add', { state: { bill } });
+  };
+
   const styles = {
     container: {
       width: '100%',
@@ -355,7 +359,11 @@ export const Sales = () => {
                 <div style={styles.errorMessage}>{error}</div>
               ) : (
                 filteredSalesBills.map((bill) => (
-                  <div key={bill.id} style={styles.salesCard}>
+                  <div 
+                    key={bill.id} 
+                    style={styles.salesCard}
+                    onClick={() => handleBillClick(bill)}
+                  >
                     <div style={styles.imageContainer}>
                       {bill.photoPath ? (
                         <img 

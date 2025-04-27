@@ -79,6 +79,10 @@ export const Purchase = () => {
     setDateSort(e.target.value);
   };
 
+  const handlePurchaseClick = (purchase: Purchase) => {
+    navigate('/bills/purchase/add', { state: { purchase } });
+  };
+
   const styles = {
     container: {
       width: '100%',
@@ -418,7 +422,11 @@ export const Purchase = () => {
               <div style={styles.errorMessage}>{error}</div>
             ) : (
               filteredPurchases.map((purchase) => (
-                <div key={purchase.id} style={styles.purchaseCard}>
+                <div 
+                  key={purchase.id} 
+                  style={styles.purchaseCard}
+                  onClick={() => handlePurchaseClick(purchase)}
+                >
                   <div style={styles.imageContainer}>
                     {purchase.photoPath ? (
                       <img 

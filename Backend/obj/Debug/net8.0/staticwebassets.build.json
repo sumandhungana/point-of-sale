@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "r2EHeHXkJDFsZMkwTm4Qn8MH4YwqAE/9rSNwGqMrCQc=",
+  "Hash": "XH4OrPvpwVo5t3VTbjU50TSv6I73PvZiCVlD1AN47YQ=",
   "Source": "Backend",
   "BasePath": "_content/Backend",
   "Mode": "Default",
@@ -16,6 +16,25 @@
     }
   ],
   "Assets": [
+    {
+      "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/31a5320e-c5ae-4bbe-805a-af0371dfa673.png",
+      "SourceId": "Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/",
+      "BasePath": "_content/Backend",
+      "RelativePath": "uploads/31a5320e-c5ae-4bbe-805a-af0371dfa673.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/31a5320e-c5ae-4bbe-805a-af0371dfa673.png"
+    },
     {
       "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/373e33e8-3757-47c5-882e-b41be48abb26.png",
       "SourceId": "Backend",

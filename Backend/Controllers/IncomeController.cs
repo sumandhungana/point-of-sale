@@ -126,11 +126,15 @@ public class IncomeController : ControllerBase
 
     // PUT: api/Income/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateIncome(int id, [FromForm] IncomeUpdateDto incomeDto)
+    public async Task<ActionResult<Income>> UpdateIncome(int id, [FromForm] IncomeUpdateDto incomeDto)
     {
         try
         {
-            var income = await _context.Incomes.FindAsync(id);
+            var income = await _context.Incomes
+                .Include(i => i.Category)
+                .Include(i => i.Item)
+                .FirstOrDefaultAsync(i => i.Id == id);
+                
             if (income == null)
             {
                 return NotFound();
@@ -158,12 +162,12 @@ public class IncomeController : ControllerBase
             _context.Entry(income).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(income);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating income entry");
-            return BadRequest(ex.Message);
+            return BadRequest(new { message = ex.Message });
         }
     }
 

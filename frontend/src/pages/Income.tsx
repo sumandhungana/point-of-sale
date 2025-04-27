@@ -60,8 +60,8 @@ export const Income = () => {
     setDateSort(e.target.value);
   };
 
-  const handleAddIncome = () => {
-    navigate('/bills/income/add');
+  const handleIncomeClick = (income: Income) => {
+    navigate('/bills/income/add', { state: { income } });
   };
 
   const filteredIncomes = incomes
@@ -340,12 +340,10 @@ export const Income = () => {
               </div>
             </div>
             <div style={styles.actionButtons}>
-              <button style={styles.addButton} onClick={handleAddIncome}>
+              <button style={styles.addButton} onClick={() => navigate('/bills/income/add')}>
                 Add New Income
               </button>
             </div>
-          </div>
-        </div>
             <div style={styles.incomeList}>
               {loading ? (
                 <div style={styles.loadingMessage}>Loading incomes...</div>
@@ -353,7 +351,11 @@ export const Income = () => {
                 <div style={styles.errorMessage}>{error}</div>
               ) : (
                 filteredIncomes.map((income) => (
-                  <div key={income.id} style={styles.incomeCard}>
+                  <div 
+                    key={income.id} 
+                    style={styles.incomeCard}
+                    onClick={() => handleIncomeClick(income)}
+                  >
                     <div style={styles.imageContainer}>
                       {income.photoPath ? (
                         <img 
@@ -398,6 +400,8 @@ export const Income = () => {
                 ))
               )}
             </div>
+          </div>
+        </div>
       </div>
     </div>
   );

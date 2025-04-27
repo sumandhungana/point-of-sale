@@ -1,0 +1,96 @@
+{
+	"info": {
+		"_postman_id": "khata-book-schema-collection",
+		"name": "KhataBook Schema Management",
+		"description": "Collection for testing KhataBook schema management endpoints",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create KhataBook",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Test KhataBook\",\n    \"companyName\": \"Test Company\",\n    \"contactPersonName\": \"John Doe\",\n    \"phoneNumber\": \"1234567890\",\n    \"businessCategory\": 1,\n    \"businessType\": 1,\n    \"taxVat\": true,\n    \"bookAc\": true,\n    \"kyc\": true\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/KhataBook",
+					"host": ["{{base_url}}"],
+					"path": ["api", "KhataBook"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Switch Schema",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/KhataBook/{{khata_book_id}}/switch-schema",
+					"host": ["{{base_url}}"],
+					"path": ["api", "KhataBook", "{{khata_book_id}}", "switch-schema"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Schema Tables",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/KhataBook/{{khata_book_id}}/tables",
+					"host": ["{{base_url}}"],
+					"path": ["api", "KhataBook", "{{khata_book_id}}", "tables"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Schemas",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/KhataBook/schemas",
+					"host": ["{{base_url}}"],
+					"path": ["api", "KhataBook", "schemas"]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Validate Schema",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/KhataBook/{{khata_book_id}}/validate-schema",
+					"host": ["{{base_url}}"],
+					"path": ["api", "KhataBook", "{{khata_book_id}}", "validate-schema"]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:5000",
+			"type": "string"
+		},
+		{
+			"key": "khata_book_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+} 

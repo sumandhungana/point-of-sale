@@ -2,32 +2,12 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
-import { toast } from 'react-toastify';
 
 interface NavItem {
   title: string;
   path: string;
   icon: string;
   children?: NavItem[];
-}
-
-interface KhataBook {
-  id: number;
-  name: string;
-  number: string;
-  address: string;
-  email: string;
-  companyName: string;
-  companyNumber: string;
-  companyAddress: string;
-  companyEmail: string;
-  businessCategory: number;
-  businessType: number;
-  taxVat: boolean;
-  bookAccount: boolean;
-  kyc: boolean;
-  createdAt: string;
-  updatedAt: string;
 }
 
 const navItems: NavItem[] = [
@@ -193,8 +173,6 @@ export const Sidebar = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
-  const [khataBooks, setKhataBooks] = useState<KhataBook[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Function to find all parent paths for the current location
   const findParentPaths = (items: NavItem[], currentPath: string): string[] => {
@@ -241,29 +219,6 @@ export const Sidebar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    const fetchKhataBooks = async () => {
-      if (isPopupOpen) {
-        setIsLoading(true);
-        try {
-          const response = await fetch('/api/KhataBook');
-          if (!response.ok) {
-            throw new Error('Failed to fetch Khata Books');
-          }
-          const data = await response.json();
-          setKhataBooks(data);
-        } catch (error) {
-          console.error('Error fetching Khata Books:', error);
-          toast.error('Failed to load Khata Books');
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchKhataBooks();
-  }, [isPopupOpen]);
 
   const styles = {
     sidebar: {
@@ -562,26 +517,6 @@ export const Sidebar = () => {
     navigate('/add-khatabook');
   };
 
-  const getBusinessCategoryText = (category: number) => {
-    switch (category) {
-      case 1: return 'Retail';
-      case 2: return 'Wholesale';
-      case 3: return 'Manufacturing';
-      case 4: return 'Service';
-      default: return 'Unknown';
-    }
-  };
-
-  const getBusinessTypeText = (type: number) => {
-    switch (type) {
-      case 1: return 'Sole Proprietorship';
-      case 2: return 'Partnership';
-      case 3: return 'Corporation';
-      case 4: return 'LLC';
-      default: return 'Unknown';
-    }
-  };
-
   return (
     <div style={styles.sidebar}>
       <div style={styles.logoContainer}>
@@ -606,7 +541,7 @@ export const Sidebar = () => {
         <div style={styles.popupContainer}>
           <div style={styles.popupContent} ref={popupRef}>
             <div style={styles.popupHeader}>
-              <h2 style={styles.popupTitle}>Khata Books</h2>
+              <h2 style={styles.popupTitle}>User Accounts</h2>
               <button 
                 style={styles.closeButton}
                 onClick={() => setIsPopupOpen(false)}
@@ -614,34 +549,20 @@ export const Sidebar = () => {
                 ×
               </button>
             </div>
-            {isLoading ? (
-              <div style={{ textAlign: 'center', padding: '2rem' }}>
-                Loading...
-              </div>
-            ) : (
-              <div style={styles.userCardsContainer}>
-                {khataBooks.map((book) => (
-                  <div key={book.id} style={styles.userCard}>
-                    <div style={styles.userImage}>
-                      {book.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div style={styles.userDetails}>
-                      <h3 style={styles.companyName}>{book.companyName}</h3>
-                      <p style={styles.userInfoText}>{book.name}</p>
-                      <p style={styles.userInfoText}>{book.number}</p>
-                      <p style={styles.userInfoText}>
-                        {getBusinessCategoryText(book.businessCategory)} - {getBusinessTypeText(book.businessType)}
-                      </p>
-                      <p style={styles.userInfoText}>
-                        {book.taxVat ? 'Tax/VAT ✓' : 'Tax/VAT ✗'} | 
-                        {book.bookAccount ? ' Book A/C ✓' : ' Book A/C ✗'} | 
-                        {book.kyc ? ' KYC ✓' : ' KYC ✗'}
-                      </p>
-                    </div>
+            <div style={styles.userCardsContainer}>
+              {userCards.map((card) => (
+                <div key={card.id} style={styles.userCard}>
+                  <div style={styles.userImage}>
+                    {card.image}
                   </div>
-                ))}
-              </div>
-            )}
+                  <div style={styles.userDetails}>
+                    <h3 style={styles.companyName}>{card.company}</h3>
+                    <p style={styles.userInfoText}>{card.phone}</p>
+                    <p style={styles.userInfoText}>{card.role}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
             <button 
               style={styles.addButton}
               onClick={handleAddKhatabook}

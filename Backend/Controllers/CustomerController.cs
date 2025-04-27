@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using System.Linq;
+using System.Data;
 
 namespace Backend.Controllers;
 
@@ -12,17 +14,25 @@ public class CustomerController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<CustomerController> _logger;
+    private readonly SchemaConfigurationService _schemaConfig;
 
-    public CustomerController(ApplicationDbContext context, ILogger<CustomerController> logger)
+    public CustomerController(
+        ApplicationDbContext context, 
+        ILogger<CustomerController> logger,
+        SchemaConfigurationService schemaConfig)
     {
         _context = context;
         _logger = logger;
+        _schemaConfig = schemaConfig;
     }
 
     // GET: api/Customer
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
     {
+        // Ensure we're using the correct schema
+        await _context.ReloadWithSchemaAsync(_schemaConfig.GetCurrentSchema());
+        
         return await _context.Customers
             .Where(c => !c.isSupplier)
             .OrderByDescending(c => c.CreatedAt)
@@ -33,6 +43,8 @@ public class CustomerController : ControllerBase
     [HttpGet("suppliers")]
     public async Task<ActionResult<IEnumerable<Customer>>> GetSuppliers()
     {
+        // Ensure we're using the correct schema
+        await _context.ReloadWithSchemaAsync(_schemaConfig.GetCurrentSchema());
         return await _context.Customers
             .Where(c => c.isSupplier)
             .OrderByDescending(c => c.CreatedAt)
@@ -43,6 +55,8 @@ public class CustomerController : ControllerBase
     [HttpGet("customers")]
     public async Task<ActionResult<IEnumerable<Customer>>> GetOnlyCustomers()
     {
+        // Ensure we're using the correct schema
+        await _context.ReloadWithSchemaAsync(_schemaConfig.GetCurrentSchema());
         return await _context.Customers
             .Where(c => !c.isSupplier)
             .OrderByDescending(c => c.CreatedAt)
@@ -53,6 +67,8 @@ public class CustomerController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Customer>> GetCustomer(int id)
     {
+        // Ensure we're using the correct schema
+        await _context.ReloadWithSchemaAsync(_schemaConfig.GetCurrentSchema());
         var customer = await _context.Customers.FindAsync(id);
 
         if (customer == null)
@@ -67,6 +83,9 @@ public class CustomerController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
     {
+        // Ensure we're using the correct schema
+        await _context.ReloadWithSchemaAsync(_schemaConfig.GetCurrentSchema());
+        
         customer.CreatedAt = DateTime.UtcNow;
         customer.UpdatedAt = DateTime.UtcNow;
         
@@ -89,6 +108,9 @@ public class CustomerController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCustomer(int id, Customer updatedCustomer)
     {
+        // Ensure we're using the correct schema
+        await _context.ReloadWithSchemaAsync(_schemaConfig.GetCurrentSchema());
+        
         var customer = await _context.Customers.FindAsync(id);
         if (customer == null)
         {
@@ -149,6 +171,9 @@ public class CustomerController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCustomer(int id)
     {
+        // Ensure we're using the correct schema
+        await _context.ReloadWithSchemaAsync(_schemaConfig.GetCurrentSchema());
+        
         var customer = await _context.Customers.FindAsync(id);
         if (customer == null)
         {

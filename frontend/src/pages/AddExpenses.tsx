@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
@@ -14,8 +14,24 @@ interface Item {
   name: string;
 }
 
+interface Expense {
+  id: number;
+  expensesNo: string;
+  date: string;
+  amount: number;
+  paymentMode: string;
+  remarks: string | null;
+  photoPath: string | null;
+  category: Category;
+  item: Item;
+}
+
 export const AddExpenses = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const initialData = location.state?.expense as Expense | undefined;
+  const isEditMode = !!initialData;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -58,25 +74,43 @@ export const AddExpenses = () => {
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
 
-        // Handle last expenses number
-        if (lastExpensesResponse.ok) {
-          const lastExpensesData = await lastExpensesResponse.json();
-          const lastNumber = lastExpensesData.lastExpensesNo || '0';
-          const nextNumber = parseInt(lastNumber.replace(billsConfig.expenses.prefix, '')) + 1;
-          const paddedNumber = nextNumber.toString().padStart(billsConfig.expenses.padding, '0');
-          const newExpensesNo = `${billsConfig.expenses.prefix}${paddedNumber}`;
-          
+        if (isEditMode) {
           setFormData(prev => ({
             ...prev,
-            expensesNo: newExpensesNo
+            expensesNo: initialData.expensesNo,
+            date: initialData.date,
+            amount: initialData.amount.toString(),
+            paymentMode: initialData.paymentMode,
+            remarks: initialData.remarks || '',
           }));
+          setSelectedCategory(initialData.category);
+          setSelectedItem(initialData.item);
+          setCategorySearchQuery(initialData.category.name);
+          setItemSearch(initialData.item.name);
+          if (initialData.photoPath) {
+            setSelectedImage(initialData.photoPath);
+          }
         } else {
-          // If API fails, generate a default number
-          const defaultNumber = `${billsConfig.expenses.prefix}${'1'.padStart(billsConfig.expenses.padding, '0')}`;
-          setFormData(prev => ({
-            ...prev,
-            expensesNo: defaultNumber
-          }));
+          // Handle last expenses number
+          if (lastExpensesResponse.ok) {
+            const lastExpensesData = await lastExpensesResponse.json();
+            const lastNumber = lastExpensesData.lastExpensesNo || '0';
+            const nextNumber = parseInt(lastNumber.replace(billsConfig.expenses.prefix, '')) + 1;
+            const paddedNumber = nextNumber.toString().padStart(billsConfig.expenses.padding, '0');
+            const newExpensesNo = `${billsConfig.expenses.prefix}${paddedNumber}`;
+            
+            setFormData(prev => ({
+              ...prev,
+              expensesNo: newExpensesNo
+            }));
+          } else {
+            // If API fails, generate a default number
+            const defaultNumber = `${billsConfig.expenses.prefix}${'1'.padStart(billsConfig.expenses.padding, '0')}`;
+            setFormData(prev => ({
+              ...prev,
+              expensesNo: defaultNumber
+            }));
+          }
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
@@ -86,7 +120,7 @@ export const AddExpenses = () => {
     };
 
     fetchData();
-  }, []);
+  }, [isEditMode, initialData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value, type } = e.target;
@@ -130,18 +164,23 @@ export const AddExpenses = () => {
       if (formData.photo) {
         formDataToSend.append('Photo', formData.photo);
       }
+      if(isEditMode){
+        formDataToSend.append('Id', initialData.id.toString());
+      }
+      const url = isEditMode ? `/api/Expenses/${initialData.id}` : '/api/Expenses';
+      const method = isEditMode ? 'PUT' : 'POST';
 
-      const response = await fetch('/api/Expenses', {
-        method: 'POST',
+      const response = await fetch(url, {
+        method,
         body: formDataToSend,
       });
 
       if (response.status === 200 || response.status === 201) {
-        alert('Expense entry created successfully!');
+        alert(`Expense entry ${isEditMode ? 'updated' : 'created'} successfully!`);
         navigate('/bills/expenses');
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create expense entry');
+        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} expense entry`);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
@@ -359,7 +398,7 @@ export const AddExpenses = () => {
         <Navbar />
         <div style={styles.container}>
           <div style={styles.card}>
-            <h1 style={styles.heading}>Add New Expense</h1>
+            <h1 style={styles.heading}>{isEditMode ? 'Edit Expense' : 'Add New Expense'}</h1>
             <form style={styles.form} onSubmit={handleSubmit}>
               <div style={styles.row}>
                 <div style={styles.inputGroup}>
@@ -542,7 +581,7 @@ export const AddExpenses = () => {
                   style={styles.saveButton}
                   disabled={loading}
                 >
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? 'Saving...' : isEditMode ? 'Edit Expense' : 'Save Expense'}
                 </button>
               </div>
             </form>

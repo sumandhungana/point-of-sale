@@ -158,7 +158,7 @@ public class PurchaseController : ControllerBase
             _context.Entry(purchase).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(purchase);
         }
         catch (Exception ex)
         {

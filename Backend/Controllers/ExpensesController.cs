@@ -144,7 +144,7 @@ public class ExpensesController : ControllerBase
             _context.Entry(expense).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(expense);
         }
         catch (Exception ex)
         {
