@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { billsConfig } from '../config/bills';
 
 interface Category {
   id: number;
@@ -42,9 +43,10 @@ export const AddExpenses = () => {
   useEffect(() => {
     const fetchData = async () => {
       try { 
-        const [categoriesResponse, itemsResponse] = await Promise.all([
+        const [categoriesResponse, itemsResponse, lastExpensesResponse] = await Promise.all([
           fetch('/api/Category'),
-          fetch('/api/Item')
+          fetch('/api/Item'),
+          fetch('/api/Expenses/last')
         ]);
 
         if (!categoriesResponse.ok || !itemsResponse.ok) {
@@ -56,6 +58,26 @@ export const AddExpenses = () => {
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
 
+        // Handle last expenses number
+        if (lastExpensesResponse.ok) {
+          const lastExpensesData = await lastExpensesResponse.json();
+          const lastNumber = lastExpensesData.lastExpensesNo || '0';
+          const nextNumber = parseInt(lastNumber.replace(billsConfig.expenses.prefix, '')) + 1;
+          const paddedNumber = nextNumber.toString().padStart(billsConfig.expenses.padding, '0');
+          const newExpensesNo = `${billsConfig.expenses.prefix}${paddedNumber}`;
+          
+          setFormData(prev => ({
+            ...prev,
+            expensesNo: newExpensesNo
+          }));
+        } else {
+          // If API fails, generate a default number
+          const defaultNumber = `${billsConfig.expenses.prefix}${'1'.padStart(billsConfig.expenses.padding, '0')}`;
+          setFormData(prev => ({
+            ...prev,
+            expensesNo: defaultNumber
+          }));
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
       } finally {
@@ -349,6 +371,7 @@ export const AddExpenses = () => {
                     onChange={handleInputChange}
                     style={styles.input}
                     required
+                    disabled
                   />
                 </div>
                 <div style={styles.inputGroup}>

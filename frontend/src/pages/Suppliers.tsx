@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { getCustomers, Customer } from '../services/customerService';
+import { getSuppliers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
 
@@ -31,7 +31,7 @@ export const Suppliers = () => {
     useEffect(() => {
         const fetchSuppliers = async () => {
             try {
-                const data = await getCustomers();
+                const data = await getSuppliers();
                 const suppliersData = data.filter(customer => customer.isSupplier);
                 const suppliersWithBalance = await Promise.all(
                     suppliersData.map(async (supplier) => {

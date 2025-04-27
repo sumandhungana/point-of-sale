@@ -22,7 +22,7 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<User>>> GetUsers()
     {
-        return await _context.Users.ToListAsync();
+        return await _context.Users.OrderByDescending(u => u.CreatedAt).ToListAsync();
     }
 
     // GET: api/User/5

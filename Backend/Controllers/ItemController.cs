@@ -26,6 +26,7 @@ public class ItemController : ControllerBase
     {
         var items = await _context.Items
             .Include(i => i.Category)
+            .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
 
         var response = new ItemsResponseDto

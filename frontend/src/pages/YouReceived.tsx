@@ -1,15 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
-import { createPaymentReceived } from '../services/paymentService';
+import { createPaymentReceived, updatePaymentReceived } from '../services/paymentService';
+import { toast } from 'react-toastify';
+
+interface InitialData {
+    customerId: number;
+    customerName: string;
+    amount: number;
+    remarks: string;
+    date: string;
+    phoneNumber: string;
+}
 
 export const YouReceived = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
+    const initialData = location.state?.initialData as InitialData;
+    const isEditMode = !!initialData;
+
     const [formData, setFormData] = useState({
-        amount: '',
-        remarks: '',
-        date: new Date().toISOString().split('T')[0],
+        amount: initialData?.amount?.toString() || '',
+        remarks: initialData?.remarks || '',
+        date: initialData?.date || new Date().toISOString().split('T')[0],
         bill: null as File | null
     });
     const [error, setError] = useState<string | null>(null);
@@ -21,19 +35,25 @@ export const YouReceived = () => {
         setIsSubmitting(true);
 
         try {
-            // For now, we'll use a static billPath. In a real app, you'd upload the file first
             const paymentData = {
                 partyId: Number(id),
                 amount: Number(formData.amount),
                 remarks: formData.remarks,
                 date: new Date(formData.date).toISOString(),
-                billPath: "bills/payment1.pdf" // This should be replaced with actual file upload logic
+                billPath: formData.bill ? `bills/${formData.bill.name}` : "bills/payment1.pdf"
             };
 
-            await createPaymentReceived(paymentData);
-            navigate(-1); // Go back one page
+            if (isEditMode) {
+                await updatePaymentReceived(Number(id), paymentData);
+                toast.success('Payment updated successfully!');
+            } else {
+                await createPaymentReceived(paymentData);
+                toast.success('Payment recorded successfully!');
+            }
+            navigate(`/parties/customers/statements/${id}`);
         } catch (err: any) {
             setError(err.message || 'Failed to save payment. Please try again.');
+            toast.error(err.message || 'Failed to save payment. Please try again.');
         } finally {
             setIsSubmitting(false);
         }
@@ -173,7 +193,9 @@ export const YouReceived = () => {
             </button>
             <main style={styles.mainContent}>
                 <div style={styles.formContainer}>
-                    <h2 style={styles.formTitle}>Record Payment Received</h2>
+                    <h2 style={styles.formTitle}>
+                        {isEditMode ? 'Edit Payment Received' : 'Record Payment Received'}
+                    </h2>
                     {error && <div style={styles.errorMessage}>{error}</div>}
                     <form onSubmit={handleSubmit}>
                         <div style={styles.formGroup}>
@@ -236,7 +258,7 @@ export const YouReceived = () => {
                             style={styles.submitButton}
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Saving...' : 'Save Payment'}
+                            {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Payment' : 'Save Payment')}
                         </button>
                     </form>
                 </div>

@@ -150,8 +150,11 @@ export const CustomerStatements = () => {
             state: {
                 transaction: {
                     customerName: customerData.name,
+                    date: transaction.date,
                     totalAmount: Math.abs(transaction.amount),
                     phoneNumber: customerData.phone,
+                    type: transaction.type,
+                    customerId: customerData.id,
                     details: `${transaction.type === 'payment_in' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.date).toLocaleDateString()}`,
                     remarks: transaction.remarks,
                     sms: `Dear ${customerData.name}, your payment of ₹${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: ₹${transaction.currentBalance}. Thank you for your business.`

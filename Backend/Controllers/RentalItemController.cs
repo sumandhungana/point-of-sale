@@ -22,7 +22,7 @@ public class RentalItemController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<RentalItemResponseDto>> GetRentalItems()
     {
-        var rentalItems = await _context.RentalItems.ToListAsync();
+        var rentalItems = await _context.RentalItems.OrderByDescending(r => r.CreatedAt).ToListAsync();
         var response = new RentalItemResponseDto
         {
             RentalItem = rentalItems,

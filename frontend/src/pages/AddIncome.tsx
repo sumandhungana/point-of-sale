@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { billsConfig } from '../config/bills';
 
 interface Category {
   id: number;
@@ -42,9 +43,10 @@ export const AddIncome = () => {
   useEffect(() => {
     const fetchData = async () => {
       try { 
-        const [categoriesResponse, itemsResponse] = await Promise.all([
+        const [categoriesResponse, itemsResponse, lastIncomeResponse] = await Promise.all([
           fetch('/api/Category'),
-          fetch('/api/Item')
+          fetch('/api/Item'),
+          fetch('/api/Income/last')
         ]);
 
         if (!categoriesResponse.ok || !itemsResponse.ok) {
@@ -55,6 +57,27 @@ export const AddIncome = () => {
         setItems(itemsData.items);
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
+
+        // Handle last income number
+        if (lastIncomeResponse.ok) {
+          const lastIncomeData = await lastIncomeResponse.json();
+          const lastNumber = lastIncomeData.lastIncomeNo || '0';
+          const nextNumber = parseInt(lastNumber.replace(billsConfig.income.prefix, '')) + 1;
+          const paddedNumber = nextNumber.toString().padStart(billsConfig.income.padding, '0');
+          const newIncomeNo = `${billsConfig.income.prefix}${paddedNumber}`;
+          
+          setFormData(prev => ({
+            ...prev,
+            incomeNo: newIncomeNo
+          }));
+        } else {
+          // If API fails, generate a default number
+          const defaultNumber = `${billsConfig.income.prefix}${'1'.padStart(billsConfig.income.padding, '0')}`;
+          setFormData(prev => ({
+            ...prev,
+            incomeNo: defaultNumber
+          }));
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
       } finally {
@@ -348,6 +371,7 @@ export const AddIncome = () => {
                     onChange={handleInputChange}
                     style={styles.input}
                     required
+                    disabled
                   />
                 </div>
                 <div style={styles.inputGroup}>

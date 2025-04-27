@@ -49,6 +49,30 @@ public class ExpensesController : ControllerBase
         return expense;
     }
 
+    // GET: api/Expenses/last
+    [HttpGet("last")]
+    public async Task<ActionResult<LastExpensesNoResponse>> GetLastExpensesNo()
+    {
+        try
+        {
+            var lastExpense = await _context.Expenses
+                .OrderByDescending(e => e.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            var lastExpensesNo = lastExpense?.ExpensesNo ?? "0";
+            
+            return Ok(new LastExpensesNoResponse
+            {
+                lastExpensesNo = lastExpensesNo
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching last expenses number");
+            return BadRequest(ex.Message);
+        }
+    }
+
     // POST: api/Expenses
     [HttpPost]
     public async Task<ActionResult<Expenses>> CreateExpense([FromForm] ExpensesCreateDto expenseDto)
@@ -205,4 +229,9 @@ public class ExpensesUpdateDto
     public string? Remarks { get; set; }
     
     public IFormFile? Photo { get; set; }
+}
+
+public class LastExpensesNoResponse
+{
+    public string lastExpensesNo { get; set; } = null!;
 } 

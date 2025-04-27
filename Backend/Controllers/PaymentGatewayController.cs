@@ -20,7 +20,7 @@ public class PaymentGatewayController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<PaymentGateway>>> GetPaymentGateways()
     {
-        return await _context.PaymentGateways.ToListAsync();
+        return await _context.PaymentGateways.OrderByDescending(p => p.CreatedAt).ToListAsync();
     }
 
     // GET: api/PaymentGateway/5

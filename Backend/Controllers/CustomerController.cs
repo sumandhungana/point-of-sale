@@ -24,6 +24,7 @@ public class CustomerController : ControllerBase
     public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
     {
         return await _context.Customers
+            .Where(c => !c.isSupplier)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }

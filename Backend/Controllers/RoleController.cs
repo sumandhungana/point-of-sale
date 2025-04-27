@@ -22,6 +22,7 @@ public class RoleController : ControllerBase
     {
         return await _context.Roles.Include(r => r.RolePermissions)
                                  .ThenInclude(rp => rp.Permission)
+                                 .OrderByDescending(r => r.CreatedAt)
                                  .ToListAsync();
     }
 

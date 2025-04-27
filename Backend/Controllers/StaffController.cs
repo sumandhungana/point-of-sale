@@ -23,6 +23,7 @@ public class StaffController : ControllerBase
         var staff = await _context.Staff
             .Include(s => s.StaffSalaries)
             .Include(s => s.StaffAttendances)
+            .OrderByDescending(s => s.CreatedAt)
             .Select(s => new StaffResponse
             {
                 Id = s.Id,

@@ -20,7 +20,7 @@ export const Customers = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [filterBy, setFilterBy] = useState('all');
-    const [sortBy, setSortBy] = useState('name');
+    const [sortBy, setSortBy] = useState('mostRecent');
     const [viewReport, setViewReport] = useState(false);
     const [openCashbook, setOpenCashbook] = useState(false);
     const [customers, setCustomers] = useState<CustomerWithBalance[]>([]);
@@ -52,18 +52,14 @@ export const Customers = () => {
                 );
                 setCustomers(customersWithBalance);
 
-                // Calculate overall totals
+                // Calculate overall totals using the same logic as CustomerStatements
                 const totals = customersWithBalance.reduce((acc, customer) => {
                     customer.paymentHistory.forEach(payment => {
                         if (payment.type === 'Given') {
-                            acc.given += payment.amount;
+                            acc.given += Math.abs(payment.oldBalance - payment.newBalance);
                         } else if (payment.type === 'Received') {
-                            acc.received += payment.amount;
+                            acc.received += Math.abs(payment.oldBalance - payment.newBalance);
                         }
-                        // Assuming online payments are marked with a specific payment mode
-                        // if (payment.paymentMode === 'online') {
-                        //     acc.online += payment.amount;
-                        // }
                     });
                     return acc;
                 }, { given: 0, received: 0, online: 0 });
@@ -101,6 +97,36 @@ export const Customers = () => {
             } 
         });
     };
+
+    const filteredAndSortedCustomers = customers
+        .filter(customer => {
+            switch (filterBy) {
+                case 'toReceive':
+                    return customer.balance > 0;
+                case 'toGive':
+                    return customer.balance < 0;
+                case 'settled':
+                    return customer.balance === 0;
+                default:
+                    return true;
+            }
+        })
+        .sort((a, b) => {
+            switch (sortBy) {
+                case 'mostRecent':
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                case 'highestAmount':
+                    return Math.abs(b.balance) - Math.abs(a.balance);
+                case 'leastAmount':
+                    return Math.abs(a.balance) - Math.abs(b.balance);
+                case 'byName':
+                    return a.name.localeCompare(b.name);
+                case 'oldest':
+                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+                default:
+                    return 0;
+            }
+        });
 
     const styles = {
         container: {
@@ -330,9 +356,9 @@ export const Customers = () => {
                                     style={styles.select}
                                 >
                                     <option value="all">All</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                    <option value="pending">Pending</option>
+                                    <option value="toReceive">To Receive</option>
+                                    <option value="toGive">To Give</option>
+                                    <option value="settled">Settled</option>
                                 </select>
                             </div>
 
@@ -343,9 +369,11 @@ export const Customers = () => {
                                     onChange={(e) => setSortBy(e.target.value)}
                                     style={styles.select}
                                 >
-                                    <option value="name">Name</option>
-                                    <option value="date">Date Added</option>
-                                    <option value="balance">Balance</option>
+                                    <option value="mostRecent">Most Recent</option>
+                                    <option value="highestAmount">Highest Amount</option>
+                                    <option value="leastAmount">Least Amount</option>
+                                    <option value="byName">By Name</option>
+                                    <option value="oldest">Oldest</option>
                                 </select>
                             </div>
                         </div>
@@ -364,11 +392,12 @@ export const Customers = () => {
                 <div style={styles.cardsContainer}>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Give</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.given.toLocaleString()}</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Receive</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.received.toLocaleString()}</div>
+                        <div style={styles.cardAmount}>₹{overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given}</div>
+
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>Online Collection</div>
@@ -412,7 +441,7 @@ export const Customers = () => {
                 ) : error ? (
                     <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</div>
                 ) : (
-                    customers.map((customer) => (
+                    filteredAndSortedCustomers.map((customer) => (
                         <div 
                             key={customer.id}
                             style={styles.customerCard}

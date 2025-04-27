@@ -24,7 +24,7 @@ public class ServiceController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<ServiceResponseDto>> GetServices()
     {
-        var services = await _context.Services.ToListAsync();
+        var services = await _context.Services.OrderByDescending(s => s.CreatedAt).ToListAsync();
         var response = new ServiceResponseDto
         {
             Service = services,

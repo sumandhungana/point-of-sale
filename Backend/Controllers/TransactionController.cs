@@ -22,7 +22,7 @@ public class TransactionController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions()
     {
-        return await _context.Transactions.ToListAsync();
+        return await _context.Transactions.OrderByDescending(t => t.CreatedAt).ToListAsync();
     }
 
     // GET: api/Transaction/5

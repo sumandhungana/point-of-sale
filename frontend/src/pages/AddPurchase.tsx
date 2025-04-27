@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { billsConfig } from '../config/bills';
 
 interface Category {
   id: number;
@@ -42,9 +43,10 @@ export const AddPurchase = () => {
   useEffect(() => {
     const fetchData = async () => {
       try { 
-        const [categoriesResponse, itemsResponse] = await Promise.all([
+        const [categoriesResponse, itemsResponse, lastPurchaseResponse] = await Promise.all([
           fetch('/api/Category'),
-          fetch('/api/Item')
+          fetch('/api/Item'),
+          fetch('/api/Purchase/last')
         ]);
 
         if (!categoriesResponse.ok || !itemsResponse.ok) {
@@ -55,6 +57,27 @@ export const AddPurchase = () => {
         setItems(itemsData.items);
         const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
+
+        // Handle last purchase number
+        if (lastPurchaseResponse.ok) {
+          const lastPurchaseData = await lastPurchaseResponse.json();
+          const lastNumber = lastPurchaseData.lastPurchaseNo || '0';
+          const nextNumber = parseInt(lastNumber.replace(billsConfig.purchase.prefix, '')) + 1;
+          const paddedNumber = nextNumber.toString().padStart(billsConfig.purchase.padding, '0');
+          const newPurchaseNo = `${billsConfig.purchase.prefix}${paddedNumber}`;
+          
+          setFormData(prev => ({
+            ...prev,
+            purchaseNo: newPurchaseNo
+          }));
+        } else {
+          // If API fails, generate a default number
+          const defaultNumber = `${billsConfig.purchase.prefix}${'1'.padStart(billsConfig.purchase.padding, '0')}`;
+          setFormData(prev => ({
+            ...prev,
+            purchaseNo: defaultNumber
+          }));
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
       } finally {
@@ -342,6 +365,7 @@ export const AddPurchase = () => {
                     onChange={handleInputChange}
                     style={styles.input}
                     required
+                    disabled
                   />
                 </div>
                 <div style={styles.inputGroup}>

@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 export const AddKhataBook = () => {
+  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     number: '',
@@ -27,9 +31,43 @@ export const AddKhataBook = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
+    setIsSubmitting(true);
+    
+    try {
+      // Convert string values to enum values
+      const payload = {
+        ...formData,
+        businessCategory: formData.businessCategory,
+        businessType: formData.businessType
+      };
+
+      console.log('Sending payload:', payload);
+
+      const response = await fetch('/api/KhataBook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const responseData = await response.json();
+      console.log('Response:', responseData);
+
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Failed to create Khata Book');
+      }
+
+      toast.success('Khata Book created successfully!');
+      navigate('/khata-books');
+    } catch (error) {
+      console.error('Error creating Khata Book:', error);
+      toast.error(error instanceof Error ? error.message : 'Failed to create Khata Book. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const styles = {
@@ -256,10 +294,10 @@ export const AddKhataBook = () => {
                     style={styles.select}
                   >
                     <option value="">Select Category</option>
-                    <option value="retail">Retail</option>
-                    <option value="wholesale">Wholesale</option>
-                    <option value="manufacturing">Manufacturing</option>
-                    <option value="service">Service</option>
+                    <option value="1">Retail</option>
+                    <option value="2">Wholesale</option>
+                    <option value="3">Manufacturing</option>
+                    <option value="4">Service</option>
                   </select>
                 </div>
                 <div style={styles.formGroup}>
@@ -271,10 +309,10 @@ export const AddKhataBook = () => {
                     style={styles.select}
                   >
                     <option value="">Select Type</option>
-                    <option value="sole">Sole Proprietorship</option>
-                    <option value="partnership">Partnership</option>
-                    <option value="corporation">Corporation</option>
-                    <option value="llc">LLC</option>
+                    <option value="1">Sole Proprietorship</option>
+                    <option value="2">Partnership</option>
+                    <option value="3">Corporation</option>
+                    <option value="4">LLC</option>
                   </select>
                 </div>
               </div>
@@ -314,8 +352,12 @@ export const AddKhataBook = () => {
               </div>
             </div>
 
-            <button type="submit" style={styles.saveButton}>
-              Save
+            <button 
+              type="submit" 
+              style={styles.saveButton}
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? 'Saving...' : 'Save'}
             </button>
           </form>
         </div>

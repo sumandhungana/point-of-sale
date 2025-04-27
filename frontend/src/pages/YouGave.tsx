@@ -1,16 +1,29 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
-import { createPaymentGiven, PaymentGiven } from '../services/paymentService';
+import { createPaymentGiven, updatePaymentGiven, PaymentGiven } from '../services/paymentService';
 import { toast } from 'react-toastify';
+
+interface InitialData {
+    customerId: number;
+    customerName: string;
+    amount: number;
+    remarks: string;
+    date: string;
+    phoneNumber: string;
+}
 
 export const YouGave = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
+    const location = useLocation();
+    const initialData = location.state?.initialData as InitialData;
+    const isEditMode = !!initialData;
+
     const [formData, setFormData] = useState({
-        amount: '',
-        remarks: '',
-        date: new Date().toISOString().split('T')[0],
+        amount: initialData?.amount?.toString() || '',
+        remarks: initialData?.remarks || '',
+        date: initialData?.date || new Date().toISOString().split('T')[0],
         bill: null as File | null
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -28,8 +41,13 @@ export const YouGave = () => {
                 billPath: formData.bill ? `bills/${formData.bill.name}` : ''
             };
 
-            await createPaymentGiven(paymentData);
-            toast.success('Payment recorded successfully!');
+            if (isEditMode) {
+                await updatePaymentGiven(Number(id), paymentData);
+                toast.success('Payment updated successfully!');
+            } else {
+                await createPaymentGiven(paymentData);
+                toast.success('Payment recorded successfully!');
+            }
             navigate(`/parties/customers/statements/${id}`);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to record payment');
@@ -165,7 +183,9 @@ export const YouGave = () => {
             </button>
             <main style={styles.mainContent}>
                 <div style={styles.formContainer}>
-                    <h2 style={styles.formTitle}>Record Payment Given</h2>
+                    <h2 style={styles.formTitle}>
+                        {isEditMode ? 'Edit Payment Given' : 'Record Payment Given'}
+                    </h2>
                     <form onSubmit={handleSubmit}>
                         <div style={styles.formGroup}>
                             <label style={styles.label} htmlFor="amount">Amount</label>
@@ -226,7 +246,7 @@ export const YouGave = () => {
                             style={styles.submitButton}
                             disabled={isSubmitting}
                         >
-                            {isSubmitting ? 'Saving...' : 'Save Payment'}
+                            {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Payment' : 'Save Payment')}
                         </button>
                     </form>
                 </div>

@@ -20,7 +20,7 @@ public class PermissionController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Permission>>> GetPermissions()
     {
-        return await _context.Permissions.ToListAsync();
+        return await _context.Permissions.OrderByDescending(p => p.CreatedAt).ToListAsync();
     }
 
     // GET: api/Permission/5

@@ -1,14 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import html3pdf from 'html3pdf';
+import StatementPDFTemplate from '../components/StatementPDFTemplate';
 
 interface TransactionData {
+    customerId: number;
     customerName: string;
     totalAmount: number;
+    type: string;
     phoneNumber: string;
     details: string;
     remarks: string;
     sms: string;
+    date: string;
 }
 
 export const CustomerStatement = () => {
@@ -18,29 +23,43 @@ export const CustomerStatement = () => {
     const transactionData = location.state?.transaction as TransactionData;
 
     const [formData, setFormData] = useState({
+        type: transactionData?.type || '',
         customerName: transactionData?.customerName || '',
         totalAmount: transactionData?.totalAmount?.toString() || '',
         phoneNumber: transactionData?.phoneNumber || '',
         details: transactionData?.details || '',
         remarks: transactionData?.remarks || '',
+        customerId: transactionData?.customerId || '',
         sms: transactionData?.sms || '',
+        date: transactionData?.date || '',
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({
-            ...prev,
-            [name]: value
-        }));
+    const pdfRef = useRef<HTMLDivElement>(null);
+
+    const handleEdit = () => {
+        const editData = {
+            customerId: formData.customerId,
+            customerName: formData.customerName,
+            amount: parseFloat(formData.totalAmount),
+            remarks: formData.remarks,
+            date: formData.date,
+            phoneNumber: formData.phoneNumber
+        };
+
+        if (transactionData.type === 'payment_in') {
+            navigate(`/parties/customers/statements/you-received/${id}`, {
+                state: { initialData: editData }
+            });
+        } else {
+            navigate(`/parties/customers/statements/you-gave/${id}`, {
+                state: { initialData: editData }
+            });
+        }
     };
 
     const handleDelete = () => {
-        // Handle delete functionality
-        console.log('Delete clicked');
-    };
-
-    const handleEdit = () => {
-        navigate(`/parties/customers/statements/${id}`);
+        // Navigate back to statements page
+        navigate(-1);
     };
 
     const handlePrintPDF = () => {
@@ -48,9 +67,35 @@ export const CustomerStatement = () => {
         console.log('Print PDF clicked');
     };
 
-    const handleDownloadPDF = () => {
-        // Handle download PDF functionality
-        console.log('Download PDF clicked');
+    const handleDownloadPDF = async () => {
+        const element = pdfRef.current;
+        if (!element) {
+            console.error('PDF reference not found');
+            return;
+        }
+
+        const opt = {
+            margin: 1,
+            filename: `statement_${formData.customerName}_${formData.date}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2,
+                useCORS: true,
+                logging: true,
+                letterRendering: true
+            },
+            jsPDF: { 
+                unit: 'in', 
+                format: 'letter',
+                orientation: 'portrait' as const
+            }
+        };
+
+        try {
+            await html3pdf().set(opt).from(element).save();
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+        }
     };
 
     const handleShare = () => {
@@ -190,6 +235,66 @@ export const CustomerStatement = () => {
         },
     };
 
+    const pdfStyles = {
+        pdfContainer: {
+            position: 'absolute' as const,
+            left: '-9999px',
+            top: '-9999px',
+            padding: '20px',
+            maxWidth: '800px',
+            margin: '0 auto',
+            background: 'white',
+        },
+        pdfCard: {
+            border: '1px solid #e0e0e0',
+            borderRadius: '10px',
+            padding: '20px',
+            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+        },
+        pdfHeader: {
+            textAlign: 'center' as const,
+            marginBottom: '20px',
+            paddingBottom: '20px',
+            borderBottom: '2px solid #f0f0f0',
+        },
+        pdfTitle: {
+            fontSize: '24px',
+            color: '#333',
+            marginBottom: '10px',
+        },
+        pdfSubtitle: {
+            fontSize: '16px',
+            color: '#666',
+        },
+        pdfContent: {
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '20px',
+            marginBottom: '20px',
+        },
+        pdfField: {
+            marginBottom: '15px',
+        },
+        pdfLabel: {
+            fontSize: '14px',
+            color: '#666',
+            marginBottom: '5px',
+        },
+        pdfValue: {
+            fontSize: '16px',
+            color: '#333',
+            fontWeight: '500',
+        },
+        pdfFooter: {
+            textAlign: 'center' as const,
+            marginTop: '20px',
+            paddingTop: '20px',
+            borderTop: '2px solid #f0f0f0',
+            color: '#666',
+            fontSize: '14px',
+        },
+    };
+
     return (
         <div style={styles.container}>
             <Sidebar />
@@ -207,8 +312,8 @@ export const CustomerStatement = () => {
                             <input
                                 type="text"
                                 name="customerName"
+                                disabled
                                 value={formData.customerName}
-                                onChange={handleChange}
                                 style={styles.input}
                             />
                         </div>
@@ -217,8 +322,8 @@ export const CustomerStatement = () => {
                             <input
                                 type="number"
                                 name="totalAmount"
+                                disabled
                                 value={formData.totalAmount}
-                                onChange={handleChange}
                                 style={styles.input}
                             />
                         </div>
@@ -228,10 +333,10 @@ export const CustomerStatement = () => {
                         <div style={styles.formGroup}>
                             <label style={styles.label}>Phone Number</label>
                             <input
+                                disabled
                                 type="tel"
                                 name="phoneNumber"
                                 value={formData.phoneNumber}
-                                onChange={handleChange}
                                 style={styles.input}
                             />
                         </div>
@@ -242,9 +347,22 @@ export const CustomerStatement = () => {
                             <label style={styles.label}>Details</label>
                             <input
                                 type="text"
+                                disabled
                                 name="details"
                                 value={formData.details}
-                                onChange={handleChange}
+                                style={styles.input}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={styles.formRow}>
+                        <div style={styles.formGroup}>
+                            <label style={styles.label}>Date</label>
+                            <input
+                                type="date"
+                                name="date"
+                                disabled
+                                value={formData.date}
                                 style={styles.input}
                             />
                         </div>
@@ -256,8 +374,8 @@ export const CustomerStatement = () => {
                             <input
                                 type="text"
                                 name="remarks"
+                                disabled
                                 value={formData.remarks}
-                                onChange={handleChange}
                                 style={styles.input}
                             />
                         </div>
@@ -267,9 +385,9 @@ export const CustomerStatement = () => {
                         <div style={styles.formGroup}>
                             <label style={styles.label}>SMS</label>
                             <textarea
+                                disabled
                                 name="sms"
                                 value={formData.sms}
-                                onChange={handleChange}
                                 style={styles.textarea}
                             />
                         </div>
@@ -309,6 +427,11 @@ export const CustomerStatement = () => {
                     </div>
                 </div>
             </main>
+
+            {/* PDF Template (positioned off-screen) */}
+            <div ref={pdfRef} style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
+                <StatementPDFTemplate formData={formData} />
+            </div>
         </div>
     );
 }; 

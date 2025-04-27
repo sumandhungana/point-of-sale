@@ -90,16 +90,16 @@ export const CustomerStatementsReport = () => {
             const matchesFilter = filterOption === 'all' || 
                 (filterOption === 'gave' && transaction.type === 'Given') ||
                 (filterOption === 'received' && transaction.type === 'Received');
-            const matchesDate = (!startDate || new Date(transaction.date) >= new Date(startDate)) &&
-                (!endDate || new Date(transaction.date) <= new Date(endDate));
+            const matchesDate = (!startDate || new Date(transaction.createdAt) >= new Date(startDate)) &&
+                (!endDate || new Date(transaction.createdAt) <= new Date(endDate));
             return matchesSearch && matchesFilter && matchesDate;
         })
         .sort((a, b) => {
             switch (sortOption) {
                 case 'date-desc':
-                    return new Date(b.date).getTime() - new Date(a.date).getTime();
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
                 case 'date-asc':
-                    return new Date(a.date).getTime() - new Date(b.date).getTime();
+                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
                 case 'amount-desc':
                     return Math.abs(b.amount) - Math.abs(a.amount);
                 case 'amount-asc':
@@ -439,7 +439,7 @@ export const CustomerStatementsReport = () => {
                                 {filteredTransactions.map((transaction) => (
                                     <tr key={transaction.id}>
                                         <td style={styles.tableCell}>
-                                            {new Date(transaction.date).toLocaleDateString()}
+                                            {new Date(transaction.createdAt).toLocaleDateString()}
                                         </td>
                                         <td style={styles.tableCell}>
                                             {transaction.type}

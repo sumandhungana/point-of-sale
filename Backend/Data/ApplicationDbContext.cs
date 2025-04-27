@@ -47,6 +47,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Purchase> Purchases { get; set; } = null!;
     public DbSet<PaymentsReceived> PaymentsReceived { get; set; } = null!;
     public DbSet<PaymentsGiven> PaymentsGiven { get; set; } = null!;
+    public DbSet<KhataBook> KhataBooks { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

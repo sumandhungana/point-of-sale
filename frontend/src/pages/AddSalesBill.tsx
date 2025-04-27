@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
+import { salesConfig } from '../config/sales';
 
 interface Customer {
   id: number;
@@ -48,7 +49,35 @@ export const AddSalesBill = () => {
       }
     };
 
+    const fetchLastBillNumber = async () => {
+      try {
+        const response = await fetch('/api/SalesBill/last');
+        if (!response.ok) {
+          throw new Error('Failed to fetch last bill number');
+        }
+        const data = await response.json();
+        const lastNumber = data.lastBillNumber || '0';
+        const nextNumber = parseInt(lastNumber.replace(salesConfig.billNumber.prefix, '')) + 1;
+        const paddedNumber = nextNumber.toString().padStart(salesConfig.billNumber.padding, '0');
+        const newBillNumber = `${salesConfig.billNumber.prefix}${paddedNumber}`;
+        
+        setFormData(prev => ({
+          ...prev,
+          billNumber: newBillNumber
+        }));
+      } catch (err) {
+        console.error('Error fetching last bill number:', err);
+        // If API fails, generate a default number
+        const defaultNumber = `${salesConfig.billNumber.prefix}${'1'.padStart(salesConfig.billNumber.padding, '0')}`;
+        setFormData(prev => ({
+          ...prev,
+          billNumber: defaultNumber
+        }));
+      }
+    };
+
     fetchCustomers();
+    fetchLastBillNumber();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -248,6 +277,7 @@ export const AddSalesBill = () => {
                     onChange={handleInputChange}
                     style={styles.input}
                     required
+                    disabled
                   />
                 </div>
               </div>

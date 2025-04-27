@@ -22,7 +22,7 @@ public class InvoiceSettingsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<InvoiceSettings>>> GetInvoiceSettings()
     {
-        return await _context.InvoiceSettings.ToListAsync();
+        return await _context.InvoiceSettings.OrderByDescending(i => i.CreatedAt).ToListAsync();
     }
 
     // GET: api/InvoiceSettings/5

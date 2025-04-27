@@ -24,6 +24,7 @@ public class BillController : ControllerBase
     {
         return await _context.Bills
             .Include(b => b.Customer)
+            .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
     }
 
@@ -33,6 +34,7 @@ public class BillController : ControllerBase
     {
         var bill = await _context.Bills
             .Include(b => b.Customer)
+            .OrderByDescending(b => b.CreatedAt)
             .FirstOrDefaultAsync(b => b.BillId == id);
 
         if (bill == null)

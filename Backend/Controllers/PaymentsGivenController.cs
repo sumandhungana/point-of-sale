@@ -26,6 +26,7 @@ namespace Backend.Controllers
         {
             return await _context.PaymentsGiven
                 .Include(p => p.Party)
+                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
 
@@ -157,15 +158,19 @@ namespace Backend.Controllers
 
         // PUT: api/PaymentsGiven/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPaymentsGiven(int id, PaymentsGiven paymentsGiven)
+        public async Task<IActionResult> PutPaymentsGiven(int id, [FromBody] PaymentsGivenUpdateDto updateDto)
         {
-            if (id != paymentsGiven.Id)
+            var existingPayment = await _context.PaymentsGiven.FindAsync(id);
+            if (existingPayment == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            paymentsGiven.UpdatedAt = DateTime.UtcNow;
-            _context.Entry(paymentsGiven).State = EntityState.Modified;
+            // Update only the specified fields
+            existingPayment.Amount = updateDto.Amount;
+            existingPayment.Remarks = updateDto.Remarks;
+            existingPayment.Date = updateDto.Date;
+            existingPayment.UpdatedAt = DateTime.UtcNow;
 
             try
             {
@@ -205,6 +210,15 @@ namespace Backend.Controllers
         private bool PaymentsGivenExists(int id)
         {
             return _context.PaymentsGiven.Any(e => e.Id == id);
+        }
+
+        // DTO for updating payments given
+        public class PaymentsGivenUpdateDto
+        {
+            public int Id { get; set; }
+            public decimal Amount { get; set; }
+            public string Remarks { get; set; }
+            public DateTime Date { get; set; }
         }
     }
 } 

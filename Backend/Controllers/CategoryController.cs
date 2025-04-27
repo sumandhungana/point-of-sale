@@ -22,7 +22,7 @@ public class CategoryController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Category>>> GetCategories()
     {
-        return await _context.Categories.ToListAsync();
+        return await _context.Categories.OrderByDescending(c => c.CreatedAt).ToListAsync();
     }
 
     // GET: api/Category/5

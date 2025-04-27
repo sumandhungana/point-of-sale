@@ -15,6 +15,17 @@ export interface Customer {
   updatedAt: string;
 }
 
+
+export const getSuppliers = async (): Promise<Customer[]> => {
+  try {
+    const response = await fetch(`/api/Customer/suppliers`);
+    return response.json();
+  } catch (error) {
+    console.error('Error fetching suppliers:', error);
+    return [];
+  } 
+}; 
+
 export const getCustomers = async (): Promise<Customer[]> => {
   try {
     const response = await fetch(`/api/Customer`);

@@ -49,6 +49,30 @@ public class IncomeController : ControllerBase
         return income;
     }
 
+    // GET: api/Income/last
+    [HttpGet("last")]
+    public async Task<ActionResult<LastIncomeNoResponse>> GetLastIncomeNo()
+    {
+        try
+        {
+            var lastIncome = await _context.Incomes
+                .OrderByDescending(i => i.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            var lastIncomeNo = lastIncome?.IncomeNo ?? "0";
+            
+            return Ok(new LastIncomeNoResponse
+            {
+                lastIncomeNo = lastIncomeNo
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching last income number");
+            return BadRequest(ex.Message);
+        }
+    }
+
     // POST: api/Income
     [HttpPost]
     public async Task<ActionResult<Income>> CreateIncome([FromForm] IncomeCreateDto incomeDto)
@@ -219,4 +243,9 @@ public class IncomeUpdateDto
     public string? Remarks { get; set; }
     
     public IFormFile? Photo { get; set; }
+}
+
+public class LastIncomeNoResponse
+{
+    public string lastIncomeNo { get; set; } = null!;
 } 

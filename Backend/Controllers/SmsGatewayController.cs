@@ -20,7 +20,7 @@ public class SmsGatewayController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SmsGateway>>> GetSmsGateways()
     {
-        return await _context.SmsGateways.ToListAsync();
+        return await _context.SmsGateways.OrderByDescending(s => s.CreatedAt).ToListAsync();
     }
 
     // GET: api/SmsGateway/5

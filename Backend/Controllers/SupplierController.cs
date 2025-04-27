@@ -22,7 +22,7 @@ public class SupplierController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Supplier>>> GetSuppliers()
     {
-        return await _context.Suppliers.ToListAsync();
+        return await _context.Suppliers.OrderByDescending(s => s.CreatedAt).ToListAsync();
     }
 
     // GET: api/Supplier/5

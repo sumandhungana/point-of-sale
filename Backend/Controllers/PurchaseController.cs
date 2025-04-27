@@ -49,6 +49,30 @@ public class PurchaseController : ControllerBase
         return purchase;
     }
 
+    // GET: api/Purchase/last
+    [HttpGet("last")]
+    public async Task<ActionResult<LastPurchaseNoResponse>> GetLastPurchaseNo()
+    {
+        try
+        {
+            var lastPurchase = await _context.Purchases
+                .OrderByDescending(p => p.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            var lastPurchaseNo = lastPurchase?.PurchaseNo ?? "0";
+            
+            return Ok(new LastPurchaseNoResponse
+            {
+                lastPurchaseNo = lastPurchaseNo
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error fetching last purchase number");
+            return BadRequest(ex.Message);
+        }
+    }
+
     // POST: api/Purchase
     [HttpPost]
     public async Task<ActionResult<Purchase>> CreatePurchase([FromForm] PurchaseCreateDto purchaseDto)
@@ -219,4 +243,9 @@ public class PurchaseUpdateDto
     public string? Remarks { get; set; }
     
     public IFormFile? Photo { get; set; }
+}
+
+public class LastPurchaseNoResponse
+{
+    public string lastPurchaseNo { get; set; } = null!;
 } 

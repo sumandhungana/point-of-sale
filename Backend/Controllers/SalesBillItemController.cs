@@ -27,6 +27,7 @@ public class SalesBillItemController : ControllerBase
         return await _context.SalesBillItems
             .Include(s => s.SalesBill)
             .Include(s => s.Item)
+            .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
     }
 

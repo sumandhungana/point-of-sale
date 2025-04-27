@@ -74,6 +74,48 @@ export const RentalItem = () => {
     }
   });
 
+  const calculateRentalAmount = (item: RentalItem) => {
+    const startDate = new Date(item.startDate);
+    const endDate = new Date(item.endDate);
+    const currentDate = new Date();
+    
+    // If current date is before start date, return 0
+    if (currentDate < startDate) {
+      return 0;
+    }
+    
+    // If current date is after end date, return total amount
+    if (currentDate > endDate) {
+      return item.rentalAmount;
+    }
+    
+    // Calculate total days in rental period
+    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Calculate days passed
+    const daysPassed = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Calculate amount based on days passed
+    const dailyRate = item.rentalAmount / totalDays;
+    return Math.round(dailyRate * daysPassed);
+  };
+
+  const getRentalStatus = (item: RentalItem) => {
+    const currentDate = new Date();
+    const endDate = new Date(item.endDate);
+    
+    if (currentDate > endDate) {
+      return 'Completed';
+    }
+    
+    const startDate = new Date(item.startDate);
+    if (currentDate < startDate) {
+      return 'Not Started';
+    }
+    
+    return 'In Progress';
+  };
+
   const styles = {
     container: {
       display: 'flex',
@@ -315,28 +357,52 @@ export const RentalItem = () => {
             </div>
           </div>
 
-          {sortedItems.map(item => (
-            <div key={item.id} style={styles.rentalCard}>
-              <div style={styles.rentalInfo}>
-                <div style={styles.imagePlaceholder}>📷</div>
-                <div style={styles.rentalDetails}>
-                  <div style={styles.rentalName}>{item.rentalItemName}</div>
-                  <div style={styles.rentalTime}>
-                    Period: {item.rentalPeriod} | 
-                    Start: {new Date(item.startDate).toLocaleDateString()} | 
-                    End: {new Date(item.endDate).toLocaleDateString()}
+          {sortedItems.map(item => {
+            const calculatedAmount = calculateRentalAmount(item);
+            const status = getRentalStatus(item);
+            const statusColor = status === 'Completed' ? '#28a745' : 
+                              status === 'Not Started' ? '#6c757d' : '#ffc107';
+
+            return (
+              <div key={item.id} style={styles.rentalCard}>
+                <div style={styles.rentalInfo}>
+                  <div style={styles.imagePlaceholder}>📷</div>
+                  <div style={styles.rentalDetails}>
+                    <div style={styles.rentalName}>{item.rentalItemName}</div>
+                    <div style={styles.rentalTime}>
+                      Period: {item.rentalPeriod} | 
+                      Start: {new Date(item.startDate).toLocaleDateString()} | 
+                      End: {new Date(item.endDate).toLocaleDateString()}
+                    </div>
+                    <div style={styles.rentalTime}>
+                      Phone: {item.phoneNumber} | Address: {item.address}
+                    </div>
+                    {item.remarks && (
+                      <div style={styles.rentalTime}>Remarks: {item.remarks}</div>
+                    )}
+                    <div style={{ 
+                      ...styles.rentalTime, 
+                      color: statusColor,
+                      fontWeight: 'bold',
+                      marginTop: '0.5rem'
+                    }}>
+                      Status: {status}
+                    </div>
                   </div>
-                  <div style={styles.rentalTime}>
-                    Phone: {item.phoneNumber} | Address: {item.address}
+                </div>
+                <div style={styles.rentalAmount}>
+                  <div>₹{calculatedAmount.toFixed(2)}</div>
+                  <div style={{ 
+                    fontSize: '0.875rem', 
+                    color: '#6c757d',
+                    textAlign: 'right'
+                  }}>
+                    of ₹{item.rentalAmount.toFixed(2)}
                   </div>
-                  {item.remarks && (
-                    <div style={styles.rentalTime}>Remarks: {item.remarks}</div>
-                  )}
                 </div>
               </div>
-              <div style={styles.rentalAmount}>₹{item.rentalAmount.toFixed(2)}</div>
-            </div>
-          ))}
+            );
+          })}
 
           <div style={styles.addButtonContainer}>
             <button 

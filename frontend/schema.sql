@@ -439,6 +439,34 @@ CREATE TABLE payments_given (
 
 
 
+CREATE TABLE KhataBook (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  
+  -- Personal Info
+  name VARCHAR(255) NOT NULL,
+  number VARCHAR(20),
+  address TEXT,
+  email VARCHAR(255),
+  
+  -- Business Info
+  company_name VARCHAR(255),
+  company_number VARCHAR(20),
+  company_address TEXT,
+  company_email VARCHAR(255),
+  business_category ENUM('retail', 'wholesale', 'manufacturing', 'service'),
+  business_type ENUM('sole', 'partnership', 'corporation', 'llc'),
+  
+  -- Financial Info
+  tax_vat BOOLEAN DEFAULT FALSE,
+  book_account BOOLEAN DEFAULT FALSE,
+  kyc BOOLEAN DEFAULT FALSE,
+  
+  -- Timestamps
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+
 -- seed data
 
 

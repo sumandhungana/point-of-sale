@@ -30,6 +30,19 @@ invoid statement for single statement http://localhost:3000/parties/customers/st
 
 
 
+customer and supplioers are linking - done
+when pressed edit on statement page redirect to you give or you receive page for update - done
+filter in customer page - done
+sort by date - done
+sales bill number auto generate - done
+rental amount caltulation on item wise - done
+user icon click garda ko user ma form chha tesma CURD - done 
+you give and you receive page button eautai thau ma
+
+
+ani each user ma new khatabook
+UI sano sab page ko
+current statement download in statement page
 
 http://localhost:3000/parties/customers/statements/you-gave/8 show current date - done
 select date ma popup parena http://localhost:3000/parties/customers/statements/8 - done

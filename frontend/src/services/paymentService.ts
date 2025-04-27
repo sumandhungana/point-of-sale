@@ -77,4 +77,36 @@ export const createPaymentGiven = async (payment: PaymentGiven) => {
         }
         throw 'An unknown error occurred';
     }
+};
+
+export const updatePaymentGiven = async (id: number, paymentData: PaymentGiven) => {
+    const response = await fetch(`/api/PaymentsGiven/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update payment');
+    }
+
+    return response.json();
+};
+
+export const updatePaymentReceived = async (id: number, paymentData: PaymentReceived) => {
+    const response = await fetch(`/api/PaymentsReceived/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(paymentData)
+    });
+
+    if (!response.ok) {
+        throw new Error('Failed to update payment');
+    }
+
+    return response.json();
 }; 

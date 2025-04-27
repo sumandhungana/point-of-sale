@@ -26,6 +26,7 @@ namespace Backend.Controllers
         {
             return await _context.PaymentsReceived
                 .Include(p => p.Party)
+                .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
 
@@ -157,15 +158,19 @@ namespace Backend.Controllers
 
         // PUT: api/PaymentsReceived/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutPaymentsReceived(int id, PaymentsReceived paymentsReceived)
+        public async Task<IActionResult> PutPaymentsReceived(int id, [FromBody] PaymentsReceivedUpdateDto updateDto)
         {
-            if (id != paymentsReceived.Id)
+            var existingPayment = await _context.PaymentsReceived.FindAsync(id);
+            if (existingPayment == null)
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            paymentsReceived.UpdatedAt = DateTime.UtcNow;
-            _context.Entry(paymentsReceived).State = EntityState.Modified;
+            // Update only the specified fields
+            existingPayment.Amount = updateDto.Amount;
+            existingPayment.Remarks = updateDto.Remarks;
+            existingPayment.Date = updateDto.Date;
+            existingPayment.UpdatedAt = DateTime.UtcNow;
 
             try
             {
@@ -182,8 +187,7 @@ namespace Backend.Controllers
                     throw;
                 }
             }
-
-            return NoContent();
+            return CreatedAtAction("GetPaymentsReceived", new { id = existingPayment.Id }, existingPayment);
         }
 
         // DELETE: api/PaymentsReceived/5
@@ -205,6 +209,15 @@ namespace Backend.Controllers
         private bool PaymentsReceivedExists(int id)
         {
             return _context.PaymentsReceived.Any(e => e.Id == id);
+        }
+
+        // DTO for updating payments received
+        public class PaymentsReceivedUpdateDto
+        {
+            public int Id { get; set; }
+            public decimal Amount { get; set; }
+            public string Remarks { get; set; }
+            public DateTime Date { get; set; }
         }
     }
 } 
