@@ -21,6 +21,7 @@ namespace Backend.Controllers
         private readonly IConfiguration _configuration;
         private readonly SchemaConfigurationService _schemaConfig;
         private const string SCHEMA_PREFIX = "khata_";
+        private const string SOURCE_SCHEMA = "initSchema";
         private static readonly Regex SchemaNameRegex = new Regex(@"^[a-zA-Z][a-zA-Z0-9_]*$", RegexOptions.Compiled);
 
         public KhataBookController(
@@ -115,7 +116,7 @@ namespace Backend.Controllers
             {
                 // Reset to default schema on error
                 await _schemaConfig.ResetToDefaultSchemaAsync();
-                await _context.ReloadWithSchemaAsync("initSchema");
+                await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
 
                 return StatusCode(500, new
                 {
@@ -241,6 +242,8 @@ namespace Backend.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<KhataBook>>> GetKhataBooks()
         {
+            // Always use initSchema for KhataBook operations
+            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             return await _context.KhataBooks.ToListAsync();
         }
 
@@ -248,6 +251,8 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<KhataBook>> GetKhataBook(int id)
         {
+            // Always use initSchema for KhataBook operations
+            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             var khataBook = await _context.KhataBooks.FindAsync(id);
 
             if (khataBook == null)
@@ -262,6 +267,8 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<KhataBook>> PostKhataBook(KhataBook khataBook)
         {
+            // Always use initSchema for KhataBook operations
+            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             if (!ValidateSchemaName(khataBook.Name))
             {
                 return BadRequest("Invalid KhataBook name. Name must start with a letter and contain only letters, numbers, and underscores.");
@@ -298,8 +305,9 @@ namespace Backend.Controllers
                         command.CommandText = @"
                             SELECT table_name 
                             FROM information_schema.tables 
-                            WHERE table_schema = 'initSchema' 
+                            WHERE table_schema = @sourceSchema 
                             AND table_type = 'BASE TABLE'";
+                        command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
                         
                         using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -326,9 +334,10 @@ namespace Backend.Controllers
                                     column_default,
                                     is_identity
                                 FROM information_schema.columns 
-                                WHERE table_schema = 'initSchema'
+                                WHERE table_schema = @sourceSchema
                                 AND table_name = @tableName
                                 ORDER BY ordinal_position";
+                            command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
                             command.Parameters.AddWithValue("@tableName", tableName);
 
                             using (var reader = await command.ExecuteReaderAsync())
@@ -368,15 +377,16 @@ namespace Backend.Controllers
                             command.CommandText = @"
                                 SELECT column_name
                                 FROM information_schema.key_column_usage
-                                WHERE table_schema = 'initSchema'
+                                WHERE table_schema = @sourceSchema
                                 AND table_name = @tableName
                                 AND constraint_name IN (
                                     SELECT constraint_name
                                     FROM information_schema.table_constraints
                                     WHERE constraint_type = 'PRIMARY KEY'
-                                    AND table_schema = 'initSchema'
+                                    AND table_schema = @sourceSchema
                                     AND table_name = @tableName
                                 )";
+                            command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
                             command.Parameters.AddWithValue("@tableName", tableName);
 
                             using (var reader = await command.ExecuteReaderAsync())
@@ -426,8 +436,9 @@ namespace Backend.Controllers
                                 JOIN information_schema.constraint_column_usage ccu
                                     ON ccu.constraint_name = tc.constraint_name
                                 WHERE tc.constraint_type = 'FOREIGN KEY'
-                                AND kcu.table_schema = 'initSchema'
+                                AND kcu.table_schema = @sourceSchema
                                 AND kcu.table_name = @tableName";
+                            command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
                             command.Parameters.AddWithValue("@tableName", tableName);
 
                             using (var reader = await command.ExecuteReaderAsync())
@@ -508,6 +519,8 @@ namespace Backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutKhataBook(int id, KhataBook khataBook)
         {
+            // Always use initSchema for KhataBook operations
+            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             if (id != khataBook.Id)
             {
                 return BadRequest();
@@ -538,6 +551,8 @@ namespace Backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKhataBook(int id)
         {
+            // Always use initSchema for KhataBook operations
+            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             var khataBook = await _context.KhataBooks.FindAsync(id);
             if (khataBook == null)
             {
