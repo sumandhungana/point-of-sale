@@ -61,7 +61,11 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Set default schema to initSchema
+        modelBuilder.HasDefaultSchema("initSchema");
+
         PermissionSeeder.Seed(modelBuilder);
+            
         // Configure User model
         modelBuilder.Entity<User>()
             .HasIndex(u => u.Username)

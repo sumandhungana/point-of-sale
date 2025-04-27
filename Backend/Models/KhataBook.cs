@@ -35,6 +35,8 @@ namespace Backend.Models
         [StringLength(255)]
         public string CompanyEmail { get; set; }
 
+        public string? SchemaName { get; set; }
+
         public BusinessCategory BusinessCategory { get; set; }
 
         public BusinessType BusinessType { get; set; }
