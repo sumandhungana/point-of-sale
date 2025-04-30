@@ -634,8 +634,12 @@ namespace Backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<bool>("Kyc")
-                        .HasColumnType("boolean");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("KYC")
+                        .HasColumnType("boolean")
+                        .HasColumnName("Kyc");
 
                     b.Property<string>("Name")
                         .IsRequired()

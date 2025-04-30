@@ -14,8 +14,12 @@ namespace Backend.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "initSchema");
+
             migrationBuilder.CreateTable(
                 name: "AppSettings",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -48,6 +52,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Categories",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -65,18 +70,27 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Customers",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Phone = table.Column<string>(type: "text", nullable: true),
+                    Email = table.Column<string>(type: "text", nullable: true),
                     Address = table.Column<string>(type: "text", nullable: true),
-                    Company = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    Pan = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
+                    Company = table.Column<string>(type: "text", nullable: true),
+                    Pan = table.Column<string>(type: "text", nullable: true),
+                    ContactPerson = table.Column<string>(type: "text", nullable: true),
+                    isSupplier = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BankAccount = table.Column<string>(type: "text", nullable: true),
+                    CashBalance = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    ProfileImage = table.Column<string>(type: "text", nullable: true),
+                    CustomerSmsSetting = table.Column<bool>(type: "boolean", nullable: false),
+                    SmsLanguage = table.Column<bool>(type: "boolean", nullable: false),
+                    TransactionHistoryCheck = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -85,6 +99,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "InvoiceSettings",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -126,7 +141,38 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "KhataBooks",
+                schema: "initSchema",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Number = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    Address = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    CompanyName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    CompanyNumber = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    CompanyAddress = table.Column<string>(type: "text", nullable: false),
+                    CompanyEmail = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    SchemaName = table.Column<string>(type: "text", nullable: true),
+                    BusinessCategory = table.Column<int>(type: "integer", nullable: false),
+                    BusinessType = table.Column<int>(type: "integer", nullable: false),
+                    TaxVat = table.Column<bool>(type: "boolean", nullable: false),
+                    BookAccount = table.Column<bool>(type: "boolean", nullable: false),
+                    Kyc = table.Column<bool>(type: "boolean", nullable: false),
+                    ImagePath = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_KhataBooks", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PaymentGateways",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -149,6 +195,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Payments",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -167,6 +214,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Permissions",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false),
@@ -182,6 +230,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RentalItems",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -204,6 +253,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Roles",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -221,6 +271,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Services",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -242,6 +293,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "SmsGateways",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -262,6 +314,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Staff",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -282,6 +335,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Suppliers",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -292,7 +346,7 @@ namespace Backend.Migrations
                     Address = table.Column<string>(type: "text", nullable: true),
                     Company = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
                     Pan = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
-                    ContactPerson = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    ContactPerson = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -303,6 +357,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Transactions",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -321,6 +376,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Users",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -348,6 +404,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Items",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -374,12 +431,14 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_Items_Categories_CategoryId",
                         column: x => x.CategoryId,
+                        principalSchema: "initSchema",
                         principalTable: "Categories",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
                 name: "Bills",
+                schema: "initSchema",
                 columns: table => new
                 {
                     BillId = table.Column<int>(type: "integer", nullable: false)
@@ -399,6 +458,61 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_Bills_Customers_CustomerId",
                         column: x => x.CustomerId,
+                        principalSchema: "initSchema",
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentsGiven",
+                schema: "initSchema",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PartyId = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    Remarks = table.Column<string>(type: "text", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BillPath = table.Column<string>(type: "text", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentsGiven", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PaymentsGiven_Customers_PartyId",
+                        column: x => x.PartyId,
+                        principalSchema: "initSchema",
+                        principalTable: "Customers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PaymentsReceived",
+                schema: "initSchema",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    PartyId = table.Column<int>(type: "integer", nullable: false),
+                    Amount = table.Column<decimal>(type: "numeric(10,2)", nullable: false),
+                    Remarks = table.Column<string>(type: "text", nullable: false),
+                    Date = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    BillPath = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PaymentsReceived", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PaymentsReceived_Customers_PartyId",
+                        column: x => x.PartyId,
+                        principalSchema: "initSchema",
                         principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -406,6 +520,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "SalesBills",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -426,6 +541,7 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_SalesBills_Customers_CustomerId",
                         column: x => x.CustomerId,
+                        principalSchema: "initSchema",
                         principalTable: "Customers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -433,6 +549,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "RolePermissions",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -448,12 +565,14 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_RolePermissions_Permissions_PermissionId",
                         column: x => x.PermissionId,
+                        principalSchema: "initSchema",
                         principalTable: "Permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RolePermissions_Roles_RoleId",
                         column: x => x.RoleId,
+                        principalSchema: "initSchema",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -461,6 +580,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "StaffAttendances",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -478,6 +598,7 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_StaffAttendances_Staff_StaffId",
                         column: x => x.StaffId,
+                        principalSchema: "initSchema",
                         principalTable: "Staff",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -485,6 +606,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "StaffSalaries",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -507,6 +629,7 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_StaffSalaries_Staff_StaffId",
                         column: x => x.StaffId,
+                        principalSchema: "initSchema",
                         principalTable: "Staff",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -514,6 +637,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Cashbooks",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -534,12 +658,14 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_Cashbooks_Categories_CategoryId",
                         column: x => x.CategoryId,
+                        principalSchema: "initSchema",
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Cashbooks_Items_ItemId",
                         column: x => x.ItemId,
+                        principalSchema: "initSchema",
                         principalTable: "Items",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -547,6 +673,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Expenses",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -567,12 +694,14 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_Expenses_Categories_CategoryId",
                         column: x => x.CategoryId,
+                        principalSchema: "initSchema",
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Expenses_Items_ItemId",
                         column: x => x.ItemId,
+                        principalSchema: "initSchema",
                         principalTable: "Items",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -580,6 +709,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Incomes",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -600,12 +730,14 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_Incomes_Categories_CategoryId",
                         column: x => x.CategoryId,
+                        principalSchema: "initSchema",
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Incomes_Items_ItemId",
                         column: x => x.ItemId,
+                        principalSchema: "initSchema",
                         principalTable: "Items",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -613,6 +745,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Purchases",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -633,12 +766,14 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_Purchases_Categories_CategoryId",
                         column: x => x.CategoryId,
+                        principalSchema: "initSchema",
                         principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Purchases_Items_ItemId",
                         column: x => x.ItemId,
+                        principalSchema: "initSchema",
                         principalTable: "Items",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -646,6 +781,7 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateTable(
                 name: "SalesBillItems",
+                schema: "initSchema",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
@@ -667,18 +803,21 @@ namespace Backend.Migrations
                     table.ForeignKey(
                         name: "FK_SalesBillItems_Items_ItemId",
                         column: x => x.ItemId,
+                        principalSchema: "initSchema",
                         principalTable: "Items",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_SalesBillItems_SalesBills_SalesBillId",
                         column: x => x.SalesBillId,
+                        principalSchema: "initSchema",
                         principalTable: "SalesBills",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
+                schema: "initSchema",
                 table: "Permissions",
                 columns: new[] { "Id", "CreatedAt", "Module", "PermissionName", "UpdatedAt" },
                 values: new object[,]
@@ -726,91 +865,121 @@ namespace Backend.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_Bills_CustomerId",
+                schema: "initSchema",
                 table: "Bills",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cashbooks_CategoryId",
+                schema: "initSchema",
                 table: "Cashbooks",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Cashbooks_ItemId",
+                schema: "initSchema",
                 table: "Cashbooks",
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Expenses_CategoryId",
+                schema: "initSchema",
                 table: "Expenses",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Expenses_ItemId",
+                schema: "initSchema",
                 table: "Expenses",
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Incomes_CategoryId",
+                schema: "initSchema",
                 table: "Incomes",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Incomes_ItemId",
+                schema: "initSchema",
                 table: "Incomes",
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Items_CategoryId",
+                schema: "initSchema",
                 table: "Items",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_PaymentsGiven_PartyId",
+                schema: "initSchema",
+                table: "PaymentsGiven",
+                column: "PartyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PaymentsReceived_PartyId",
+                schema: "initSchema",
+                table: "PaymentsReceived",
+                column: "PartyId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Purchases_CategoryId",
+                schema: "initSchema",
                 table: "Purchases",
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Purchases_ItemId",
+                schema: "initSchema",
                 table: "Purchases",
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_PermissionId",
+                schema: "initSchema",
                 table: "RolePermissions",
                 column: "PermissionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RolePermissions_RoleId",
+                schema: "initSchema",
                 table: "RolePermissions",
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalesBillItems_ItemId",
+                schema: "initSchema",
                 table: "SalesBillItems",
                 column: "ItemId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalesBillItems_SalesBillId",
+                schema: "initSchema",
                 table: "SalesBillItems",
                 column: "SalesBillId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalesBills_CustomerId",
+                schema: "initSchema",
                 table: "SalesBills",
                 column: "CustomerId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StaffAttendances_StaffId",
+                schema: "initSchema",
                 table: "StaffAttendances",
                 column: "StaffId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_StaffSalaries_StaffId",
+                schema: "initSchema",
                 table: "StaffSalaries",
                 column: "StaffId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Users_Username",
+                schema: "initSchema",
                 table: "Users",
                 column: "Username",
                 unique: true);
@@ -820,82 +989,120 @@ namespace Backend.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "AppSettings");
+                name: "AppSettings",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Bills");
+                name: "Bills",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Cashbooks");
+                name: "Cashbooks",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Expenses");
+                name: "Expenses",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Incomes");
+                name: "Incomes",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "InvoiceSettings");
+                name: "InvoiceSettings",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "PaymentGateways");
+                name: "KhataBooks",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Payments");
+                name: "PaymentGateways",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Purchases");
+                name: "Payments",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "RentalItems");
+                name: "PaymentsGiven",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "RolePermissions");
+                name: "PaymentsReceived",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "SalesBillItems");
+                name: "Purchases",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Services");
+                name: "RentalItems",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "SmsGateways");
+                name: "RolePermissions",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "StaffAttendances");
+                name: "SalesBillItems",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "StaffSalaries");
+                name: "Services",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Suppliers");
+                name: "SmsGateways",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Transactions");
+                name: "StaffAttendances",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "StaffSalaries",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Permissions");
+                name: "Suppliers",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Roles");
+                name: "Transactions",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Items");
+                name: "Users",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "SalesBills");
+                name: "Permissions",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Staff");
+                name: "Roles",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "Items",
+                schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "Customers");
+                name: "SalesBills",
+                schema: "initSchema");
+
+            migrationBuilder.DropTable(
+                name: "Staff",
+                schema: "initSchema");
+
+            migrationBuilder.DropTable(
+                name: "Categories",
+                schema: "initSchema");
+
+            migrationBuilder.DropTable(
+                name: "Customers",
+                schema: "initSchema");
         }
     }
 }

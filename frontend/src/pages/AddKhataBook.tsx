@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { toast } from 'react-toastify';
@@ -6,7 +6,9 @@ import { useNavigate } from 'react-router-dom';
 
 export const AddKhataBook = () => {
   const navigate = useNavigate();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     number: '',
@@ -18,6 +20,7 @@ export const AddKhataBook = () => {
     companyEmail: '',
     businessCategory: '',
     businessType: '',
+    imagepath: '',
     taxVat: false,
     bookAccount: false,
     kyc: false,
@@ -31,26 +34,41 @@ export const AddKhataBook = () => {
     }));
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      // Create a preview URL for the image
+      const imageUrl = URL.createObjectURL(file);
+      setFormData(prev => ({
+        ...prev,
+        imagepath: imageUrl
+      }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
     try {
-      // Convert string values to enum values
-      const payload = {
-        ...formData,
-        businessCategory: formData.businessCategory,
-        businessType: formData.businessType
-      };
+      const formDataToSend = new FormData();
+      
+      // Append all form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key !== 'imagepath') {
+          formDataToSend.append(key, value.toString());
+        }
+      });
 
-      console.log('Sending payload:', payload);
+      // Append the image file if selected
+      if (selectedImage) {
+        formDataToSend.append('imageFile', selectedImage);
+      }
 
       const response = await fetch('/api/KhataBook', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+        body: formDataToSend,
       });
 
       const responseData = await response.json();
@@ -93,6 +111,9 @@ export const AddKhataBook = () => {
       fontSize: '3rem',
       color: '#6c757d',
       marginBottom: '1rem',
+      backgroundImage: formData.imagepath ? `url(${formData.imagepath})` : 'none',
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
     },
     addPhotoButton: {
       padding: '0.5rem 1rem',
@@ -101,6 +122,9 @@ export const AddKhataBook = () => {
       border: 'none',
       borderRadius: '4px',
       cursor: 'pointer',
+    },
+    hiddenFileInput: {
+      display: 'none',
     },
     section: {
       marginBottom: '3rem',
@@ -188,9 +212,22 @@ export const AddKhataBook = () => {
           <form onSubmit={handleSubmit}>
             {/* Image Section */}
             <div style={styles.imageSection}>
-              <div style={styles.imagePlaceholder}>👤</div>
-              <button type="button" style={styles.addPhotoButton}>
-                Add Photo
+              <div style={styles.imagePlaceholder}>
+                {!formData.imagepath && '👤'}
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                style={styles.hiddenFileInput}
+                accept="image/*"
+                onChange={handleImageSelect}
+              />
+              <button 
+                type="button" 
+                style={styles.addPhotoButton}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                {formData.imagepath ? 'Change Photo' : 'Add Photo'}
               </button>
             </div>
 

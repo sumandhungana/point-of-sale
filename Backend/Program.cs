@@ -12,16 +12,18 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-// Configure PostgreSQL
+// Configure DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
-           .ReplaceService<IModelCacheKeyFactory, CustomModelCacheKeyFactory>();
+    options.UseNpgsql("Host=localhost;Database=backend;Username=postgres;Password=postgres",
+        x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema"));
 });
 
 // Add SchemaConfigurationService
-builder.Services.AddSingleton<IWebHostEnvironment>(builder.Environment);
-builder.Services.AddScoped<SchemaConfigurationService>();
+builder.Services.AddSingleton<SchemaConfigurationService>();
+
+// Add Schema Management Service
+builder.Services.AddScoped<SchemaManagementService>();
 
 var app = builder.Build();
 
@@ -30,6 +32,13 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// Ensure migrations history table exists
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await dbContext.EnsureMigrationsHistoryTableExistsAsync();
 }
 
 app.UseHttpsRedirection();

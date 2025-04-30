@@ -5,12 +5,13 @@ using Backend.Data.Seeders;
 using Backend.Services;
 using System.Data;
 using Npgsql;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace Backend.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    private readonly SchemaConfigurationService _schemaConfig;
+    private readonly SchemaConfigurationService? _schemaConfig;
     private string _currentSchema;
 
     public required string ConnectionString { get; set; }
@@ -19,16 +20,25 @@ public class ApplicationDbContext : DbContext
     {
         ConnectionString = "Host=localhost;Database=backend;Username=postgres;Password=postgres";
         _currentSchema = "initSchema";
-        _schemaConfig = null!;
+        _schemaConfig = null;
     }
 
     public ApplicationDbContext(
         DbContextOptions<ApplicationDbContext> options,
-        SchemaConfigurationService schemaConfig) 
+        SchemaConfigurationService? schemaConfig = null) 
         : base(options)
     {
         _schemaConfig = schemaConfig;
-        _currentSchema = schemaConfig.GetCurrentSchema();
+        _currentSchema = schemaConfig?.GetCurrentSchema() ?? "initSchema";
+        ConnectionString = "Host=localhost;Database=backend;Username=postgres;Password=postgres";
+    }
+
+    // Add constructor for design-time
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+        : base(options)
+    {
+        _currentSchema = "initSchema";
+        _schemaConfig = null!;
     }
 
     public string GetCurrentSchema() => _currentSchema;
@@ -67,7 +77,8 @@ public class ApplicationDbContext : DbContext
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql(ConnectionString);
+            optionsBuilder.UseNpgsql(ConnectionString,
+                x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema"));
         }
     }
 
@@ -77,6 +88,11 @@ public class ApplicationDbContext : DbContext
         
         // Set the schema for all entities
         modelBuilder.HasDefaultSchema(_currentSchema);
+
+        // Configure KhataBook properties
+        modelBuilder.Entity<KhataBook>()
+            .Property(k => k.KYC)
+            .HasColumnName("Kyc");
 
         PermissionSeeder.Seed(modelBuilder);
             
@@ -162,34 +178,29 @@ public class ApplicationDbContext : DbContext
 
     public async Task ReloadWithSchemaAsync(string schemaName)
     {
+        _currentSchema = schemaName;
+        await Database.CloseConnectionAsync();
+        await Database.OpenConnectionAsync();
+        await Database.ExecuteSqlRawAsync($"SET search_path TO {schemaName}");
+        ChangeTracker.Clear();
+    }
+
+    public async Task EnsureMigrationsHistoryTableExistsAsync()
+    {
         try
         {
-            // Close any existing connections
-            await Database.CloseConnectionAsync();
-
-            // Update the current schema
-            _currentSchema = schemaName;
-
-            // Clear the change tracker
-            ChangeTracker.Clear();
-
-            // Force a reload of the model by reopening the connection
-            await Database.OpenConnectionAsync();
-
-            // Set the search path for the current connection
-            using (var command = Database.GetDbConnection().CreateCommand())
-            {
-                command.CommandText = $"SET search_path TO \"{_currentSchema}\"";
-                if (command.Connection?.State != ConnectionState.Open)
-                {
-                    await command.Connection?.OpenAsync();
-                }
-                await command.ExecuteNonQueryAsync();
-            }
+            await Database.ExecuteSqlRawAsync($@"
+                CREATE SCHEMA IF NOT EXISTS initSchema;
+                CREATE TABLE IF NOT EXISTS initSchema.""__EFMigrationsHistory"" (
+                    ""MigrationId"" character varying(150) NOT NULL,
+                    ""ProductVersion"" character varying(32) NOT NULL,
+                    CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")
+                );");
         }
         catch (Exception ex)
         {
-            throw new Exception($"Failed to reload schema: {ex.Message}", ex);
+            // Log the error but don't throw - we want the application to continue
+            Console.WriteLine($"Error ensuring migrations history table exists: {ex.Message}");
         }
     }
 } 

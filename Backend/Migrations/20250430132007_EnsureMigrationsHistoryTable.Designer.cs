@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250427080748_AddSchemaNameToKhataBook")]
-    partial class AddSchemaNameToKhataBook
+    [Migration("20250430132007_EnsureMigrationsHistoryTable")]
+    partial class EnsureMigrationsHistoryTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -637,8 +637,12 @@ namespace Backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<bool>("Kyc")
-                        .HasColumnType("boolean");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("KYC")
+                        .HasColumnType("boolean")
+                        .HasColumnName("Kyc");
 
                     b.Property<string>("Name")
                         .IsRequired()

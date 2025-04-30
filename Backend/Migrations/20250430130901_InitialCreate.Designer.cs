@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250427075349_InitSchema")]
-    partial class InitSchema
+    [Migration("20250430130901_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -637,8 +637,12 @@ namespace Backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
-                    b.Property<bool>("Kyc")
-                        .HasColumnType("boolean");
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("KYC")
+                        .HasColumnType("boolean")
+                        .HasColumnName("Kyc");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -649,6 +653,9 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SchemaName")
+                        .HasColumnType("text");
 
                     b.Property<bool>("TaxVat")
                         .HasColumnType("boolean");

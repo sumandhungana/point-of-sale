@@ -12,14 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250421093823_AddPaymentsTables")]
-    partial class AddPaymentsTables
+    [Migration("20250430131112_AddImagePathToKhataBook")]
+    partial class AddImagePathToKhataBook
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasDefaultSchema("initSchema")
                 .HasAnnotation("ProductVersion", "9.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -128,7 +129,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppSettings");
+                    b.ToTable("AppSettings", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Bill", b =>
@@ -171,7 +172,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Bills");
+                    b.ToTable("Bills", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Cashbook", b =>
@@ -219,7 +220,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Cashbooks");
+                    b.ToTable("Cashbooks", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Category", b =>
@@ -249,7 +250,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Categories", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Customer", b =>
@@ -263,36 +264,55 @@ namespace Backend.Migrations
                     b.Property<string>("Address")
                         .HasColumnType("text");
 
+                    b.Property<string>("BankAccount")
+                        .HasColumnType("text");
+
+                    b.Property<decimal>("CashBalance")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<string>("Company")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
+
+                    b.Property<string>("ContactPerson")
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("CustomerSmsSetting")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Pan")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Phone")
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)");
+                        .HasColumnType("text");
+
+                    b.Property<string>("ProfileImage")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("SmsLanguage")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("TransactionHistoryCheck")
+                        .HasColumnType("boolean");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<bool>("isSupplier")
+                        .HasColumnType("boolean");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Expenses", b =>
@@ -340,7 +360,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Expenses");
+                    b.ToTable("Expenses", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Income", b =>
@@ -388,7 +408,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Incomes");
+                    b.ToTable("Incomes", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.InvoiceSettings", b =>
@@ -495,7 +515,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("InvoiceSettings");
+                    b.ToTable("InvoiceSettings", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Item", b =>
@@ -566,7 +586,86 @@ namespace Backend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Items");
+                    b.ToTable("Items", "initSchema");
+                });
+
+            modelBuilder.Entity("Backend.Models.KhataBook", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("BookAccount")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("BusinessCategory")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("BusinessType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("CompanyAddress")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CompanyEmail")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("CompanyNumber")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("KYC")
+                        .HasColumnType("boolean")
+                        .HasColumnName("Kyc");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Number")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)");
+
+                    b.Property<string>("SchemaName")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("TaxVat")
+                        .HasColumnType("boolean");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("KhataBooks", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Payment", b =>
@@ -598,7 +697,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Payments");
+                    b.ToTable("Payments", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentGateway", b =>
@@ -648,7 +747,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentGateways");
+                    b.ToTable("PaymentGateways", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentsGiven", b =>
@@ -663,7 +762,6 @@ namespace Backend.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<string>("BillPath")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("CreatedAt")
@@ -686,7 +784,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PartyId");
 
-                    b.ToTable("PaymentsGiven");
+                    b.ToTable("PaymentsGiven", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentsReceived", b =>
@@ -724,7 +822,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PartyId");
 
-                    b.ToTable("PaymentsReceived");
+                    b.ToTable("PaymentsReceived", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Permission", b =>
@@ -750,7 +848,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions");
+                    b.ToTable("Permissions", "initSchema");
 
                     b.HasData(
                         new
@@ -1112,7 +1210,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Purchases");
+                    b.ToTable("Purchases", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.RentalItem", b =>
@@ -1163,7 +1261,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RentalItems");
+                    b.ToTable("RentalItems", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Role", b =>
@@ -1196,7 +1294,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.RolePermission", b =>
@@ -1225,7 +1323,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RolePermissions");
+                    b.ToTable("RolePermissions", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.SalesBill", b =>
@@ -1272,7 +1370,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("SalesBills");
+                    b.ToTable("SalesBills", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.SalesBillItem", b =>
@@ -1325,7 +1423,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("SalesBillId");
 
-                    b.ToTable("SalesBillItems");
+                    b.ToTable("SalesBillItems", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Service", b =>
@@ -1368,7 +1466,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Services");
+                    b.ToTable("Services", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.SmsGateway", b =>
@@ -1412,7 +1510,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SmsGateways");
+                    b.ToTable("SmsGateways", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Staff", b =>
@@ -1455,7 +1553,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Staff");
+                    b.ToTable("Staff", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.StaffAttendance", b =>
@@ -1489,7 +1587,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("StaffAttendances");
+                    b.ToTable("StaffAttendances", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.StaffSalary", b =>
@@ -1539,7 +1637,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("StaffSalaries");
+                    b.ToTable("StaffSalaries", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Supplier", b =>
@@ -1558,6 +1656,7 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(100)");
 
                     b.Property<string>("ContactPerson")
+                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
@@ -1586,7 +1685,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Suppliers");
+                    b.ToTable("Suppliers", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Transaction", b =>
@@ -1619,7 +1718,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.User", b =>
@@ -1693,7 +1792,7 @@ namespace Backend.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Bill", b =>

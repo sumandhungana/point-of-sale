@@ -3,13 +3,11 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.Data;
 using Backend.Services;
+using Backend.Helpers;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Npgsql;
-using Microsoft.EntityFrameworkCore.Migrations;
-using System.Data;
-using System.Text.RegularExpressions;
-using System.Text;
 
 namespace Backend.Controllers
 {
@@ -18,112 +16,40 @@ namespace Backend.Controllers
     public class KhataBookController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly IConfiguration _configuration;
-        private readonly SchemaConfigurationService _schemaConfig;
-        private const string SCHEMA_PREFIX = "khata_";
-        private const string SOURCE_SCHEMA = "initSchema";
-        private static readonly Regex SchemaNameRegex = new Regex(@"^[a-zA-Z][a-zA-Z0-9_]*$", RegexOptions.Compiled);
+        private readonly SchemaManagementService _schemaService;
+        private readonly ILogger<KhataBookController> _logger;
 
         public KhataBookController(
-            ApplicationDbContext context, 
-            IConfiguration configuration,
-            SchemaConfigurationService schemaConfig)
+            ApplicationDbContext context,
+            SchemaManagementService schemaService,
+            ILogger<KhataBookController> logger)
         {
             _context = context;
-            _configuration = configuration;
-            _schemaConfig = schemaConfig;
+            _schemaService = schemaService;
+            _logger = logger;
         }
 
-        // Schema Management Endpoints
+        [HttpGet("changeSchema")]
+        public async Task<IActionResult> ChangeSchema()
+        {
+            return await _schemaService.ChangeSchema();
+        }
+
         [HttpPost("{id}/switch-schema")]
         public async Task<IActionResult> SwitchSchema(int id)
         {
-            try
+            var khataBook = await _context.KhataBooks.FindAsync(id);
+            if (khataBook == null)
             {
-                var khataBook = await _context.KhataBooks.FindAsync(id);
-                if (khataBook == null)
-                {
-                    return NotFound("KhataBook not found");
-                }
-
-                if (string.IsNullOrEmpty(khataBook.SchemaName))
-                {
-                    return BadRequest("KhataBook does not have an associated schema");
-                }
-
-                // First verify the schema exists
-                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = @"
-                            SELECT EXISTS (
-                                SELECT 1 
-                                FROM information_schema.schemata 
-                                WHERE schema_name = @schemaName
-                            )";
-                        command.Parameters.AddWithValue("@schemaName", khataBook.SchemaName);
-                        var schemaExists = (bool)await command.ExecuteScalarAsync();
-
-                        if (!schemaExists)
-                        {
-                            return NotFound($"Schema {khataBook.SchemaName} does not exist");
-                        }
-                    }
-                }
-
-                // Set the schema in the configuration
-                await _schemaConfig.SetCurrentSchemaAsync(khataBook.SchemaName);
-
-                // Reload the DbContext with the new schema
-                await _context.ReloadWithSchemaAsync(khataBook.SchemaName);
-
-                // Verify the schema switch was successful
-                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        // Get list of tables in the schema
-                        command.CommandText = @"
-                            SELECT table_name 
-                            FROM information_schema.tables 
-                            WHERE table_schema = @schemaName 
-                            AND table_type = 'BASE TABLE'
-                            ORDER BY table_name";
-                        command.Parameters.AddWithValue("@schemaName", khataBook.SchemaName);
-
-                        var tables = new List<string>();
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                tables.Add(reader.GetString(0));
-                            }
-                        }
-
-                        return Ok(new
-                        {
-                            message = $"Successfully switched to schema: {khataBook.SchemaName}",
-                            schema = khataBook.SchemaName,
-                            tables
-                        });
-                    }
-                }
+                return NotFound("KhataBook not found");
             }
-            catch (Exception ex)
+
+            if (string.IsNullOrEmpty(khataBook.SchemaName))
             {
-                // Reset to default schema on error
-                await _schemaConfig.ResetToDefaultSchemaAsync();
-                await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
-
-                return StatusCode(500, new
-                {
-                    error = $"Error switching schema: {ex.Message}",
-                    details = ex.StackTrace
-                });
+                return BadRequest("KhataBook does not have an associated schema");
             }
+
+            return await _schemaService.SwitchSchema(id, khataBook.SchemaName);
         }
 
         [HttpGet("{id}/tables")]
@@ -135,72 +61,18 @@ namespace Backend.Controllers
                 return NotFound("KhataBook not found");
             }
 
-            var tables = new List<string>();
-            try
+            if (string.IsNullOrEmpty(khataBook.SchemaName))
             {
-                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $@"
-                            SELECT table_name 
-                            FROM information_schema.tables 
-                            WHERE table_schema = @schemaName 
-                            AND table_type = 'BASE TABLE'";
-                        command.Parameters.AddWithValue("@schemaName", khataBook.SchemaName);
+                return BadRequest("KhataBook does not have an associated schema");
+            }
 
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                tables.Add(reader.GetString(0));
-                            }
-                        }
-                    }
-                }
-                return Ok(tables);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error getting tables: {ex.Message}");
-            }
+            return await _schemaService.GetSchemaTables(khataBook.SchemaName);
         }
 
         [HttpGet("schemas")]
         public async Task<ActionResult<IEnumerable<string>>> GetAllSchemas()
         {
-            var schemas = new List<string>();
-            try
-            {
-                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = @"
-                            SELECT schema_name 
-                            FROM information_schema.schemata 
-                            WHERE schema_name NOT LIKE 'pg_%' 
-                            AND schema_name != 'information_schema'
-                            AND schema_name LIKE @prefix";
-                        command.Parameters.AddWithValue("@prefix", $"{SCHEMA_PREFIX}%");
-
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                schemas.Add(reader.GetString(0));
-                            }
-                        }
-                    }
-                }
-                return Ok(schemas);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error getting schemas: {ex.Message}");
-            }
+            return await _schemaService.GetAllSchemas();
         }
 
         [HttpPost("{id}/validate-schema")]
@@ -212,38 +84,18 @@ namespace Backend.Controllers
                 return NotFound("KhataBook not found");
             }
 
-            try
+            if (string.IsNullOrEmpty(khataBook.SchemaName))
             {
-                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $@"
-                            SELECT EXISTS (
-                                SELECT 1 
-                                FROM information_schema.schemata 
-                                WHERE schema_name = @schemaName
-                            )";
-                        command.Parameters.AddWithValue("@schemaName", khataBook.SchemaName);
+                return BadRequest("KhataBook does not have an associated schema");
+            }
 
-                        var exists = (bool)await command.ExecuteScalarAsync();
-                        return Ok(exists);
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error validating schema: {ex.Message}");
-            }
+            return await _schemaService.ValidateSchema(khataBook.SchemaName);
         }
 
         // GET: api/KhataBook
         [HttpGet]
         public async Task<ActionResult<IEnumerable<KhataBook>>> GetKhataBooks()
         {
-            // Always use initSchema for KhataBook operations
-            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             return await _context.KhataBooks.ToListAsync();
         }
 
@@ -251,8 +103,6 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<KhataBook>> GetKhataBook(int id)
         {
-            // Always use initSchema for KhataBook operations
-            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             var khataBook = await _context.KhataBooks.FindAsync(id);
 
             if (khataBook == null)
@@ -265,266 +115,93 @@ namespace Backend.Controllers
 
         // POST: api/KhataBook
         [HttpPost]
-        public async Task<ActionResult<KhataBook>> PostKhataBook(KhataBook khataBook)
+        public async Task<ActionResult<KhataBook>> PostKhataBook([FromForm] KhataBookCreateDto khataBookDto, IFormFile? imageFile)
         {
-            // Always use initSchema for KhataBook operations
-            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
-            if (!ValidateSchemaName(khataBook.Name))
+            if (!_schemaService.ValidateSchemaName(khataBookDto.Name))
             {
                 return BadRequest("Invalid KhataBook name. Name must start with a letter and contain only letters, numbers, and underscores.");
             }
 
-            // First save the KhataBook to get its ID
+            string? imagePath = null;
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                try
+                {
+                    imagePath = await FileUploadHelper.UploadFileAsync(imageFile, _logger);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error uploading image for KhataBook");
+                    return BadRequest("Error uploading image: " + ex.Message);
+                }
+            }
+
+            var khataBook = new KhataBook
+            {
+                Name = khataBookDto.Name,
+                Number = khataBookDto.Number,
+                Address = khataBookDto.Address,
+                Email = khataBookDto.Email,
+                CompanyName = khataBookDto.CompanyName,
+                CompanyNumber = khataBookDto.CompanyNumber,
+                CompanyAddress = khataBookDto.CompanyAddress,
+                CompanyEmail = khataBookDto.CompanyEmail,
+                BusinessCategory = Enum.Parse<BusinessCategory>(khataBookDto.BusinessCategory),
+                BusinessType = Enum.Parse<BusinessType>(khataBookDto.BusinessType),
+                TaxVat = khataBookDto.TaxVat,
+                BookAccount = khataBookDto.BookAccount,
+                KYC = khataBookDto.KYC,
+                ImagePath = imagePath
+            };
+
             _context.KhataBooks.Add(khataBook);
             await _context.SaveChangesAsync();
 
-            // Create schema name based on KhataBook ID
-            string schemaName = $"{SCHEMA_PREFIX}{khataBook.Id}";
-            var executedQueries = new List<string>();
-
-            try
-            {
-                // Create the schema
-                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-
-                    // Create schema
-                    using (var command = connection.CreateCommand())
-                    {
-                        var createSchemaSql = $"CREATE SCHEMA IF NOT EXISTS \"{schemaName}\"";
-                        executedQueries.Add(createSchemaSql);
-                        command.CommandText = createSchemaSql;
-                        await command.ExecuteNonQueryAsync();
-                    }
-
-                    // Get all tables from initSchema
-                    var tableNames = new List<string>();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = @"
-                            SELECT table_name 
-                            FROM information_schema.tables 
-                            WHERE table_schema = @sourceSchema 
-                            AND table_type = 'BASE TABLE'";
-                        command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
-                        
-                        using (var reader = await command.ExecuteReaderAsync())
-                        {
-                            while (await reader.ReadAsync())
-                            {
-                                tableNames.Add(reader.GetString(0));
-                            }
-                        }
-                    }
-
-                    // For each table, get its structure and create it in the new schema
-                    foreach (var tableName in tableNames)
-                    {
-                        // Get table structure
-                        var columns = new List<string>();
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = $@"
-                                SELECT 
-                                    column_name,
-                                    data_type,
-                                    character_maximum_length,
-                                    is_nullable,
-                                    column_default,
-                                    is_identity
-                                FROM information_schema.columns 
-                                WHERE table_schema = @sourceSchema
-                                AND table_name = @tableName
-                                ORDER BY ordinal_position";
-                            command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
-                            command.Parameters.AddWithValue("@tableName", tableName);
-
-                            using (var reader = await command.ExecuteReaderAsync())
-                            {
-                                while (await reader.ReadAsync())
-                                {
-                                    string columnName = reader.GetString(0);
-                                    string dataType = reader.GetString(1);
-                                    int? maxLength = reader.IsDBNull(2) ? (int?)null : reader.GetInt32(2);
-                                    string isNullable = reader.GetString(3);
-                                    string defaultValue = reader.IsDBNull(4) ? null : reader.GetString(4);
-                                    string isIdentity = reader.GetString(5);
-
-                                    var columnDef = new StringBuilder($"\"{columnName}\" {dataType}");
-                                    
-                                    if (maxLength.HasValue)
-                                        columnDef.Append($"({maxLength})");
-                                    
-                                    if (isNullable == "NO")
-                                        columnDef.Append(" NOT NULL");
-                                    
-                                    if (!string.IsNullOrEmpty(defaultValue))
-                                        columnDef.Append($" DEFAULT {defaultValue}");
-                                    
-                                    if (isIdentity == "YES")
-                                        columnDef.Append(" GENERATED BY DEFAULT AS IDENTITY");
-
-                                    columns.Add(columnDef.ToString());
-                                }
-                            }
-                        }
-
-                        // Get primary keys
-                        var primaryKeys = new List<string>();
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = @"
-                                SELECT column_name
-                                FROM information_schema.key_column_usage
-                                WHERE table_schema = @sourceSchema
-                                AND table_name = @tableName
-                                AND constraint_name IN (
-                                    SELECT constraint_name
-                                    FROM information_schema.table_constraints
-                                    WHERE constraint_type = 'PRIMARY KEY'
-                                    AND table_schema = @sourceSchema
-                                    AND table_name = @tableName
-                                )";
-                            command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
-                            command.Parameters.AddWithValue("@tableName", tableName);
-
-                            using (var reader = await command.ExecuteReaderAsync())
-                            {
-                                while (await reader.ReadAsync())
-                                {
-                                    primaryKeys.Add($"\"{reader.GetString(0)}\"");
-                                }
-                            }
-                        }
-
-                        // Create table
-                        using (var command = connection.CreateCommand())
-                        {
-                            var createTableSql = new StringBuilder();
-                            createTableSql.Append($"CREATE TABLE \"{schemaName}\".\"{tableName}\" (");
-                            createTableSql.Append(string.Join(", ", columns));
-
-                            if (primaryKeys.Any())
-                            {
-                                createTableSql.Append($", PRIMARY KEY ({string.Join(", ", primaryKeys)})");
-                            }
-
-                            createTableSql.Append(")");
-
-                            executedQueries.Add(createTableSql.ToString());
-                            command.CommandText = createTableSql.ToString();
-                            await command.ExecuteNonQueryAsync();
-                        }
-                    }
-
-                    // Add foreign key constraints
-                    foreach (var tableName in tableNames)
-                    {
-                        var foreignKeys = new List<(string ColumnName, string ForeignTable, string ForeignColumn, string ConstraintName)>();
-                        using (var command = connection.CreateCommand())
-                        {
-                            command.CommandText = @"
-                                SELECT 
-                                    kcu.column_name,
-                                    ccu.table_name AS foreign_table_name,
-                                    ccu.column_name AS foreign_column_name,
-                                    tc.constraint_name
-                                FROM information_schema.key_column_usage kcu
-                                JOIN information_schema.table_constraints tc
-                                    ON tc.constraint_name = kcu.constraint_name
-                                JOIN information_schema.constraint_column_usage ccu
-                                    ON ccu.constraint_name = tc.constraint_name
-                                WHERE tc.constraint_type = 'FOREIGN KEY'
-                                AND kcu.table_schema = @sourceSchema
-                                AND kcu.table_name = @tableName";
-                            command.Parameters.AddWithValue("@sourceSchema", SOURCE_SCHEMA);
-                            command.Parameters.AddWithValue("@tableName", tableName);
-
-                            using (var reader = await command.ExecuteReaderAsync())
-                            {
-                                while (await reader.ReadAsync())
-                                {
-                                    foreignKeys.Add((
-                                        reader.GetString(0),
-                                        reader.GetString(1),
-                                        reader.GetString(2),
-                                        reader.GetString(3)
-                                    ));
-                                }
-                            }
-                        }
-
-                        // Add foreign key constraints
-                        foreach (var (columnName, foreignTable, foreignColumn, constraintName) in foreignKeys)
-                        {
-                            using (var command = connection.CreateCommand())
-                            {
-                                var addFkSql = $@"ALTER TABLE ""{schemaName}"".""{tableName}"" 
-                                    ADD CONSTRAINT ""{constraintName}"" 
-                                    FOREIGN KEY (""{columnName}"") 
-                                    REFERENCES ""{schemaName}"".""{foreignTable}"" (""{foreignColumn}"")";
-                                executedQueries.Add(addFkSql);
-                                command.CommandText = addFkSql;
-                                await command.ExecuteNonQueryAsync();
-                            }
-                        }
-                    }
-                }
-
-                // Update KhataBook with schema name
-                khataBook.SchemaName = schemaName;
-                await _context.SaveChangesAsync();
-
-                return CreatedAtAction(nameof(GetKhataBook), new { id = khataBook.Id }, new
-                {
-                    khataBook,
-                    executedQueries
-                });
-            }
-            catch (Exception ex)
-            {
-                // If something goes wrong, clean up
-                try
-                {
-                    _context.KhataBooks.Remove(khataBook);
-                    await _context.SaveChangesAsync();
-
-                    using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                    {
-                        await connection.OpenAsync();
-                        using (var command = connection.CreateCommand())
-                        {
-                            var dropSchemaSql = $"DROP SCHEMA IF EXISTS \"{schemaName}\" CASCADE";
-                            executedQueries.Add(dropSchemaSql);
-                            command.CommandText = dropSchemaSql;
-                            await command.ExecuteNonQueryAsync();
-                        }
-                    }
-                }
-                catch (Exception cleanupEx)
-                {
-                    executedQueries.Add($"Cleanup error: {cleanupEx.Message}");
-                }
-
-                return StatusCode(500, new
-                {
-                    error = $"Error creating KhataBook schema: {ex.Message}",
-                    executedQueries
-                });
-            }
+            return CreatedAtAction(nameof(GetKhataBook), new { id = khataBook.Id }, khataBook);
         }
 
         // PUT: api/KhataBook/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutKhataBook(int id, KhataBook khataBook)
+        public async Task<IActionResult> PutKhataBook(int id, [FromForm] KhataBookUpdateDto khataBookDto, IFormFile? imageFile)
         {
-            // Always use initSchema for KhataBook operations
-            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
-            if (id != khataBook.Id)
+            var khataBook = await _context.KhataBooks.FindAsync(id);
+            if (khataBook == null)
             {
-                return BadRequest();
+                return NotFound();
             }
+
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                try
+                {
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(khataBook.ImagePath))
+                    {
+                        FileUploadHelper.DeleteFile(khataBook.ImagePath);
+                    }
+
+                    khataBook.ImagePath = await FileUploadHelper.UploadFileAsync(imageFile, _logger);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error uploading image for KhataBook");
+                    return BadRequest("Error uploading image: " + ex.Message);
+                }
+            }
+
+            khataBook.Name = khataBookDto.Name;
+            khataBook.Number = khataBookDto.Number;
+            khataBook.Address = khataBookDto.Address;
+            khataBook.Email = khataBookDto.Email;
+            khataBook.CompanyName = khataBookDto.CompanyName;
+            khataBook.CompanyNumber = khataBookDto.CompanyNumber;
+            khataBook.CompanyAddress = khataBookDto.CompanyAddress;
+            khataBook.CompanyEmail = khataBookDto.CompanyEmail;
+            khataBook.BusinessCategory = Enum.Parse<BusinessCategory>(khataBookDto.BusinessCategory);
+            khataBook.BusinessType = Enum.Parse<BusinessType>(khataBookDto.BusinessType);
+            khataBook.TaxVat = khataBookDto.TaxVat;
+            khataBook.BookAccount = khataBookDto.BookAccount;
+            khataBook.KYC = khataBookDto.KYC;
 
             _context.Entry(khataBook).State = EntityState.Modified;
 
@@ -551,47 +228,61 @@ namespace Backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteKhataBook(int id)
         {
-            // Always use initSchema for KhataBook operations
-            await _context.ReloadWithSchemaAsync(SOURCE_SCHEMA);
             var khataBook = await _context.KhataBooks.FindAsync(id);
             if (khataBook == null)
             {
                 return NotFound();
             }
 
-            try
+            // Delete associated image if exists
+            if (!string.IsNullOrEmpty(khataBook.ImagePath))
             {
-                // Drop the schema and all its tables
-                using (var connection = new NpgsqlConnection(_context.Database.GetConnectionString()))
-                {
-                    await connection.OpenAsync();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"DROP SCHEMA IF EXISTS {khataBook.SchemaName} CASCADE";
-                        await command.ExecuteNonQueryAsync();
-                    }
-                }
-
-                _context.KhataBooks.Remove(khataBook);
-                await _context.SaveChangesAsync();
-
-                return NoContent();
+                FileUploadHelper.DeleteFile(khataBook.ImagePath);
             }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error deleting KhataBook schema: {ex.Message}");
-            }
+
+            _context.KhataBooks.Remove(khataBook);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
         }
 
         private bool KhataBookExists(int id)
         {
             return _context.KhataBooks.Any(e => e.Id == id);
         }
+    }
 
-        // Helper method for schema name validation
-        private bool ValidateSchemaName(string name)
-        {
-            return SchemaNameRegex.IsMatch(name);
-        }
+    public class KhataBookCreateDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Number { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
+        public string CompanyNumber { get; set; } = string.Empty;
+        public string CompanyAddress { get; set; } = string.Empty;
+        public string CompanyEmail { get; set; } = string.Empty;
+        public string BusinessCategory { get; set; } = string.Empty;
+        public string BusinessType { get; set; } = string.Empty;
+        public bool TaxVat { get; set; }
+        public bool BookAccount { get; set; }
+        public bool KYC { get; set; }
+    }
+
+    public class KhataBookUpdateDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Number { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
+        public string CompanyNumber { get; set; } = string.Empty;
+        public string CompanyAddress { get; set; } = string.Empty;
+        public string CompanyEmail { get; set; } = string.Empty;
+        public string BusinessCategory { get; set; } = string.Empty;
+        public string BusinessType { get; set; } = string.Empty;
+        public bool TaxVat { get; set; }
+        public bool BookAccount { get; set; }
+        public bool KYC { get; set; }
     }
 } 

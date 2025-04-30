@@ -13,27 +13,27 @@ namespace Backend.Models
         // Personal Info
         [Required]
         [StringLength(255)]
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
         [StringLength(20)]
-        public string Number { get; set; }
+        public string Number { get; set; } = string.Empty;
 
-        public string Address { get; set; }
+        public string Address { get; set; } = string.Empty;
 
         [StringLength(255)]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         // Business Info
         [StringLength(255)]
-        public string CompanyName { get; set; }
+        public string CompanyName { get; set; } = string.Empty;
 
         [StringLength(20)]
-        public string CompanyNumber { get; set; }
+        public string CompanyNumber { get; set; } = string.Empty;
 
-        public string CompanyAddress { get; set; }
+        public string CompanyAddress { get; set; } = string.Empty;
 
         [StringLength(255)]
-        public string CompanyEmail { get; set; }
+        public string CompanyEmail { get; set; } = string.Empty;
 
         public string? SchemaName { get; set; }
 
@@ -46,7 +46,10 @@ namespace Backend.Models
 
         public bool BookAccount { get; set; }
 
-        public bool Kyc { get; set; }
+        [Column("Kyc")]
+        public bool KYC { get; set; }
+
+        public string? ImagePath { get; set; }
 
         // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
