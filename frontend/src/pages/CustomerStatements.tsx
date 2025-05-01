@@ -191,6 +191,9 @@ export const CustomerStatements = () => {
         mainContent: {
             padding: '2rem',
             marginTop: '64px',
+            maxWidth: 'calc(100% - 500px)',
+            marginRight: '500px',
+            width: '100%',
         },
         profileContainer: {
             background: 'white',

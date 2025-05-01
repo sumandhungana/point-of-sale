@@ -126,11 +126,19 @@ export const CustomerStatement = () => {
                 background: '#e9ecef',
             },
         },
-        mainContent: {
+        formContainer: {
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '8px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+        },
+       mainContent: {
             padding: '2rem',
             marginTop: '64px',
-        },
-        formContainer: {
+            maxWidth: 'calc(100% - 500px)',
+            marginRight: '500px',
+            width: '100%',
+        },ntainer: {
             background: 'white',
             padding: '2rem',
             borderRadius: '8px',

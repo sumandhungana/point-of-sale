@@ -255,8 +255,10 @@ export const AddIncome = () => {
 
   const styles = {
     container: {
-      width: '100%',
       padding: '2rem',
+      maxWidth: 'calc(100% - 500px)',
+      marginRight: '500px',
+      width: '100%',
     },
     card: {
       background: 'white',

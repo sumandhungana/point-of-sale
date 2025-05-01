@@ -119,7 +119,9 @@ export const RentalItem = () => {
   const styles = {
     container: {
       display: 'flex',
-      minHeight: '100vh',
+      maxWidth: 'calc(100% - 500px)',
+      marginRight: '500px',
+      width: '100%',
     },
     main: {
       marginLeft: '280px',

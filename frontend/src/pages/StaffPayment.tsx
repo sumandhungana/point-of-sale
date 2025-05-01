@@ -30,7 +30,9 @@ export const StaffPayment: React.FC = () => {
   const styles = {
     container: {
       display: 'flex',
-      minHeight: '100vh',
+      maxWidth: 'calc(100% - 500px)',
+      marginRight: '500px',
+      width: '100%',
     },
     main: {
       flex: 1,

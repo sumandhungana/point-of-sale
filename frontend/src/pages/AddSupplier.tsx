@@ -75,11 +75,13 @@ export const AddSupplier = () => {
             minHeight: '100vh',
             background: '#f8f9fa',
         },
-        mainContent: {
+       mainContent: {
             padding: '2rem',
             marginTop: '64px',
-        },
-        formContainer: {
+            maxWidth: 'calc(100% - 500px)',
+            marginRight: '500px',
+            width: '100%',
+        },ntainer: {
             background: 'white',
             padding: '2rem',
             borderRadius: '8px',
