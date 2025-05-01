@@ -662,7 +662,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("KhataBooks", "initSchema");
+                    b.ToTable("KhataBook", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Payment", b =>

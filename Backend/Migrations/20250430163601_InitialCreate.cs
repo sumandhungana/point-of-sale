@@ -141,7 +141,7 @@ namespace Backend.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "KhataBooks",
+                name: "KhataBook",
                 schema: "initSchema",
                 columns: table => new
                 {
@@ -167,7 +167,7 @@ namespace Backend.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_KhataBooks", x => x.Id);
+                    table.PrimaryKey("PK_KhataBook", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -1013,7 +1013,7 @@ namespace Backend.Migrations
                 schema: "initSchema");
 
             migrationBuilder.DropTable(
-                name: "KhataBooks",
+                name: "KhataBook",
                 schema: "initSchema");
 
             migrationBuilder.DropTable(

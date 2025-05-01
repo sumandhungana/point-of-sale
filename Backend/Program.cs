@@ -15,7 +15,7 @@ builder.Services.AddSwaggerGen();
 // Configure DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseNpgsql("Host=localhost;Database=backend;Username=postgres;Password=postgres",
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
         x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema"));
 });
 

@@ -18,6 +18,7 @@ namespace Backend.Controllers
         private readonly ApplicationDbContext _context;
         private readonly SchemaManagementService _schemaService;
         private readonly ILogger<KhataBookController> _logger;
+        private const string SCHEMA_PREFIX = "khata_";
 
         public KhataBookController(
             ApplicationDbContext context,
@@ -35,9 +36,14 @@ namespace Backend.Controllers
             return await _schemaService.ChangeSchema();
         }
 
-        [HttpPost("{id}/switch-schema")]
+        [HttpGet("{id}/switch-schema")]
         public async Task<IActionResult> SwitchSchema(int id)
         {
+            if (id == 0)
+            {
+                return await _schemaService.SwitchSchema("initSchema");
+            }
+
             var khataBook = await _context.KhataBooks.FindAsync(id);
             if (khataBook == null)
             {
@@ -49,7 +55,7 @@ namespace Backend.Controllers
                 return BadRequest("KhataBook does not have an associated schema");
             }
 
-            return await _schemaService.SwitchSchema(id, khataBook.SchemaName);
+            return await _schemaService.SwitchSchema(khataBook.SchemaName);
         }
 
         [HttpGet("{id}/tables")]
@@ -117,8 +123,11 @@ namespace Backend.Controllers
         [HttpPost]
         public async Task<ActionResult<KhataBook>> PostKhataBook([FromForm] KhataBookCreateDto khataBookDto, IFormFile? imageFile)
         {
+            _logger.LogInformation("Starting KhataBook creation for {Name}", khataBookDto.Name);
+
             if (!_schemaService.ValidateSchemaName(khataBookDto.Name))
             {
+                _logger.LogWarning("Invalid KhataBook name: {Name}", khataBookDto.Name);
                 return BadRequest("Invalid KhataBook name. Name must start with a letter and contain only letters, numbers, and underscores.");
             }
 
@@ -127,6 +136,7 @@ namespace Backend.Controllers
             {
                 try
                 {
+                    _logger.LogInformation("Uploading image for KhataBook");
                     imagePath = await FileUploadHelper.UploadFileAsync(imageFile, _logger);
                 }
                 catch (Exception ex)
@@ -154,10 +164,43 @@ namespace Backend.Controllers
                 ImagePath = imagePath
             };
 
+            // First save the KhataBook to get its ID
+            _logger.LogInformation("Saving KhataBook to database");
             _context.KhataBooks.Add(khataBook);
             await _context.SaveChangesAsync();
 
-            return CreatedAtAction(nameof(GetKhataBook), new { id = khataBook.Id }, khataBook);
+            // Create schema name based on KhataBook ID
+            string schemaName = $"{SCHEMA_PREFIX}{khataBook.Id}";
+            _logger.LogInformation("Creating schema {SchemaName} for KhataBook {Id}", schemaName, khataBook.Id);
+
+            // Create the schema
+            var (success, message, executedQueries) = await _schemaService.CreateSchema(schemaName);
+
+            if (!success)
+            {
+                _logger.LogError("Failed to create schema: {Message}", message);
+                _logger.LogError("Executed queries: {Queries}", string.Join("\n", executedQueries));
+
+                // If schema creation fails, delete the KhataBook
+                _context.KhataBooks.Remove(khataBook);
+                await _context.SaveChangesAsync();
+
+                return StatusCode(500, new { error = message, executedQueries });
+            }
+
+            _logger.LogInformation("Successfully created schema {SchemaName}", schemaName);
+
+            // Update KhataBook with schema name
+            khataBook.SchemaName = schemaName;
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Successfully created KhataBook with ID {Id}", khataBook.Id);
+
+            return CreatedAtAction(nameof(GetKhataBook), new { id = khataBook.Id }, new
+            {
+                khataBook,
+                executedQueries
+            });
         }
 
         // PUT: api/KhataBook/5

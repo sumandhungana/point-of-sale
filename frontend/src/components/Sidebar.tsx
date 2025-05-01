@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { getKhataBooks, KhataBook } from '../services/khataBookService';
 import logo from '../assets/logo.png';
 
 interface NavItem {
@@ -173,6 +174,9 @@ export const Sidebar = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [khataBooks, setKhataBooks] = useState<KhataBook[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Function to find all parent paths for the current location
   const findParentPaths = (items: NavItem[], currentPath: string): string[] => {
@@ -219,6 +223,26 @@ export const Sidebar = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    const fetchKhataBooks = async () => {
+      if (isPopupOpen) {
+        setLoading(true);
+        setError(null);
+        try {
+          const data = await getKhataBooks();
+          setKhataBooks(data);
+        } catch (err) {
+          setError('Failed to load KhataBooks');
+          console.error(err);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchKhataBooks();
+  }, [isPopupOpen]);
 
   const styles = {
     sidebar: {
@@ -333,6 +357,7 @@ export const Sidebar = () => {
       padding: '1rem',
       display: 'flex',
       gap: '1rem',
+      marginBottom: '1rem',
     },
     userImage: {
       width: '60px',
@@ -344,6 +369,12 @@ export const Sidebar = () => {
       justifyContent: 'center',
       fontSize: '1.5rem',
       color: '#6c757d',
+      overflow: 'hidden',
+    },
+    userImageImg: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover' as const,
     },
     userDetails: {
       flex: 1,
@@ -443,6 +474,16 @@ export const Sidebar = () => {
     icon: {
       marginRight: '0.5rem',
     },
+    loadingText: {
+      textAlign: 'center' as const,
+      padding: '1rem',
+      color: '#6c757d',
+    },
+    errorText: {
+      textAlign: 'center' as const,
+      padding: '1rem',
+      color: '#dc3545',
+    },
   };
 
   const isActive = (path: string, item: NavItem) => {
@@ -517,6 +558,23 @@ export const Sidebar = () => {
     navigate('/add-khatabook');
   };
 
+  const handleKhataBookClick = async (khataBook: KhataBook) => {
+    try {
+      const response = await fetch(`/api/KhataBook/${khataBook.id}/switch-schema`);
+      if (response.ok) {
+        alert('Successfully switched to KhataBook: ' + khataBook.companyName);
+        window.location.reload();
+      } else {
+        const errorData = await response.json();
+        alert('Failed to switch KhataBook: ' + (errorData.message || 'Unknown error'));
+      }
+    } catch (error) {
+      console.error('Error switching KhataBook:', error);
+      alert('Failed to switch KhataBook. Please try again.');
+    }
+    setIsPopupOpen(false);
+  };
+
   return (
     <div style={styles.sidebar}>
       <div style={styles.logoContainer}>
@@ -541,7 +599,7 @@ export const Sidebar = () => {
         <div style={styles.popupContainer}>
           <div style={styles.popupContent} ref={popupRef}>
             <div style={styles.popupHeader}>
-              <h2 style={styles.popupTitle}>User Accounts</h2>
+              <h2 style={styles.popupTitle}>KhataBooks</h2>
               <button 
                 style={styles.closeButton}
                 onClick={() => setIsPopupOpen(false)}
@@ -550,18 +608,38 @@ export const Sidebar = () => {
               </button>
             </div>
             <div style={styles.userCardsContainer}>
-              {userCards.map((card) => (
-                <div key={card.id} style={styles.userCard}>
-                  <div style={styles.userImage}>
-                    {card.image}
+              {loading ? (
+                <p style={styles.loadingText}>Loading KhataBooks...</p>
+              ) : error ? (
+                <p style={styles.errorText}>{error}</p>
+              ) : khataBooks.length === 0 ? (
+                <p style={styles.loadingText}>No KhataBooks found</p>
+              ) : (
+                khataBooks.map((khataBook) => (
+                  <div 
+                    key={khataBook.id} 
+                    style={styles.userCard}
+                    onClick={() => handleKhataBookClick(khataBook)}
+                  >
+                    <div style={styles.userImage}>
+                      {khataBook.imagePath ? (
+                        <img 
+                          src={khataBook.imagePath} 
+                          alt={khataBook.name} 
+                          style={styles.userImageImg}
+                        />
+                      ) : (
+                        '👤'
+                      )}
+                    </div>
+                    <div style={styles.userDetails}>
+                      <h3 style={styles.companyName}>{khataBook.companyName}</h3>
+                      <p style={styles.userInfoText}>{khataBook.companyNumber}</p>
+                      <p style={styles.userInfoText}>{khataBook.name}</p>
+                    </div>
                   </div>
-                  <div style={styles.userDetails}>
-                    <h3 style={styles.companyName}>{card.company}</h3>
-                    <p style={styles.userInfoText}>{card.phone}</p>
-                    <p style={styles.userInfoText}>{card.role}</p>
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
             <button 
               style={styles.addButton}
@@ -577,7 +655,6 @@ export const Sidebar = () => {
         <ul style={styles.navItems}>
           {renderNavItems(navItems)}
         </ul>
-
       </div>
     </div>
   );

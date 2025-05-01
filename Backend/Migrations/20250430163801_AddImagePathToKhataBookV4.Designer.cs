@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250430130901_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250430163801_AddImagePathToKhataBookV4")]
+    partial class AddImagePathToKhataBookV4
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -665,7 +665,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("KhataBooks", "initSchema");
+                    b.ToTable("KhataBook", "initSchema");
                 });
 
             modelBuilder.Entity("Backend.Models.Payment", b =>

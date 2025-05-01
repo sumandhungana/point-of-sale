@@ -79,7 +79,7 @@ export const AddKhataBook = () => {
       }
 
       toast.success('Khata Book created successfully!');
-      navigate('/khata-books');
+      // navigate('/khata-books');
     } catch (error) {
       console.error('Error creating Khata Book:', error);
       toast.error(error instanceof Error ? error.message : 'Failed to create Khata Book. Please try again.');

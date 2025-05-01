@@ -8,11 +8,12 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        optionsBuilder.UseNpgsql("Host=localhost;Database=backend;Username=postgres;Password=postgres");
+        var connectionString = "Host=localhost;Database=khatabook;Username=postgres;Password=postgres;SearchPath=initSchema";
+        optionsBuilder.UseNpgsql(connectionString);
 
         return new ApplicationDbContext(optionsBuilder.Options)
         {
-            ConnectionString = "Host=localhost;Database=backend;Username=postgres;Password=postgres"
+            ConnectionString = connectionString
         };
     }
 } 

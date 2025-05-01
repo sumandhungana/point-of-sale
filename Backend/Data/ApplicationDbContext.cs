@@ -12,13 +12,12 @@ namespace Backend.Data;
 public class ApplicationDbContext : DbContext
 {
     private readonly SchemaConfigurationService? _schemaConfig;
-    private string _currentSchema;
+    private string? _currentSchema;
 
     public required string ConnectionString { get; set; }
 
     public ApplicationDbContext()
     {
-        ConnectionString = "Host=localhost;Database=backend;Username=postgres;Password=postgres";
         _currentSchema = "initSchema";
         _schemaConfig = null;
     }
@@ -30,7 +29,6 @@ public class ApplicationDbContext : DbContext
     {
         _schemaConfig = schemaConfig;
         _currentSchema = schemaConfig?.GetCurrentSchema() ?? "initSchema";
-        ConnectionString = "Host=localhost;Database=backend;Username=postgres;Password=postgres";
     }
 
     // Add constructor for design-time
@@ -41,7 +39,7 @@ public class ApplicationDbContext : DbContext
         _schemaConfig = null!;
     }
 
-    public string GetCurrentSchema() => _currentSchema;
+    public string? GetCurrentSchema() => _currentSchema;
 
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;
@@ -80,17 +78,23 @@ public class ApplicationDbContext : DbContext
             optionsBuilder.UseNpgsql(ConnectionString,
                 x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema"));
         }
+
+        optionsBuilder.ReplaceService<IModelCacheKeyFactory, CustomModelCacheKeyFactory>();
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
         
-        // Set the schema for all entities
-        modelBuilder.HasDefaultSchema(_currentSchema);
+        if (!string.IsNullOrEmpty(_currentSchema))
+        {
+            modelBuilder.HasDefaultSchema(_currentSchema);
+        }
 
         // Configure KhataBook properties
+        
         modelBuilder.Entity<KhataBook>()
+         .ToTable("KhataBook", "initSchema") 
             .Property(k => k.KYC)
             .HasColumnName("Kyc");
 
@@ -202,5 +206,11 @@ public class ApplicationDbContext : DbContext
             // Log the error but don't throw - we want the application to continue
             Console.WriteLine($"Error ensuring migrations history table exists: {ex.Message}");
         }
+    }
+
+    public void SetCurrentSchema(string schema)
+    {
+        _currentSchema = schema;
+        Database.SetConnectionString(Database.GetConnectionString());
     }
 } 
