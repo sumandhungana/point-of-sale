@@ -562,6 +562,7 @@ export const Sidebar = () => {
     try {
       const response = await fetch(`/api/KhataBook/${khataBook.id}/switch-schema`);
       if (response.ok) {
+        localStorage.setItem('companyName', khataBook.companyName);
         alert('Successfully switched to KhataBook: ' + khataBook.companyName);
         window.location.reload();
       } else {
@@ -621,7 +622,7 @@ export const Sidebar = () => {
                     style={styles.userCard}
                     onClick={() => handleKhataBookClick(khataBook)}
                   >
-                    <div style={styles.userImage}>
+                  <div style={styles.userImage}>
                       {khataBook.imagePath ? (
                         <img 
                           src={khataBook.imagePath} 
@@ -631,8 +632,8 @@ export const Sidebar = () => {
                       ) : (
                         '👤'
                       )}
-                    </div>
-                    <div style={styles.userDetails}>
+                  </div>
+                  <div style={styles.userDetails}>
                       <h3 style={styles.companyName}>{khataBook.companyName}</h3>
                       <p style={styles.userInfoText}>{khataBook.companyNumber}</p>
                       <p style={styles.userInfoText}>{khataBook.name}</p>

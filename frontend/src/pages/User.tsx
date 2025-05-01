@@ -1,7 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+
+interface User {
+  id: number;
+  username: string;
+  name: string;
+  company: string;
+  email: string;
+  phone: string;
+  branch: string;
+  permission: string;
+  enable: boolean;
+  parent: string;
+  address: string;
+  pan: string;
+  remarks: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export const User = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -9,15 +27,29 @@ export const User = () => {
   const [sort, setSort] = useState('');
   const [reseller, setReseller] = useState('');
   const [branch, setBranch] = useState('');
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Dummy data for the table
-  const users = [
-    { id: 1, companyName: 'ABC Corp', ownerName: 'John Doe', phoneNumber: '+1 234 567 8900', status: 'Active' },
-    { id: 2, companyName: 'XYZ Ltd', ownerName: 'Jane Smith', phoneNumber: '+1 234 567 8901', status: 'Inactive' },
-    { id: 3, companyName: '123 Industries', ownerName: 'Bob Johnson', phoneNumber: '+1 234 567 8902', status: 'Active' },
-    { id: 4, companyName: 'Tech Solutions', ownerName: 'Alice Brown', phoneNumber: '+1 234 567 8903', status: 'Pending' },
-  ];
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('/api/User');
+        if (!response.ok) {
+          throw new Error('Failed to fetch users');
+        }
+        const data: User[] = await response.json();
+        setUsers(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'An error occurred');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const styles = {
     container: {
@@ -109,20 +141,82 @@ export const User = () => {
       justifyContent: 'flex-end',
       marginTop: '1rem',
     },
+    loadingMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#6c757d',
+    },
+    errorMessage: {
+      textAlign: 'center' as const,
+      padding: '2rem',
+      color: '#dc3545',
+    },
   };
 
-  const getStatusStyle = (status: string) => {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return { ...styles.statusBadge, backgroundColor: '#d4edda', color: '#155724' };
-      case 'inactive':
-        return { ...styles.statusBadge, backgroundColor: '#f8d7da', color: '#721c24' };
-      case 'pending':
-        return { ...styles.statusBadge, backgroundColor: '#fff3cd', color: '#856404' };
-      default:
-        return styles.statusBadge;
-    }
+  const getStatusStyle = (enabled: boolean) => {
+    return enabled 
+      ? { ...styles.statusBadge, backgroundColor: '#d4edda', color: '#155724' }
+      : { ...styles.statusBadge, backgroundColor: '#f8d7da', color: '#721c24' };
   };
+
+  const handleUserClick = (user: User) => {
+    navigate('/add-user', { 
+      state: { 
+        isEdit: true,
+        initialValues: {
+          id: user.id,
+          username: user.username,
+          name: user.name,
+          company: user.company,
+          email: user.email,
+          phone: user.phone,
+          branch: user.branch,
+          permission: user.permission,
+          enable: user.enable,
+          parent: user.parent,
+          address: user.address,
+          pan: user.pan,
+          remarks: user.remarks
+        }
+      }
+    });
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '300px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.loadingMessage}>Loading users...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', minHeight: '100vh' }}>
+        <Sidebar />
+        <div style={{ 
+          flex: 1, 
+          marginLeft: '300px',
+          paddingTop: '60px',
+          minHeight: '100vh',
+          background: '#f8f9fa',
+        }}>
+          <Navbar />
+          <div style={styles.errorMessage}>{error}</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -154,7 +248,6 @@ export const User = () => {
                   <option value="">Filter</option>
                   <option value="active">Active</option>
                   <option value="inactive">Inactive</option>
-                  <option value="pending">Pending</option>
                 </select>
                 <select
                   value={sort}
@@ -163,8 +256,8 @@ export const User = () => {
                 >
                   <option value="">Sort</option>
                   <option value="name">Name</option>
-                  <option value="status">Status</option>
-                  <option value="date">Date</option>
+                  <option value="company">Company</option>
+                  <option value="branch">Branch</option>
                 </select>
               </div>
             </div>
@@ -176,8 +269,8 @@ export const User = () => {
                   style={styles.dropdown}
                 >
                   <option value="">Reseller</option>
-                  <option value="reseller1">Reseller 1</option>
-                  <option value="reseller2">Reseller 2</option>
+                  <option value="parent1">Parent 1</option>
+                  <option value="parent2">Parent 2</option>
                 </select>
                 <select
                   value={branch}
@@ -196,20 +289,32 @@ export const User = () => {
           <table style={styles.table}>
             <thead>
               <tr>
-                <th style={styles.tableHeader}>Company Name</th>
-                <th style={styles.tableHeader}>Owner Name</th>
-                <th style={styles.tableHeader}>Phone Number</th>
+                <th style={styles.tableHeader}>Name</th>
+                <th style={styles.tableHeader}>Company</th>
+                <th style={styles.tableHeader}>Email</th>
+                <th style={styles.tableHeader}>Phone</th>
+                <th style={styles.tableHeader}>Branch</th>
+                <th style={styles.tableHeader}>Permission</th>
                 <th style={styles.tableHeader}>Status</th>
               </tr>
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user.id}>
-                  <td style={styles.tableCell}>{user.companyName}</td>
-                  <td style={styles.tableCell}>{user.ownerName}</td>
-                  <td style={styles.tableCell}>{user.phoneNumber}</td>
+                <tr 
+                  key={user.id}
+                  onClick={() => handleUserClick(user)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td style={styles.tableCell}>{user.name}</td>
+                  <td style={styles.tableCell}>{user.company}</td>
+                  <td style={styles.tableCell}>{user.email}</td>
+                  <td style={styles.tableCell}>{user.phone}</td>
+                  <td style={styles.tableCell}>{user.branch}</td>
+                  <td style={styles.tableCell}>{user.permission}</td>
                   <td style={styles.statusCell}>
-                    <span style={getStatusStyle(user.status)}>{user.status}</span>
+                    <span style={getStatusStyle(user.enable)}>
+                      {user.enable ? 'Active' : 'Inactive'}
+                    </span>
                   </td>
                 </tr>
               ))}

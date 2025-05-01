@@ -15,6 +15,19 @@ internal sealed class CustomModelCacheKeyFactory : IModelCacheKeyFactory
 
     public object Create(DbContext context, bool designTime)
     {
+        if (designTime)
+        {
+            return new ModelCacheKey(context);
+        }
+        return new CustomModelCacheKey(context);
+    }
+
+    public object Create(DbContext context, bool designTime, bool providerDesignTime)
+    {
+        if (designTime || providerDesignTime)
+        {
+            return new ModelCacheKey(context);
+        }
         return new CustomModelCacheKey(context);
     }
 }

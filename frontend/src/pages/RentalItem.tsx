@@ -350,11 +350,11 @@ export const RentalItem = () => {
             <div style={styles.summaryGrid}>
               <div style={styles.summaryItem}>
                 <span style={styles.summaryLabel}>You Give</span>
-                <span style={styles.summaryAmount}>₹{youGive.toFixed(2)}</span>
+                <span style={styles.summaryAmount}>रु{youGive.toFixed(2)}</span>
               </div>
               <div style={styles.summaryItem}>
                 <span style={styles.summaryLabel}>Advance Amount</span>
-                <span style={styles.summaryAmount}>₹{advanceAmount.toFixed(2)}</span>
+                <span style={styles.summaryAmount}>रु{advanceAmount.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -393,13 +393,13 @@ export const RentalItem = () => {
                   </div>
                 </div>
                 <div style={styles.rentalAmount}>
-                  <div>₹{calculatedAmount.toFixed(2)}</div>
+                  <div>रु{calculatedAmount.toFixed(2)}</div>
                   <div style={{ 
                     fontSize: '0.875rem', 
                     color: '#6c757d',
                     textAlign: 'right'
                   }}>
-                    of ₹{item.rentalAmount.toFixed(2)}
+                    of रु{item.rentalAmount.toFixed(2)}
                   </div>
                 </div>
               </div>

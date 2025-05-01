@@ -25,7 +25,7 @@ export const AppSetting = () => {
     appForegroundColor: '#212529',
     
     // General settings
-    currency: '₹',
+    currency: 'रु',
     currencyPosition: 'before',
     dateFormat: 'DD/MM/YYYY',
     timeFormat: 'HH:mm',

@@ -54,7 +54,7 @@ public class AppSettings
     
     [Required]
     [StringLength(10)]
-    public string Currency { get; set; } = "₹";
+    public string Currency { get; set; } = "रु";
     
     [Required]
     [StringLength(10)]

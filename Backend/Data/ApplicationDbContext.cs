@@ -88,7 +88,7 @@ public class ApplicationDbContext : DbContext
         
         if (!string.IsNullOrEmpty(_currentSchema))
         {
-            modelBuilder.HasDefaultSchema(_currentSchema);
+        modelBuilder.HasDefaultSchema(_currentSchema);
         }
 
         // Configure KhataBook properties

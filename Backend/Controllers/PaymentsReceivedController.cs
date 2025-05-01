@@ -187,7 +187,7 @@ namespace Backend.Controllers
                     throw;
                 }
             }
-            return CreatedAtAction("GetPaymentsReceived", new { id = existingPayment.Id }, existingPayment);
+            return Ok(new { message = "Payment received updated successfully" });
         }
 
         // DELETE: api/PaymentsReceived/5
@@ -203,7 +203,7 @@ namespace Backend.Controllers
             _context.PaymentsReceived.Remove(paymentsReceived);
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { message = "Payment received deleted successfully" });
         }
 
         private bool PaymentsReceivedExists(int id)

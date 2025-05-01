@@ -22,19 +22,11 @@ public class ServiceController : ControllerBase
 
     // GET: api/Service
     [HttpGet]
-    public async Task<ActionResult<ServiceResponseDto>> GetServices()
+    public async Task<ActionResult<List<Service>>> GetServices()
     {
         var services = await _context.Services.OrderByDescending(s => s.CreatedAt).ToListAsync();
-        var response = new ServiceResponseDto
-        {
-            Service = services,
-            // NetMonthlySales = services.Sum(s => s.NetMonthlySales),
-            // GrossMonthlySales = services.Sum(s => s.GrossMonthlySales),
-            NetMonthlySales = 2334,
-            GrossMonthlySales = 435,
-            TotalItems = services.Count
-        };
-        return response;
+        
+        return services;
     }
 
     // GET: api/Service/5

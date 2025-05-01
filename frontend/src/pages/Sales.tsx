@@ -333,13 +333,13 @@ export const Sales = () => {
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Total Sales</div>
                 <div style={styles.infoValue}>
-                  ₹{salesBills.reduce((sum, bill) => sum + bill.amount, 0).toLocaleString()}
+                  रु{salesBills.reduce((sum, bill) => sum + bill.amount, 0).toLocaleString()}
                 </div>
                 <button style={styles.viewReportButton}>View Report</button>
               </div>
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>₹0</div>
+                <div style={styles.infoValue}>रु0</div>
                 <button style={styles.viewReportButton}>View Details</button>
               </div>
               <div style={styles.infoSection}>
@@ -400,7 +400,7 @@ export const Sales = () => {
                     </div>
                     <div style={styles.amountContainer}>
                       <div style={styles.amount}>
-                        ₹{bill.amount.toLocaleString()}
+                        रु{bill.amount.toLocaleString()}
                       </div>
                     </div>
                   </div>

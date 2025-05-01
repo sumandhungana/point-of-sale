@@ -25,6 +25,7 @@ export const CustomerListReportPdf = () => {
     const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const companyName = localStorage.getItem('companyName') || 'Admin';
 
     useEffect(() => {
         const fetchCustomers = async () => {
@@ -301,7 +302,7 @@ export const CustomerListReportPdf = () => {
                     <div style={styles.logoSection}>
                         <div style={styles.logoContainer}>
                             <div style={styles.logoImage}>🏢</div>
-                            <div style={styles.companyName}>Company Name</div>
+                            <div style={styles.companyName}>{companyName}</div>
                         </div>
                         <div style={styles.printOption}>
                             <input 

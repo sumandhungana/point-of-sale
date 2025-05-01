@@ -16,13 +16,6 @@ interface Service {
   updatedAt: string;
 }
 
-interface ServiceResponse {
-  service: Service[];
-  netMonthlySales: number;
-  grossMonthlySales: number;
-  totalItems: number;
-}
-
 export const Service = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
@@ -41,11 +34,33 @@ export const Service = () => {
         if (!response.ok) {
           throw new Error('Failed to fetch services');
         }
-        const data: ServiceResponse = await response.json();
-        setServices(data.service);
-        setNetMonthlySales(data.netMonthlySales);
-        setGrossMonthlySales(data.grossMonthlySales);
-        setTotalItems(data.totalItems);
+        const data: Service[] = await response.json();
+        setServices(data);
+        
+        // Calculate sales metrics
+        const currentDate = new Date();
+        const currentMonth = currentDate.getMonth();
+        const currentYear = currentDate.getFullYear();
+        
+        const monthlyServices = data.filter(service => {
+          const serviceDate = new Date(service.createdAt);
+          return serviceDate.getMonth() === currentMonth && 
+                 serviceDate.getFullYear() === currentYear;
+        });
+
+        // Calculate net sales (price without tax)
+        const netSales = monthlyServices.reduce((sum, service) => {
+          return sum + (service.taxIncluded ? service.price - (service.taxIncludedAmount - service.price) : service.price);
+        }, 0);
+
+        // Calculate gross sales (price with tax)
+        const grossSales = monthlyServices.reduce((sum, service) => {
+          return sum + (service.taxIncluded ? service.taxIncludedAmount : service.price);
+        }, 0);
+
+        setNetMonthlySales(netSales);
+        setGrossMonthlySales(grossSales);
+        setTotalItems(data.length);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -212,6 +227,24 @@ export const Service = () => {
     },
   };
 
+  const handleServiceClick = (service: Service) => {
+    navigate('/add-service', { 
+      state: { 
+        isEdit: true,
+        initialValues: {
+          id: service.id,
+          serviceName: service.serviceName,
+          price: service.price,
+          taxIncluded: service.taxIncluded,
+          taxIncludedAmount: service.taxIncludedAmount,
+          tax: service.tax,
+          vat: service.vat,
+          imagePath: service.imagePath
+        }
+      }
+    });
+  };
+
   if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -298,10 +331,14 @@ export const Service = () => {
 
           <div style={styles.servicesGrid}>
             {filteredServices.map(service => (
-              <div key={service.id} style={styles.serviceCard}>
+              <div 
+                key={service.id} 
+                style={styles.serviceCard}
+                onClick={() => handleServiceClick(service)}
+              >
                 <div style={styles.serviceImage}>
-                    <img src={service.imagePath} alt={service.serviceName} style={styles.serviceImage} />
-                  <div style={styles.servicePrice}>${service.price.toFixed(2)}</div>
+                    {service.imagePath && <img src={service.imagePath} alt={service.serviceName} style={styles.serviceImage} />}
+                    <div style={styles.servicePrice}>${service.price.toFixed(2)}</div>
                 </div>
                 <div style={styles.serviceDetails}>
                   <div style={styles.serviceName}>{service.serviceName}</div>

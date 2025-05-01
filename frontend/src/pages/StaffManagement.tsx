@@ -389,8 +389,8 @@ export const StaffManagement = () => {
             </thead>
             <tbody>
               <tr>
-                <td style={{ ...styles.td, ...styles.amountCell }}>₹{totalDue.toLocaleString()}</td>
-                <td style={{ ...styles.td, ...styles.amountCell }}>₹{totalAdvance.toLocaleString()}</td>
+                <td style={{ ...styles.td, ...styles.amountCell }}>रु{totalDue.toLocaleString()}</td>
+                <td style={{ ...styles.td, ...styles.amountCell }}>रु{totalAdvance.toLocaleString()}</td>
                 <td style={styles.td}>
                   <div style={styles.attendanceCell}>
                     <div style={styles.attendanceItem}>
@@ -497,7 +497,7 @@ export const StaffManagement = () => {
                   </div>
                 </div>
                 <div style={styles.amount}>
-                  ₹{staff.staffSalaries[0]?.amount.toLocaleString() || '0'}
+                  रु{staff.staffSalaries[0]?.amount.toLocaleString() || '0'}
                 </div>
               </div>
               <div style={styles.divider} />

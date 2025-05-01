@@ -331,13 +331,13 @@ export const Expenses = () => {
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Total Expenses</div>
                 <div style={styles.infoValue}>
-                  ₹{expenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString()}
+                  रु{expenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString()}
                 </div>
                 <button style={styles.viewReportButton}>View Report</button>
               </div>
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>₹0</div>
+                <div style={styles.infoValue}>रु0</div>
                 <button style={styles.viewReportButton}>View Details</button>
               </div>
               <div style={styles.infoSection}>
@@ -400,7 +400,7 @@ export const Expenses = () => {
                     </div>
                     <div style={styles.amountContainer}>
                       <div style={styles.amount}>
-                        ₹{expense.amount.toLocaleString()}
+                        रु{expense.amount.toLocaleString()}
                       </div>
                     </div>
                   </div>

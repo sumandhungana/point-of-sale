@@ -109,4 +109,44 @@ export const updatePaymentReceived = async (id: number, paymentData: PaymentRece
     }
 
     return response.json();
+};
+
+export const deletePaymentGiven = async (id: number) => {
+    try {
+        const response = await fetch(`/api/PaymentsGiven/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to delete payment');
+        }
+        return response.json();
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error.message;
+        }
+        throw 'An unknown error occurred';
+    }
+};
+
+export const deletePaymentReceived = async (id: number) => {
+    try {
+        const response = await fetch(`/api/PaymentsReceived/${id}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        if (!response.ok) {
+            throw new Error('Failed to delete payment');
+        }
+        return response.json();
+    } catch (error) {
+        if (error instanceof Error) {
+            throw error.message;
+        }
+        throw 'An unknown error occurred';
+    }
 }; 

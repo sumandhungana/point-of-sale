@@ -95,8 +95,7 @@ public class UserController : ControllerBase
                 throw;
             }
         }
-
-        return NoContent();
+        return Ok(new { message = "User updated successfully" });
     }
 
     // DELETE: api/User/5

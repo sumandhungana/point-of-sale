@@ -18,7 +18,7 @@ namespace Backend.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("initSchema")
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -569,6 +569,9 @@ namespace Backend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("VatDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("VatPercentage")

@@ -4,8 +4,9 @@ import React, { useState, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { PaymentHistory } from '../services/paymentService';
-import html2pdf from 'html2pdf.js';
+import { pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
+import CustomerStatementsPDFTemplate from '../components/CustomerStatementsPDFTemplate';
 
 interface CustomerData {
     name: string;
@@ -53,24 +54,27 @@ export const CustomerStatementsReport = () => {
     };
 
     const handleGeneratePdf = async () => {
-        if (!contentRef.current) return;
-
-        const element = contentRef.current;
-        const opt = {
-            margin: 10,
-            filename: `customer-statement-${customer.name}-${new Date().toISOString().split('T')[0]}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2,
-                useCORS: true,
-                logging: true,
-                letterRendering: true
-            },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
         try {
-            await html2pdf().set(opt).from(element).save();
+            const blob = await pdf(
+                <CustomerStatementsPDFTemplate data={{
+                    customer,
+                    paymentHistory: filteredTransactions,
+                    totals: {
+                        given: totalGave,
+                        received: totalReceived
+                    }
+                }} />
+            ).toBlob();
+            
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `customer-statement-${customer.name}-${new Date().toISOString().split('T')[0]}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
             toast.success('PDF downloaded successfully');
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -424,7 +428,7 @@ export const CustomerStatementsReport = () => {
                 </div>
 
                     <div style={styles.totalBalance}>
-                        Total Net Balance: ₹{netBalance.toLocaleString()}
+                        Total Net Balance: रु{netBalance.toLocaleString()}
                 </div>
 
                     <div style={styles.tableContainer}>
@@ -448,13 +452,13 @@ export const CustomerStatementsReport = () => {
                                             {transaction.type}
                                         </td>
                                         <td style={styles.tableCell}>
-                                            ₹{Math.abs(transaction.amount).toLocaleString()}
+                                            रु{Math.abs(transaction.amount).toLocaleString()}
                                         </td>
                                         <td style={styles.tableCell}>
                                                             {transaction.remarks}
                                         </td>
                                         <td style={styles.tableCell}>
-                                            ₹{transaction.newBalance.toLocaleString()}
+                                            रु{transaction.newBalance.toLocaleString()}
                                         </td>
                                     </tr>
                                 ))}
@@ -480,8 +484,8 @@ export const CustomerStatementsReport = () => {
                     <div style={styles.reportFooter}>
                         <div>Phone: {customer.phoneNumber}</div>
                         <div>Total Transactions: {paymentHistory.length}</div>
-                        <div>Total Given: ₹{totalGave.toLocaleString()}</div>
-                        <div>Total Received: ₹{totalReceived.toLocaleString()}</div>
+                        <div>Total Given: रु{totalGave.toLocaleString()}</div>
+                        <div>Total Received: रु{totalReceived.toLocaleString()}</div>
                     </div>
                 </div>
             </main>

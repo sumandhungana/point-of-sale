@@ -395,12 +395,12 @@ export const Purchase = () => {
             <div style={styles.infoCard}>
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Total Purchases</div>
-                <div style={styles.infoValue}>₹1,23,456</div>
+                <div style={styles.infoValue}>रु1,23,456</div>
                 <button style={styles.viewReportButton}>View Report</button>
               </div>
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>₹45,678</div>
+                <div style={styles.infoValue}>रु45,678</div>
                 <button style={styles.viewReportButton}>View Details</button>
               </div>
               <div style={styles.infoSection}>

@@ -59,6 +59,13 @@ public class SalesBillController : ControllerBase
                 return BadRequest(ModelState);
             }
 
+            // Verify customer exists
+            var customer = await _context.Customers.FindAsync(request.CustomerId);
+            if (customer == null)
+            {
+                return BadRequest("Customer not found");
+            }
+
             string photoPath = null;
             if (!string.IsNullOrEmpty(request.Base64Image))
             {

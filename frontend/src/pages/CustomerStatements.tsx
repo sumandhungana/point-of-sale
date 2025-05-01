@@ -157,7 +157,7 @@ export const CustomerStatements = () => {
                     customerId: customerData.id,
                     details: `${transaction.type === 'payment_in' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.date).toLocaleDateString()}`,
                     remarks: transaction.remarks,
-                    sms: `Dear ${customerData.name}, your payment of ₹${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: ₹${transaction.currentBalance}. Thank you for your business.`
+                    sms: `Dear ${customerData.name}, your payment of रु${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: रु${transaction.currentBalance}. Thank you for your business.`
                 }
             }
         });
@@ -570,11 +570,11 @@ export const CustomerStatements = () => {
                     <div style={styles.amountRow}>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>You Received Amount</div>
-                            <div style={styles.amountValue}>₹{totals.received - totals.given < 0 ? 0 : totals.received - totals.given}</div>
+                            <div style={styles.amountValue}>रु{totals.received - totals.given < 0 ? 0 : totals.received - totals.given}</div>
                         </div>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>You Gave Amount</div>
-                            <div style={{...styles.amountValue, ...styles.currentAmountRedNoBorder}}>₹{totals.given - totals.received < 0 ? 0 : totals.given - totals.received}</div>
+                            <div style={{...styles.amountValue, ...styles.currentAmountRedNoBorder}}>रु{totals.given - totals.received < 0 ? 0 : totals.given - totals.received}</div>
                         </div>
                     </div>
                     <div style={styles.reminderRow}>
@@ -652,7 +652,7 @@ export const CustomerStatements = () => {
                                                 <div style={styles.transactionRow}>
                                                     <div style={styles.transactionLabel}>Balance:</div>
                                                     <div style={styles.transactionValue}>
-                                                        ₹{transaction.oldBalance.toLocaleString()}
+                                                        रु{transaction.oldBalance.toLocaleString()}
                                                     </div>
                                                 </div>
                                                 <div style={styles.transactionRow}>

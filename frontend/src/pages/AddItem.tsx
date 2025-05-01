@@ -1,34 +1,56 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface Category {
   id: number;
   name: string;
 }
 
+interface LocationState {
+  isEdit: boolean;
+  initialValues: {
+    id: number;
+    name: string;
+    salesPrice: number;
+    openingStock: number;
+    imageUrl: string;
+    category: {
+      name: string;
+    };
+  };
+}
+
 export const AddItem = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const locationState = location.state as LocationState;
+  const isEdit = locationState?.isEdit || false;
+  const initialValues = locationState?.initialValues;
+
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formDataState, setFormDataState] = useState({
-    name: '',
+    name: initialValues?.name || '',
     primaryUnit: '',
     secondaryUnit: '',
     isSecondaryUnitEnabled: false,
     categoryId: '',
-    salesPrice: '',
+    salesPrice: initialValues?.salesPrice?.toString() || '',
     purchasePrice: '',
     taxIncluded: false,
-    openingStock: '',
+    openingStock: initialValues?.openingStock?.toString() || '',
     lowStockAlert: '',
+    vatDate: '',
     vatPercentage: '',
     vatPercentageToday: '',
-    imageUrl: '',
+    imageUrl: initialValues?.imageUrl || '',
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialValues?.imageUrl || null);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -36,6 +58,17 @@ export const AddItem = () => {
         const response = await fetch('/api/Category');
         const data = await response.json();
         setCategories(data);
+        
+        // If editing, set the category ID
+        if (isEdit && initialValues?.category) {
+          const category = data.find((c: Category) => c.name === initialValues.category.name);
+          if (category) {
+            setFormDataState(prev => ({
+              ...prev,
+              categoryId: category.id.toString()
+            }));
+          }
+        }
       } catch (err) {
         setError('Failed to fetch categories');
         console.error('Error fetching categories:', err);
@@ -43,7 +76,7 @@ export const AddItem = () => {
     };
 
     fetchCategories();
-  }, []);
+  }, [isEdit, initialValues]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -73,8 +106,11 @@ export const AddItem = () => {
         formData.append('image', selectedFile);
       }
 
-      const response = await fetch('/api/Item', {
-        method: 'POST',
+      const url = isEdit ? `/api/Item/${initialValues?.id}` : '/api/Item';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         body: formData,
       });
 
@@ -92,19 +128,21 @@ export const AddItem = () => {
           openingStock: '',
           lowStockAlert: '',
           vatPercentage: '',
+          vatDate: '',
           vatPercentageToday: '',
           imageUrl: '',
         });
         setSelectedFile(null);
         setImagePreview(null);
-        alert('Item created successfully!');
+        alert(isEdit ? 'Item updated successfully!' : 'Item created successfully!');
+        navigate('/inventory/items');
       } else {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create item');
+        throw new Error(errorData.message || `Failed to ${isEdit ? 'update' : 'create'} item`);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create item');
-      console.error('Error creating item:', err);
+      setError(err instanceof Error ? err.message : `Failed to ${isEdit ? 'update' : 'create'} item`);
+      console.error(`Error ${isEdit ? 'updating' : 'creating'} item:`, err);
     } finally {
       setLoading(false);
     }
@@ -572,8 +610,19 @@ export const AddItem = () => {
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={styles.vatLabel}>Image URL</label>
+                  <label style={styles.label}>VAT As of Date</label>
                   <input
+                    type="date"
+                    name="vatDate"
+                    value={formDataState.vatDate}
+                    onChange={handleInputChange}
+                    style={styles.input}
+                    required
+                  />
+                </div>
+                <div style={{ display: 'none' }}>
+                  <input
+                  hidden
                     type="text"
                     name="imageUrl"
                     value={formDataState.imageUrl}
@@ -596,7 +645,7 @@ export const AddItem = () => {
               style={styles.saveButton}
               disabled={loading}
             >
-              {loading ? 'Saving...' : 'Save Item'}
+              {loading ? (isEdit ? 'Updating...' : 'Saving...') : (isEdit ? 'Update Item' : 'Save Item')}
             </button>
           </form>
         </div>

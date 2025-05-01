@@ -232,7 +232,7 @@ export const StaffPayment: React.FC = () => {
         <div style={styles.summaryCards}>
           <div style={styles.summaryCard}>
             <div style={styles.summaryTitle}>Total Due</div>
-            <div style={styles.summaryAmount}>₹25,000</div>
+            <div style={styles.summaryAmount}>रु25,000</div>
           </div>
           <div style={styles.summaryCard}>
             <div style={styles.summaryTitle}>Show Permission</div>
@@ -357,35 +357,35 @@ export const StaffPayment: React.FC = () => {
             <tbody>
               <tr>
                 <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹15,000</span>
+                  <span style={styles.amountCell}>रु15,000</span>
                 </td>
                 <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹25,000</span>
+                  <span style={styles.amountCell}>रु25,000</span>
                 </td>
                 <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹10,000</span>
-                </td>
-              </tr>
-              <tr>
-                <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹12,000</span>
-                </td>
-                <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹18,000</span>
-                </td>
-                <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹6,000</span>
+                  <span style={styles.amountCell}>रु10,000</span>
                 </td>
               </tr>
               <tr>
                 <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹20,000</span>
+                  <span style={styles.amountCell}>रु12,000</span>
                 </td>
                 <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹30,000</span>
+                  <span style={styles.amountCell}>रु18,000</span>
                 </td>
                 <td style={styles.tableCell}>
-                  <span style={styles.amountCell}>₹10,000</span>
+                  <span style={styles.amountCell}>रु6,000</span>
+                </td>
+              </tr>
+              <tr>
+                <td style={styles.tableCell}>
+                  <span style={styles.amountCell}>रु20,000</span>
+                </td>
+                <td style={styles.tableCell}>
+                  <span style={styles.amountCell}>रु30,000</span>
+                </td>
+                <td style={styles.tableCell}>
+                  <span style={styles.amountCell}>रु10,000</span>
                 </td>
               </tr>
             </tbody>

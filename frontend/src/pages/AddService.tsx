@@ -1,20 +1,39 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 
+interface LocationState {
+  isEdit: boolean;
+  initialValues: {
+    id: number;
+    serviceName: string;
+    price: number;
+    taxIncluded: boolean;
+    taxIncludedAmount: number;
+    tax: number | null;
+    vat: number | null;
+    imagePath: string | null;
+  };
+}
+
 export const AddService = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LocationState;
+  const isEdit = locationState?.isEdit || false;
+  const initialValues = locationState?.initialValues;
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(initialValues?.imagePath || null);
   const [formData, setFormData] = useState({
-    serviceName: '',
-    price: '',
-    taxIncluded: false,
-    taxIncludedAmount: '',
-    tax: '',
-    vat: '',
+    serviceName: initialValues?.serviceName || '',
+    price: initialValues?.price?.toString() || '',
+    taxIncluded: initialValues?.taxIncluded || false,
+    taxIncludedAmount: initialValues?.taxIncludedAmount?.toString() || '',
+    tax: initialValues?.tax?.toString() || '',
+    vat: initialValues?.vat?.toString() || '',
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,24 +72,26 @@ export const AddService = () => {
       
       if (selectedFile) {
         formDataToSend.append('Image', selectedFile);
-        console.log(selectedFile);
       }
 
-      const response = await fetch('/api/Service', {
-        method: 'POST',
+      const url = isEdit ? `/api/Service/${initialValues?.id}` : '/api/Service';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method,
         body: formDataToSend,
       });
 
       if (response.ok) {
-        alert('Service created successfully!');
+        alert(isEdit ? 'Service updated successfully!' : 'Service created successfully!');
         navigate('/service');
       } else {
         const errorData = await response.json();
-        alert(`Failed to create service: ${errorData.message || 'Unknown error'}`);
+        alert(`Failed to ${isEdit ? 'update' : 'create'} service: ${errorData.message || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error creating service:', error);
-      alert('An error occurred while creating the service');
+      console.error(`Error ${isEdit ? 'updating' : 'creating'} service:`, error);
+      alert(`An error occurred while ${isEdit ? 'updating' : 'creating'} the service`);
     }
   };
 
@@ -304,7 +325,7 @@ export const AddService = () => {
 
               <div style={styles.buttonGroup}>
                 <button type="submit" style={styles.saveButton}>
-                  Save Service
+                  {isEdit ? 'Update Service' : 'Save Service'}
                 </button>
               </div>
             </form>

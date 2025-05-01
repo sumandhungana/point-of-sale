@@ -128,7 +128,7 @@ CREATE TABLE app_settings (
   login_bg_path VARCHAR(255) DEFAULT NULL,
 
   -- General Settings
-  currency VARCHAR(10) NOT NULL DEFAULT '₹',
+  currency VARCHAR(10) NOT NULL DEFAULT 'रु',
   currency_position ENUM('before', 'after') NOT NULL DEFAULT 'before',
   date_format ENUM('DD/MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM-DD') NOT NULL DEFAULT 'DD/MM/YYYY',
   time_format ENUM('HH:mm', 'hh:mm A') NOT NULL DEFAULT 'HH:mm',

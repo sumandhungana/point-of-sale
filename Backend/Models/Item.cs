@@ -46,6 +46,8 @@ public class Item
     [Column(TypeName = "decimal(5,2)")]
     public decimal? VatPercentageToday { get; set; }
     
+    public DateTime? VatDate { get; set; }
+    
     public string? ImageUrl { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

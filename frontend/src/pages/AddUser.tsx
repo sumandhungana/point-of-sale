@@ -1,26 +1,51 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+interface LocationState {
+  isEdit: boolean;
+  initialValues: {
+    id: number;
+    username: string;
+    name: string;
+    company: string;
+    email: string;
+    phone: string;
+    branch: string;
+    permission: string;
+    enable: boolean;
+    parent: string;
+    address: string;
+    pan: string;
+    remarks: string;
+  };
+}
 
 export const AddUser = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationState = location.state as LocationState;
+  const isEdit = locationState?.isEdit || false;
+  const initialValues = locationState?.initialValues;
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
-    username: '',
-    enable: false,
+    id: initialValues?.id || 0,
+    username: initialValues?.username || '',
+    enable: initialValues?.enable || false,
     password: '',
-    branch: '',
-    permission: '',
-    parent: '',
-    name: '',
-    address: '',
-    company: '',
-    email: '',
-    phone: '',
-    pan: '',
-    remarks: '',
+    branch: initialValues?.branch || '',
+    permission: initialValues?.permission || '',
+    parent: initialValues?.parent || '',
+    name: initialValues?.name || '',
+    address: initialValues?.address || '',
+    company: initialValues?.company || '',
+    email: initialValues?.email || '',
+    phone: initialValues?.phone || '',
+    pan: initialValues?.pan || '',
+    remarks: initialValues?.remarks || '',
   });
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -45,8 +70,14 @@ export const AddUser = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/User', {
-        method: 'POST',
+      const url = isEdit ? `/api/User/${initialValues?.id}` : '/api/User';
+      const method = isEdit ? 'PUT' : 'POST';
+      if (isEdit) {
+        formData.id = initialValues?.id;
+      }
+
+      const response = await fetch(url, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
@@ -54,14 +85,14 @@ export const AddUser = () => {
       });
 
       if (response.status === 200 || response.status === 201) {
-        alert('User created successfully!');
+        alert(isEdit ? 'User updated successfully!' : 'User created successfully!');
         navigate('/user');
       } else {
         try {
           const errorData = await response.json();
-          throw new Error(errorData.message || 'Failed to create user');
+          throw new Error(errorData.message || `Failed to ${isEdit ? 'update' : 'create'} user`);
         } catch (error) {
-          throw new Error('User already exists');
+          throw new Error(isEdit ? 'Failed to update user' : 'User already exists');
         }
       }
     } catch (err) {
@@ -397,7 +428,7 @@ export const AddUser = () => {
                 style={styles.saveButton}
                 disabled={loading}
               >
-                {loading ? 'Saving...' : 'Save'}
+                {loading ? 'Saving...' : (isEdit ? 'Update' : 'Save')}
               </button>
             </div>
           </form>

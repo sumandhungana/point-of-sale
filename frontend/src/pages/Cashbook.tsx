@@ -326,13 +326,13 @@ export const Cashbook = () => {
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Total Amount</div>
                 <div style={styles.infoValue}>
-                  ₹{cashbooks.reduce((sum, cashbook) => sum + cashbook.amount, 0).toLocaleString()}
+                  रु{cashbooks.reduce((sum, cashbook) => sum + cashbook.amount, 0).toLocaleString()}
                 </div>
                 <button style={styles.viewReportButton}>View Report</button>
               </div>
               <div style={styles.infoSection}>
                 <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>₹0</div>
+                <div style={styles.infoValue}>रु0</div>
                 <button style={styles.viewReportButton}>View Details</button>
               </div>
               <div style={styles.infoSection}>
@@ -392,7 +392,7 @@ export const Cashbook = () => {
                     </div>
                     <div style={styles.amountContainer}>
                       <div style={styles.amount}>
-                        ₹{cashbook.amount.toLocaleString()}
+                        रु{cashbook.amount.toLocaleString()}
                       </div>
                     </div>
                   </div>

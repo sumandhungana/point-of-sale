@@ -354,15 +354,15 @@ export const Suppliers = () => {
                 <div style={styles.cardsContainer}>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Give</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.given.toLocaleString()}</div>
+                        <div style={styles.cardAmount}>रु{overallTotals.given.toLocaleString()}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Receive</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.received.toLocaleString()}</div>
+                        <div style={styles.cardAmount}>रु{overallTotals.received.toLocaleString()}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>Online Collection</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.online.toLocaleString()}</div>
+                        <div style={styles.cardAmount}>रु{overallTotals.online.toLocaleString()}</div>
                     </div>
                 </div>
 
@@ -418,7 +418,7 @@ export const Suppliers = () => {
                                     ...styles.supplierAmount,
                                     color: supplier.balance >= 0 ? '#28a745' : '#dc3545'
                                 }}>
-                                    ₹{Math.abs(supplier.balance).toLocaleString()}
+                                    रु{Math.abs(supplier.balance).toLocaleString()}
                                 </div>
                             </div>
                         </div>

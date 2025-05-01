@@ -52,7 +52,7 @@ export const Items = () => {
   const infoCards: InfoCard[] = [
     {
       title: 'Total Value Stock',
-      value: `₹${totalSalesPrice.toLocaleString()}`,
+      value: `रु${totalSalesPrice.toLocaleString()}`,
       icon: '📦',
       color: '#4CAF50',
     },
@@ -347,6 +347,22 @@ export const Items = () => {
     }
   });
 
+  const handleItemClick = (item: Item) => {
+    navigate('/inventory/items/add', { 
+      state: { 
+        isEdit: true,
+        initialValues: {
+          id: item.id,
+          name: item.name,
+          salesPrice: item.salesPrice,
+          openingStock: item.openingStock,
+          imageUrl: item.imageUrl,
+          category: item.category
+        }
+      }
+    });
+  };
+
   return (
     <div style={styles.container}>
       <Sidebar />
@@ -414,7 +430,11 @@ export const Items = () => {
           <div style={{ textAlign: 'center', padding: '2rem' }}>Loading items...</div>
         ) : (
           sortedItems.map((item) => (
-            <div key={item.id} style={styles.itemsContainer}>
+            <div 
+              key={item.id} 
+              style={styles.itemsContainer}
+              onClick={() => handleItemClick(item)}
+            >
               <div style={styles.itemCard}>
                 <img
                   src={item.imageUrl || 'https://via.placeholder.com/60'}
@@ -426,7 +446,7 @@ export const Items = () => {
               <div style={styles.priceCard}>
                 <div style={styles.priceInfo}>
                   <span style={styles.priceLabel}>Sale Price</span>
-                  <span style={styles.priceValue}>₹{item.salesPrice.toLocaleString()}</span>
+                  <span style={styles.priceValue}>रु{item.salesPrice.toLocaleString()}</span>
                 </div>
                 <div style={styles.stockInfo}>
                   <span style={styles.priceLabel}>Stock</span>

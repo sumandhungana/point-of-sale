@@ -585,11 +585,11 @@ export const SupplierStatements = () => {
                     <div style={styles.amountRow}>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>You Received Amount</div>
-                            <div style={styles.amountValue}>₹{supplierData.receivedAmount.toLocaleString()}</div>
+                            <div style={styles.amountValue}>रु{supplierData.receivedAmount.toLocaleString()}</div>
                         </div>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>The Amount</div>
-                            <div style={styles.amountValue}>₹{supplierData.receivedAmount.toLocaleString()}</div>
+                            <div style={styles.amountValue}>रु{supplierData.receivedAmount.toLocaleString()}</div>
                         </div>
                     </div>
                     <div style={styles.reminderRow}>
@@ -675,7 +675,7 @@ export const SupplierStatements = () => {
                                                     <div style={styles.transactionRow}>
                                                         <div style={styles.transactionLabel}>Balance:</div>
                                                         <div style={styles.transactionValue}>
-                                                            ₹{transaction.oldBalance.toLocaleString()}
+                                                            रु{transaction.oldBalance.toLocaleString()}
                                                         </div>
                                                     </div>
                                                     <div style={styles.transactionRow}>
@@ -687,10 +687,10 @@ export const SupplierStatements = () => {
                                                 </div>
                                                 <div style={styles.transactionAmounts}>
                                                     <div style={styles.oldAmount}>
-                                                        ₹{transaction.oldBalance.toLocaleString()}
+                                                        रु{transaction.oldBalance.toLocaleString()}
                                                     </div>
                                                     <div style={styles.currentAmount}>
-                                                        ₹{transaction.currentBalance.toLocaleString()}
+                                                        रु{transaction.currentBalance.toLocaleString()}
                                                     </div>
                                                 </div>
                                             </div>
@@ -737,7 +737,7 @@ export const SupplierStatements = () => {
                                                     <div style={styles.transactionRow}>
                                                         <div style={styles.transactionLabel}>Balance:</div>
                                                         <div style={styles.transactionValue}>
-                                                            ₹{transaction.oldBalance.toLocaleString()}
+                                                            रु{transaction.oldBalance.toLocaleString()}
                                                         </div>
                                                     </div>
                                                     <div style={styles.transactionRow}>
@@ -749,10 +749,10 @@ export const SupplierStatements = () => {
                                                 </div>
                                                 <div style={styles.transactionAmounts}>
                                                     <div style={styles.oldAmount}>
-                                                        ₹{transaction.oldBalance.toLocaleString()}
+                                                        रु{transaction.oldBalance.toLocaleString()}
                                                     </div>
                                                     <div style={styles.currentAmount}>
-                                                        ₹{transaction.currentBalance.toLocaleString()}
+                                                        रु{transaction.currentBalance.toLocaleString()}
                                                     </div>
                                                 </div>
                                             </div>

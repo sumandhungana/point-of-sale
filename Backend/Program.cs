@@ -34,11 +34,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Ensure migrations history table exists
+// Apply migrations to all schemas
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await dbContext.EnsureMigrationsHistoryTableExistsAsync();
+    try
+    {
+        await MigrationHelper.MigrateAllSchemasAsync(dbContext);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error during migration: {ex.Message}");
+        // Optionally rethrow if you want to prevent the app from starting with migration errors
+        // throw;
+    }
 }
 
 app.UseHttpsRedirection();

@@ -188,7 +188,7 @@ namespace Backend.Controllers
                 }
             }
 
-            return NoContent();
+            return Ok(new { message = "Payment given updated successfully" });
         }
 
         // DELETE: api/PaymentsGiven/5
@@ -203,8 +203,7 @@ namespace Backend.Controllers
 
             _context.PaymentsGiven.Remove(paymentsGiven);
             await _context.SaveChangesAsync();
-
-            return NoContent();
+            return Ok(new { message = "Payment given deleted successfully" });
         }
 
         private bool PaymentsGivenExists(int id)

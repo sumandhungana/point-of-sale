@@ -1,8 +1,10 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import html3pdf from 'html3pdf';
+import { pdf } from '@react-pdf/renderer';
 import StatementPDFTemplate from '../components/StatementPDFTemplate';
+import { deletePaymentGiven, deletePaymentReceived } from '../services/paymentService';
+import { toast } from 'react-toastify';
 
 interface TransactionData {
     customerId: number;
@@ -34,8 +36,6 @@ export const CustomerStatement = () => {
         date: transactionData?.date || '',
     });
 
-    const pdfRef = useRef<HTMLDivElement>(null);
-
     const handleEdit = () => {
         const editData = {
             customerId: formData.customerId,
@@ -57,42 +57,52 @@ export const CustomerStatement = () => {
         }
     };
 
-    const handleDelete = () => {
-        // Navigate back to statements page
+    const handleDelete = async () => {
+        try {
+            if (transactionData.type === 'payment_in') {
+                await deletePaymentReceived(parseInt(id || '0'));
+            } else {
+                await deletePaymentGiven(parseInt(id || '0'));
+            }
+            toast.success('Payment deleted successfully');
         navigate(-1);
+        } catch (error) {
+            console.error('Error deleting payment:', error);
+            toast.error('Failed to delete payment');
+        }
     };
 
-    const handlePrintPDF = () => {
-        // Handle print PDF functionality
-        console.log('Print PDF clicked');
+    const handlePrintPDF = async () => {
+        try {
+            const blob = await pdf(<StatementPDFTemplate formData={formData} />).toBlob();
+            const url = URL.createObjectURL(blob);
+            const iframe = document.createElement('iframe');
+            iframe.style.display = 'none';
+            iframe.src = url;
+            document.body.appendChild(iframe);
+            iframe.onload = () => {
+                iframe.contentWindow?.print();
+                setTimeout(() => {
+                    document.body.removeChild(iframe);
+                    URL.revokeObjectURL(url);
+                }, 1000);
+            };
+        } catch (error) {
+            console.error('Error printing PDF:', error);
+        }
     };
 
     const handleDownloadPDF = async () => {
-        const element = pdfRef.current;
-        if (!element) {
-            console.error('PDF reference not found');
-            return;
-        }
-
-        const opt = {
-            margin: 1,
-            filename: `statement_${formData.customerName}_${formData.date}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { 
-                scale: 2,
-                useCORS: true,
-                logging: true,
-                letterRendering: true
-            },
-            jsPDF: { 
-                unit: 'in', 
-                format: 'letter',
-                orientation: 'portrait' as const
-            }
-        };
-
         try {
-            await html3pdf().set(opt).from(element).save();
+            const blob = await pdf(<StatementPDFTemplate formData={formData} />).toBlob();
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `statement_${formData.customerName}_${formData.date}.pdf`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
         } catch (error) {
             console.error('Error generating PDF:', error);
         }
@@ -138,11 +148,6 @@ export const CustomerStatement = () => {
             maxWidth: 'calc(100% - 500px)',
             marginRight: '500px',
             width: '100%',
-        },ntainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         },
         formTitle: {
             fontSize: '1.5rem',
@@ -240,66 +245,6 @@ export const CustomerStatement = () => {
             '&:hover': {
                 background: '#5a32a3',
             },
-        },
-    };
-
-    const pdfStyles = {
-        pdfContainer: {
-            position: 'absolute' as const,
-            left: '-9999px',
-            top: '-9999px',
-            padding: '20px',
-            maxWidth: '800px',
-            margin: '0 auto',
-            background: 'white',
-        },
-        pdfCard: {
-            border: '1px solid #e0e0e0',
-            borderRadius: '10px',
-            padding: '20px',
-            boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-        },
-        pdfHeader: {
-            textAlign: 'center' as const,
-            marginBottom: '20px',
-            paddingBottom: '20px',
-            borderBottom: '2px solid #f0f0f0',
-        },
-        pdfTitle: {
-            fontSize: '24px',
-            color: '#333',
-            marginBottom: '10px',
-        },
-        pdfSubtitle: {
-            fontSize: '16px',
-            color: '#666',
-        },
-        pdfContent: {
-            display: 'grid',
-            gridTemplateColumns: '1fr 1fr',
-            gap: '20px',
-            marginBottom: '20px',
-        },
-        pdfField: {
-            marginBottom: '15px',
-        },
-        pdfLabel: {
-            fontSize: '14px',
-            color: '#666',
-            marginBottom: '5px',
-        },
-        pdfValue: {
-            fontSize: '16px',
-            color: '#333',
-            fontWeight: '500',
-        },
-        pdfFooter: {
-            textAlign: 'center' as const,
-            marginTop: '20px',
-            paddingTop: '20px',
-            borderTop: '2px solid #f0f0f0',
-            color: '#666',
-            fontSize: '14px',
         },
     };
 
@@ -435,11 +380,6 @@ export const CustomerStatement = () => {
                     </div>
                 </div>
             </main>
-
-            {/* PDF Template (positioned off-screen) */}
-            <div ref={pdfRef} style={{ position: 'absolute', left: '-9999px', top: '-9999px' }}>
-                <StatementPDFTemplate formData={formData} />
-            </div>
         </div>
     );
 }; 

@@ -88,6 +88,7 @@ public class ItemController : ControllerBase
                 LowStockAlert = itemDto.LowStockAlert,
                 VatPercentage = itemDto.VatPercentage,
                 VatPercentageToday = itemDto.VatPercentageToday,
+                VatDate = itemDto.VatDate?.ToUniversalTime(),
                 ImageUrl = imageUrl,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -121,6 +122,9 @@ public class ItemController : ControllerBase
             item.CategoryId = itemDto.CategoryId;
             item.SalesPrice = itemDto.SalesPrice;
             item.PurchasePrice = itemDto.PurchasePrice;
+            item.VatPercentage = itemDto.VatPercentage;
+            item.VatPercentageToday = itemDto.VatPercentageToday;
+            item.VatDate = itemDto.VatDate?.ToUniversalTime();
             item.UpdatedAt = DateTime.UtcNow;
 
             if (itemDto.Image != null)
@@ -188,6 +192,7 @@ public class ItemCreateDto
     public decimal? LowStockAlert { get; set; }
     public decimal? VatPercentage { get; set; }
     public decimal? VatPercentageToday { get; set; }
+    public DateTime? VatDate { get; set; }
     public IFormFile? Image { get; set; }
 }
 
@@ -197,6 +202,9 @@ public class ItemUpdateDto
     public int CategoryId { get; set; }
     public decimal SalesPrice { get; set; }
     public decimal PurchasePrice { get; set; }
+    public decimal? VatPercentage { get; set; }
+    public decimal? VatPercentageToday { get; set; }
+    public DateTime? VatDate { get; set; }
     public IFormFile? Image { get; set; }
 }
 

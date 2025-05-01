@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "ikCZInbe/iodH6BMeg92OoraMDfjqc74CaBXBRRgdfM=",
+  "Hash": "a0SntbAtzTcAf6e/WB3tCc+4nml9p22LR/i82/gMM2k=",
   "Source": "Backend",
   "BasePath": "_content/Backend",
   "Mode": "Default",
@@ -110,6 +110,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/uploads/2048c9f9-8381-42b1-b49b-e1d5816f5f6c.png"
+    },
+    {
+      "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/20c901f1-b499-4495-bb8b-da0e396fd737.png",
+      "SourceId": "Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/",
+      "BasePath": "_content/Backend",
+      "RelativePath": "uploads/20c901f1-b499-4495-bb8b-da0e396fd737.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/20c901f1-b499-4495-bb8b-da0e396fd737.png"
     },
     {
       "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/31a5320e-c5ae-4bbe-805a-af0371dfa673.png",
@@ -224,6 +243,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/uploads/5055471b-509c-4bc9-9f07-abb9e41596dd.png"
+    },
+    {
+      "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/5334e935-d7f1-4975-9a6e-a483563f98db.png",
+      "SourceId": "Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/",
+      "BasePath": "_content/Backend",
+      "RelativePath": "uploads/5334e935-d7f1-4975-9a6e-a483563f98db.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/5334e935-d7f1-4975-9a6e-a483563f98db.png"
     },
     {
       "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/53a65564-bf97-4776-8a00-fdada1974768.png",
@@ -395,6 +433,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/uploads/84e6e812-5d5f-409d-b6b2-e97a0f1126fc.png"
+    },
+    {
+      "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/888664b9-980d-4c0d-b5bc-9d41788c33f5.png",
+      "SourceId": "Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/",
+      "BasePath": "_content/Backend",
+      "RelativePath": "uploads/888664b9-980d-4c0d-b5bc-9d41788c33f5.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/888664b9-980d-4c0d-b5bc-9d41788c33f5.png"
     },
     {
       "Identity": "/home/punkholic/random/work/point_of_sale/Backend/wwwroot/uploads/ae9cc2a7-170e-4b4e-b321-73c73a7db261.png",

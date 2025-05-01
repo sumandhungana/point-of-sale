@@ -64,6 +64,7 @@ export const AddRentalItem = () => {
       display: 'flex',
       maxWidth: 'calc(100% - 500px)',
       marginRight: '500px',
+      marginLeft: '200px', 
       width: '100%',
     },
     main: {

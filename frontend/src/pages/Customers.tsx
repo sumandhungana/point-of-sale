@@ -399,16 +399,16 @@ export const Customers = () => {
                 <div style={styles.cardsContainer}>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Give</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received}</div>
+                        <div style={styles.cardAmount}>रु{overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received}</div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Receive</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given}</div>
+                        <div style={styles.cardAmount}>रु{overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given}</div>
 
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>Online Collection</div>
-                        <div style={styles.cardAmount}>₹{overallTotals.online.toLocaleString()}</div>
+                        <div style={styles.cardAmount}>रु{overallTotals.online.toLocaleString()}</div>
                     </div>
                 </div>
 
@@ -464,7 +464,7 @@ export const Customers = () => {
                                     ...styles.customerAmount,
                                     color: customer.balance >= 0 ? '#28a745' : '#dc3545'
                                 }}>
-                                    ₹{Math.abs(customer.balance).toLocaleString()}
+                                    रु{Math.abs(customer.balance).toLocaleString()}
                                 </div>
                             </div>
                         </div>
