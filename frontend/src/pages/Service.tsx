@@ -338,7 +338,7 @@ export const Service = () => {
               >
                 <div style={styles.serviceImage}>
                     {service.imagePath && <img src={service.imagePath} alt={service.serviceName} style={styles.serviceImage} />}
-                    <div style={styles.servicePrice}>${service.price.toFixed(2)}</div>
+                  <div style={styles.servicePrice}>${service.price.toFixed(2)}</div>
                 </div>
                 <div style={styles.serviceDetails}>
                   <div style={styles.serviceName}>{service.serviceName}</div>
