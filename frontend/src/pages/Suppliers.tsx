@@ -85,8 +85,12 @@ export const Suppliers = () => {
         navigate('/parties/suppliers/list-report-pdf');
     };
 
+    const handleListReportPdf = () => {
+        navigate('/parties/suppliers/list-report-pdf');
+    };
+
     const handleSupplierClick = (supplierId: string) => {
-        navigate(`/parties/suppliers/${supplierId}`);
+        navigate(`/parties/customers/statements/${supplierId}`);
     };
 
     const styles = {
@@ -112,24 +116,53 @@ export const Suppliers = () => {
             alignItems: 'center',
             gap: '1rem',
             marginBottom: '1rem',
+            flexWrap: 'wrap' as const,
         },
         searchInput: {
-            flex: 1,
-            padding: '0.5rem 1rem',
+            flex: 2,
+            padding: '0.75rem 1rem',
             border: '1px solid #dee2e6',
             borderRadius: '4px',
             fontSize: '1rem',
-        },
-        filterContainer: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem',
+            minWidth: '200px',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
+            '&:focus': {
+                outline: 'none',
+                borderColor: '#dc4c39',
+                boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
+            },
         },
         filterGroup: {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
+            flex: 1,
+            minWidth: '200px',
+        },
+        select: {
+            padding: '0.75rem 1rem',
+            border: '1px solid #dee2e6',
+            borderRadius: '4px',
+            fontSize: '0.875rem',
+            flex: 1,
+            backgroundColor: 'white',
+            cursor: 'pointer',
+            transition: 'border-color 0.2s, box-shadow 0.2s',
+            '&:focus': {
+                outline: 'none',
+                borderColor: '#dc4c39',
+                boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
+            },
+        },
+        label: {
+            fontSize: '0.875rem',
+            color: '#6c757d',
+            whiteSpace: 'nowrap',
+        },
+        actionButtons: {
+            display: 'flex',
+            gap: '0.75rem',
+            marginLeft: 'auto',
         },
         button: {
             padding: '0.5rem 1rem',
@@ -149,16 +182,6 @@ export const Suppliers = () => {
             background: '#f8f9fa',
             color: '#212529',
             border: '1px solid #dee2e6',
-        },
-        select: {
-            padding: '0.5rem',
-            border: '1px solid #dee2e6',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-        },
-        label: {
-            fontSize: '0.875rem',
-            color: '#6c757d',
         },
         filterButtons: {
             display: 'flex',
@@ -302,49 +325,42 @@ export const Suppliers = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={styles.searchInput}
                         />
-                        <button 
-                            style={{ ...styles.button, ...styles.primaryButton }}
-                            onClick={handleBulkReminder}
-                        >
-                            Bulk Reminder
-                        </button>
-                    </div>
-
-                    <div style={styles.filterContainer}>
-                        <div style={{ display: 'flex', gap: '1rem' }}>
-                            <div style={styles.filterGroup}>
-                                <label style={styles.label}>Filter by:</label>
-                                <select
-                                    value={filterBy}
-                                    onChange={(e) => setFilterBy(e.target.value)}
-                                    style={styles.select}
-                                >
-                                    <option value="all">All</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                    <option value="pending">Pending</option>
-                                </select>
-                            </div>
-
-                            <div style={styles.filterGroup}>
-                                <label style={styles.label}>Sort by:</label>
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                    style={styles.select}
-                                >
-                                    <option value="name">Name</option>
-                                    <option value="date">Date Added</option>
-                                    <option value="balance">Balance</option>
-                                </select>
-                            </div>
+                        <div style={styles.filterGroup}>
+                            <label style={styles.label}>Filter:</label>
+                            <select
+                                value={filterBy}
+                                onChange={(e) => setFilterBy(e.target.value)}
+                                style={styles.select}
+                            >
+                                <option value="all">All Suppliers</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="pending">Pending</option>
+                            </select>
                         </div>
-
-                        <div style={styles.filterButtons}>
-                            <button style={{ ...styles.button, ...styles.secondaryButton }}>
-                                Filter
+                        <div style={styles.filterGroup}>
+                            <label style={styles.label}>Sort:</label>
+                            <select
+                                value={sortBy}
+                                onChange={(e) => setSortBy(e.target.value)}
+                                style={styles.select}
+                            >
+                                <option value="name">By Name</option>
+                                <option value="date">Date Added</option>
+                                <option value="balance">Balance</option>
+                            </select>
+                        </div>
+                        <div style={styles.actionButtons}>
+                            <button 
+                                style={{ ...styles.button, ...styles.primaryButton }}
+                                onClick={handleBulkReminder}
+                            >
+                                Bulk Reminder
                             </button>
-                            <button style={{ ...styles.button, ...styles.secondaryButton }}>
+                            <button 
+                                style={{ ...styles.button, ...styles.secondaryButton }}
+                                onClick={handleListReportPdf}
+                            >
                                 PDF
                             </button>
                         </div>
@@ -354,15 +370,33 @@ export const Suppliers = () => {
                 <div style={styles.cardsContainer}>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Give</div>
-                        <div style={styles.cardAmount}>रु{overallTotals.given.toLocaleString()}</div>
+                        <div style={{
+                            ...styles.cardAmount,
+                            color: (overallTotals.given - overallTotals.received) === 0 ? '#212529' : 
+                                  (overallTotals.given - overallTotals.received) > 0 ? '#28a745' : '#dc3545'
+                        }}>
+                            रु{overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received}
+                        </div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>You Receive</div>
-                        <div style={styles.cardAmount}>रु{overallTotals.received.toLocaleString()}</div>
+                        <div style={{
+                            ...styles.cardAmount,
+                            color: (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) === 0 ? '#212529' : 
+                                  (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) > 0 ? '#28a745' : '#dc3545'
+                        }}>
+                            रु{overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given}
+                        </div>
                     </div>
                     <div style={styles.card}>
                         <div style={styles.cardHeader}>Online Collection</div>
-                        <div style={styles.cardAmount}>रु{overallTotals.online.toLocaleString()}</div>
+                        <div style={{
+                            ...styles.cardAmount,
+                            color: overallTotals.online === 0 ? '#212529' : 
+                                  overallTotals.online > 0 ? '#28a745' : '#dc3545'
+                        }}>
+                            रु{overallTotals.online.toLocaleString()}
+                        </div>
                     </div>
                 </div>
 
@@ -416,7 +450,7 @@ export const Suppliers = () => {
                                 </div>
                                 <div style={{
                                     ...styles.supplierAmount,
-                                    color: supplier.balance >= 0 ? '#28a745' : '#dc3545'
+                                    color: supplier.balance === 0 ? '#212529' : supplier.balance > 0 ? '#28a745' : '#dc3545'
                                 }}>
                                     रु{Math.abs(supplier.balance).toLocaleString()}
                                 </div>

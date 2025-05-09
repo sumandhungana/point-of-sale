@@ -12,60 +12,71 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  {
-    title: 'PARTIES',
-    path: '/parties',
-    icon: '👥',
-    children: [
-      { title: 'Customer', path: '/parties/customers', icon: '👤' },
-      { title: 'Suppliers', path: '/parties/suppliers', icon: '🏢' },
-      { title: 'Branch', path: '/parties/branch', icon: '🏪' },
-      {
-        title: 'Deposit Amount',
-        path: '/parties/deposit-amount',
-        icon: '💰',
-        children: [
-          { title: 'Customer Deposit', path: '/parties/deposit-amount/customer', icon: '💳' },
-          { title: 'Suppliers Deposit', path: '/parties/deposit-amount/suppliers', icon: '💳' },
-        ],
-      },
-      {
-        title: 'Cash & Bank',
-        path: '/parties/cash-bank',
-        icon: '💵',
-        children: [
-          { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '💵' },
-          { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '🏦' },
-        ],
-      },
-    ],
-  },
+  { title: 'Customer', path: '/parties/customers', icon: '👤' },
+  { title: 'Suppliers', path: '/parties/suppliers', icon: '🏢' },
+  { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '💵' },
+  { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '🏦' },
+  // {
+  //   title: 'PARTIES',
+  //   path: '/parties',
+  //   icon: '👥',
+  //   children: [
+  //     { title: 'Customer', path: '/parties/customers', icon: '👤' },
+  //     { title: 'Suppliers', path: '/parties/suppliers', icon: '🏢' },
+  //     { title: 'Branch', path: '/parties/branch', icon: '🏪' },
+  //     {
+  //       title: 'Deposit Amount',
+  //       path: '/parties/deposit-amount',
+  //       icon: '💰',
+  //       children: [
+  //         { title: 'Customer Deposit', path: '/parties/deposit-amount/customer', icon: '💳' },
+  //         { title: 'Suppliers Deposit', path: '/parties/deposit-amount/suppliers', icon: '💳' },
+  //       ],
+  //     },
+  //     {
+  //       title: 'Cash & Bank',
+  //       path: '/parties/cash-bank',
+  //       icon: '💵',
+  //       children: [
+  //         { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '💵' },
+  //         { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '🏦' },
+  //       ],
+  //     },
+  //   ],
+  // },
   {
     title: 'MANAGE INVENTORY',
     path: '/inventory',
     icon: '📦',
     children: [
-      {
-        title: 'Items',
-        path: '/',
-        icon: '📦',
-        children: [
-          { title: 'PRODUCTS', path: '/inventory/items', icon: '📦' },
-          { title: 'SERVICES', path: '/service', icon: '🔧' },
-        ],
-      },
-      {
-        title: 'Bills',
-        path: '/',
-        icon: '📄',
-        children: [
-          { title: 'Sales', path: '/bills/sales', icon: '💰' },
-          { title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
-          { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
-          { title: 'Income', path: '/bills/income', icon: '💸' },
-          { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
-        ],
-      },
+      { title: 'PRODUCTS', path: '/inventory/items', icon: '📦' },
+      { title: 'SERVICES', path: '/service', icon: '🔧' },
+      { title: 'Sales', path: '/bills/sales', icon: '💰' },
+      { title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
+      { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
+      { title: 'Income', path: '/bills/income', icon: '💸' },
+      { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
+      // {
+      //   title: 'Items',
+      //   path: '/',
+      //   icon: '📦',
+      //   children: [
+      //     { title: 'PRODUCTS', path: '/inventory/items', icon: '📦' },
+      //     { title: 'SERVICES', path: '/service', icon: '🔧' },
+      //   ],
+      // },
+      // {
+      //   title: 'Bills',
+      //   path: '/',
+      //   icon: '📄',
+      //   children: [
+      //     { title: 'Sales', path: '/bills/sales', icon: '💰' },
+      //     { title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
+      //     { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
+      //     { title: 'Income', path: '/bills/income', icon: '💸' },
+      //     { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
+      //   ],
+      // },
     ],
   },
   {

@@ -304,8 +304,9 @@ export const BillsAndPrintSelling = () => {
       <Sidebar />
       <div style={{ 
         flex: 1, 
+        paddingTop: '40px', 
         marginLeft: '50px',
-        paddingTop: '60px',
+        
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>

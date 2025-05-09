@@ -190,26 +190,14 @@ export const StaffManagement = () => {
     },
     actionButtons: {
       display: 'flex',
-      flexDirection: 'column' as const,
+      alignItems: 'center',
       gap: '1rem',
-      marginTop: '1.5rem',
+      marginBottom: '1rem',
     },
     buttonRow: {
       display: 'flex',
+      alignItems: 'center',
       gap: '1rem',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    forStaffButton: {
-      padding: '0.5rem 1rem',
-      background: '#007bff',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
     },
     searchBar: {
       display: 'flex',
@@ -238,9 +226,16 @@ export const StaffManagement = () => {
       background: 'white',
       minWidth: '150px',
     },
-    buttonIcon: {
-      fontSize: '1.2rem',
-      marginLeft: '0.5rem',
+    forStaffButton: {
+      padding: '0.5rem 1rem',
+      background: '#007bff',
+      color: 'white',
+      border: 'none',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
     },
     reminderButton: {
       padding: '0.5rem 1rem',
@@ -416,52 +411,44 @@ export const StaffManagement = () => {
           </table>
           
           <div style={styles.actionButtons}>
-            <div style={styles.buttonRow}>
-              <button style={styles.forStaffButton}>
-                👥 For Staff
-              </button>
+            <button style={styles.forStaffButton}>
+              👥 For Staff
+            </button>
+            <div style={styles.searchBar}>
+              <span style={styles.searchIcon}>🔍</span>
+              <input
+                type="text"
+                placeholder="Search by name or phone..."
+                style={styles.searchInput}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <div style={styles.buttonRow}>
-              <div style={styles.searchBar}>
-                <span style={styles.searchIcon}>🔍</span>
-                <input
-                  type="text"
-                  placeholder="Search by name or phone..."
-                  style={styles.searchInput}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <button style={styles.reminderButton}>
-                ⏰ Reminder
-              </button>
-            </div>
-            <div style={styles.buttonRow}>
-              <select 
-                style={styles.dropdown}
-                value={filterBy}
-                onChange={(e) => setFilterBy(e.target.value)}
-              >
-                <option value="">Filter By</option>
-                <option value="monthly">Monthly Salary</option>
-                <option value="daily">Daily Salary</option>
-                <option value="full">Full Permission</option>
-                <option value="restricted">Restricted Permission</option>
-              </select>
-            </div>
-            <div style={styles.buttonRow}>
-              <select 
-                style={styles.dropdown}
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="">Sort By</option>
-                <option value="name_asc">Name (A-Z)</option>
-                <option value="name_desc">Name (Z-A)</option>
-                <option value="salary_asc">Salary (Low to High)</option>
-                <option value="salary_desc">Salary (High to Low)</option>
-              </select>
-            </div>
+            <select 
+              style={styles.dropdown}
+              value={filterBy}
+              onChange={(e) => setFilterBy(e.target.value)}
+            >
+              <option value="">Filter By</option>
+              <option value="monthly">Monthly Salary</option>
+              <option value="daily">Daily Salary</option>
+              <option value="full">Full Permission</option>
+              <option value="restricted">Restricted Permission</option>
+            </select>
+            <select 
+              style={styles.dropdown}
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="">Sort By</option>
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+              <option value="salary_asc">Salary (Low to High)</option>
+              <option value="salary_desc">Salary (High to Low)</option>
+            </select>
+            <button style={styles.reminderButton}>
+              ⏰ Reminder
+            </button>
           </div>
         
         </div>

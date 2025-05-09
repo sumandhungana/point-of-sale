@@ -144,7 +144,7 @@ export const SMS = () => {
         <div style={{ 
           flex: 1, 
           marginLeft: '50px',
-          paddingTop: '60px',
+          
           minHeight: '100vh',
           background: '#f8f9fa',
         }}>
@@ -162,7 +162,7 @@ export const SMS = () => {
         <div style={{ 
           flex: 1, 
           marginLeft: '50px',
-          paddingTop: '60px',
+          
           minHeight: '100vh',
           background: '#f8f9fa',
         }}>
@@ -178,8 +178,9 @@ export const SMS = () => {
       <Sidebar />
       <div style={{ 
         flex: 1, 
+        paddingTop: '40px', 
         marginLeft: '50px',
-        paddingTop: '60px',
+        
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>

@@ -116,7 +116,7 @@ export const CustomerStatements = () => {
 
     const handleBack = () => {
         // Navigate back to the customers page
-        navigate('/parties/customers');
+        navigate(-1);
     };
 
     const handleProfileClick = () => {
@@ -190,7 +190,6 @@ export const CustomerStatements = () => {
         
         mainContent: {
             padding: '2rem',
-            marginTop: '64px',
             maxWidth: 'calc(100% - 500px)',
             marginRight: '500px',
             width: '100%',
@@ -212,6 +211,12 @@ export const CustomerStatements = () => {
             width: '100%',
             marginBottom: '1rem',
             position: 'relative' as const,
+        },
+        buttonContainer: {
+            position: 'absolute' as const,
+            right: 0,
+            display: 'flex',
+            gap: '0.5rem',
         },
         backButton: {
             display: 'flex',
@@ -277,10 +282,29 @@ export const CustomerStatements = () => {
             fontSize: '0.875rem',
             fontWeight: '500',
             cursor: 'pointer',
-            position: 'absolute' as const,
-            right: 0,
+            transition: 'all 0.2s ease',
             '&:hover': {
                 background: '#218838',
+            },
+        },
+        depositButton: {
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            padding: '0.5rem 1rem',
+            background: '#6f42c1',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px',
+            fontSize: '0.875rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            '&:hover': {
+                background: '#5a32a3',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
             },
         },
         amountCard: {
@@ -548,14 +572,24 @@ export const CustomerStatements = () => {
                                 <div style={{ fontSize: '2rem', color: '#adb5bd' }}>👤</div>
                             )}
                         </div>
-                        <button 
-                            style={styles.callButton} 
-                            onClick={handleCall}
-                            aria-label={`Call ${customerData.name}`}
-                            title={customerData.phone || 'No phone number available'}
-                        >
-                            📞 Call
-                        </button>
+                        <div style={styles.buttonContainer}>
+                            <button 
+                                style={styles.depositButton}
+                                onClick={() => navigate(`/parties/customers/deposit/${id}`)}
+                                aria-label="Make a deposit"
+                                title="Make a deposit"
+                            >
+                                💰 Deposit
+                            </button>
+                            <button 
+                                style={styles.callButton} 
+                                onClick={handleCall}
+                                aria-label={`Call ${customerData.name}`}
+                                title={customerData.phone || 'No phone number available'}
+                            >
+                                📞 Call
+                            </button>
+                        </div>
                     </div>
                     <div 
                         style={styles.customerName}
@@ -570,11 +604,23 @@ export const CustomerStatements = () => {
                     <div style={styles.amountRow}>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>You Received Amount</div>
-                            <div style={styles.amountValue}>रु{totals.received - totals.given < 0 ? 0 : totals.received - totals.given}</div>
+                            <div style={{
+                                ...styles.amountValue,
+                                color: (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) === 0 ? '#212529' : 
+                                      (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) > 0 ? '#28a745' : '#dc3545'
+                            }}>
+                                रु{totals.received - totals.given < 0 ? 0 : totals.received - totals.given}
+                            </div>
                         </div>
                         <div style={styles.amountItem}>
                             <div style={styles.amountLabel}>You Gave Amount</div>
-                            <div style={{...styles.amountValue, ...styles.currentAmountRedNoBorder}}>रु{totals.given - totals.received < 0 ? 0 : totals.given - totals.received}</div>
+                            <div style={{
+                                ...styles.amountValue,
+                                color: (totals.given - totals.received < 0 ? 0 : totals.given - totals.received) === 0 ? '#212529' : 
+                                      (totals.given - totals.received < 0 ? 0 : totals.given - totals.received) > 0 ? '#28a745' : '#dc3545'
+                            }}>
+                                रु{totals.given - totals.received < 0 ? 0 : totals.given - totals.received}
+                            </div>
                         </div>
                     </div>
                     <div style={styles.reminderRow}>

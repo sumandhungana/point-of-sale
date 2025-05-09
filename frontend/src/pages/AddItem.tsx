@@ -424,7 +424,8 @@ export const AddItem = () => {
       <Sidebar />
       <div style={{ 
         flex: 1, 
-        paddingTop: '60px',
+        paddingTop: '40px', 
+        
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>

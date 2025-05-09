@@ -26,21 +26,20 @@ ani each user ma new khatabook - done
 show items http://localhost:3000/bills/sales - done
 
 
+filter ko button search bar mae embbed garne - done
+customer page ma color red ra green ani 0 lai black - done
+top ko gap hataune sab page ko - done
+deposite amount statements ko nam ko muni - done
+branch sidebar hataune - done
+manage intentory ko sidebar vitra no parents - done
+parties ko vitra ko lai parent jasari nai rakhne - done
+filter option hataune customer ma - done
+filter ko option diyeko jasto halne - done
 
 
-filter option hataune customer ma
-filter ko option diyeko jasto halne
-filter ko button search bar mae embbed garne
-customer page ma color red ra green ani 0 lai black
-top ko gap hataune sab page ko
 side ko blank thau ma khe rakhne 
+
 statement report ma purai statement report jasto
-deposite amount statements ko nam ko muni
-branch sidebar hataune
-
-manage intentory ko sidebar vitra no parents
-parties ko vitra ko lai parent jasari nai rakhne
-
 
 
 UI sano sab page ko

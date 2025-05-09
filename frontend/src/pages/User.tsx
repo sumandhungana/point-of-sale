@@ -189,7 +189,7 @@ export const User = () => {
         <div style={{ 
           flex: 1, 
           marginLeft: '300px',
-          paddingTop: '60px',
+          
           minHeight: '100vh',
           background: '#f8f9fa',
         }}>
@@ -207,7 +207,7 @@ export const User = () => {
         <div style={{ 
           flex: 1, 
           marginLeft: '300px',
-          paddingTop: '60px',
+          
           minHeight: '100vh',
           background: '#f8f9fa',
         }}>
@@ -223,8 +223,9 @@ export const User = () => {
       <Sidebar />
       <div style={{ 
         flex: 1, 
+        paddingTop: '40px', 
         marginLeft: '300px',
-        paddingTop: '60px',
+        
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>

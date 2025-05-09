@@ -131,8 +131,9 @@ export const RentalItem = () => {
     },
     searchContainer: {
       display: 'flex',
+      alignItems: 'center',
       gap: '1rem',
-      marginBottom: '1rem',
+      marginBottom: '1.5rem',
     },
     searchBar: {
       display: 'flex',
@@ -317,12 +318,6 @@ export const RentalItem = () => {
                 style={styles.searchInput}
               />
             </div>
-            <button style={styles.reminderButton}>
-              ⏰ Reminder
-            </button>
-          </div>
-
-          <div style={styles.filterContainer}>
             <select 
               value={filter} 
               onChange={(e) => setFilter(e.target.value)}
@@ -344,6 +339,9 @@ export const RentalItem = () => {
               <option value="date_asc">Date (Oldest)</option>
               <option value="date_desc">Date (Newest)</option>
             </select>
+            <button style={styles.reminderButton}>
+              ⏰ Reminder
+            </button>
           </div>
 
           <div style={styles.summaryCard}>

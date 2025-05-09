@@ -67,7 +67,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   // return isAuthenticated ? (
     return true ? (
     <div style={{ 
-      paddingTop: '60px',  // Space for fixed navbar
+        // Space for fixed navbar
       paddingLeft: '280px', // Space for sidebar
       minHeight: '100vh',
       backgroundColor: '#f8f9fa'

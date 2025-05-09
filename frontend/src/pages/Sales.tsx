@@ -99,46 +99,83 @@ export const Sales = () => {
       padding: '1.5rem',
     },
     searchContainer: {
-      display: 'flex',
-      gap: '1rem',
+      background: 'white',
+      padding: '1.5rem',
+      borderRadius: '8px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
       marginBottom: '1rem',
     },
-    searchInput: {
-      flex: 1,
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-      border: '1px solid #dee2e6',
-      fontSize: '1rem',
+    searchBar: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '1rem',
+      marginBottom: '1rem',
+      flexWrap: 'wrap' as const,
     },
-    reminderButton: {
+    searchInput: {
+      flex: 2,
+      padding: '0.75rem 1rem',
+      border: '1px solid #dee2e6',
+      borderRadius: '4px',
+      fontSize: '1rem',
+      minWidth: '200px',
+      transition: 'border-color 0.2s, box-shadow 0.2s',
+      '&:focus': {
+        outline: 'none',
+        borderColor: '#dc4c39',
+        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
+      },
+    },
+    filterGroup: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '0.5rem',
+      flex: 1,
+      minWidth: '200px',
+    },
+    select: {
+      padding: '0.75rem 1rem',
+      border: '1px solid #dee2e6',
+      borderRadius: '4px',
+      fontSize: '0.875rem',
+      flex: 1,
+      backgroundColor: 'white',
+      cursor: 'pointer',
+      transition: 'border-color 0.2s, box-shadow 0.2s',
+      '&:focus': {
+        outline: 'none',
+        borderColor: '#dc4c39',
+        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
+      },
+    },
+    label: {
+      fontSize: '0.875rem',
+      color: '#6c757d',
+      whiteSpace: 'nowrap',
+    },
+    actionButtons: {
+      display: 'flex',
+      gap: '0.75rem',
+      marginLeft: 'auto',
+    },
+    button: {
       padding: '0.5rem 1rem',
-      background: '#dc4c39',
-      color: 'white',
       border: 'none',
       borderRadius: '4px',
       cursor: 'pointer',
-      fontSize: '1rem',
+      fontSize: '0.875rem',
       display: 'flex',
       alignItems: 'center',
       gap: '0.5rem',
     },
-    filterContainer: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1rem',
+    primaryButton: {
+      background: '#dc4c39',
+      color: 'white',
     },
-    dropdown: {
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
+    secondaryButton: {
+      background: '#f8f9fa',
+      color: '#212529',
       border: '1px solid #dee2e6',
-      background: 'white',
-      fontSize: '1rem',
-      minWidth: '200px',
-    },
-    border: {
-      border: '1px solid #dee2e6',
-      marginTop: '1rem',
-      marginBottom: '1rem',
     },
     infoCard: {
       display: 'flex',
@@ -266,12 +303,6 @@ export const Sales = () => {
       padding: '2rem',
       color: '#dc3545',
     },
-    actionButtons: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '1rem',
-      marginTop: '2rem',
-    },
     addButton: {
       padding: '0.75rem 1.5rem',
       background: '#28a745',
@@ -289,7 +320,7 @@ export const Sales = () => {
       <Sidebar />
       <div style={{ 
         flex: 1, 
-        paddingTop: '60px',
+        paddingTop: '40px', 
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>
@@ -297,37 +328,52 @@ export const Sales = () => {
         <div style={styles.container}>
           <div style={styles.card}>
             <div style={styles.searchContainer}>
-              <input
-                type="text"
-                placeholder="Search sales bills..."
-                style={styles.searchInput}
-                value={searchQuery}
-                onChange={handleSearchChange}
-              />
-              <button style={styles.reminderButton}>
-                <span>📝</span> Bulk Reminder
-              </button>
-            </div>
-            <div style={styles.filterContainer}>
-              <select 
-                style={styles.dropdown}
-                value={statusFilter}
-                onChange={handleStatusFilterChange}
-              >
-                <option value="">Filter by Status</option>
-                <option value="paid">Paid</option>
-                <option value="pending">Pending</option>
-                <option value="partial">Partial</option>
-              </select>
-              <select 
-                style={styles.dropdown}
-                value={dateSort}
-                onChange={handleDateSortChange}
-              >
-                <option value="">Sort by Date</option>
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-              </select>
+              <div style={styles.searchBar}>
+                <input
+                  type="text"
+                  placeholder="Search sales bills..."
+                  style={styles.searchInput}
+                  value={searchQuery}
+                  onChange={handleSearchChange}
+                />
+                <div style={styles.filterGroup}>
+                  <label style={styles.label}>Filter:</label>
+                  <select 
+                    style={styles.select}
+                    value={statusFilter}
+                    onChange={handleStatusFilterChange}
+                  >
+                    <option value="">All Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="partial">Partial</option>
+                  </select>
+                </div>
+                <div style={styles.filterGroup}>
+                  <label style={styles.label}>Sort:</label>
+                  <select 
+                    style={styles.select}
+                    value={dateSort}
+                    onChange={handleDateSortChange}
+                  >
+                    <option value="">Date Added</option>
+                    <option value="newest">Newest First</option>
+                    <option value="oldest">Oldest First</option>
+                  </select>
+                </div>
+                <div style={styles.actionButtons}>
+                  <button 
+                    style={{ ...styles.button, ...styles.primaryButton }}
+                  >
+                    <span>📝</span> Bulk Reminder
+                  </button>
+                  <button 
+                    style={{ ...styles.button, ...styles.secondaryButton }}
+                  >
+                    PDF
+                  </button>
+                </div>
+              </div>
             </div>
             <div style={styles.infoCard}>
               <div style={styles.infoSection}>
@@ -348,11 +394,7 @@ export const Sales = () => {
                 <button style={styles.viewReportButton}>View All</button>
               </div>
             </div>
-            <div style={styles.actionButtons}>
-              <button style={styles.addButton} onClick={handleAddBill}>
-                Add New Bill
-              </button>
-            </div>
+            
           </div>
             <div style={styles.salesList}>
               {loading ? (
@@ -406,6 +448,11 @@ export const Sales = () => {
                   </div>
                 ))
               )}
+              <div style={styles.actionButtons}>
+                <button style={styles.addButton} onClick={handleAddBill}>
+                  Add New Bill
+                </button>
+              </div>
             </div>
         </div>
       </div>
