@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchSalesBills as fetchSalesBillsService } from '../services/salesBillService';
 
 interface SalesBill {
   id: number;
@@ -36,11 +37,7 @@ export const Sales = () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/SalesBill');
-      if (!response.ok) {
-        throw new Error('Failed to fetch sales bills');
-      }
-      const data = await response.json();
+      const data = await fetchSalesBillsService();
       setSalesBills(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

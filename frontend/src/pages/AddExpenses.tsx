@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
-import { fetchCategories, fetchItems, fetchLastExpenses } from '../services/expensesService';
+import { fetchCategories, fetchItems, fetchLastExpenses, saveExpense } from '../services/expensesService';
 
 interface Category {
   id: number;
@@ -144,28 +144,15 @@ export const AddExpenses = () => {
       formDataToSend.append('PaymentMode', formData.paymentMode);
       formDataToSend.append('Amount', formData.amount.toString());
       formDataToSend.append('Remarks', formData.remarks || '');
-      
       if (formData.photo) {
         formDataToSend.append('Photo', formData.photo);
       }
       if(isEditMode){
         formDataToSend.append('Id', initialData.id.toString());
       }
-      const url = isEditMode ? `/api/Expenses/${initialData.id}` : '/api/Expenses';
-      const method = isEditMode ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert(`Expense entry ${isEditMode ? 'updated' : 'created'} successfully!`);
-        navigate('/bills/expenses');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} expense entry`);
-      }
+      await saveExpense(formDataToSend, isEditMode, initialData?.id);
+      alert(`Expense entry ${isEditMode ? 'updated' : 'created'} successfully!`);
+      navigate('/bills/expenses');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

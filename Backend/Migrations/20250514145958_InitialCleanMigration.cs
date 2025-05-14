@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitialCleanMigration : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -394,6 +394,8 @@ namespace Backend.Migrations
                     Phone = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     Pan = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: true),
                     Remarks = table.Column<string>(type: "text", nullable: true),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    PasswordSalt = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
@@ -421,6 +423,7 @@ namespace Backend.Migrations
                     LowStockAlert = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: true),
                     VatPercentage = table.Column<decimal>(type: "numeric(5,2)", precision: 5, scale: 2, nullable: true),
                     VatPercentageToday = table.Column<decimal>(type: "numeric(5,2)", precision: 5, scale: 2, nullable: true),
+                    VatDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     ImageUrl = table.Column<string>(type: "text", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)

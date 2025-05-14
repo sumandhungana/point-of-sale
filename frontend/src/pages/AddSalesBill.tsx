@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { salesConfig } from '../config/sales';
-import { fetchCustomers, fetchLastBillNumber } from '../services/salesBillService';
+import { fetchCustomers, fetchLastBillNumber, saveSalesBill } from '../services/salesBillService';
 
 interface Customer {
   id: number;
@@ -126,23 +126,7 @@ export const AddSalesBill = () => {
         Id: isEditMode ? initialData.id : 0
       };
 
-      const url = isEditMode ? `/api/SalesBill/${initialData.id}` : '/api/SalesBill';
-      const method = isEditMode ? 'PUT' : 'POST';
-      if(isEditMode){
-        requestData.Id = initialData.id;
-      }
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} sales bill`);
-      }
+      await saveSalesBill(requestData, isEditMode, initialData?.id);
 
       alert(`Sales bill ${isEditMode ? 'updated' : 'created'} successfully!`);
       navigate('/bills/sales');

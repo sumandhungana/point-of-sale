@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
-import { fetchCategories, fetchItems, fetchLastIncome } from '../services/incomeService';
+import { fetchCategories, fetchItems, fetchLastIncome, saveIncome } from '../services/incomeService';
 
 interface Category {
   id: number;
@@ -144,28 +144,15 @@ export const AddIncome = () => {
       formDataToSend.append('PaymentMode', formData.paymentMode);
       formDataToSend.append('Amount', formData.amount.toString());
       formDataToSend.append('Remarks', formData.remarks || '');
-      
       if (formData.photo) {
         formDataToSend.append('Photo', formData.photo);
       }
       if(isEditMode){
         formDataToSend.append('Id', initialData.id.toString());
       }
-      const url = isEditMode ? `/api/Income/${initialData.id}` : '/api/Income';
-      const method = isEditMode ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert(`Income entry ${isEditMode ? 'updated' : 'created'} successfully!`);
-        navigate('/bills/income');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} income entry`);
-      }
+      await saveIncome(formDataToSend, isEditMode, initialData?.id);
+      alert(`Income entry ${isEditMode ? 'updated' : 'created'} successfully!`);
+      navigate('/bills/income');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

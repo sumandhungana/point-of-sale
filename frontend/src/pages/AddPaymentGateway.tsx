@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { createPaymentGateway } from '../services/paymentGatewayService';
 
 export const AddPaymentGateway = () => {
   const navigate = useNavigate();
@@ -50,21 +51,9 @@ export const AddPaymentGateway = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/PaymentGateway', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('Payment Gateway created successfully!');
-        navigate('/payment-gateway');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create Payment Gateway');
-      }
+      await createPaymentGateway(formData);
+      alert('Payment Gateway created successfully!');
+      navigate('/payment-gateway');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
-import { fetchCategories, fetchItems, fetchLastPurchase } from '../services/purchaseService';
+import { fetchCategories, fetchItems, fetchLastPurchase, savePurchase } from '../services/purchaseService';
 
 interface Category {
   id: number;
@@ -145,28 +145,15 @@ export const AddPurchase = () => {
       formDataToSend.append('PaymentMode', formData.paymentMode);
       formDataToSend.append('Amount', formData.amount.toString());
       formDataToSend.append('Remarks', formData.remarks || '');
-      
       if (formData.photo) {
         formDataToSend.append('Photo', formData.photo);
       }
       if(isEditMode){
         formDataToSend.append('Id', initialData.id.toString());
       }
-      const url = isEditMode ? `/api/Purchase/${initialData.id}` : '/api/Purchase';
-      const method = isEditMode ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert(`Purchase entry ${isEditMode ? 'updated' : 'created'} successfully!`);
-        navigate('/bills/purchase');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} purchase entry`);
-      }
+      await savePurchase(formDataToSend, isEditMode, initialData?.id);
+      alert(`Purchase entry ${isEditMode ? 'updated' : 'created'} successfully!`);
+      navigate('/bills/purchase');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

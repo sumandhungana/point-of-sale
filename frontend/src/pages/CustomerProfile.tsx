@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { fetchCustomerData } from '../services/customerService';
+import { fetchCustomerData, updateCustomer } from '../services/customerService';
 
 interface CustomerData {
     id: number;
@@ -131,33 +131,22 @@ export const CustomerProfile = () => {
         e.preventDefault();
         try {
             const customerId = id || '0';
-            const response = await fetch(`/api/Customer/${customerId}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    id: parseInt(customerId),
-                    name: formData.customerName,
-                    phone: formData.mobileNumber || null,
-                    email: customerData.email,
-                    address: formData.address || null,
-                    company: customerData.company,
-                    pan: formData.panNumber || null,
-                    contactPerson: customerData.contactPerson,
-                    bankAccount: formData.bankAccount || null,
-                    cashBalance: String(formData.cash),
-                    profileImage: profileImage,
-                    customerSmsSetting: settings.customerSmsSetting,
-                    smsLanguage: settings.smsLanguage,
-                    transactionHistoryCheck: settings.transactionHistoryCheck
-                })
+            await updateCustomer(customerId, {
+                id: parseInt(customerId),
+                name: formData.customerName,
+                phone: formData.mobileNumber || null,
+                email: customerData.email,
+                address: formData.address || null,
+                company: customerData.company,
+                pan: formData.panNumber || null,
+                contactPerson: customerData.contactPerson,
+                bankAccount: formData.bankAccount || null,
+                cashBalance: String(formData.cash),
+                profileImage: profileImage,
+                customerSmsSetting: settings.customerSmsSetting,
+                smsLanguage: settings.smsLanguage,
+                transactionHistoryCheck: settings.transactionHistoryCheck
             });
-
-            if (!response.ok) {
-                throw new Error('Failed to update customer');
-            }
-
             toast.success('Customer updated successfully');
             navigate(`/parties/customers/statements/${customerId}`);
         } catch (error) {

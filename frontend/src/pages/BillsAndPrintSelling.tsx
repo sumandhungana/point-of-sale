@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchInvoiceSettings, saveInvoiceSettings } from '../services/appSettingService';
 
 export const BillsAndPrintSelling = () => {
   const [loading, setLoading] = useState(false);
@@ -47,16 +48,13 @@ export const BillsAndPrintSelling = () => {
   });
 
   useEffect(() => {
-    const fetchInvoiceSettings = async () => {
+    const fetchSettings = async () => {
       try {
-        const response = await fetch('/api/InvoiceSettings');
-        const data = await response.json();
+        const data = await fetchInvoiceSettings();
         if (data.length > 0) {
           const lowestIdSetting = data.reduce((prev: any, current: any) => 
             prev.id < current.id ? prev : current
           );
-          
-          // Map the fetched data to match the form state structure
           setFormData({
             isUpdated:   true,
             id: lowestIdSetting.id,
@@ -102,8 +100,7 @@ export const BillsAndPrintSelling = () => {
         setError('Failed to fetch invoice settings');
       }
     };
-
-    fetchInvoiceSettings();
+    fetchSettings();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -157,52 +154,39 @@ export const BillsAndPrintSelling = () => {
     setError(null);
 
     try {
-      const response = await fetch(`/api/InvoiceSettings/${formData.id}`, {
-        method: formData.isUpdated ? 'PUT' : 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: formData.id,
-          premiumBill: formData.premiumBill,
-          thermalBill: formData.thermalBill,
-          basicBill: formData.basicBill,
-          regularPrinterField1: formData.regularPrinter.field1,
-          regularPrinterField2: formData.regularPrinter.field2,
-          regularPrinterField3: formData.regularPrinter.field3,
-          thermalPrinterField1: formData.thermalPrinter.field1,
-          thermalPrinterField2: formData.thermalPrinter.field2,
-          thermalPrinterField3: formData.thermalPrinter.field3,
-          showCompanyName: formData.companyInfo.companyName,
-          showCompanyLogo: formData.companyInfo.companyLogo,
-          showAddress: formData.companyInfo.address,
-          showEmail: formData.companyInfo.email,
-          showPhone: formData.companyInfo.phone,
-          showPanVat: formData.companyInfo.panVat,
-          companyName: formData.companyValues.companyName,
-          companyLogo: formData.companyValues.companyLogo,
-          address: formData.companyValues.address,
-          email: formData.companyValues.email,
-          phone: formData.companyValues.phone,
-          panVat: formData.companyValues.panVat,
-          showAuthorizedSignature: formData.authorizedSignature,
-          authorizedSignatureText: formData.authorizedSignatureText,
-          changeSignature: formData.changeSignature,
-          paperSize: formData.paperSize,
-          orientation: formData.orientation,
-          companyNameTextSize: formData.companyNameTextSize,
-          invoiceTaxSize: formData.invoiceTaxSize,
-        }),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to save settings');
-      }
-
-      alert('Settings saved successfully!');
+      await saveInvoiceSettings({
+        id: formData.id,
+        premiumBill: formData.premiumBill,
+        thermalBill: formData.thermalBill,
+        basicBill: formData.basicBill,
+        regularPrinterField1: formData.regularPrinter.field1,
+        regularPrinterField2: formData.regularPrinter.field2,
+        regularPrinterField3: formData.regularPrinter.field3,
+        thermalPrinterField1: formData.thermalPrinter.field1,
+        thermalPrinterField2: formData.thermalPrinter.field2,
+        thermalPrinterField3: formData.thermalPrinter.field3,
+        showCompanyName: formData.companyInfo.companyName,
+        showCompanyLogo: formData.companyInfo.companyLogo,
+        showAddress: formData.companyInfo.address,
+        showEmail: formData.companyInfo.email,
+        showPhone: formData.companyInfo.phone,
+        showPanVat: formData.companyInfo.panVat,
+        companyName: formData.companyValues.companyName,
+        companyLogo: formData.companyValues.companyLogo,
+        address: formData.companyValues.address,
+        email: formData.companyValues.email,
+        phone: formData.companyValues.phone,
+        panVat: formData.companyValues.panVat,
+        showAuthorizedSignature: formData.authorizedSignature,
+        authorizedSignatureText: formData.authorizedSignatureText,
+        changeSignature: formData.changeSignature,
+        paperSize: formData.paperSize,
+        orientation: formData.orientation,
+        companyNameTextSize: formData.companyNameTextSize,
+        invoiceTaxSize: formData.invoiceTaxSize,
+      }, formData.isUpdated, formData.id);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred while saving settings');
+      setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
     }

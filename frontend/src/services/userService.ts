@@ -1,7 +1,12 @@
 // Service for user-related API calls
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function fetchUsers() {
-  const response = await fetch('/api/User');
+  const response = await fetch('/api/User', { headers: getAuthHeaders() });
   if (!response.ok) throw new Error('Failed to fetch users');
   return response.json();
 }
@@ -9,9 +14,7 @@ export async function fetchUsers() {
 export async function createUser(formData: any) {
   const response = await fetch('/api/User', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(formData),
   });
   if (response.status === 200 || response.status === 201) {
@@ -25,9 +28,7 @@ export async function createUser(formData: any) {
 export async function updateUser(id: number, formData: any) {
   const response = await fetch(`/api/User/${id}`, {
     method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(formData),
   });
   if (response.status === 200 || response.status === 201) {

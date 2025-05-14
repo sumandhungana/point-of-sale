@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
+import { createCustomer } from '../services/customerService';
 
 export const AddSupplier = () => {
     const navigate = useNavigate();
@@ -34,29 +35,15 @@ export const AddSupplier = () => {
         setIsSubmitting(true);
         
         try {
-            const response = await fetch('/api/Customer', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
+            await createCustomer(formData);
+            setAlertMessage('Supplier added successfully!');
+            setAlertType('success');
+            setShowAlert(true);
             
-            if (response.ok) {
-                setAlertMessage('Supplier added successfully!');
-                setAlertType('success');
-                setShowAlert(true);
-                
-                // Wait for 2 seconds before navigating
-                setTimeout(() => {
-                    navigate('/parties/suppliers');
-                }, 2000);
-            } else {
-                const errorData = await response.json();
-                setAlertMessage(`Error: ${errorData.message || 'Failed to add supplier'}`);
-                setAlertType('error');
-                setShowAlert(true);
-            }
+            // Wait for 2 seconds before navigating
+            setTimeout(() => {
+                navigate('/parties/suppliers');
+            }, 2000);
         } catch (error) {
             setAlertMessage('Error connecting to the server. Please try again.');
             setAlertType('error');
@@ -81,11 +68,6 @@ export const AddSupplier = () => {
             maxWidth: 'calc(100% - 500px)',
             marginRight: '500px',
             width: '100%',
-        },ntainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
         },
         formTitle: {
             fontSize: '1.5rem',
@@ -162,7 +144,7 @@ export const AddSupplier = () => {
             <Sidebar />
            
             <main style={styles.mainContent}>
-                <div style={styles.formContainer}>
+                <div style={styles.container}>
                     <h2 style={styles.formTitle}>Add New Supplier</h2>
                     <form onSubmit={handleSubmit}>
                         <div style={styles.formRow}>

@@ -86,10 +86,7 @@ public class ApplicationDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         
-        if (!string.IsNullOrEmpty(_currentSchema))
-        {
-        modelBuilder.HasDefaultSchema(_currentSchema);
-        }
+        modelBuilder.HasDefaultSchema("initSchema");
 
         // Configure KhataBook properties
         
@@ -177,6 +174,22 @@ public class ApplicationDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.ItemId)
                 .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Seed default admin user
+        var adminSalt = "static_salt_123";
+        var adminPassword = "admin123";
+        var adminHash = Convert.ToBase64String(System.Security.Cryptography.SHA256.Create().ComputeHash(System.Text.Encoding.UTF8.GetBytes(adminPassword + adminSalt)));
+        modelBuilder.Entity<User>().HasData(new User {
+            Id = 1,
+            Username = "admin",
+            Password = "", // deprecated
+            PasswordHash = adminHash,
+            PasswordSalt = adminSalt,
+            Permission = "admin",
+            Enable = true,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         });
     }
 

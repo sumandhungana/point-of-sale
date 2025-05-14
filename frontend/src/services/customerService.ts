@@ -18,7 +18,7 @@ export interface Customer {
 
 export const getSuppliers = async (): Promise<Customer[]> => {
   try {
-    const response = await fetch(`/api/Customer/suppliers`);
+    const response = await fetch(`/api/Customer/suppliers`, { headers: getAuthHeaders() });
     return response.json();
   } catch (error) {
     console.error('Error fetching suppliers:', error);
@@ -28,7 +28,7 @@ export const getSuppliers = async (): Promise<Customer[]> => {
 
 export const getCustomers = async (): Promise<Customer[]> => {
   try {
-    const response = await fetch(`/api/Customer`);
+    const response = await fetch(`/api/Customer`, { headers: getAuthHeaders() });
     return response.json();
   } catch (error) {
     console.error('Error fetching customers:', error);
@@ -38,8 +38,13 @@ export const getCustomers = async (): Promise<Customer[]> => {
 
 // Service for customer-related API calls
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function fetchCustomerData(id: string) {
-  const response = await fetch(`/api/Customer/${id}`);
+  const response = await fetch(`/api/Customer/${id}`, { headers: getAuthHeaders() });
   if (!response.ok) throw new Error('Failed to fetch customer data');
   return response.json();
 } 
@@ -47,9 +52,7 @@ export async function fetchCustomerData(id: string) {
 export async function createCustomer(formData: any) {
   const response = await fetch('/api/Customer', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(formData),
   });
   if (response.ok) {
@@ -58,4 +61,20 @@ export async function createCustomer(formData: any) {
     const errorData = await response.json();
     throw new Error(errorData.message || 'Failed to add customer');
   }
+} 
+
+export async function updateCustomer(customerId: string | number, data: any) {
+  const response = await fetch(`/api/Customer/${customerId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to update customer');
+  }
+  return response.json();
 } 

@@ -1,11 +1,14 @@
 // Service for category-related API calls
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function createCategory(formData: { name: string; description: string; categoryType: number }) {
   const response = await fetch('/api/Category', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(formData),
   });
   if (response.status === 200 || response.status === 201) {
@@ -17,7 +20,7 @@ export async function createCategory(formData: { name: string; description: stri
 }
 
 export async function fetchCategories() {
-  const response = await fetch('/api/Category');
+  const response = await fetch('/api/Category', { headers: getAuthHeaders() });
   if (!response.ok) throw new Error('Failed to fetch categories');
   return response.json();
 } 

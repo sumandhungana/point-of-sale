@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import { createStaff, createStaffSalary } from '../services/staffService';
 
 export const AddStaff: React.FC = () => {
   const navigate = useNavigate();
@@ -72,41 +73,18 @@ export const AddStaff: React.FC = () => {
 
     try {
       // First API call to create staff
-      const staffResponse = await fetch('/api/Staff', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!staffResponse.ok) {
-        throw new Error('Failed to create staff');
-      }
-
-      const staffData = await staffResponse.json();
+      const staffData = await createStaff(formData);
       const staffId = staffData.id;
 
-      // Second API call to create staff salary
-      const salaryResponse = await fetch('/api/StaffSalary', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...salaryData,
-          staffId,
-          month: currentMonth,
-          year: currentYear,
-          selectedDate: selectedDate?.toISOString() || new Date().toISOString(),
-          isSlideOn,
-          calculationDate: new Date().toISOString(),
-        }),
+      await createStaffSalary({
+        ...salaryData,
+        staffId,
+        month: currentMonth,
+        year: currentYear,
+        selectedDate: selectedDate?.toISOString() || new Date().toISOString(),
+        isSlideOn,
+        calculationDate: new Date().toISOString(),
       });
-
-      if (!salaryResponse.ok) {
-        throw new Error('Failed to create salary record');
-      }
 
       // Navigate to staff list or show success message
       alert('Staff and salary record created successfully!');

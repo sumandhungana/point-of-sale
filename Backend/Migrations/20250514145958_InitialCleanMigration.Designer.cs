@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250430163601_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250514145958_InitialCleanMigration")]
+    partial class InitialCleanMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,7 +21,7 @@ namespace Backend.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("initSchema")
-                .HasAnnotation("ProductVersion", "9.0.4")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -572,6 +572,9 @@ namespace Backend.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("VatDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<decimal?>("VatPercentage")
@@ -1766,6 +1769,14 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Permission")
                         .IsRequired()

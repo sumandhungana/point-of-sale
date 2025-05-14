@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import { createKhataBook } from '../services/khataBookService';
 
 export const AddKhataBook = () => {
   const navigate = useNavigate();
@@ -53,31 +54,15 @@ export const AddKhataBook = () => {
     
     try {
       const formDataToSend = new FormData();
-      
-      // Append all form fields
       Object.entries(formData).forEach(([key, value]) => {
         if (key !== 'imagepath') {
           formDataToSend.append(key, value.toString());
         }
       });
-
-      // Append the image file if selected
       if (selectedImage) {
         formDataToSend.append('imageFile', selectedImage);
       }
-
-      const response = await fetch('/api/KhataBook', {
-        method: 'POST',
-        body: formDataToSend,
-      });
-
-      const responseData = await response.json();
-      console.log('Response:', responseData);
-
-      if (!response.ok) {
-        throw new Error(responseData.message || 'Failed to create Khata Book');
-      }
-
+      await createKhataBook(formDataToSend);
       toast.success('Khata Book created successfully!');
       // navigate('/khata-books');
     } catch (error) {

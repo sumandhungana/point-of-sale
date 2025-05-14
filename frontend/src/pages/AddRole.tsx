@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { createRole } from '../services/roleService';
 
 export const AddRole = () => {
   const navigate = useNavigate();
@@ -27,21 +28,9 @@ export const AddRole = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/Role', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('Role created successfully!');
-        navigate('/role');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create role');
-      }
+      await createRole(formData);
+      alert('Role created successfully!');
+      navigate('/role');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

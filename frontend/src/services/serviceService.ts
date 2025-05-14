@@ -1,7 +1,12 @@
 // Service for service-related API calls
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function fetchServices() {
-  const response = await fetch('/api/Service');
+  const response = await fetch('/api/Service', { headers: getAuthHeaders() });
   if (!response.ok) throw new Error('Failed to fetch services');
   return response.json();
 }
@@ -9,6 +14,7 @@ export async function fetchServices() {
 export async function createService(formData: FormData) {
   const response = await fetch('/api/Service', {
     method: 'POST',
+    headers: getAuthHeaders(),
     body: formData,
   });
   if (response.ok) {
@@ -22,6 +28,7 @@ export async function createService(formData: FormData) {
 export async function updateService(id: number, formData: FormData) {
   const response = await fetch(`/api/Service/${id}`, {
     method: 'PUT',
+    headers: getAuthHeaders(),
     body: formData,
   });
   if (response.ok) {

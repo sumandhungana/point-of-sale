@@ -20,12 +20,18 @@ export interface PaymentHistory {
     createdAt: string;
 }
 
+function getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('authToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export const createPaymentReceived = async (payment: PaymentReceived) => {
     try {
         const response = await fetch('/api/PaymentsReceived', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
             },
             body: JSON.stringify(payment)
         });
@@ -40,7 +46,7 @@ export const createPaymentReceived = async (payment: PaymentReceived) => {
 
 export const getPaymentHistory = async (partyId: number): Promise<PaymentHistory[]> => {
     try {
-        const response = await fetch(`/api/PaymentsGiven/history/party/${partyId}`);
+        const response = await fetch(`/api/PaymentsGiven/history/party/${partyId}`, { headers: getAuthHeaders() });
         if (!response.ok) {
             throw new Error('Failed to fetch payment history');
         }
@@ -66,7 +72,8 @@ export const createPaymentGiven = async (payment: PaymentGiven) => {
         const response = await fetch('/api/PaymentsGiven', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
             },
             body: JSON.stringify(payment)
         });
@@ -84,6 +91,7 @@ export const updatePaymentGiven = async (id: number, paymentData: PaymentGiven) 
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
+            ...getAuthHeaders(),
         },
         body: JSON.stringify(paymentData)
     });
@@ -100,6 +108,7 @@ export const updatePaymentReceived = async (id: number, paymentData: PaymentRece
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
+            ...getAuthHeaders(),
         },
         body: JSON.stringify(paymentData)
     });
@@ -116,7 +125,8 @@ export const deletePaymentGiven = async (id: number) => {
         const response = await fetch(`/api/PaymentsGiven/${id}`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
             }
         });
         if (!response.ok) {
@@ -136,7 +146,8 @@ export const deletePaymentReceived = async (id: number) => {
         const response = await fetch(`/api/PaymentsReceived/${id}`, {
             method: 'DELETE',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                ...getAuthHeaders(),
             }
         });
         if (!response.ok) {

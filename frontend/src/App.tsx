@@ -63,9 +63,8 @@ const Bills = () => <div>Bills Page</div>;
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
-  // return isAuthenticated ? <>{children}</> : <Navigate to="/login" />;
-  // return isAuthenticated ? (
-    return true ? (
+  return isAuthenticated ? (
+    // return true ? (
     <div style={{ 
         // Space for fixed navbar
       paddingLeft: '280px', // Space for sidebar

@@ -1,8 +1,7 @@
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { AppUser } from '../types/AppUser';
 import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
-import { ApiClient } from '../api/apiClient';
-import { LoginResponse } from '../types/LoginResponse';
+import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 
 interface IAuthContext {
   user: AppUser | null;
@@ -16,40 +15,57 @@ const AuthContext = createContext<IAuthContext | undefined>(undefined);
 const TOKEN_EXPIRY_KEY = 'tokenExpiry';
 const TOKEN_KEY = 'authToken';
 
+interface JwtPayload {
+  nameid: string;
+  unique_name: string;
+  role: string;
+  exp: number;
+}
+
+export interface AppUser {
+  id: string;
+  username: string;
+  role: string;
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useLocalStorage<AppUser | null>('user', null);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
-    // Check token expiration on mount
-    const tokenExpiry = localStorage.getItem(TOKEN_EXPIRY_KEY);
     const token = localStorage.getItem(TOKEN_KEY);
-    
-    if (token && tokenExpiry) {
-      const expiryTime = parseInt(tokenExpiry);
-      if (Date.now() < expiryTime) {
-        setIsAuthenticated(true);
-      } else {
-        // Token expired, clear everything
+    if (token) {
+      try {
+        const decoded = jwtDecode<JwtPayload>(token);
+        if (decoded.exp * 1000 > Date.now()) {
+          setIsAuthenticated(true);
+          setUser({
+            id: decoded.nameid,
+            username: decoded.unique_name,
+            role: decoded.role,
+          });
+        } else {
+          localStorage.removeItem(TOKEN_KEY);
+          setUser(null);
+        }
+      } catch {
         localStorage.removeItem(TOKEN_KEY);
-        localStorage.removeItem(TOKEN_EXPIRY_KEY);
         setUser(null);
       }
     }
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (username: string, password: string) => {
     try {
-      const response = await ApiClient.login(email, password);
-      const userData = response.user;
-      
-      // Store user data
-      setUser(userData);
-      
-      // Store token and set expiry (30 minutes from now)
-      localStorage.setItem(TOKEN_KEY, response.token);
-      localStorage.setItem(TOKEN_EXPIRY_KEY, (Date.now() + 30 * 60 * 1000).toString());
-      
+      const response = await ApiClient.login(username, password);
+      const token = response.token;
+      localStorage.setItem(TOKEN_KEY, token);
+      const decoded = jwtDecode<JwtPayload>(token);
+      setUser({
+        id: decoded.nameid,
+        username: decoded.unique_name,
+        role: decoded.role,
+      });
       setIsAuthenticated(true);
     } catch (error) {
       console.error('Login error:', error);
@@ -59,9 +75,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = async () => {
     try {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) {
+        await ApiClient.logout(token);
+      }
       setUser(null);
       localStorage.removeItem(TOKEN_KEY);
-      localStorage.removeItem(TOKEN_EXPIRY_KEY);
       setIsAuthenticated(false);
     } catch (error) {
       console.error('Logout error:', error);
@@ -82,4 +101,16 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
+};
+
+export const ApiClient = {
+  login: async (username: string, password: string) => {
+    const response = await axios.post('/api/User/login', { username, password });
+    return response.data;
+  },
+  logout: async (token: string) => {
+    await axios.post('/api/User/logout', {}, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+  },
 };

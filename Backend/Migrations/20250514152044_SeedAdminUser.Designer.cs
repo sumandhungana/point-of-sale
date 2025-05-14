@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250501155837_AddVatDateToItem")]
-    partial class AddVatDateToItem
+    [Migration("20250514152044_SeedAdminUser")]
+    partial class SeedAdminUser
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -1770,6 +1770,14 @@ namespace Backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Permission")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -1796,6 +1804,20 @@ namespace Backend.Migrations
                         .IsUnique();
 
                     b.ToTable("Users", "initSchema");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 5, 14, 15, 20, 43, 354, DateTimeKind.Utc).AddTicks(9433),
+                            Enable = true,
+                            Password = "",
+                            PasswordHash = "wphRXnzVzKYnlQxYSHWH8zlzV8CIxoPUoRyCv2pwCYs=",
+                            PasswordSalt = "static_salt_123",
+                            Permission = "admin",
+                            UpdatedAt = new DateTime(2025, 5, 14, 15, 20, 43, 354, DateTimeKind.Utc).AddTicks(9434),
+                            Username = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Backend.Models.Bill", b =>

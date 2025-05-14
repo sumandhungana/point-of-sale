@@ -1,7 +1,12 @@
 // Service for rental item-related API calls
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function fetchRentalItems() {
-  const response = await fetch('/api/RentalItem');
+  const response = await fetch('/api/RentalItem', { headers: getAuthHeaders() });
   if (!response.ok) throw new Error('Failed to fetch rental items');
   return response.json();
 }
@@ -9,9 +14,7 @@ export async function fetchRentalItems() {
 export async function createRentalItem(formData: any) {
   const response = await fetch('/api/RentalItem', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(formData),
   });
   if (response.status === 200 || response.status === 201) {

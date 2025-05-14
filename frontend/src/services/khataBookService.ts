@@ -45,9 +45,14 @@ const defaultAdminKhataBook: KhataBook = {
   updatedAt: new Date().toISOString()
 };
 
+function getAuthHeaders(): Record<string, string> {
+  const token = localStorage.getItem('authToken');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export const getKhataBooks = async (): Promise<KhataBook[]> => {
   try {
-    const response = await fetch(`/api/KhataBook`);
+    const response = await fetch(`/api/KhataBook`, { headers: getAuthHeaders() });
     const data = await response.json();
     // Add default admin entry if no KhataBooks exist
     if (!data || data.length === 0) {
@@ -59,4 +64,19 @@ export const getKhataBooks = async (): Promise<KhataBook[]> => {
     // Return default admin entry if API call fails
     return [defaultAdminKhataBook];
   }
-}; 
+};
+
+export async function createKhataBook(formData: FormData) {
+  const response = await fetch('/api/KhataBook', {
+    method: 'POST',
+    headers: {
+      ...getAuthHeaders(),
+    },
+    body: formData,
+  });
+  const responseData = await response.json();
+  if (!response.ok) {
+    throw new Error(responseData.message || 'Failed to create Khata Book');
+  }
+  return responseData;
+} 

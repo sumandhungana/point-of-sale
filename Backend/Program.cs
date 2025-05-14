@@ -55,6 +55,7 @@ app.UseHttpsRedirection();
 // Add custom middleware
 app.UseMiddleware<RequestLoggingMiddleware>();
 app.UseStaticFiles();
+app.UseMiddleware<Backend.Middleware.JwtAuthMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();

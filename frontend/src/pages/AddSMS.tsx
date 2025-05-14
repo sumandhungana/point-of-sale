@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { createSmsGateway } from '../services/smsService';
 
 export const AddSMS = () => {
   const navigate = useNavigate();
@@ -34,21 +35,9 @@ export const AddSMS = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/SmsGateway', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('SMS Gateway created successfully!');
-        navigate('/sms');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create SMS Gateway');
-      }
+      await createSmsGateway(formData);
+      alert('SMS Gateway created successfully!');
+      navigate('/sms');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

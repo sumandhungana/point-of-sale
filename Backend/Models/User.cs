@@ -46,6 +46,11 @@ public class User
     
     public string? Remarks { get; set; }
     
+    [Required]
+    public string PasswordHash { get; set; } = string.Empty;
+    [Required]
+    public string PasswordSalt { get; set; } = string.Empty;
+    
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;

@@ -51,3 +51,13 @@ current statement download in statement page
 rental item name search autocomplete 
 space and button fixed http://localhost:3000/parties/customers/statements/2
 
+
+
+
+request: curl -X POST http://localhost:5120/api/User/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+
+response: {"token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIxIiwidW5pcXVlX25hbWUiOiJhZG1pbiIsInJvbGUiOiJhZG1pbiIsImp0aSI6IjlhMjVkMmMwLWQwODMtNDdmNS1hNjI3LTE5NTBiOTUyNTVjNSIsIm5iZiI6MTc0NzIzOTU2NCwiZXhwIjoxNzQ3MjY4MzY0LCJpYXQiOjE3NDcyMzk1NjR9.xyVFDfQk1DBOW3-u-89SLyaxhcXlvqIRxTV3akjJEhc"}
+
+
