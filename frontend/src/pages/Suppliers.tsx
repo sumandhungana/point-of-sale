@@ -325,30 +325,30 @@ export const Suppliers = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={styles.searchInput}
                         />
-                        <div style={styles.filterGroup}>
+                            <div style={styles.filterGroup}>
                             <label style={styles.label}>Filter:</label>
-                            <select
-                                value={filterBy}
-                                onChange={(e) => setFilterBy(e.target.value)}
-                                style={styles.select}
-                            >
+                                <select
+                                    value={filterBy}
+                                    onChange={(e) => setFilterBy(e.target.value)}
+                                    style={styles.select}
+                                >
                                 <option value="all">All Suppliers</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="pending">Pending</option>
-                            </select>
-                        </div>
-                        <div style={styles.filterGroup}>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                    <option value="pending">Pending</option>
+                                </select>
+                            </div>
+                            <div style={styles.filterGroup}>
                             <label style={styles.label}>Sort:</label>
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                style={styles.select}
-                            >
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    style={styles.select}
+                                >
                                 <option value="name">By Name</option>
-                                <option value="date">Date Added</option>
-                                <option value="balance">Balance</option>
-                            </select>
+                                    <option value="date">Date Added</option>
+                                    <option value="balance">Balance</option>
+                                </select>
                         </div>
                         <div style={styles.actionButtons}>
                             <button 

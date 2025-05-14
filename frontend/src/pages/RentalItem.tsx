@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { fetchRentalItems } from '../services/rentalItemService';
 
 interface RentalItem {
   id: number;
@@ -35,13 +36,9 @@ export const RentalItem = () => {
   const [sort, setSort] = useState('');
 
   useEffect(() => {
-    const fetchRentalItems = async () => {
+    const fetchRentalItemsList = async () => {
       try {
-        const response = await fetch('/api/RentalItem');
-        if (!response.ok) {
-          throw new Error('Failed to fetch rental items');
-        }
-        const data: RentalResponse = await response.json();
+        const data = await fetchRentalItems();
         setRentalItems(data.rentalItem);
         setYouGive(data.youGive);
         setAdvanceAmount(data.advanceAmount);
@@ -51,8 +48,7 @@ export const RentalItem = () => {
         setLoading(false);
       }
     };
-
-    fetchRentalItems();
+    fetchRentalItemsList();
   }, []);
 
   const filteredItems = rentalItems.filter(item => 

@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { createService, updateService } from '../services/serviceService';
 
 interface LocationState {
   isEdit: boolean;
@@ -74,21 +75,14 @@ export const AddService = () => {
         formDataToSend.append('Image', selectedFile);
       }
 
-      const url = isEdit ? `/api/Service/${initialValues?.id}` : '/api/Service';
-      const method = isEdit ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        body: formDataToSend,
-      });
-
-      if (response.ok) {
-        alert(isEdit ? 'Service updated successfully!' : 'Service created successfully!');
-        navigate('/service');
+      if (isEdit) {
+        await updateService(initialValues?.id, formDataToSend);
+        alert('Service updated successfully!');
       } else {
-        const errorData = await response.json();
-        alert(`Failed to ${isEdit ? 'update' : 'create'} service: ${errorData.message || 'Unknown error'}`);
+        await createService(formDataToSend);
+        alert('Service created successfully!');
       }
+      navigate('/service');
     } catch (error) {
       console.error(`Error ${isEdit ? 'updating' : 'creating'} service:`, error);
       alert(`An error occurred while ${isEdit ? 'updating' : 'creating'} the service`);

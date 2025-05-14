@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
+import { createCustomer } from '../services/customerService';
 
 export const AddCustomer = () => {
     const navigate = useNavigate();
@@ -31,29 +32,15 @@ export const AddCustomer = () => {
         setIsSubmitting(true);
         
         try {
-            const response = await fetch('/api/Customer', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(formData),
-            });
+            await createCustomer(formData);
+            setAlertMessage('Customer added successfully!');
+            setAlertType('success');
+            setShowAlert(true);
             
-            if (response.ok) {
-                setAlertMessage('Customer added successfully!');
-                setAlertType('success');
-                setShowAlert(true);
-                
-                // Wait for 2 seconds before navigating
-                setTimeout(() => {
-                    navigate('/parties/customers');
-                }, 2000);
-            } else {
-                const errorData = await response.json();
-                setAlertMessage(`Error: ${errorData.message || 'Failed to add customer'}`);
-                setAlertType('error');
-                setShowAlert(true);
-            }
+            // Wait for 2 seconds before navigating
+            setTimeout(() => {
+                navigate('/parties/customers');
+            }, 2000);
         } catch (error) {
             setAlertMessage('Error connecting to the server. Please try again.');
             setAlertType('error');

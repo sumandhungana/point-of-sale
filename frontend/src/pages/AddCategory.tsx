@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate, useParams } from 'react-router-dom';
+import { createCategory } from '../services/categoryService';
 
 export const AddCategory = () => {
   const navigate = useNavigate();
@@ -36,23 +37,9 @@ export const AddCategory = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/Category', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData
-        }),
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('Category created successfully!');
-        navigate(-1);
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create category');
-      }
+      await createCategory(formData);
+      alert('Category created successfully!');
+      navigate(-1);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

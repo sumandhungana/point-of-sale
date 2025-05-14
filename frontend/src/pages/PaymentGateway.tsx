@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { fetchPaymentGateways } from '../services/paymentGatewayService';
 
 interface PaymentGateway {
   id: number;
@@ -25,13 +26,9 @@ export const PaymentGateway = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchGateways = async () => {
+    const fetchGatewaysList = async () => {
       try {
-        const response = await fetch('/api/PaymentGateway');
-        if (!response.ok) {
-          throw new Error('Failed to fetch payment gateways');
-        }
-        const data = await response.json();
+        const data = await fetchPaymentGateways();
         setGateways(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -39,8 +36,7 @@ export const PaymentGateway = () => {
         setLoading(false);
       }
     };
-
-    fetchGateways();
+    fetchGatewaysList();
   }, []);
 
   const filteredGateways = gateways.filter(gateway =>

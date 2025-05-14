@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
+import { fetchItemsList } from '../services/itemsListService';
 
 interface Item {
   id: number;
@@ -32,10 +33,9 @@ export const Items = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchItems = async () => {
+    const fetchItemsData = async () => {
       try {
-        const response = await fetch('/api/Item');
-        const data = await response.json();
+        const data = await fetchItemsList();
         setItems(data.items);
         setTotalSalesPrice(data.totalSalesPrice);
         setTotalItems(data.totalItems);
@@ -45,8 +45,7 @@ export const Items = () => {
         setLoading(false);
       }
     };
-
-    fetchItems();
+    fetchItemsData();
   }, []);
 
   const infoCards: InfoCard[] = [

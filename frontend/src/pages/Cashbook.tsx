@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchCashbooks as fetchCashbooksApi } from '../services/cashbookService';
 
 interface Cashbook {
   id: number;
@@ -35,11 +36,7 @@ export const Cashbook = () => {
 
   const fetchCashbooks = async () => {
     try {
-      const response = await fetch('/api/Cashbook');
-      if (!response.ok) {
-        throw new Error('Failed to fetch cashbooks');
-      }
-      const data = await response.json();
+      const data = await fetchCashbooksApi();
       setCashbooks(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

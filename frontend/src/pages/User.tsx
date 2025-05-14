@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { fetchUsers } from '../services/userService';
 
 interface User {
   id: number;
@@ -33,13 +34,9 @@ export const User = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUsersData = async () => {
       try {
-        const response = await fetch('/api/User');
-        if (!response.ok) {
-          throw new Error('Failed to fetch users');
-        }
-        const data: User[] = await response.json();
+        const data = await fetchUsers();
         setUsers(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -47,8 +44,7 @@ export const User = () => {
         setLoading(false);
       }
     };
-
-    fetchUsers();
+    fetchUsersData();
   }, []);
 
   const styles = {

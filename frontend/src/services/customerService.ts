@@ -35,3 +35,27 @@ export const getCustomers = async (): Promise<Customer[]> => {
     return [];
   }
 }; 
+
+// Service for customer-related API calls
+
+export async function fetchCustomerData(id: string) {
+  const response = await fetch(`/api/Customer/${id}`);
+  if (!response.ok) throw new Error('Failed to fetch customer data');
+  return response.json();
+} 
+
+export async function createCustomer(formData: any) {
+  const response = await fetch('/api/Customer', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(formData),
+  });
+  if (response.ok) {
+    return response;
+  } else {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to add customer');
+  }
+} 

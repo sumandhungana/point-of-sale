@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchCategories, fetchItems, createCashbookEntry } from '../services/cashbookService';
 
 interface Category {
   id: number;
@@ -42,20 +43,12 @@ export const AddCashbook = () => {
   useEffect(() => {
     const fetchData = async () => {
       try { 
-        const [categoriesResponse, itemsResponse] = await Promise.all([
-          fetch('/api/Category'),
-          fetch('/api/Item')
+        const [categoriesData, itemsData] = await Promise.all([
+          fetchCategories(),
+          fetchItems()
         ]);
-
-        if (!categoriesResponse.ok || !itemsResponse.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const itemsData = await itemsResponse.json();
-        setItems(itemsData.items);
-        const categoriesData = await categoriesResponse.json();
-        console.log(categoriesData);
         setCategories(categoriesData);
+        setItems(itemsData.items);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
       } finally {
@@ -109,18 +102,9 @@ export const AddCashbook = () => {
         formDataToSend.append('Photo', formData.photo);
       }
 
-      const response = await fetch('/api/Cashbook', {
-        method: 'POST',
-        body: formDataToSend,
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('Cashbook entry created successfully!');
-        navigate('bills/cashbook');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create cashbook entry');
-      }
+      await createCashbookEntry(formDataToSend);
+      alert('Cashbook entry created successfully!');
+      navigate('bills/cashbook');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

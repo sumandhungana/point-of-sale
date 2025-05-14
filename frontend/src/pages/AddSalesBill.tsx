@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { salesConfig } from '../config/sales';
+import { fetchCustomers, fetchLastBillNumber } from '../services/salesBillService';
 
 interface Customer {
   id: number;
@@ -46,13 +47,9 @@ export const AddSalesBill = () => {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchCustomers = async () => {
+    const fetchCustomersData = async () => {
       try {
-        const response = await fetch('/api/Customer');
-        if (!response.ok) {
-          throw new Error('Failed to fetch customers');
-        }
-        const data = await response.json();
+        const data = await fetchCustomers();
         setCustomers(data);
       } catch (err) {
         setError('Error loading customers');
@@ -60,7 +57,7 @@ export const AddSalesBill = () => {
       }
     };
 
-    const fetchLastBillNumber = async () => {
+    const fetchLastBillNumberData = async () => {
       if (isEditMode) {
         setFormData(prev => ({
           ...prev,
@@ -77,37 +74,31 @@ export const AddSalesBill = () => {
         if (initialData.photoPath) {
           setSelectedImage(initialData.photoPath);
         }
-      } else {
-        try {
-          const response = await fetch('/api/SalesBill/last');
-          if (!response.ok) {
-            throw new Error('Failed to fetch last bill number');
-          }
-          const data = await response.json();
-          const lastNumber = data.lastBillNumber || '0';
-          const nextNumber = parseInt(lastNumber.replace(salesConfig.billNumber.prefix, '')) + 1;
-          const paddedNumber = nextNumber.toString().padStart(salesConfig.billNumber.padding, '0');
-          const newBillNumber = `${salesConfig.billNumber.prefix}${paddedNumber}`;
-          
-          setFormData(prev => ({
-            ...prev,
-            BillNumber: newBillNumber,
-            CustomerId: 0,
-          }));
-        } catch (err) {
-          console.error('Error fetching last bill number:', err);
-          const defaultNumber = `${salesConfig.billNumber.prefix}${'1'.padStart(salesConfig.billNumber.padding, '0')}`;
-          setFormData(prev => ({
-            ...prev,
-            BillNumber: defaultNumber,
-            CustomerId: 0,
-          }));
-        }
+      }
+      try {
+        const data = await fetchLastBillNumber();
+        const lastNumber = data.lastBillNumber || '0';
+        const nextNumber = parseInt(lastNumber.replace(salesConfig.billNumber.prefix, '')) + 1;
+        const paddedNumber = nextNumber.toString().padStart(salesConfig.billNumber.padding, '0');
+        const newBillNumber = `${salesConfig.billNumber.prefix}${paddedNumber}`;
+        setFormData(prev => ({
+          ...prev,
+          BillNumber: newBillNumber,
+          CustomerId: 0,
+        }));
+      } catch (err) {
+        console.error('Error fetching last bill number:', err);
+        const defaultNumber = `${salesConfig.billNumber.prefix}${'1'.padStart(salesConfig.billNumber.padding, '0')}`;
+        setFormData(prev => ({
+          ...prev,
+          BillNumber: defaultNumber,
+          CustomerId: 0,
+        }));
       }
     };
 
-    fetchCustomers();
-    fetchLastBillNumber();
+    fetchCustomersData();
+    fetchLastBillNumberData();
   }, [isEditMode, initialData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { fetchRoles } from '../services/roleService';
 
 interface Role {
   id: number;
@@ -21,13 +22,9 @@ export const Role = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchRoles = async () => {
+    const fetchRolesList = async () => {
       try {
-        const response = await fetch('/api/Role');
-        if (!response.ok) {
-          throw new Error('Failed to fetch roles');
-        }
-        const data = await response.json();
+        const data = await fetchRoles();
         setRoles(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -35,8 +32,7 @@ export const Role = () => {
         setLoading(false);
       }
     };
-
-    fetchRoles();
+    fetchRolesList();
   }, []);
 
   const filteredRoles = roles.filter(role =>

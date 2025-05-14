@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { fetchAppSettings, saveAppSettings } from '../services/appSettingService';
 
 export const AppSetting = () => {
   const navigate = useNavigate();
@@ -34,26 +35,22 @@ export const AppSetting = () => {
   });
 
   useEffect(() => {
-    const fetchSettings = async () => {
+    const fetchSettingsData = async () => {
       try {
-        const response = await fetch('/api/AppSettings');
-        if (response.ok) {
-          const data = await response.json();
-          if (data && data.length > 0) {
-            const firstSetting = data[0];
-            setSettingsId(firstSetting.id);
-            setFormData(prev => ({
-              ...prev,
-              ...firstSetting
-            }));
-          }
+        const data = await fetchAppSettings();
+        if (data && data.length > 0) {
+          const firstSetting = data[0];
+          setSettingsId(firstSetting.id);
+          setFormData(prev => ({
+            ...prev,
+            ...firstSetting
+          }));
         }
       } catch (err) {
         console.error('Error fetching settings:', err);
       }
     };
-
-    fetchSettings();
+    fetchSettingsData();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -70,31 +67,13 @@ export const AppSetting = () => {
     setError(null);
 
     try {
-      const url = settingsId 
-        ? `/api/AppSettings/${settingsId}`
-        : '/api/AppSettings';
-      
-      const method = settingsId ? 'PUT' : 'POST';
-      const body = settingsId 
-        ? { ...formData, id: settingsId }
-        : formData;
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (response.ok) {
-        alert('Settings saved successfully!');
-        if (!settingsId) {
-          const data = await response.json();
-          setSettingsId(data.id);
+      await saveAppSettings(settingsId, formData);
+      alert('Settings saved successfully!');
+      if (!settingsId) {
+        const data = await fetchAppSettings();
+        if (data && data.length > 0) {
+          setSettingsId(data[0].id);
         }
-      } else {
-        throw new Error('Failed to save settings');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred while saving settings');

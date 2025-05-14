@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchRoles, fetchPermissions } from '../services/permissionService';
 
 interface Permission {
   id: number;
@@ -27,27 +28,18 @@ export const Permission = () => {
       setLoading(true);
       setError(null);
       try {
-        const [rolesResponse, permissionsResponse] = await Promise.all([
-          fetch('/api/Role'),
-          fetch('/api/Permission')
+        const [rolesData, permissionsData] = await Promise.all([
+          fetchRoles(),
+          fetchPermissions()
         ]);
-
-        if (!rolesResponse.ok || !permissionsResponse.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const rolesData = await rolesResponse.json();
-        const permissionsData = await permissionsResponse.json();
-
         setRoles(rolesData);
         setPermissions(permissionsData);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
+        setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import { createRentalItem } from '../services/rentalItemService';
 
 export const AddRentalItem = () => {
   const navigate = useNavigate();
@@ -32,26 +33,14 @@ export const AddRentalItem = () => {
     setError(null);
 
     try {
-      const response = await fetch('/api/RentalItem', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          rentalAmount: parseFloat(formData.rentalAmount),
-          startDate: new Date(formData.startDate).toISOString(),
-          endDate: new Date(formData.endDate).toISOString()
-        }),
+      await createRentalItem({
+        ...formData,
+        rentalAmount: parseFloat(formData.rentalAmount),
+        startDate: new Date(formData.startDate).toISOString(),
+        endDate: new Date(formData.endDate).toISOString()
       });
-
-      if (response.status === 200 || response.status === 201) {
-        alert('Rental item created successfully!');
-        navigate('/rental-items');
-      } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create rental item');
-      }
+      alert('Rental item created successfully!');
+      navigate('/rental-items');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {

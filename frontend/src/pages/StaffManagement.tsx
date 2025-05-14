@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { fetchStaff } from '../services/staffService';
 
 interface StaffSalary {
   id: number;
@@ -53,18 +53,17 @@ export const StaffManagement = () => {
   const [sortBy, setSortBy] = useState('');
 
   useEffect(() => {
-    const fetchStaff = async () => {
+    const fetchStaffList = async () => {
       try {
-        const response = await axios.get('/api/Staff');
-        setStaffList(response.data);
+        const data = await fetchStaff();
+        setStaffList(data);
       } catch (error) {
         console.error('Error fetching staff:', error);
       } finally {
         setIsLoading(false);
       }
     };
-
-    fetchStaff();
+    fetchStaffList();
   }, []);
 
   const handlePermissionKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -411,41 +410,41 @@ export const StaffManagement = () => {
           </table>
           
           <div style={styles.actionButtons}>
-            <button style={styles.forStaffButton}>
-              👥 For Staff
-            </button>
-            <div style={styles.searchBar}>
-              <span style={styles.searchIcon}>🔍</span>
-              <input
-                type="text"
-                placeholder="Search by name or phone..."
-                style={styles.searchInput}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-            <select 
-              style={styles.dropdown}
-              value={filterBy}
-              onChange={(e) => setFilterBy(e.target.value)}
-            >
-              <option value="">Filter By</option>
-              <option value="monthly">Monthly Salary</option>
-              <option value="daily">Daily Salary</option>
-              <option value="full">Full Permission</option>
-              <option value="restricted">Restricted Permission</option>
-            </select>
-            <select 
-              style={styles.dropdown}
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="">Sort By</option>
-              <option value="name_asc">Name (A-Z)</option>
-              <option value="name_desc">Name (Z-A)</option>
-              <option value="salary_asc">Salary (Low to High)</option>
-              <option value="salary_desc">Salary (High to Low)</option>
-            </select>
+              <button style={styles.forStaffButton}>
+                👥 For Staff
+              </button>
+              <div style={styles.searchBar}>
+                <span style={styles.searchIcon}>🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search by name or phone..."
+                  style={styles.searchInput}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <select 
+                style={styles.dropdown}
+                value={filterBy}
+                onChange={(e) => setFilterBy(e.target.value)}
+              >
+                <option value="">Filter By</option>
+                <option value="monthly">Monthly Salary</option>
+                <option value="daily">Daily Salary</option>
+                <option value="full">Full Permission</option>
+                <option value="restricted">Restricted Permission</option>
+              </select>
+              <select 
+                style={styles.dropdown}
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+              >
+                <option value="">Sort By</option>
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+                <option value="salary_asc">Salary (Low to High)</option>
+                <option value="salary_desc">Salary (High to Low)</option>
+              </select>
             <button style={styles.reminderButton}>
               ⏰ Reminder
             </button>

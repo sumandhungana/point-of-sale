@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { createUser, updateUser } from '../services/userService';
 
 interface LocationState {
   isEdit: boolean;
@@ -70,33 +71,17 @@ export const AddUser = () => {
     setError(null);
 
     try {
-      const url = isEdit ? `/api/User/${initialValues?.id}` : '/api/User';
-      const method = isEdit ? 'PUT' : 'POST';
       if (isEdit) {
         formData.id = initialValues?.id;
-      }
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        alert(isEdit ? 'User updated successfully!' : 'User created successfully!');
-        navigate('/user');
+        await updateUser(initialValues?.id, formData);
+        alert('User updated successfully!');
       } else {
-        try {
-          const errorData = await response.json();
-          throw new Error(errorData.message || `Failed to ${isEdit ? 'update' : 'create'} user`);
-        } catch (error) {
-          throw new Error(isEdit ? 'Failed to update user' : 'User already exists');
-        }
+        await createUser(formData);
+        alert('User created successfully!');
       }
+      navigate('/user');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : (isEdit ? 'Failed to update user' : 'User already exists'));
     } finally {
       setLoading(false);
     }

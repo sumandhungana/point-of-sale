@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { fetchCustomerData } from '../services/customerService';
 
 interface CustomerData {
     id: number;
@@ -48,14 +49,10 @@ export const CustomerProfile = () => {
     });
 
     useEffect(() => {
-        const fetchCustomerData = async () => {
+        const fetchCustomer = async () => {
             try {
                 if (!id) return;
-                const response = await fetch(`/api/Customer/${id}`);
-                if (!response.ok) {
-                    throw new Error('Failed to fetch customer data');
-                }
-                const data = await response.json();
+                const data = await fetchCustomerData(id);
                 setCustomerData(data);
                 setFormData({
                     customerName: data.name,
@@ -79,8 +76,7 @@ export const CustomerProfile = () => {
                 setIsLoading(false);
             }
         };
-
-        fetchCustomerData();
+        fetchCustomer();
     }, [id]);
 
     const [partyType, setPartyType] = useState<'customer' | 'supplier'>(customerData.isSupplier ? 'supplier' : 'customer');

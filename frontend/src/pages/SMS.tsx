@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import { fetchSmsGateways } from '../services/smsService';
 
 interface SmsGateway {
   id: number;
@@ -23,13 +24,9 @@ export const SMS = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
-    const fetchSmsGateways = async () => {
+    const fetchSmsGatewaysList = async () => {
       try {
-        const response = await fetch('/api/SmsGateway');
-        if (!response.ok) {
-          throw new Error('Failed to fetch SMS gateways');
-        }
-        const data = await response.json();
+        const data = await fetchSmsGateways();
         setSmsGateways(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -37,8 +34,7 @@ export const SMS = () => {
         setLoading(false);
       }
     };
-
-    fetchSmsGateways();
+    fetchSmsGatewaysList();
   }, []);
 
   const filteredGateways = smsGateways.filter(gateway =>

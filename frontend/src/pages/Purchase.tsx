@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchPurchases } from '../services/purchaseListService';
 
 interface Purchase {
   id: number;
@@ -30,18 +31,14 @@ export const Purchase = () => {
   const [dateSort, setDateSort] = useState('');
 
   useEffect(() => {
-    fetchPurchases();
+    fetchPurchasesList();
   }, []);
 
-  const fetchPurchases = async () => {
+  const fetchPurchasesList = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/Purchase');
-      if (!response.ok) {
-        throw new Error('Failed to fetch purchases');
-      }
-      const data = await response.json();
+      const data = await fetchPurchases();
       setPurchases(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

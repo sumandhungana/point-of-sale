@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
+import { fetchCategories, fetchItems, fetchLastExpenses } from '../services/expensesService';
 
 interface Category {
   id: number;
@@ -59,20 +60,13 @@ export const AddExpenses = () => {
   useEffect(() => {
     const fetchData = async () => {
       try { 
-        const [categoriesResponse, itemsResponse, lastExpensesResponse] = await Promise.all([
-          fetch('/api/Category'),
-          fetch('/api/Item'),
-          fetch('/api/Expenses/last')
+        const [categoriesData, itemsData, lastExpensesData] = await Promise.all([
+          fetchCategories(),
+          fetchItems(),
+          fetchLastExpenses()
         ]);
-
-        if (!categoriesResponse.ok || !itemsResponse.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const itemsData = await itemsResponse.json();
-        setItems(itemsData.items);
-        const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
+        setItems(itemsData.items);
 
         if (isEditMode) {
           setFormData(prev => ({
@@ -92,25 +86,15 @@ export const AddExpenses = () => {
           }
         } else {
           // Handle last expenses number
-          if (lastExpensesResponse.ok) {
-            const lastExpensesData = await lastExpensesResponse.json();
-            const lastNumber = lastExpensesData.lastExpensesNo || '0';
-            const nextNumber = parseInt(lastNumber.replace(billsConfig.expenses.prefix, '')) + 1;
-            const paddedNumber = nextNumber.toString().padStart(billsConfig.expenses.padding, '0');
-            const newExpensesNo = `${billsConfig.expenses.prefix}${paddedNumber}`;
-            
-            setFormData(prev => ({
-              ...prev,
-              expensesNo: newExpensesNo
-            }));
-          } else {
-            // If API fails, generate a default number
-            const defaultNumber = `${billsConfig.expenses.prefix}${'1'.padStart(billsConfig.expenses.padding, '0')}`;
-            setFormData(prev => ({
-              ...prev,
-              expensesNo: defaultNumber
-            }));
-          }
+          const lastNumber = lastExpensesData.lastExpensesNo || '0';
+          const nextNumber = parseInt(lastNumber.replace(billsConfig.expenses.prefix, '')) + 1;
+          const paddedNumber = nextNumber.toString().padStart(billsConfig.expenses.padding, '0');
+          const newExpensesNo = `${billsConfig.expenses.prefix}${paddedNumber}`;
+          
+          setFormData(prev => ({
+            ...prev,
+            expensesNo: newExpensesNo
+          }));
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');

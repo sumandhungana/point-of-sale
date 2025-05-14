@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { fetchItems, createItem, updateItem } from '../services/itemService';
+import { fetchCategories } from '../services/categoryService';
 
 interface Category {
   id: number;
@@ -51,14 +53,15 @@ export const AddItem = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(initialValues?.imageUrl || null);
+  const [items, setItems] = useState<any[]>([]);
+  const [totalSalesPrice, setTotalSalesPrice] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchCategoriesData = async () => {
       try {
-        const response = await fetch('/api/Category');
-        const data = await response.json();
+        const data = await fetchCategories();
         setCategories(data);
-        
         // If editing, set the category ID
         if (isEdit && initialValues?.category) {
           const category = data.find((c: Category) => c.name === initialValues.category.name);
@@ -74,9 +77,24 @@ export const AddItem = () => {
         console.error('Error fetching categories:', err);
       }
     };
-
-    fetchCategories();
+    fetchCategoriesData();
   }, [isEdit, initialValues]);
+
+  useEffect(() => {
+    const fetchItemsData = async () => {
+      try {
+        const data = await fetchItems();
+        setItems(data.items);
+        setTotalSalesPrice(data.totalSalesPrice);
+        setTotalItems(data.totalItems);
+      } catch (error) {
+        console.error('Error fetching items:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchItemsData();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -93,56 +111,42 @@ export const AddItem = () => {
 
     try {
       const formData = new FormData();
-      
-      // Add all form fields to FormData
       Object.entries(formDataState).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
           formData.append(key, value.toString());
         }
       });
-      
-      // Add image file if selected
       if (selectedFile) {
         formData.append('image', selectedFile);
       }
-
-      const url = isEdit ? `/api/Item/${initialValues?.id}` : '/api/Item';
-      const method = isEdit ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method,
-        body: formData,
-      });
-
-      if (response.status === 200 || response.status === 201) {
-        // Reset form after successful submission
-        setFormDataState({
-          name: '',
-          primaryUnit: '',
-          secondaryUnit: '',
-          isSecondaryUnitEnabled: false,
-          categoryId: '',
-          salesPrice: '',
-          purchasePrice: '',
-          taxIncluded: false,
-          openingStock: '',
-          lowStockAlert: '',
-          vatPercentage: '',
-          vatDate: '',
-          vatPercentageToday: '',
-          imageUrl: '',
-        });
-        setSelectedFile(null);
-        setImagePreview(null);
-        alert(isEdit ? 'Item updated successfully!' : 'Item created successfully!');
-        navigate('/inventory/items');
+      if (isEdit) {
+        await updateItem(initialValues?.id, formData);
+        alert('Item updated successfully!');
       } else {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Failed to ${isEdit ? 'update' : 'create'} item`);
+        await createItem(formData);
+        alert('Item created successfully!');
       }
+      setFormDataState({
+        name: '',
+        primaryUnit: '',
+        secondaryUnit: '',
+        isSecondaryUnitEnabled: false,
+        categoryId: '',
+        salesPrice: '',
+        purchasePrice: '',
+        taxIncluded: false,
+        openingStock: '',
+        lowStockAlert: '',
+        vatPercentage: '',
+        vatDate: '',
+        vatPercentageToday: '',
+        imageUrl: '',
+      });
+      setSelectedFile(null);
+      setImagePreview(null);
+      navigate('/inventory/items');
     } catch (err) {
       setError(err instanceof Error ? err.message : `Failed to ${isEdit ? 'update' : 'create'} item`);
-      console.error(`Error ${isEdit ? 'updating' : 'creating'} item:`, err);
     } finally {
       setLoading(false);
     }

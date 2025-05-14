@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
+import { fetchCategories, fetchItems, fetchLastIncome } from '../services/incomeService';
 
 interface Category {
   id: number;
@@ -59,20 +60,13 @@ export const AddIncome = () => {
   useEffect(() => {
     const fetchData = async () => {
       try { 
-        const [categoriesResponse, itemsResponse, lastIncomeResponse] = await Promise.all([
-          fetch('/api/Category'),
-          fetch('/api/Item'),
-          fetch('/api/Income/last')
+        const [categoriesData, itemsData, lastIncomeData] = await Promise.all([
+          fetchCategories(),
+          fetchItems(),
+          fetchLastIncome()
         ]);
-
-        if (!categoriesResponse.ok || !itemsResponse.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const itemsData = await itemsResponse.json();
-        setItems(itemsData.items);
-        const categoriesData = await categoriesResponse.json();
         setCategories(categoriesData);
+        setItems(itemsData.items);
 
         if (isEditMode) {
           setFormData(prev => ({
@@ -92,25 +86,15 @@ export const AddIncome = () => {
           }
         } else {
           // Handle last income number
-          if (lastIncomeResponse.ok) {
-            const lastIncomeData = await lastIncomeResponse.json();
-            const lastNumber = lastIncomeData.lastIncomeNo || '0';
-            const nextNumber = parseInt(lastNumber.replace(billsConfig.income.prefix, '')) + 1;
-            const paddedNumber = nextNumber.toString().padStart(billsConfig.income.padding, '0');
-            const newIncomeNo = `${billsConfig.income.prefix}${paddedNumber}`;
-            
-            setFormData(prev => ({
-              ...prev,
-              incomeNo: newIncomeNo
-            }));
-          } else {
-            // If API fails, generate a default number
-            const defaultNumber = `${billsConfig.income.prefix}${'1'.padStart(billsConfig.income.padding, '0')}`;
-            setFormData(prev => ({
-              ...prev,
-              incomeNo: defaultNumber
-            }));
-          }
+          const lastNumber = lastIncomeData.lastIncomeNo || '0';
+          const nextNumber = parseInt(lastNumber.replace(billsConfig.income.prefix, '')) + 1;
+          const paddedNumber = nextNumber.toString().padStart(billsConfig.income.padding, '0');
+          const newIncomeNo = `${billsConfig.income.prefix}${paddedNumber}`;
+          
+          setFormData(prev => ({
+            ...prev,
+            incomeNo: newIncomeNo
+          }));
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');

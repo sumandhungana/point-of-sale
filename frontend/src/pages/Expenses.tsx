@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchExpenses } from '../services/expensesListService';
 
 interface Expense {
   id: number;
@@ -30,18 +31,14 @@ export const Expenses = () => {
   const [dateSort, setDateSort] = useState(''); 
 
   useEffect(() => {
-    fetchExpenses();
+    fetchExpensesList();
   }, []);
 
-  const fetchExpenses = async () => {
+  const fetchExpensesList = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('/api/Expenses');
-      if (!response.ok) {
-        throw new Error('Failed to fetch expenses');
-      }
-      const data = await response.json();
+      const data = await fetchExpenses();
       setExpenses(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');

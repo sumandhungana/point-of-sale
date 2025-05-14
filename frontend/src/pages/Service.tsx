@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { fetchServices } from '../services/serviceService';
 
 interface Service {
   id: number;
@@ -28,36 +29,27 @@ export const Service = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchServicesList = async () => {
       try {
-        const response = await fetch('/api/Service');
-        if (!response.ok) {
-          throw new Error('Failed to fetch services');
-        }
-        const data: Service[] = await response.json();
+        const data = await fetchServices();
         setServices(data);
-        
         // Calculate sales metrics
         const currentDate = new Date();
         const currentMonth = currentDate.getMonth();
         const currentYear = currentDate.getFullYear();
-        
-        const monthlyServices = data.filter(service => {
+        const monthlyServices = data.filter((service: any) => {
           const serviceDate = new Date(service.createdAt);
           return serviceDate.getMonth() === currentMonth && 
                  serviceDate.getFullYear() === currentYear;
         });
-
         // Calculate net sales (price without tax)
-        const netSales = monthlyServices.reduce((sum, service) => {
+        const netSales = monthlyServices.reduce((sum: number, service: any) => {
           return sum + (service.taxIncluded ? service.price - (service.taxIncludedAmount - service.price) : service.price);
         }, 0);
-
         // Calculate gross sales (price with tax)
-        const grossSales = monthlyServices.reduce((sum, service) => {
+        const grossSales = monthlyServices.reduce((sum: number, service: any) => {
           return sum + (service.taxIncluded ? service.taxIncludedAmount : service.price);
         }, 0);
-
         setNetMonthlySales(netSales);
         setGrossMonthlySales(grossSales);
         setTotalItems(data.length);
@@ -67,8 +59,7 @@ export const Service = () => {
         setLoading(false);
       }
     };
-
-    fetchServices();
+    fetchServicesList();
   }, []);
 
   const filteredServices = services.filter(service => 
