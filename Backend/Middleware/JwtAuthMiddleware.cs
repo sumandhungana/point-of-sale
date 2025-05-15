@@ -11,7 +11,7 @@ namespace Backend.Middleware;
 public class JwtAuthMiddleware
 {
     private readonly RequestDelegate _next;
-    private const string Secret = "NKJNTYUIHTUYHBTGYFJBSDANIAUSD)"; // Use config in production
+    private const string Secret = "NKJNTYUIHTUYHBTGYFJBSDANIAUSD"; // Use config in production
 
     public JwtAuthMiddleware(RequestDelegate next)
     {

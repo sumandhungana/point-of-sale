@@ -1,124 +1,118 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import { getCustomers, getSuppliers } from '../services/customerService';
+import { fetchStaff } from '../services/staffService';
+import { fetchSalesBills } from '../services/salesBillService';
+import { fetchPurchases } from '../services/purchaseListService';
+import { fetchExpenses } from '../services/expensesListService';
+import { fetchIncomes } from '../services/incomeService';
+import { fetchCashbooks } from '../services/cashbookService';
+import { fetchRentalItems } from '../services/rentalItemService';
+import { fetchUsers } from '../services/userService';
+import { fetchItems } from '../services/itemService';
 
-interface MetricCard {
-  title: string;
-  value: string;
-  icon: string;
-  color: string;
-}
+const Dashboard: React.FC = () => {
+  const [totalCustomers, setTotalCustomers] = useState<number>(0);
+  const [totalSuppliers, setTotalSuppliers] = useState<number>(0);
+  const [totalStaff, setTotalStaff] = useState<number>(0);
+  const [totalSales, setTotalSales] = useState<number>(0);
+  const [totalPurchase, setTotalPurchase] = useState<number>(0);
+  const [totalExpenses, setTotalExpenses] = useState<number>(0);
+  const [totalIncome, setTotalIncome] = useState<number>(0);
+  const [totalCashbook, setTotalCashbook] = useState<number>(0);
+  const [totalRentalItem, setTotalRentalItem] = useState<number>(0);
+  const [totalBranch, setTotalBranch] = useState<number>(0);
+  const [totalAppUser, setTotalAppUser] = useState<number>(0);
+  const [totalItem, setTotalItem] = useState<number>(0);
+  const [totalDue, setTotalDue] = useState<number>(0);
+  const [totalPaid, setTotalPaid] = useState<number>(0);
+  const [totalDeposit, setTotalDeposit] = useState<number>(0);
 
-const metricCards: MetricCard[] = [
-  { title: 'Total Customer', value: '1,234', icon: '👥', color: '#4CAF50' },
-  { title: 'Total Supplier', value: '567', icon: '🏢', color: '#2196F3' },
-  { title: 'Total Branch', value: '12', icon: '🏪', color: '#9C27B0' },
-  { title: 'Due Amount', value: 'रु45,678', icon: '💰', color: '#F44336' },
-  { title: 'Paid Amount', value: 'रु89,012', icon: '💵', color: '#4CAF50' },
-  { title: 'Purchase Amount', value: 'रु67,890', icon: '🛒', color: '#FF9800' },
-  { title: 'Sales Amount', value: 'रु1,23,456', icon: '📈', color: '#4CAF50' },
-  { title: 'Expense Amount', value: 'रु34,567', icon: '💸', color: '#F44336' },
-  { title: 'Rent Items', value: '45', icon: '📦', color: '#9C27B0' },
-  { title: 'App User', value: '89', icon: '👤', color: '#2196F3' },
-  { title: 'Staff', value: '34', icon: '👨‍💼', color: '#FF9800' },
-  { title: 'Bank Deposit', value: 'रु2,34,567', icon: '🏦', color: '#4CAF50' },
-  { title: 'Customer Deposit', value: 'रु1,56,789', icon: '💳', color: '#2196F3' },
-  { title: 'Suppliers Deposit', value: 'रु78,901', icon: '💳', color: '#9C27B0' },
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const customers = await getCustomers();
+        setTotalCustomers(customers.length);
 
-const systemMetrics = [
-  { title: 'Memory Usage', value: 75, color: '#4CAF50' },
-  { title: 'CPU Usage', value: 60, color: '#2196F3' },
-  { title: 'Disk Usage', value: 45, color: '#9C27B0' },
-];
+        const suppliers = await getSuppliers();
+        setTotalSuppliers(suppliers.length);
 
-export const Dashboard = () => {
+        const staff = await fetchStaff();
+        setTotalStaff(staff.length);
+
+        const salesBills = await fetchSalesBills();
+        setTotalSales(salesBills.length);
+
+        const purchases = await fetchPurchases();
+        setTotalPurchase(purchases.length);
+
+        const expenses = await fetchExpenses();
+        setTotalExpenses(expenses.length);
+
+        const incomes = await fetchIncomes();
+        setTotalIncome(incomes.length);
+
+        const cashbooks = await fetchCashbooks();
+        setTotalCashbook(cashbooks.length);
+
+        const rentalItems = await fetchRentalItems();
+        setTotalRentalItem(rentalItems.length);
+
+        // Assuming branch data is fetched from a branch service or similar
+        // For now, setting a static value
+        setTotalBranch(1);
+
+        const users = await fetchUsers();
+        setTotalAppUser(users.length);
+
+        const items = await fetchItems();
+        setTotalItem(items.length);
+
+        // Assuming due, paid, and deposit are calculated from payment history or similar
+        // For now, setting static values
+        setTotalDue(0);
+        setTotalPaid(0);
+        setTotalDeposit(0);
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   const styles = {
     container: {
+      display: 'flex',
       minHeight: '100vh',
-      background: '#f8f9fa',
     },
     mainContent: {
+      flex: 1,
       padding: '2rem',
-    },
-    cardsContainer: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(4, 1fr)',
-      gap: '1.5rem',
-      marginBottom: '2rem',
+      backgroundColor: '#f5f5f5',
     },
     card: {
-      background: 'white',
+      backgroundColor: 'white',
       borderRadius: '8px',
       padding: '1.5rem',
       boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
     },
     cardHeader: {
       display: 'flex',
       alignItems: 'center',
       gap: '0.75rem',
-    },
-    cardIcon: {
-      fontSize: '1.5rem',
+      marginBottom: '1rem',
     },
     cardTitle: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
       margin: 0,
+      fontSize: '1rem',
+      color: '#666',
     },
     cardValue: {
+      margin: 0,
       fontSize: '1.5rem',
       fontWeight: 'bold',
-      color: '#212529',
-      margin: 0,
-    },
-    metricsContainer: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '1.5rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    metricsTitle: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-      marginBottom: '1.5rem',
-    },
-    metricsGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(3, 1fr)',
-      gap: '1.5rem',
-    },
-    metricItem: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    metricTitle: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      margin: 0,
-    },
-    meterContainer: {
-      width: '100%',
-      height: '8px',
-      background: '#e9ecef',
-      borderRadius: '4px',
-      overflow: 'hidden',
-    },
-    meterFill: {
-      height: '100%',
-      borderRadius: '4px',
-      transition: 'width 0.3s ease',
-    },
-    metricValue: {
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-      margin: 0,
+      color: '#333',
     },
   };
 
@@ -126,39 +120,117 @@ export const Dashboard = () => {
     <div style={styles.container}>
       <Sidebar />
       <main style={styles.mainContent}>
-        <div style={styles.cardsContainer}>
-          {metricCards.map((card) => (
-            <div key={card.title} style={styles.card}>
-              <div style={styles.cardHeader}>
-                <span style={{ ...styles.cardIcon, color: card.color }}>{card.icon}</span>
-                <h3 style={styles.cardTitle}>{card.title}</h3>
-              </div>
-              <p style={styles.cardValue}>{card.value}</p>
+        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>👥</span>
+              <h3 style={styles.cardTitle}>Total Customers</h3>
             </div>
-          ))}
-        </div>
-
-        <div style={styles.metricsContainer}>
-          <h3 style={styles.metricsTitle}>System Metrics</h3>
-          <div style={styles.metricsGrid}>
-            {systemMetrics.map((metric) => (
-              <div key={metric.title} style={styles.metricItem}>
-                <h4 style={styles.metricTitle}>{metric.title}</h4>
-                <div style={styles.meterContainer}>
-                  <div
-                    style={{
-                      ...styles.meterFill,
-                      width: `${metric.value}%`,
-                      background: metric.color,
-                    }}
-                  />
-                </div>
-                <p style={styles.metricValue}>{metric.value}%</p>
-              </div>
-            ))}
+            <p style={styles.cardValue}>{totalCustomers}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#2196F3' }}>🏪</span>
+              <h3 style={styles.cardTitle}>Total Suppliers</h3>
+            </div>
+            <p style={styles.cardValue}>{totalSuppliers}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#FF9800' }}>👥</span>
+              <h3 style={styles.cardTitle}>Total Staff</h3>
+            </div>
+            <p style={styles.cardValue}>{totalStaff}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>💰</span>
+              <h3 style={styles.cardTitle}>Total Sales</h3>
+            </div>
+            <p style={styles.cardValue}>{totalSales}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#FF9800' }}>🛒</span>
+              <h3 style={styles.cardTitle}>Total Purchase</h3>
+            </div>
+            <p style={styles.cardValue}>{totalPurchase}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#F44336' }}>📦</span>
+              <h3 style={styles.cardTitle}>Total Expenses</h3>
+            </div>
+            <p style={styles.cardValue}>{totalExpenses}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>💰</span>
+              <h3 style={styles.cardTitle}>Total Income</h3>
+            </div>
+            <p style={styles.cardValue}>{totalIncome}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#2196F3' }}>💳</span>
+              <h3 style={styles.cardTitle}>Total Cashbook</h3>
+            </div>
+            <p style={styles.cardValue}>{totalCashbook}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#9C27B0' }}>📄</span>
+              <h3 style={styles.cardTitle}>Total Rental Item</h3>
+            </div>
+            <p style={styles.cardValue}>{totalRentalItem}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#9C27B0' }}>🏪</span>
+              <h3 style={styles.cardTitle}>Total Branch</h3>
+            </div>
+            <p style={styles.cardValue}>{totalBranch}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#2196F3' }}>👤</span>
+              <h3 style={styles.cardTitle}>Total App User</h3>
+            </div>
+            <p style={styles.cardValue}>{totalAppUser}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#FF9800' }}>🛒</span>
+              <h3 style={styles.cardTitle}>Total Item</h3>
+            </div>
+            <p style={styles.cardValue}>{totalItem}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#F44336' }}>💳</span>
+              <h3 style={styles.cardTitle}>Total Due</h3>
+            </div>
+            <p style={styles.cardValue}>{totalDue}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>💰</span>
+              <h3 style={styles.cardTitle}>Total Paid</h3>
+            </div>
+            <p style={styles.cardValue}>{totalPaid}</p>
+          </div>
+          <div style={styles.card}>
+            <div style={styles.cardHeader}>
+              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>🏦</span>
+              <h3 style={styles.cardTitle}>Total Deposit</h3>
+            </div>
+            <p style={styles.cardValue}>{totalDeposit}</p>
           </div>
         </div>
       </main>
     </div>
   );
-}; 
+};
+
+export default Dashboard; 

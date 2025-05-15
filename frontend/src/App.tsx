@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Login } from './pages/Login';
-import { Dashboard } from './pages/Dashboard';
+import Dashboard from './pages/Dashboard';
 import { POS } from './pages/POS';
 import { Customers } from './pages/Customers';
 import { AddCustomer } from './pages/AddCustomer';
@@ -75,7 +75,7 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
       {children}
     </div>
   ) : (
-    <>{children}</>
+    <Navigate to="/login" />
   );
 };
 

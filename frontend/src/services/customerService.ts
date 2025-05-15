@@ -29,6 +29,7 @@ export const getSuppliers = async (): Promise<Customer[]> => {
 export const getCustomers = async (): Promise<Customer[]> => {
   try {
     const response = await fetch(`/api/Customer`, { headers: getAuthHeaders() });
+    console.log(response);
     return response.json();
   } catch (error) {
     console.error('Error fetching customers:', error);
