@@ -1,0 +1,78 @@
+/* Suppliers Page Styles */
+
+.suppliers-main-content {
+  overflow: visible !important;
+  padding-bottom: 100px !important;
+}
+
+/* Fixed Add Supplier button - positioned at bottom */
+.suppliers-add-button {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 1000 !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.95rem !important;
+  font-weight: 600 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  background: #28a745 !important;
+  color: white !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+  transition: all 0.3s ease !important;
+  min-width: 140px !important;
+  text-align: center !important;
+}
+
+.suppliers-add-button:hover {
+  background: #218838 !important;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
+}
+
+/* Mobile responsive for Add Supplier button */
+@media (max-width: 768px) {
+  .suppliers-add-button {
+    top: 15px !important;
+    right: 20px !important;
+    padding: 0.6rem 1.2rem !important;
+    font-size: 0.9rem !important;
+    min-width: 120px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .suppliers-add-button {
+    top: 10px !important;
+    right: 15px !important;
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+    min-width: 110px !important;
+  }
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  .suppliers-main-content {
+    padding: 0.5rem !important;
+    max-width: 100% !important;
+    margin-right: 0 !important;
+  }
+
+  .suppliers-add-button {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.9rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .suppliers-main-content {
+    padding: 0.25rem !important;
+  }
+
+  .suppliers-add-button {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.85rem !important;
+  }
+} 

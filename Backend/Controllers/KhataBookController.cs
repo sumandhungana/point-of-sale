@@ -39,23 +39,57 @@ namespace Backend.Controllers
         [HttpGet("{id}/switch-schema")]
         public async Task<IActionResult> SwitchSchema(int id)
         {
-            if (id == 0)
+            return await SwitchSchemaInternal(id);
+        }
+
+        [HttpPost("{id}/switch-schema")]
+        public async Task<IActionResult> SwitchSchemaPost(int id)
             {
-                return await _schemaService.SwitchSchema("initSchema");
+            return await SwitchSchemaInternal(id);
+        }
+
+        private async Task<IActionResult> SwitchSchemaInternal(int id)
+        {
+            try
+            {
+                if (id == 0)
+                {
+                    var result = await _schemaService.SwitchSchema("initSchema");
+                    return Ok(new { message = "Successfully switched to default schema", schema = "initSchema" });
             }
 
             var khataBook = await _context.KhataBooks.FindAsync(id);
             if (khataBook == null)
             {
-                return NotFound("KhataBook not found");
+                    return NotFound(new { message = "KhataBook not found", id });
             }
 
             if (string.IsNullOrEmpty(khataBook.SchemaName))
             {
-                return BadRequest("KhataBook does not have an associated schema");
+                    return BadRequest(new { message = "KhataBook does not have an associated schema", id });
             }
 
-            return await _schemaService.SwitchSchema(khataBook.SchemaName);
+                var schemaResult = await _schemaService.SwitchSchema(khataBook.SchemaName);
+                if (schemaResult is OkObjectResult okResult)
+                {
+                    return Ok(new { 
+                        message = "Successfully switched to KhataBook schema", 
+                        khataBook = new {
+                            id = khataBook.Id,
+                            name = khataBook.Name,
+                            companyName = khataBook.CompanyName,
+                            schemaName = khataBook.SchemaName
+                        }
+                    });
+                }
+                
+                return schemaResult;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error switching schema for KhataBook {Id}", id);
+                return StatusCode(500, new { message = "Internal server error while switching schema", error = ex.Message });
+            }
         }
 
         [HttpGet("{id}/tables")]
@@ -146,6 +180,20 @@ namespace Backend.Controllers
                 }
             }
 
+            // Parse business category and type safely
+            BusinessCategory businessCategory;
+            BusinessType businessType;
+            
+            if (!Enum.TryParse<BusinessCategory>(khataBookDto.BusinessCategory, out businessCategory))
+            {
+                return BadRequest($"Invalid business category: {khataBookDto.BusinessCategory}");
+            }
+            
+            if (!Enum.TryParse<BusinessType>(khataBookDto.BusinessType, out businessType))
+            {
+                return BadRequest($"Invalid business type: {khataBookDto.BusinessType}");
+            }
+
             var khataBook = new KhataBook
             {
                 Name = khataBookDto.Name,
@@ -156,8 +204,8 @@ namespace Backend.Controllers
                 CompanyNumber = khataBookDto.CompanyNumber,
                 CompanyAddress = khataBookDto.CompanyAddress,
                 CompanyEmail = khataBookDto.CompanyEmail,
-                BusinessCategory = Enum.Parse<BusinessCategory>(khataBookDto.BusinessCategory),
-                BusinessType = Enum.Parse<BusinessType>(khataBookDto.BusinessType),
+                BusinessCategory = businessCategory,
+                BusinessType = businessType,
                 TaxVat = khataBookDto.TaxVat,
                 BookAccount = khataBookDto.BookAccount,
                 KYC = khataBookDto.KYC,
@@ -232,6 +280,20 @@ namespace Backend.Controllers
                 }
             }
 
+            // Parse business category and type safely
+            BusinessCategory businessCategory;
+            BusinessType businessType;
+            
+            if (!Enum.TryParse<BusinessCategory>(khataBookDto.BusinessCategory, out businessCategory))
+            {
+                return BadRequest($"Invalid business category: {khataBookDto.BusinessCategory}");
+            }
+            
+            if (!Enum.TryParse<BusinessType>(khataBookDto.BusinessType, out businessType))
+            {
+                return BadRequest($"Invalid business type: {khataBookDto.BusinessType}");
+            }
+
             khataBook.Name = khataBookDto.Name;
             khataBook.Number = khataBookDto.Number;
             khataBook.Address = khataBookDto.Address;
@@ -240,8 +302,8 @@ namespace Backend.Controllers
             khataBook.CompanyNumber = khataBookDto.CompanyNumber;
             khataBook.CompanyAddress = khataBookDto.CompanyAddress;
             khataBook.CompanyEmail = khataBookDto.CompanyEmail;
-            khataBook.BusinessCategory = Enum.Parse<BusinessCategory>(khataBookDto.BusinessCategory);
-            khataBook.BusinessType = Enum.Parse<BusinessType>(khataBookDto.BusinessType);
+            khataBook.BusinessCategory = businessCategory;
+            khataBook.BusinessType = businessType;
             khataBook.TaxVat = khataBookDto.TaxVat;
             khataBook.BookAccount = khataBookDto.BookAccount;
             khataBook.KYC = khataBookDto.KYC;

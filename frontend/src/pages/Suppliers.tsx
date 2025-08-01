@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getSuppliers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
+import './Suppliers.css';
 
 interface SupplierWithBalance extends Customer {
     balance: number;
@@ -315,7 +316,7 @@ export const Suppliers = () => {
     return (
         <div style={styles.container}>
             <Sidebar />
-            <main style={styles.mainContent}>
+            <main style={styles.mainContent} className="suppliers-main-content">
                 <div style={styles.searchContainer}>
                     <div style={styles.searchBar}>
                         <input
@@ -461,6 +462,7 @@ export const Suppliers = () => {
 
                 <button 
                     style={styles.addSupplierButton}
+                    className="suppliers-add-button"
                     onClick={handleAddSupplier}
                 >
                     + Add Supplier

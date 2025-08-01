@@ -13,6 +13,7 @@ export interface Customer {
   ContactPerson?: string;
   createdAt: string;
   updatedAt: string;
+  profileImage?: string;
 }
 
 

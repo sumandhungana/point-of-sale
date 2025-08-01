@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import { getCustomers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
+import './Customers.css';
 
 interface CustomerWithBalance extends Customer {
     balance: number;
     paymentHistory: PaymentHistory[];
+    profileImage?: string;
 }
 
 interface OverallTotals {
@@ -25,7 +27,7 @@ export const Customers = () => {
     const [openCashbook, setOpenCashbook] = useState(false);
     const [customers, setCustomers] = useState<CustomerWithBalance[]>([]);
     const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
-    const [loading, setLoading] = useState(true);
+
     const [error, setError] = useState<string | null>(null);
     const [openReport, setOpenReport] = useState(false);
 
@@ -66,10 +68,8 @@ export const Customers = () => {
                 }, { given: 0, received: 0, online: 0 });
 
                 setOverallTotals(totals);
-                setLoading(false);
             } catch (err) {
                 setError('Failed to load customers');
-                setLoading(false);
             }
         };
 
@@ -85,22 +85,56 @@ export const Customers = () => {
     };
 
     const handleCustomerClick = (customer: CustomerWithBalance) => {
-        navigate(`/parties/customers/statements/${customer.id}`, { 
-            state: { 
-                customer: {
-                    name: customer.name,
-                    phoneNumber: customer.phone,
-                    // profileImage: customer.profileImageUrl,
-                    profileImage: "",
-                    balance: customer.balance,
-                    paymentHistory: customer.paymentHistory
-                }
-            } 
-        });
+        try {
+            console.log('Clicking customer:', customer);
+            
+            // Use only the fields that are available in the Customer interface
+            const customerData = {
+                id: customer.id,
+                name: customer.name || 'Unknown Customer',
+                phone: customer.phone || customer.phoneNumber || null,
+                email: customer.email || null,
+                address: customer.address || null,
+                company: customer.company || null,
+                pan: customer.pan || null,
+                contactPerson: customer.ContactPerson || null,
+                isSupplier: customer.isSupplier || false,
+                createdAt: customer.createdAt || new Date().toISOString(),
+                updatedAt: customer.updatedAt || new Date().toISOString(),
+                bankAccount: null, // Not available in Customer interface
+                cashBalance: 0, // Not available in Customer interface
+                profileImage: customer.profileImage || null,
+                customerSmsSetting: false, // Not available in Customer interface
+                smsLanguage: false, // Not available in Customer interface
+                transactionHistoryCheck: false, // Not available in Customer interface
+                paymentHistory: customer.paymentHistory || []
+            };
+
+            console.log('Navigating with customer data:', customerData);
+            console.log('Navigating to URL:', `/parties/customers/statements/${customer.id}`);
+
+            // Test navigation - try without state first
+            console.log('Attempting navigation...');
+            
+            navigate(`/parties/customers/statements/${customer.id}`, { 
+                state: { 
+                    customer: customerData
+                } 
+            });
+        } catch (error) {
+            console.error('Error navigating to customer statements:', error);
+            toast.error('Failed to open customer statements');
+        }
     };
 
     const filteredAndSortedCustomers = customers
         .filter(customer => {
+            // Search filter
+            if (searchQuery && !customer.name.toLowerCase().includes(searchQuery.toLowerCase())) {
+                return false;
+            }
+            
+            // Balance filter
             switch (filterBy) {
                 case 'toReceive':
                     return customer.balance > 0;
@@ -136,10 +170,15 @@ export const Customers = () => {
             paddingTop: '40px',
         },
         mainContent: {
-            padding: '2rem',
+            padding: '1rem',
             maxWidth: 'calc(100% - 500px)',
             marginRight: '500px',
             width: '100%',
+            '@media (max-width: 768px)': {
+                padding: '0.5rem',
+                maxWidth: '100%',
+                marginRight: '0',
+            },
         },
         searchContainer: {
             background: 'white',
@@ -147,6 +186,10 @@ export const Customers = () => {
             borderRadius: '8px',
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             marginBottom: '1rem',
+            '@media (max-width: 768px)': {
+                padding: '1rem',
+                marginBottom: '0.5rem',
+            },
         },
         searchBar: {
             display: 'flex',
@@ -154,6 +197,11 @@ export const Customers = () => {
             gap: '1rem',
             marginBottom: '1rem',
             flexWrap: 'wrap' as const,
+            '@media (max-width: 768px)': {
+                flexDirection: 'column' as const,
+                gap: '0.75rem',
+                marginBottom: '0.5rem',
+            },
         },
         searchInput: {
             flex: 2,
@@ -168,6 +216,12 @@ export const Customers = () => {
                 borderColor: '#dc4c39',
                 boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
             },
+            '@media (max-width: 768px)': {
+                flex: 'none',
+                width: '100%',
+                minWidth: 'auto',
+                fontSize: '16px', // Prevents zoom on iOS
+            },
         },
         filterGroup: {
             display: 'flex',
@@ -175,6 +229,11 @@ export const Customers = () => {
             gap: '0.5rem',
             flex: 1,
             minWidth: '200px',
+            '@media (max-width: 768px)': {
+                flex: 'none',
+                width: '100%',
+                minWidth: 'auto',
+            },
         },
         select: {
             padding: '0.75rem 1rem',
@@ -190,6 +249,9 @@ export const Customers = () => {
                 borderColor: '#dc4c39',
                 boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
             },
+            '@media (max-width: 768px)': {
+                fontSize: '16px', // Prevents zoom on iOS
+            },
         },
         label: {
             fontSize: '0.875rem',
@@ -200,6 +262,11 @@ export const Customers = () => {
             display: 'flex',
             gap: '0.75rem',
             marginLeft: 'auto',
+            '@media (max-width: 768px)': {
+                marginLeft: '0',
+                width: '100%',
+                justifyContent: 'space-between',
+            },
         },
         button: {
             padding: '0.5rem 1rem',
@@ -210,6 +277,12 @@ export const Customers = () => {
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
+            '@media (max-width: 768px)': {
+                padding: '0.75rem 1rem',
+                fontSize: '0.9rem',
+                flex: 1,
+                justifyContent: 'center',
+            },
         },
         primaryButton: {
             background: '#dc4c39',
@@ -231,6 +304,10 @@ export const Customers = () => {
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             overflow: 'hidden',
             borderBottom: '1px solid #dee2e6',
+            '@media (max-width: 768px)': {
+                flexDirection: 'column' as const,
+                marginBottom: '0.5rem',
+            },
         },
         card: {
             flex: 1,
@@ -238,6 +315,14 @@ export const Customers = () => {
             borderRight: '1px solid #dee2e6',
             '&:last-child': {
                 borderRight: 'none',
+            },
+            '@media (max-width: 768px)': {
+                padding: '1rem',
+                borderRight: 'none',
+                borderBottom: '1px solid #dee2e6',
+                '&:last-child': {
+                    borderBottom: 'none',
+                },
             },
         },
         cardHeader: {
@@ -249,6 +334,9 @@ export const Customers = () => {
             fontSize: '1.5rem',
             fontWeight: 'bold',
             color: '#212529',
+            '@media (max-width: 768px)': {
+                fontSize: '1.25rem',
+            },
         },
         checkboxCard: {
             display: 'flex',
@@ -256,6 +344,10 @@ export const Customers = () => {
             borderRadius: '8px',
             boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
             overflow: 'hidden',
+            '@media (max-width: 768px)': {
+                flexDirection: 'column' as const,
+                marginBottom: '0.5rem',
+            },
         },
         checkboxCardItem: {
             flex: 1,
@@ -263,6 +355,14 @@ export const Customers = () => {
             borderRight: '1px solid #dee2e6',
             '&:last-child': {
                 borderRight: 'none',
+            },
+            '@media (max-width: 768px)': {
+                padding: '0.75rem 1rem',
+                borderRight: 'none',
+                borderBottom: '1px solid #dee2e6',
+                '&:last-child': {
+                    borderBottom: 'none',
+                },
             },
         },
         checkboxGroup: {
@@ -274,11 +374,19 @@ export const Customers = () => {
             width: '16px',
             height: '16px',
             cursor: 'pointer',
+            '@media (max-width: 768px)': {
+                width: '20px',
+                height: '20px',
+            },
         },
         checkboxLabel: {
             fontSize: '0.875rem',
             color: '#212529',
             cursor: 'pointer',
+            '@media (max-width: 768px)': {
+                fontSize: '1rem',
+                padding: '0.25rem 0',
+            },
         },
         customerCard: {
             background: 'white',
@@ -293,11 +401,24 @@ export const Customers = () => {
                 transform: 'translateY(-2px)',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
             },
+            '@media (max-width: 768px)': {
+                padding: '1rem',
+                marginBottom: '0.75rem',
+                marginTop: '0.75rem',
+                minHeight: '80px', // Better touch target
+                display: 'flex',
+                alignItems: 'center',
+            },
         },
         customerInfo: {
             display: 'flex',
             alignItems: 'center',
             gap: '1.5rem',
+            '@media (max-width: 768px)': {
+                gap: '1rem',
+                flexDirection: 'column' as const,
+                alignItems: 'flex-start',
+            },
         },
         profileImage: {
             width: '60px',
@@ -305,15 +426,25 @@ export const Customers = () => {
             borderRadius: '50%',
             objectFit: 'cover' as const,
             backgroundColor: '#e9ecef',
+            '@media (max-width: 768px)': {
+                width: '50px',
+                height: '50px',
+            },
         },
         customerDetails: {
             flex: 1,
+            '@media (max-width: 768px)': {
+                width: '100%',
+            },
         },
         customerName: {
             fontSize: '1.25rem',
             fontWeight: 'bold',
             color: '#212529',
             marginBottom: '0.25rem',
+            '@media (max-width: 768px)': {
+                fontSize: '1.1rem',
+            },
         },
         workingHours: {
             fontSize: '0.875rem',
@@ -328,6 +459,15 @@ export const Customers = () => {
             height: '100%',
             display: 'flex',
             alignItems: 'center',
+            '@media (max-width: 768px)': {
+                fontSize: '1.25rem',
+                paddingLeft: '0',
+                borderLeft: 'none',
+                borderTop: '1px solid #dee2e6',
+                paddingTop: '0.5rem',
+                marginTop: '0.5rem',
+                justifyContent: 'center',
+            },
         },
         addCustomerButton: {
             padding: '0.75rem 1.5rem',
@@ -346,6 +486,13 @@ export const Customers = () => {
             '&:hover': {
                 background: '#218838',
             },
+            '@media (max-width: 768px)': {
+                width: '100%',
+                marginLeft: '0',
+                justifyContent: 'center',
+                padding: '1rem 1.5rem',
+                fontSize: '1rem',
+            },
         },
     };
 
@@ -356,15 +503,16 @@ export const Customers = () => {
     return (
         <div style={styles.container}>
             <Sidebar />
-            <main style={styles.mainContent}>
-                <div style={styles.searchContainer}>
-                    <div style={styles.searchBar}>
+            <main style={styles.mainContent} className="customers-main-content">
+                <div style={styles.searchContainer} className="customers-search-container">
+                    <div style={styles.searchBar} className="customers-search-bar">
                         <input
                             type="text"
                             placeholder="Search customers..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             style={styles.searchInput}
+                            className="customers-search-input"
                         />
                         {/* <div style={styles.filterGroup}>
                             <label style={styles.label}>Filter:</label>
@@ -379,12 +527,13 @@ export const Customers = () => {
                                 <option value="settled">Settled</option>
                             </select>
                         </div> */}
-                        <div style={styles.filterGroup}>
+                        <div style={styles.filterGroup} className="customers-filter-group">
                             <label style={styles.label}>Sort:</label>
                             <select
                                 value={sortBy}
                                 onChange={(e) => setSortBy(e.target.value)}
                                 style={styles.select}
+                                className="customers-select"
                             >
                                 <option value="mostRecent">Most Recent</option>
                                 <option value="highestAmount">Highest Amount</option>
@@ -393,15 +542,17 @@ export const Customers = () => {
                                 <option value="oldest">Oldest</option>
                             </select>
                         </div>
-                        <div style={styles.actionButtons}>
+                        <div style={styles.actionButtons} className="customers-action-buttons">
                             <button 
                                 style={{ ...styles.button, ...styles.primaryButton }}
+                                className="customers-button"
                                 onClick={handleBulkReminder}
                             >
                                 Bulk Reminder
                             </button>
                             <button 
                                 style={{ ...styles.button, ...styles.secondaryButton }}
+                                className="customers-button"
                                 onClick={handleListReportPdf}
                             >
                                 PDF
@@ -410,28 +561,28 @@ export const Customers = () => {
                     </div>
                 </div>
 
-                <div style={styles.cardsContainer}>
-                    <div style={styles.card}>
+                <div style={styles.cardsContainer} className="customers-cards-container">
+                    <div style={styles.card} className="customers-card">
                         <div style={styles.cardHeader}>You Give</div>
                         <div style={{
                             ...styles.cardAmount,
                             color: (overallTotals.given - overallTotals.received) === 0 ? '#212529' : 
                                   (overallTotals.given - overallTotals.received) > 0 ? '#28a745' : '#dc3545'
-                        }}>
+                        }} className="customers-card-amount">
                             रु{overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received}
                         </div>
                     </div>
-                    <div style={styles.card}>
+                    <div style={styles.card} className="customers-card">
                         <div style={styles.cardHeader}>You Receive</div>
                         <div style={{
                             ...styles.cardAmount,
                             color: (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) === 0 ? '#212529' : 
                                   (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) > 0 ? '#28a745' : '#dc3545'
-                        }}>
+                        }} className="customers-card-amount">
                             रु{overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given}
                         </div>
                     </div>
-                    <div style={styles.card}>
+                    <div style={styles.card} className="customers-card">
                           <div style={styles.cardHeader}>
                         <div style={styles.checkboxGroup}>
                             <input
@@ -440,8 +591,9 @@ export const Customers = () => {
                                 checked={openReport}
                                 onChange={(e) => setOpenReport(e.target.checked)}
                                 style={styles.checkbox}
+                                className="customers-checkbox"
                             />
-                            <label htmlFor="openReport" style={styles.checkboxLabel}>
+                            <label htmlFor="openReport" style={styles.checkboxLabel} className="customers-checkbox-label">
                                 Open Report
                             </label>
                         </div>
@@ -449,8 +601,8 @@ export const Customers = () => {
                     </div>
                 </div>
 
-                <div style={styles.checkboxCard}>
-                    <div style={styles.checkboxCardItem}>
+                <div style={styles.checkboxCard} className="customers-checkbox-card">
+                    <div style={styles.checkboxCardItem} className="customers-checkbox-card-item">
                         <div style={styles.checkboxGroup}>
                             <input
                                 type="checkbox"
@@ -458,13 +610,14 @@ export const Customers = () => {
                                 checked={viewReport}
                                 onChange={(e) => setViewReport(e.target.checked)}
                                 style={styles.checkbox}
+                                className="customers-checkbox"
                             />
-                            <label htmlFor="viewReport" style={styles.checkboxLabel}>
+                            <label htmlFor="viewReport" style={styles.checkboxLabel} className="customers-checkbox-label">
                                 View Report
                             </label>
                         </div>
                     </div>
-                    <div style={styles.checkboxCardItem}>
+                    <div style={styles.checkboxCardItem} className="customers-checkbox-card-item">
                         <div style={styles.checkboxGroup}>
                             <input
                                 type="checkbox"
@@ -472,44 +625,74 @@ export const Customers = () => {
                                 checked={openCashbook}
                                 onChange={(e) => setOpenCashbook(e.target.checked)}
                                 style={styles.checkbox}
+                                className="customers-checkbox"
                             />
-                            <label htmlFor="openCashbook" style={styles.checkboxLabel}>
+                            <label htmlFor="openCashbook" style={styles.checkboxLabel} className="customers-checkbox-label">
                                 Open Cashbook
                             </label>
                         </div>
                     </div>
                 </div>
 
-                {loading ? (
-                    <div style={{ textAlign: 'center', padding: '2rem' }}>Loading customers...</div>
-                ) : error ? (
-                    <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</div>
-                ) : (
-                    filteredAndSortedCustomers.map((customer) => (
+                {error && (
+                    <div style={{ textAlign: 'center', padding: '1rem', color: 'red', background: '#fff3cd', borderRadius: '4px', marginBottom: '1rem' }}>
+                        {error}
+                    </div>
+                )}
+                {filteredAndSortedCustomers.map((customer) => (
                         <div 
                             key={customer.id}
                             style={styles.customerCard}
+                            className="customers-customer-card"
                             onClick={() => handleCustomerClick(customer)}
                         >
-                            <div style={styles.customerInfo}>
-                                <div style={styles.profileImage} />
-                                <div style={styles.customerDetails}>
-                                    <h3 style={styles.customerName}>{customer.name}</h3>
+                            <div style={styles.customerInfo} className="customers-customer-info">
+                                {customer.profileImage ? (
+                                    <img 
+                                        src={customer.profileImage} 
+                                        alt={customer.name}
+                                        style={styles.profileImage}
+                                        className="customers-profile-image"
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            const nextSibling = e.currentTarget.nextSibling as HTMLElement;
+                                            if (nextSibling) {
+                                                nextSibling.style.display = 'flex';
+                                            }
+                                        }}
+                                    />
+                                ) : null}
+                                <div 
+                                    style={{
+                                        ...styles.profileImage,
+                                        display: customer.profileImage ? 'none' : 'flex',
+                                        backgroundColor: '#e9ecef',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '1.5rem',
+                                        color: '#6c757d'
+                                    }}
+                                    className="customers-profile-image"
+                                >
+                                    {customer.name.charAt(0).toUpperCase()}
+                                </div>
+                                <div style={styles.customerDetails} className="customers-customer-details">
+                                    <h3 style={styles.customerName} className="customers-customer-name">{customer.name}</h3>
                                     <p style={styles.workingHours}>Working Hours: 0</p>
                                 </div>
                                 <div style={{
                                     ...styles.customerAmount,
                                     color: customer.balance === 0 ? '#212529' : customer.balance > 0 ? '#28a745' : '#dc3545'
-                                }}>
+                                }} className="customers-customer-amount">
                                     रु{Math.abs(customer.balance).toLocaleString()}
                                 </div>
                             </div>
                         </div>
-                    ))
-                )}
+                    ))}
 
                 <button 
                     style={styles.addCustomerButton}
+                    className="customers-add-button"
                     onClick={handleAddCustomer}
                 >
                     + Add Customer

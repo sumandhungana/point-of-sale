@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import { createPaymentGiven, updatePaymentGiven, PaymentGiven } from '../services/paymentService';
-import { toast } from 'react-toastify';
+import { toast, Bounce } from 'react-toastify';
 
 interface InitialData {
     customerId: number;
@@ -28,6 +28,7 @@ export const YouGave = () => {
     });
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSubmitting(true);
@@ -43,10 +44,40 @@ export const YouGave = () => {
 
             if (isEditMode) {
                 await updatePaymentGiven(Number(id), paymentData);
-                toast.success('Payment updated successfully!');
+                toast.success('Payment updated successfully!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                    className: 'red-success-toast',
+                    style: {
+                        '--toastify-color-success': '#cf1f30',
+                        '--toastify-color-progress-success': '#cf1f30'
+                    } as React.CSSProperties
+                });
             } else {
                 await createPaymentGiven(paymentData);
-                toast.success('Payment recorded successfully!');
+                toast.success('Payment recorded successfully!', {
+                    position: "top-right",
+                    autoClose: 5000,
+                    hideProgressBar: false,
+                    closeOnClick: false,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "colored",
+                    transition: Bounce,
+                    className: 'red-success-toast',
+                    style: {
+                        '--toastify-color-success': '#cf1f30',
+                        '--toastify-color-progress-success': '#cf1f30'
+                    } as React.CSSProperties
+                });
             }
             navigate(`/parties/customers/statements/${id}`);
         } catch (error) {
@@ -102,7 +133,7 @@ export const YouGave = () => {
             maxWidth: 'calc(100% - 500px)',
             marginRight: '500px',
             width: '100%',
-        },ntainer: {
+        },formContainer: {
             background: 'white',
             padding: '2rem',
             borderRadius: '8px',

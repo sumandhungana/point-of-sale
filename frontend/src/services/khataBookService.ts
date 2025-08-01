@@ -52,7 +52,7 @@ function getAuthHeaders(): Record<string, string> {
 
 export const getKhataBooks = async (): Promise<KhataBook[]> => {
   try {
-    const response = await fetch(`/api/KhataBook`, { headers: getAuthHeaders() });
+    const response = await fetch(`${API_URL}/KhataBook`, { headers: getAuthHeaders() });
     const data = await response.json();
     // Add default admin entry if no KhataBooks exist
     if (!data || data.length === 0) {
@@ -67,16 +67,28 @@ export const getKhataBooks = async (): Promise<KhataBook[]> => {
 };
 
 export async function createKhataBook(formData: FormData) {
-  const response = await fetch('/api/KhataBook', {
-    method: 'POST',
-    headers: {
-      ...getAuthHeaders(),
-    },
-    body: formData,
-  });
-  const responseData = await response.json();
-  if (!response.ok) {
-    throw new Error(responseData.message || 'Failed to create Khata Book');
+  try {
+    const response = await fetch(`${API_URL}/KhataBook`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        // Do NOT set Content-Type for FormData - browser will set it automatically with boundary
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const responseData = await response.json();
+    return responseData;
+  } catch (error) {
+    console.error('Error creating KhataBook:', error);
+    if (error instanceof Error) {
+      throw new Error(`Failed to create KhataBook: ${error.message}`);
+    }
+    throw new Error('Failed to create KhataBook: Unknown error');
   }
-  return responseData;
 } 

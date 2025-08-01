@@ -273,12 +273,13 @@ export const Sidebar = () => {
       borderBottom: '1px solid #dee2e6',
       marginBottom: '1rem',
       display: 'flex',
-      justifyContent: 'center',
+      justifyContent: 'flex-start',
       alignItems: 'center',
     },
     logo: {
-      maxWidth: '80%',
+      maxWidth: '60%',
       height: 'auto',
+      paddingLeft:'3rem'
     },
     userSection: {
       padding: '1rem',
@@ -571,7 +572,19 @@ export const Sidebar = () => {
 
   const handleKhataBookClick = async (khataBook: KhataBook) => {
     try {
-      const response = await fetch(`/api/KhataBook/${khataBook.id}/switch-schema`);
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Please login first');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5120/api/KhataBook/${khataBook.id}/switch-schema`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
       if (response.ok) {
         localStorage.setItem('companyName', khataBook.companyName);
         alert('Successfully switched to KhataBook: ' + khataBook.companyName);
@@ -590,7 +603,12 @@ export const Sidebar = () => {
   return (
     <div style={styles.sidebar}>
       <div style={styles.logoContainer}>
-        <img src={logo} alt="Logo" style={styles.logo} />
+        <img 
+          src={logo} 
+          alt="Logo" 
+          style={{...styles.logo, cursor: 'pointer'}}
+          onClick={() => navigate('/')}
+        />
       </div>
       <div 
         style={styles.userSection}
@@ -598,10 +616,10 @@ export const Sidebar = () => {
       >
         <div style={styles.userProfile}>
           <div style={styles.avatar}>
-            {user?.image || '👤'}
+            {'👤'}
           </div>
           <div style={styles.userInfo}>
-            <h3 style={styles.userName}>{user?.name || 'User'}</h3>
+            <h3 style={styles.userName}>{user?.username || 'User'}</h3>
             <p style={styles.userRole}>{user?.role || 'Role'}</p>
           </div>
         </div>

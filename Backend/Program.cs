@@ -12,11 +12,23 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 // Configure DbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema"));
+        x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema")
+              .CommandTimeout(60));
 });
 
 // Add SchemaConfigurationService
@@ -51,6 +63,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+
+// Enable CORS
+app.UseCors("AllowAll");
 
 // Add custom middleware
 app.UseMiddleware<RequestLoggingMiddleware>();

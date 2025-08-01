@@ -50,13 +50,23 @@ export const AddKhataBook = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate required field
+    if (!formData.name.trim()) {
+      toast.error('Name is required!');
+      return;
+    }
+    
     setIsSubmitting(true);
     
     try {
       const formDataToSend = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
         if (key !== 'imagepath') {
+          // Only send non-empty values for optional fields
+          if (value !== '' || key === 'name') {
           formDataToSend.append(key, value.toString());
+          }
         }
       });
       if (selectedImage) {
@@ -221,17 +231,18 @@ export const AddKhataBook = () => {
               <h2 style={styles.sectionTitle}>Personal Info</h2>
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Name</label>
+                  <label style={styles.label}>Name *</label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
                     style={styles.input}
+                    required
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Number</label>
+                  <label style={styles.label}>Number (Optional)</label>
                   <input
                     type="tel"
                     name="number"
@@ -241,7 +252,7 @@ export const AddKhataBook = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Address</label>
+                  <label style={styles.label}>Address (Optional)</label>
                   <input
                     type="text"
                     name="address"
@@ -251,7 +262,7 @@ export const AddKhataBook = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Email</label>
+                  <label style={styles.label}>Email (Optional)</label>
                   <input
                     type="email"
                     name="email"
@@ -268,7 +279,7 @@ export const AddKhataBook = () => {
               <h2 style={styles.sectionTitle}>Business Info</h2>
               <div style={styles.formGrid}>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Name</label>
+                  <label style={styles.label}>Company Name (Optional)</label>
                   <input
                     type="text"
                     name="companyName"
@@ -278,7 +289,7 @@ export const AddKhataBook = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Number</label>
+                  <label style={styles.label}>Company Number (Optional)</label>
                   <input
                     type="tel"
                     name="companyNumber"
@@ -288,7 +299,7 @@ export const AddKhataBook = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Address</label>
+                  <label style={styles.label}>Company Address (Optional)</label>
                   <input
                     type="text"
                     name="companyAddress"
@@ -298,7 +309,7 @@ export const AddKhataBook = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Email</label>
+                  <label style={styles.label}>Company Email (Optional)</label>
                   <input
                     type="email"
                     name="companyEmail"
@@ -308,7 +319,7 @@ export const AddKhataBook = () => {
                   />
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Business Category</label>
+                  <label style={styles.label}>Business Category (Optional)</label>
                   <select
                     name="businessCategory"
                     value={formData.businessCategory}
@@ -316,14 +327,14 @@ export const AddKhataBook = () => {
                     style={styles.select}
                   >
                     <option value="">Select Category</option>
-                    <option value="1">Retail</option>
-                    <option value="2">Wholesale</option>
-                    <option value="3">Manufacturing</option>
-                    <option value="4">Service</option>
+                    <option value="0">Retail</option>
+                    <option value="1">Wholesale</option>
+                    <option value="2">Manufacturing</option>
+                    <option value="3">Service</option>
                   </select>
                 </div>
                 <div style={styles.formGroup}>
-                  <label style={styles.label}>Business Type</label>
+                  <label style={styles.label}>Business Type (Optional)</label>
                   <select
                     name="businessType"
                     value={formData.businessType}
@@ -331,10 +342,10 @@ export const AddKhataBook = () => {
                     style={styles.select}
                   >
                     <option value="">Select Type</option>
-                    <option value="1">Sole Proprietorship</option>
-                    <option value="2">Partnership</option>
-                    <option value="3">Corporation</option>
-                    <option value="4">LLC</option>
+                    <option value="0">Sole Proprietorship</option>
+                    <option value="1">Partnership</option>
+                    <option value="2">Corporation</option>
+                    <option value="3">LLC</option>
                   </select>
                 </div>
               </div>

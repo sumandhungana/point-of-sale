@@ -4804,19 +4804,19 @@
     ]
   },
   "packageFolders": {
-    "/home/punkholic/.nuget/packages/": {}
+    "/home/xebec/.nuget/packages/": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/punkholic/random/work/point_of_sale/Backend/Backend.csproj",
+      "projectUniqueName": "/home/xebec/Downloads/point_of_sale/Backend/Backend.csproj",
       "projectName": "Backend",
-      "projectPath": "/home/punkholic/random/work/point_of_sale/Backend/Backend.csproj",
-      "packagesPath": "/home/punkholic/.nuget/packages/",
-      "outputPath": "/home/punkholic/random/work/point_of_sale/Backend/obj/",
+      "projectPath": "/home/xebec/Downloads/point_of_sale/Backend/Backend.csproj",
+      "packagesPath": "/home/xebec/.nuget/packages/",
+      "outputPath": "/home/xebec/Downloads/point_of_sale/Backend/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "/home/punkholic/.nuget/NuGet/NuGet.Config"
+        "/home/xebec/.nuget/NuGet/NuGet.Config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
@@ -4834,11 +4834,6 @@
         "warnAsError": [
           "NU1605"
         ]
-      },
-      "restoreAuditProperties": {
-        "enableAudit": "true",
-        "auditLevel": "low",
-        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -4899,7 +4894,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.408/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "/usr/lib64/dotnet/sdk/8.0.118/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

@@ -105,7 +105,7 @@ export const YouReceived = () => {
             maxWidth: 'calc(100% - 500px)',
             marginRight: '500px',
             width: '100%',
-        },ntainer: {
+        },formContainer: {
             background: 'white',
             padding: '2rem',
             borderRadius: '8px',

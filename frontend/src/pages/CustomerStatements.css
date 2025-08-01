@@ -1,0 +1,66 @@
+/* CustomerStatements Sticky Action Buttons */
+
+.customer-statements-action-buttons {
+  position: fixed !important;
+  bottom: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 1000 !important;
+  display: flex !important;
+  gap: 1rem !important;
+  max-width: calc(100% - 2rem) !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.customer-statements-action-button {
+  flex: 1 !important;
+  padding: 0.75rem 1.25rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 0.9rem !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease !important;
+}
+
+.customer-statements-give-button {
+  background: #dc3545 !important;
+  color: white !important;
+}
+
+.customer-statements-give-button:hover {
+  background: #c82333 !important;
+}
+
+.customer-statements-receive-button {
+  background: #28a745 !important;
+  color: white !important;
+}
+
+.customer-statements-receive-button:hover {
+  background: #218838 !important;
+}
+
+/* Add padding to main content to account for fixed buttons */
+.customer-statements-main-content {
+  padding-bottom: 100px !important;
+  overflow: visible !important;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .customer-statements-action-buttons {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+    width: calc(100% - 2rem) !important;
+  }
+
+  .customer-statements-action-button {
+    padding: 1rem 1.25rem !important;
+    font-size: 1rem !important;
+  }
+} 

@@ -86,6 +86,22 @@ public class UserController : ControllerBase
             return BadRequest();
         }
 
+        // Check if username is being changed and if it already exists
+        var existingUser = await _context.Users.FindAsync(id);
+        if (existingUser == null)
+        {
+            return NotFound();
+        }
+
+        // If username is being changed, check for uniqueness
+        if (existingUser.Username != user.Username)
+        {
+            if (UserExists(user.Username))
+            {
+                return Conflict("Username already exists");
+            }
+        }
+
         user.UpdatedAt = DateTime.UtcNow;
         _context.Entry(user).State = EntityState.Modified;
 
@@ -101,6 +117,18 @@ public class UserController : ControllerBase
             }
             else
             {
+                throw;
+            }
+        }
+        catch (DbUpdateException ex)
+        {
+            if (UserExists(user.Username))
+            {
+                return Conflict("Username already exists");
+            }
+            else
+            {
+                _logger.LogError(ex, "Error updating user");
                 throw;
             }
         }

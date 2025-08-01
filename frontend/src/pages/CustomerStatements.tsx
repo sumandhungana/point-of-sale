@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
+import './CustomerStatements.css';
 
 interface CustomerData {
     id: number;
@@ -33,10 +34,9 @@ export const CustomerStatements = () => {
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
     const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
     const [isLoading, setIsLoading] = useState(true);
-    
-    // Get customer data from navigation state
-    const customerData = location.state?.customer as CustomerData || {
-        name: 'Loading...',
+    const [customerData, setCustomerData] = useState<CustomerData>({
+        id: 0,
+        name: '',
         phone: null,
         email: null,
         address: null,
@@ -52,8 +52,65 @@ export const CustomerStatements = () => {
         customerSmsSetting: false,
         smsLanguage: false,
         transactionHistoryCheck: false,
-        paymentHistory: paymentHistory
-    };
+        paymentHistory: []
+    });
+    const [customerLoading, setCustomerLoading] = useState(true);
+
+    // Debug: Log the received data
+    console.log('CustomerStatements - Received customer data:', customerData);
+    console.log('CustomerStatements - Location state:', location.state);
+    console.log('CustomerStatements - Customer ID from params:', id);
+
+    // Set customer data from location state when component mounts
+    useEffect(() => {
+        if (location.state?.customer) {
+            setCustomerData(location.state.customer as CustomerData);
+            setCustomerLoading(false);
+            console.log('Customer data set from location state:', location.state.customer);
+        } else if (id) {
+            // If no location state, try to fetch customer data from API
+            const fetchCustomerData = async () => {
+                try {
+                    const response = await fetch(`/api/Customer/${id}`, {
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+                        }
+                    });
+                    if (response.ok) {
+                        const customer = await response.json();
+                        setCustomerData({
+                            id: customer.id,
+                            name: customer.name,
+                            phone: customer.phone,
+                            email: customer.email,
+                            address: customer.address,
+                            company: customer.company,
+                            pan: customer.pan,
+                            contactPerson: customer.contactPerson,
+                            isSupplier: customer.isSupplier,
+                            createdAt: customer.createdAt,
+                            updatedAt: customer.updatedAt,
+                            bankAccount: customer.bankAccount,
+                            cashBalance: customer.cashBalance,
+                            profileImage: customer.profileImage,
+                            customerSmsSetting: customer.customerSmsSetting,
+                            smsLanguage: customer.smsLanguage,
+                            transactionHistoryCheck: customer.transactionHistoryCheck,
+                            paymentHistory: []
+                        });
+                        setCustomerLoading(false);
+                        console.log('Customer data fetched from API:', customer);
+                    }
+                } catch (error) {
+                    console.error('Error fetching customer data:', error);
+                    setCustomerLoading(false);
+                }
+            };
+            fetchCustomerData();
+        } else {
+            setCustomerLoading(false);
+        }
+    }, [location.state, id]);
 
     // Calculate totals from payment history
     const calculateTotals = (history: PaymentHistory[]) => {
@@ -71,18 +128,24 @@ export const CustomerStatements = () => {
     useEffect(() => {
         const fetchPaymentHistory = async () => {
             try {
-                if (!id) return;
+                if (!id) {
+                    console.error('No customer ID provided');
+                    navigate('/parties/customers');
+                    return;
+                }
+                
                 const history = await getPaymentHistory(parseInt(id));
                 setPaymentHistory(history);
                 setIsLoading(false);
             } catch (error) {
+                console.error('Error fetching payment history:', error);
                 toast.error('Failed to fetch payment history');
                 setIsLoading(false);
             }
         };
 
         fetchPaymentHistory();
-    }, [id]);
+    }, [id, navigate]);
 
     // Group transactions by type and date
     const groupedTransactions = paymentHistory.reduce((groups, transaction) => {
@@ -120,11 +183,16 @@ export const CustomerStatements = () => {
     };
 
     const handleProfileClick = () => {
+        if (!customerData.id) {
+            toast.error('Customer data not available');
+            return;
+        }
+        
         navigate(`/parties/customers/profile/${id}`, {
             state: {
                 customer: {
                     id: customerData.id,
-                    name: customerData.name,
+                    name: customerData.name || 'Customer',
                     phone: customerData.phone,
                     email: customerData.email,
                     address: customerData.address,
@@ -149,7 +217,7 @@ export const CustomerStatements = () => {
         navigate(`/parties/customers/statement/${transaction.id}`, {
             state: {
                 transaction: {
-                    customerName: customerData.name,
+                    customerName: customerData.name || 'Customer',
                     date: transaction.date,
                     totalAmount: Math.abs(transaction.amount),
                     phoneNumber: customerData.phone,
@@ -157,7 +225,7 @@ export const CustomerStatements = () => {
                     customerId: customerData.id,
                     details: `${transaction.type === 'payment_in' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.date).toLocaleDateString()}`,
                     remarks: transaction.remarks,
-                    sms: `Dear ${customerData.name}, your payment of रु${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: रु${transaction.currentBalance}. Thank you for your business.`
+                    sms: `Dear ${customerData.name || 'Customer'}, your payment of रु${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: रु${transaction.currentBalance}. Thank you for your business.`
                 }
             }
         });
@@ -547,7 +615,7 @@ export const CustomerStatements = () => {
         <div style={styles.container}>
             <Sidebar />
          
-            <main style={styles.mainContent}>
+            <main style={styles.mainContent} className="customer-statements-main-content">
                 <div style={styles.profileContainer}>
                     <div style={styles.profileHeader}>
                         <button 
@@ -565,7 +633,7 @@ export const CustomerStatements = () => {
                             {customerData.profileImage ? (
                                 <img 
                                     src={customerData.profileImage} 
-                                    alt={customerData.name} 
+                                    alt={customerData.name || 'Customer'} 
                                     style={styles.profileImage} 
                                 />
                             ) : (
@@ -584,7 +652,7 @@ export const CustomerStatements = () => {
                             <button 
                                 style={styles.callButton} 
                                 onClick={handleCall}
-                                aria-label={`Call ${customerData.name}`}
+                                aria-label={`Call ${customerData.name || 'Customer'}`}
                                 title={customerData.phone || 'No phone number available'}
                             >
                                 📞 Call
@@ -596,7 +664,7 @@ export const CustomerStatements = () => {
                         onClick={handleProfileClick}
                         title="View customer profile"
                     >
-                        {customerData.name}
+                        {customerLoading ? 'Loading...' : customerData.name || 'Customer'}
                     </div>
                 </div>
 
@@ -722,14 +790,23 @@ export const CustomerStatements = () => {
                             ))}
                         </div>
                     )}
-                    <div style={styles.actionButtonsContainer}>
-                            <button style={{...styles.actionButton, ...styles.giveButton}} onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}>
+                </div>
+
+                <div style={styles.actionButtonsContainer} className="customer-statements-action-buttons">
+                        <button 
+                            style={{...styles.actionButton, ...styles.giveButton}} 
+                            className="customer-statements-action-button customer-statements-give-button"
+                            onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}
+                        >
                             💸 You Gave
                         </button>
-                        <button style={{...styles.actionButton, ...styles.receiveButton}} onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}>
+                        <button 
+                            style={{...styles.actionButton, ...styles.receiveButton}} 
+                            className="customer-statements-action-button customer-statements-receive-button"
+                            onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}
+                        >
                             💰 You Received
                         </button>
-                    </div>
                 </div>
 
              

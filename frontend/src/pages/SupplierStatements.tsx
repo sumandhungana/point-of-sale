@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
+import './SupplierStatements.css';
 
 export const SupplierStatements = () => {
     const navigate = useNavigate();
@@ -535,7 +536,7 @@ export const SupplierStatements = () => {
         <div style={styles.container}>
             <Sidebar />
          
-            <main style={styles.mainContent}>
+            <main style={styles.mainContent} className="supplier-statements-main-content">
                 <div style={styles.profileContainer}>
                     <div style={styles.profileHeader}>
                         <button 
@@ -762,14 +763,23 @@ export const SupplierStatements = () => {
                             </div>
                         </>
                     )}
-                    <div style={styles.actionButtonsContainer}>
-                        <button style={{...styles.actionButton, ...styles.giveButton}} onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}>
-                            💸 You Gave
-                        </button>
-                        <button style={{...styles.actionButton, ...styles.receiveButton}} onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}>
-                            💰 You Received
-                        </button>
-                    </div>
+                </div>
+
+                <div style={styles.actionButtonsContainer} className="supplier-statements-action-buttons">
+                    <button 
+                        style={{...styles.actionButton, ...styles.giveButton}} 
+                        className="supplier-statements-action-button supplier-statements-give-button"
+                        onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}
+                    >
+                        💸 You Gave
+                    </button>
+                    <button 
+                        style={{...styles.actionButton, ...styles.receiveButton}} 
+                        className="supplier-statements-action-button supplier-statements-receive-button"
+                        onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}
+                    >
+                        💰 You Received
+                    </button>
                 </div>
             </main>
 

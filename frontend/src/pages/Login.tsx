@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 
 type FieldType = {
-  email: string;
+  username: string;
   password: string;
 };
 
@@ -12,7 +12,7 @@ export const Login = () => {
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FieldType>({
-    email: '',
+    username: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -38,10 +38,10 @@ export const Login = () => {
     setError('');
     
     try {
-      await login(formData.email, formData.password);
+      await login(formData.username, formData.password);
       navigate('/dashboard');
     } catch (err) {
-      setError('Invalid email or password');
+      setError('Invalid username or password');
       console.error('Login error:', err);
     } finally {
       setIsLoading(false);
@@ -133,7 +133,7 @@ export const Login = () => {
   };
 
   const logoImageStyle = {
-    width: '250px',
+    width: '200px',
     height: 'auto',
     marginBottom: '6rem',
     marginTop: '6rem',
@@ -234,10 +234,10 @@ export const Login = () => {
           <form onSubmit={handleSubmit}>
             <input
               type="text"
-              name="email"
-              placeholder="Email"
+              name="username"
+              placeholder="Username"
               required
-              value={formData.email}
+              value={formData.username}
               onChange={handleInputChange}
               style={inputStyle}
             />
