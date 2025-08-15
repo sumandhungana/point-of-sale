@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -10,18 +11,22 @@ namespace Backend.Controllers;
 public class StaffAttendanceController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public StaffAttendanceController(ApplicationDbContext context)
+    public StaffAttendanceController(ApplicationDbContext context, IKhataBookContext khataBookContext)
     {
         _context = context;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/StaffAttendance
     [HttpGet]
     public async Task<ActionResult<IEnumerable<StaffAttendance>>> GetStaffAttendances()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.StaffAttendances
             .Include(a => a.Staff)
+            .Where(a => a.KhataBookId == currentKhataBookId)
             .OrderByDescending(a => a.Date)
             .ToListAsync();
     }
@@ -30,9 +35,10 @@ public class StaffAttendanceController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<StaffAttendance>> GetStaffAttendance(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var staffAttendance = await _context.StaffAttendances
             .Include(a => a.Staff)
-            .FirstOrDefaultAsync(a => a.Id == id);
+            .FirstOrDefaultAsync(a => a.Id == id && a.KhataBookId == currentKhataBookId);
 
         if (staffAttendance == null)
         {
@@ -46,9 +52,10 @@ public class StaffAttendanceController : ControllerBase
     [HttpGet("Staff/{staffId}")]
     public async Task<ActionResult<IEnumerable<StaffAttendance>>> GetStaffAttendanceByStaffId(int staffId)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.StaffAttendances
             .Include(a => a.Staff)
-            .Where(a => a.StaffId == staffId)
+            .Where(a => a.StaffId == staffId && a.KhataBookId == currentKhataBookId)
             .OrderByDescending(a => a.Date)
             .ToListAsync();
     }
@@ -57,25 +64,38 @@ public class StaffAttendanceController : ControllerBase
     [HttpGet("Date/{date}")]
     public async Task<ActionResult<IEnumerable<StaffAttendance>>> GetStaffAttendanceByDate(DateTime date)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.StaffAttendances
             .Include(a => a.Staff)
-            .Where(a => a.Date.Date == date.Date)
+            .Where(a => a.Date.Date == date.Date && a.KhataBookId == currentKhataBookId)
             .OrderBy(a => a.Staff.Name)
             .ToListAsync();
     }
 
     // POST: api/StaffAttendance
     [HttpPost]
-    public async Task<ActionResult<StaffAttendance>> CreateStaffAttendance(StaffAttendance staffAttendance)
+    public async Task<ActionResult<StaffAttendance>> CreateStaffAttendance(CreateStaffAttendanceDto staffAttendanceDto)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingAttendance = await _context.StaffAttendances
-            .FirstOrDefaultAsync(a => a.StaffId == staffAttendance.StaffId && a.Date.Date == staffAttendance.Date.Date);
+            .FirstOrDefaultAsync(a => a.StaffId == staffAttendanceDto.StaffId && a.Date.Date == staffAttendanceDto.Date.Date && a.KhataBookId == currentKhataBookId);
 
         if (existingAttendance != null)
         {
             return BadRequest("Attendance for this staff member on this date already exists.");
         }
 
+        var staffAttendance = new StaffAttendance
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            StaffId = staffAttendanceDto.StaffId,
+            Date = staffAttendanceDto.Date,
+            Status = staffAttendanceDto.Status,
+            Note = staffAttendanceDto.Note,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        
         _context.StaffAttendances.Add(staffAttendance);
         await _context.SaveChangesAsync();
 
@@ -91,10 +111,12 @@ public class StaffAttendanceController : ControllerBase
             return BadRequest();
         }
 
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingAttendance = await _context.StaffAttendances
             .FirstOrDefaultAsync(a => 
                 a.StaffId == staffAttendance.StaffId && 
-                a.Date.Date == staffAttendance.Date.Date && 
+                a.Date.Date == staffAttendance.Date.Date &&
+                a.KhataBookId == currentKhataBookId && 
                 a.Id != staffAttendance.Id);
 
         if (existingAttendance != null)
@@ -127,7 +149,9 @@ public class StaffAttendanceController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteStaffAttendance(int id)
     {
-        var staffAttendance = await _context.StaffAttendances.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var staffAttendance = await _context.StaffAttendances
+            .FirstOrDefaultAsync(a => a.Id == id && a.KhataBookId == currentKhataBookId);
         if (staffAttendance == null)
         {
             return NotFound();
@@ -141,6 +165,7 @@ public class StaffAttendanceController : ControllerBase
 
     private bool StaffAttendanceExists(int id)
     {
-        return _context.StaffAttendances.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.StaffAttendances.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -10,24 +11,32 @@ namespace Backend.Controllers;
 public class SmsGatewayController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public SmsGatewayController(ApplicationDbContext context)
+    public SmsGatewayController(ApplicationDbContext context, IKhataBookContext khataBookContext)
     {
         _context = context;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/SmsGateway
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SmsGateway>>> GetSmsGateways()
     {
-        return await _context.SmsGateways.OrderByDescending(s => s.CreatedAt).ToListAsync();
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return await _context.SmsGateways
+            .Where(s => s.KhataBookId == currentKhataBookId)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
     }
 
     // GET: api/SmsGateway/5
     [HttpGet("{id}")]
     public async Task<ActionResult<SmsGateway>> GetSmsGateway(int id)
     {
-        var smsGateway = await _context.SmsGateways.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var smsGateway = await _context.SmsGateways
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
 
         if (smsGateway == null)
         {
@@ -39,8 +48,21 @@ public class SmsGatewayController : ControllerBase
 
     // POST: api/SmsGateway
     [HttpPost]
-    public async Task<ActionResult<SmsGateway>> CreateSmsGateway(SmsGateway smsGateway)
+    public async Task<ActionResult<SmsGateway>> CreateSmsGateway(CreateSmsGatewayDto smsGatewayDto)
     {
+        var smsGateway = new SmsGateway
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            PartnerName = smsGatewayDto.PartnerName,
+            Active = smsGatewayDto.Active,
+            Form = smsGatewayDto.Form,
+            Token = smsGatewayDto.Token,
+            ApiUrl = smsGatewayDto.ApiUrl,
+            TestSms = smsGatewayDto.TestSms,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        
         _context.SmsGateways.Add(smsGateway);
         await _context.SaveChangesAsync();
 
@@ -51,12 +73,22 @@ public class SmsGatewayController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateSmsGateway(int id, SmsGateway smsGateway)
     {
-        if (id != smsGateway.Id)
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var existingSmsGateway = await _context.SmsGateways
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
+        
+        if (existingSmsGateway == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        _context.Entry(smsGateway).State = EntityState.Modified;
+        existingSmsGateway.PartnerName = smsGateway.PartnerName;
+        existingSmsGateway.Active = smsGateway.Active;
+        existingSmsGateway.Form = smsGateway.Form;
+        existingSmsGateway.Token = smsGateway.Token;
+        existingSmsGateway.ApiUrl = smsGateway.ApiUrl;
+        existingSmsGateway.TestSms = smsGateway.TestSms;
+        existingSmsGateway.UpdatedAt = DateTime.UtcNow;
 
         try
         {
@@ -81,7 +113,9 @@ public class SmsGatewayController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSmsGateway(int id)
     {
-        var smsGateway = await _context.SmsGateways.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var smsGateway = await _context.SmsGateways
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (smsGateway == null)
         {
             return NotFound();
@@ -95,6 +129,7 @@ public class SmsGatewayController : ControllerBase
 
     private bool SmsGatewayExists(int id)
     {
-        return _context.SmsGateways.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.SmsGateways.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 

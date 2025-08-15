@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
@@ -14,20 +15,24 @@ public class IncomeController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<IncomeController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public IncomeController(ApplicationDbContext context, ILogger<IncomeController> logger)
+    public IncomeController(ApplicationDbContext context, ILogger<IncomeController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Income
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Income>>> GetIncomes()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Incomes
             .Include(i => i.Category)
             .Include(i => i.Item)
+            .Where(i => i.KhataBookId == currentKhataBookId)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
     }
@@ -36,10 +41,11 @@ public class IncomeController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Income>> GetIncome(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var income = await _context.Incomes
             .Include(i => i.Category)
             .Include(i => i.Item)
-            .FirstOrDefaultAsync(i => i.Id == id);
+            .FirstOrDefaultAsync(i => i.Id == id && i.KhataBookId == currentKhataBookId);
 
         if (income == null)
         {
@@ -55,7 +61,9 @@ public class IncomeController : ControllerBase
     {
         try
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             var lastIncome = await _context.Incomes
+                .Where(i => i.KhataBookId == currentKhataBookId)
                 .OrderByDescending(i => i.CreatedAt)
                 .FirstOrDefaultAsync();
 
@@ -101,6 +109,7 @@ public class IncomeController : ControllerBase
 
             var income = new Income
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 IncomeNo = incomeDto.IncomeNo,
                 Date = incomeDto.Date.ToUniversalTime(),
                 CategoryId = incomeDto.CategoryId,
@@ -130,10 +139,11 @@ public class IncomeController : ControllerBase
     {
         try
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             var income = await _context.Incomes
                 .Include(i => i.Category)
                 .Include(i => i.Item)
-                .FirstOrDefaultAsync(i => i.Id == id);
+                .FirstOrDefaultAsync(i => i.Id == id && i.KhataBookId == currentKhataBookId);
                 
             if (income == null)
             {
@@ -175,7 +185,9 @@ public class IncomeController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteIncome(int id)
     {
-        var income = await _context.Incomes.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var income = await _context.Incomes
+            .FirstOrDefaultAsync(i => i.Id == id && i.KhataBookId == currentKhataBookId);
         if (income == null)
         {
             return NotFound();
@@ -195,7 +207,8 @@ public class IncomeController : ControllerBase
 
     private bool IncomeExists(int id)
     {
-        return _context.Incomes.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Incomes.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 }
 

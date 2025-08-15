@@ -51,6 +51,156 @@ public class ApplicationDbContext : DbContext
             .HasColumnName("Kyc");
 
         PermissionSeeder.Seed(modelBuilder);
+        
+        // Configure KhataBook relationships for data isolation
+        modelBuilder.Entity<AppSettings>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<InvoiceSettings>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<PaymentGateway>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<SmsGateway>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Batch 2: Master Data Tables
+        modelBuilder.Entity<Category>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Item>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Customer>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Supplier>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Staff>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Service>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Batch 3: Transaction Tables
+        modelBuilder.Entity<SalesBill>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<SalesBillItem>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Bill>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Purchase>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Expenses>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Income>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Cashbook>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Batch 4: Payment & Financial Tables
+        modelBuilder.Entity<PaymentsReceived>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<PaymentsGiven>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Payment>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<Transaction>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Batch 5: Staff Management Tables
+        modelBuilder.Entity<StaffAttendance>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        modelBuilder.Entity<StaffSalary>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
+            
+        // Batch 6: Rental Management
+        modelBuilder.Entity<RentalItem>()
+            .HasOne(e => e.KhataBook)
+            .WithMany()
+            .HasForeignKey(e => e.KhataBookId)
+            .OnDelete(DeleteBehavior.Restrict);
             
         // Configure User model
         modelBuilder.Entity<User>()

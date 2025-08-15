@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -11,18 +12,24 @@ public class RentalItemController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<RentalItemController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public RentalItemController(ApplicationDbContext context, ILogger<RentalItemController> logger)
+    public RentalItemController(ApplicationDbContext context, ILogger<RentalItemController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/RentalItem
     [HttpGet]
     public async Task<ActionResult<RentalItemResponseDto>> GetRentalItems()
     {
-        var rentalItems = await _context.RentalItems.OrderByDescending(r => r.CreatedAt).ToListAsync();
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var rentalItems = await _context.RentalItems
+            .Where(r => r.KhataBookId == currentKhataBookId)
+            .OrderByDescending(r => r.CreatedAt)
+            .ToListAsync();
         var response = new RentalItemResponseDto
         {
             RentalItem = rentalItems,
@@ -36,7 +43,9 @@ public class RentalItemController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<RentalItem>> GetRentalItem(int id)
     {
-        var rentalItem = await _context.RentalItems.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var rentalItem = await _context.RentalItems
+            .FirstOrDefaultAsync(r => r.Id == id && r.KhataBookId == currentKhataBookId);
 
         if (rentalItem == null)
         {
@@ -48,10 +57,22 @@ public class RentalItemController : ControllerBase
 
     // POST: api/RentalItem
     [HttpPost]
-    public async Task<ActionResult<RentalItem>> CreateRentalItem(RentalItem rentalItem)
+    public async Task<ActionResult<RentalItem>> CreateRentalItem(CreateRentalItemDto rentalItemDto)
     {
-        rentalItem.CreatedAt = DateTime.UtcNow;
-        rentalItem.UpdatedAt = DateTime.UtcNow;
+        var rentalItem = new RentalItem
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            RentalItemName = rentalItemDto.RentalItemName,
+            PhoneNumber = rentalItemDto.PhoneNumber,
+            Address = rentalItemDto.Address,
+            RentalAmount = rentalItemDto.RentalAmount,
+            RentalPeriod = rentalItemDto.RentalPeriod,
+            StartDate = rentalItemDto.StartDate,
+            EndDate = rentalItemDto.EndDate,
+            Remarks = rentalItemDto.Remarks,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
         
         _context.RentalItems.Add(rentalItem);
         
@@ -72,13 +93,24 @@ public class RentalItemController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateRentalItem(int id, RentalItem rentalItem)
     {
-        if (id != rentalItem.Id)
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var existingRentalItem = await _context.RentalItems
+            .FirstOrDefaultAsync(r => r.Id == id && r.KhataBookId == currentKhataBookId);
+        
+        if (existingRentalItem == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        rentalItem.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(rentalItem).State = EntityState.Modified;
+        existingRentalItem.RentalItemName = rentalItem.RentalItemName;
+        existingRentalItem.PhoneNumber = rentalItem.PhoneNumber;
+        existingRentalItem.Address = rentalItem.Address;
+        existingRentalItem.RentalAmount = rentalItem.RentalAmount;
+        existingRentalItem.RentalPeriod = rentalItem.RentalPeriod;
+        existingRentalItem.StartDate = rentalItem.StartDate;
+        existingRentalItem.EndDate = rentalItem.EndDate;
+        existingRentalItem.Remarks = rentalItem.Remarks;
+        existingRentalItem.UpdatedAt = DateTime.UtcNow;
 
         try
         {
@@ -103,7 +135,9 @@ public class RentalItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteRentalItem(int id)
     {
-        var rentalItem = await _context.RentalItems.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var rentalItem = await _context.RentalItems
+            .FirstOrDefaultAsync(r => r.Id == id && r.KhataBookId == currentKhataBookId);
         if (rentalItem == null)
         {
             return NotFound();
@@ -117,7 +151,8 @@ public class RentalItemController : ControllerBase
 
     private bool RentalItemExists(int id)
     {
-        return _context.RentalItems.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.RentalItems.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 
 

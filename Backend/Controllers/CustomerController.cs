@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using System.Linq;
 using System.Data;
 
@@ -13,21 +14,25 @@ public class CustomerController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<CustomerController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
     public CustomerController(
         ApplicationDbContext context, 
-        ILogger<CustomerController> logger)
+        ILogger<CustomerController> logger,
+        IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Customer
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Customer>>> GetCustomers()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Customers
-            .Where(c => !c.isSupplier)
+            .Where(c => c.KhataBookId == currentKhataBookId && !c.isSupplier)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
@@ -36,8 +41,9 @@ public class CustomerController : ControllerBase
     [HttpGet("suppliers")]
     public async Task<ActionResult<IEnumerable<Customer>>> GetSuppliers()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Customers
-            .Where(c => c.isSupplier)
+            .Where(c => c.KhataBookId == currentKhataBookId && c.isSupplier)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
@@ -46,8 +52,9 @@ public class CustomerController : ControllerBase
     [HttpGet("customers")]
     public async Task<ActionResult<IEnumerable<Customer>>> GetOnlyCustomers()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Customers
-            .Where(c => !c.isSupplier)
+            .Where(c => c.KhataBookId == currentKhataBookId && !c.isSupplier)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
@@ -56,7 +63,9 @@ public class CustomerController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Customer>> GetCustomer(int id)
     {
-        var customer = await _context.Customers.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var customer = await _context.Customers
+            .FirstOrDefaultAsync(c => c.Id == id && c.KhataBookId == currentKhataBookId);
 
         if (customer == null)
         {
@@ -68,10 +77,28 @@ public class CustomerController : ControllerBase
 
     // POST: api/Customer
     [HttpPost]
-    public async Task<ActionResult<Customer>> CreateCustomer(Customer customer)
+    public async Task<ActionResult<Customer>> CreateCustomer(CreateCustomerDto customerDto)
     {
-        customer.CreatedAt = DateTime.UtcNow;
-        customer.UpdatedAt = DateTime.UtcNow;
+        var customer = new Customer
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            Name = customerDto.Name,
+            Phone = customerDto.Phone,
+            Email = customerDto.Email,
+            Address = customerDto.Address,
+            Company = customerDto.Company,
+            Pan = customerDto.Pan,
+            ContactPerson = customerDto.ContactPerson,
+            isSupplier = customerDto.isSupplier,
+            BankAccount = customerDto.BankAccount,
+            CashBalance = customerDto.CashBalance,
+            ProfileImage = customerDto.ProfileImage,
+            CustomerSmsSetting = customerDto.CustomerSmsSetting,
+            SmsLanguage = customerDto.SmsLanguage,
+            TransactionHistoryCheck = customerDto.TransactionHistoryCheck,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
         
         _context.Customers.Add(customer);
         
@@ -92,7 +119,9 @@ public class CustomerController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateCustomer(int id, Customer updatedCustomer)
     {
-        var customer = await _context.Customers.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var customer = await _context.Customers
+            .FirstOrDefaultAsync(c => c.Id == id && c.KhataBookId == currentKhataBookId);
         if (customer == null)
         {
             return NotFound();
@@ -152,7 +181,9 @@ public class CustomerController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCustomer(int id)
     {
-        var customer = await _context.Customers.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var customer = await _context.Customers
+            .FirstOrDefaultAsync(c => c.Id == id && c.KhataBookId == currentKhataBookId);
         if (customer == null)
         {
             return NotFound();
@@ -166,6 +197,7 @@ public class CustomerController : ControllerBase
 
     private bool CustomerExists(int id)
     {
-        return _context.Customers.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Customers.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 

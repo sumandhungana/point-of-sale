@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -10,18 +11,22 @@ namespace Backend.Controllers;
 public class StaffSalaryController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public StaffSalaryController(ApplicationDbContext context)
+    public StaffSalaryController(ApplicationDbContext context, IKhataBookContext khataBookContext)
     {
         _context = context;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/StaffSalary
     [HttpGet]
     public async Task<ActionResult<IEnumerable<StaffSalary>>> GetStaffSalaries()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.StaffSalaries
             .Include(s => s.Staff)
+            .Where(s => s.KhataBookId == currentKhataBookId)
             .OrderByDescending(s => s.Year)
             .ThenByDescending(s => s.Month)
             .ToListAsync();
@@ -31,9 +36,10 @@ public class StaffSalaryController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<StaffSalary>> GetStaffSalary(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var staffSalary = await _context.StaffSalaries
             .Include(s => s.Staff)
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
 
         if (staffSalary == null)
         {
@@ -47,9 +53,10 @@ public class StaffSalaryController : ControllerBase
     [HttpGet("Staff/{staffId}")]
     public async Task<ActionResult<IEnumerable<StaffSalary>>> GetStaffSalariesByStaffId(int staffId)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.StaffSalaries
             .Include(s => s.Staff)
-            .Where(s => s.StaffId == staffId)
+            .Where(s => s.StaffId == staffId && s.KhataBookId == currentKhataBookId)
             .OrderByDescending(s => s.Year)
             .ThenByDescending(s => s.Month)
             .ToListAsync();
@@ -57,12 +64,24 @@ public class StaffSalaryController : ControllerBase
 
     // POST: api/StaffSalary
     [HttpPost]
-    public async Task<ActionResult<StaffSalary>> CreateStaffSalary(StaffSalary staffSalary)
+    public async Task<ActionResult<StaffSalary>> CreateStaffSalary(CreateStaffSalaryDto staffSalaryDto)
     {
-        staffSalary.SelectedDate = DateTime.SpecifyKind(staffSalary.SelectedDate, DateTimeKind.Utc);
-        staffSalary.CalculationDate = DateTime.SpecifyKind(staffSalary.CalculationDate, DateTimeKind.Utc);
-        staffSalary.CreatedAt = DateTime.UtcNow;
-        staffSalary.UpdatedAt = DateTime.UtcNow;
+        var staffSalary = new StaffSalary
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            StaffId = staffSalaryDto.StaffId,
+            Month = staffSalaryDto.Month,
+            Year = staffSalaryDto.Year,
+            SelectedDate = DateTime.SpecifyKind(staffSalaryDto.SelectedDate, DateTimeKind.Utc),
+            IsSlideOn = staffSalaryDto.IsSlideOn,
+            CalculationDate = DateTime.SpecifyKind(staffSalaryDto.CalculationDate, DateTimeKind.Utc),
+            SalaryType = staffSalaryDto.SalaryType,
+            Amount = staffSalaryDto.Amount,
+            Permission = staffSalaryDto.Permission,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        
         _context.StaffSalaries.Add(staffSalary);
         await _context.SaveChangesAsync();
 
@@ -73,12 +92,25 @@ public class StaffSalaryController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateStaffSalary(int id, StaffSalary staffSalary)
     {
-        if (id != staffSalary.Id)
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var existingSalary = await _context.StaffSalaries
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
+        
+        if (existingSalary == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        _context.Entry(staffSalary).State = EntityState.Modified;
+        existingSalary.StaffId = staffSalary.StaffId;
+        existingSalary.Year = staffSalary.Year;
+        existingSalary.Month = staffSalary.Month;
+        existingSalary.SelectedDate = staffSalary.SelectedDate;
+        existingSalary.IsSlideOn = staffSalary.IsSlideOn;
+        existingSalary.CalculationDate = staffSalary.CalculationDate;
+        existingSalary.SalaryType = staffSalary.SalaryType;
+        existingSalary.Amount = staffSalary.Amount;
+        existingSalary.Permission = staffSalary.Permission;
+        existingSalary.UpdatedAt = DateTime.UtcNow;
 
         try
         {
@@ -103,7 +135,9 @@ public class StaffSalaryController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteStaffSalary(int id)
     {
-        var staffSalary = await _context.StaffSalaries.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var staffSalary = await _context.StaffSalaries
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (staffSalary == null)
         {
             return NotFound();
@@ -117,6 +151,7 @@ public class StaffSalaryController : ControllerBase
 
     private bool StaffSalaryExists(int id)
     {
-        return _context.StaffSalaries.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.StaffSalaries.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 

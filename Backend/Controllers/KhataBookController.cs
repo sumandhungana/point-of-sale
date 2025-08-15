@@ -207,6 +207,73 @@ namespace Backend.Controllers
             return NoContent();
         }
 
+        // POST: api/KhataBook/switch/{id}
+        [HttpPost("switch/{id}")]
+        public async Task<IActionResult> SwitchKhataBook(int id)
+        {
+            _logger.LogInformation("Switching to KhataBook with ID {Id}", id);
+
+            // Check if the KhataBook exists
+            var targetKhataBook = await _context.KhataBooks.FindAsync(id);
+            if (targetKhataBook == null)
+            {
+                _logger.LogWarning("KhataBook with ID {Id} not found", id);
+                return NotFound($"KhataBook with ID {id} not found");
+            }
+
+            // Start a transaction to ensure atomicity
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                // Set all KhataBooks IsUsed to false
+                await _context.KhataBooks
+                    .Where(kb => kb.IsUsed)
+                    .ExecuteUpdateAsync(kb => kb.SetProperty(k => k.IsUsed, false)
+                                               .SetProperty(k => k.UpdatedAt, DateTime.UtcNow));
+
+                // Set the target KhataBook IsUsed to true
+                await _context.KhataBooks
+                    .Where(kb => kb.Id == id)
+                    .ExecuteUpdateAsync(kb => kb.SetProperty(k => k.IsUsed, true)
+                                               .SetProperty(k => k.UpdatedAt, DateTime.UtcNow));
+
+                await transaction.CommitAsync();
+                
+                _logger.LogInformation("Successfully switched to KhataBook {Id} - {CompanyName}", id, targetKhataBook.CompanyName);
+                
+                return Ok(new { 
+                    message = "KhataBook switched successfully", 
+                    khataBookId = id,
+                    companyName = targetKhataBook.CompanyName
+                });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Error switching to KhataBook {Id}", id);
+                return StatusCode(500, "An error occurred while switching KhataBook");
+            }
+        }
+
+        // GET: api/KhataBook/selected
+        [HttpGet("selected")]
+        public async Task<ActionResult<KhataBook>> GetSelectedKhataBook()
+        {
+            _logger.LogInformation("Fetching selected KhataBook");
+
+            var selectedKhataBook = await _context.KhataBooks
+                .FirstOrDefaultAsync(kb => kb.IsUsed);
+
+            if (selectedKhataBook == null)
+            {
+                _logger.LogWarning("No KhataBook is currently selected");
+                return NotFound("No KhataBook is currently selected");
+            }
+
+            _logger.LogInformation("Found selected KhataBook {Id} - {CompanyName}", selectedKhataBook.Id, selectedKhataBook.CompanyName);
+            return selectedKhataBook;
+        }
+
         private bool KhataBookExists(int id)
         {
             return _context.KhataBooks.Any(e => e.Id == id);

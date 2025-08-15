@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 
@@ -13,20 +14,24 @@ public class SalesBillItemController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<SalesBillItemController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public SalesBillItemController(ApplicationDbContext context, ILogger<SalesBillItemController> logger)
+    public SalesBillItemController(ApplicationDbContext context, ILogger<SalesBillItemController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/SalesBillItem
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SalesBillItem>>> GetSalesBillItems()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.SalesBillItems
             .Include(s => s.SalesBill)
             .Include(s => s.Item)
+            .Where(s => s.KhataBookId == currentKhataBookId)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
     }
@@ -35,10 +40,11 @@ public class SalesBillItemController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<SalesBillItem>> GetSalesBillItem(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var salesBillItem = await _context.SalesBillItems
             .Include(s => s.SalesBill)
             .Include(s => s.Item)
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
 
         if (salesBillItem == null)
         {
@@ -52,10 +58,11 @@ public class SalesBillItemController : ControllerBase
     [HttpGet("Bill/{billId}")]
     public async Task<ActionResult<IEnumerable<SalesBillItem>>> GetSalesBillItemsByBillId(int billId)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.SalesBillItems
             .Include(s => s.Item)
             .Include(s => s.SalesBill)
-            .Where(s => s.SalesBillId == billId)
+            .Where(s => s.SalesBillId == billId && s.KhataBookId == currentKhataBookId)
             .ToListAsync();
     }
 
@@ -67,6 +74,7 @@ public class SalesBillItemController : ControllerBase
         {
             var salesBillItem = new SalesBillItem
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 SalesBillId = salesBillItemDto.SalesBillId,
                 ItemId = salesBillItemDto.ItemId,
                 Quantity = salesBillItemDto.Quantity,
@@ -105,7 +113,9 @@ public class SalesBillItemController : ControllerBase
     {
         try
         {
-            var salesBillItem = await _context.SalesBillItems.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var salesBillItem = await _context.SalesBillItems
+                .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
             if (salesBillItem == null)
             {
                 return NotFound();
@@ -143,7 +153,9 @@ public class SalesBillItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSalesBillItem(int id)
     {
-        var salesBillItem = await _context.SalesBillItems.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var salesBillItem = await _context.SalesBillItems
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (salesBillItem == null)
         {
             return NotFound();
@@ -169,7 +181,8 @@ public class SalesBillItemController : ControllerBase
 
     private bool SalesBillItemExists(int id)
     {
-        return _context.SalesBillItems.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.SalesBillItems.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 }
 

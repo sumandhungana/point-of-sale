@@ -49,6 +49,9 @@ namespace Backend.Models
 
         public string? ImagePath { get; set; }
 
+        // Usage Status
+        public bool IsUsed { get; set; } = false;
+
         // Timestamps
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

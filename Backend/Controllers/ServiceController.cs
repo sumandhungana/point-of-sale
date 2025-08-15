@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 
@@ -13,18 +14,24 @@ public class ServiceController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<ServiceController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public ServiceController(ApplicationDbContext context, ILogger<ServiceController> logger)
+    public ServiceController(ApplicationDbContext context, ILogger<ServiceController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Service
     [HttpGet]
     public async Task<ActionResult<List<Service>>> GetServices()
     {
-        var services = await _context.Services.OrderByDescending(s => s.CreatedAt).ToListAsync();
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var services = await _context.Services
+            .Where(s => s.KhataBookId == currentKhataBookId)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
         
         return services;
     }
@@ -33,7 +40,9 @@ public class ServiceController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Service>> GetService(int id)
     {
-        var service = await _context.Services.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var service = await _context.Services
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
 
         if (service == null)
         {
@@ -57,6 +66,7 @@ public class ServiceController : ControllerBase
 
             var service = new Service
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 ServiceName = serviceDto.ServiceName,
                 Price = serviceDto.Price,
                 TaxIncluded = serviceDto.TaxIncluded,
@@ -90,7 +100,9 @@ public class ServiceController : ControllerBase
     {
         try
         {
-            var service = await _context.Services.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var service = await _context.Services
+                .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
             if (service == null)
             {
                 return NotFound();
@@ -135,7 +147,9 @@ public class ServiceController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteService(int id)
     {
-        var service = await _context.Services.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var service = await _context.Services
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (service == null)
         {
             return NotFound();
@@ -149,7 +163,8 @@ public class ServiceController : ControllerBase
 
     private bool ServiceExists(int id)
     {
-        return _context.Services.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Services.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 
 

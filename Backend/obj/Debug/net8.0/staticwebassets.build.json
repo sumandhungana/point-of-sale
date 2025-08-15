@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "xEN8rnm4WAhNG/lLvxHYqTZwN1ln9/Hlq/ILiV8v5q8=",
+  "Hash": "hMYBgIzPeMK73z5yHpDgRnXtTh51Ia3kew4NS5Ekp4s=",
   "Source": "Backend",
   "BasePath": "_content/Backend",
   "Mode": "Default",
@@ -604,6 +604,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot/uploads/e66b8f16-10cb-40d9-9dd9-63b1267e07ae.png"
+    },
+    {
+      "Identity": "/home/xebec/Downloads/point_of_sale/Backend/wwwroot/uploads/e9f7b779-6903-422b-a6a0-573e8489b8e5.jpeg",
+      "SourceId": "Backend",
+      "SourceType": "Discovered",
+      "ContentRoot": "/home/xebec/Downloads/point_of_sale/Backend/wwwroot/",
+      "BasePath": "_content/Backend",
+      "RelativePath": "uploads/e9f7b779-6903-422b-a6a0-573e8489b8e5.jpeg",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot/uploads/e9f7b779-6903-422b-a6a0-573e8489b8e5.jpeg"
     },
     {
       "Identity": "/home/xebec/Downloads/point_of_sale/Backend/wwwroot/uploads/edcb9add-e19b-4b15-9712-8c8e0a8ef384.png",

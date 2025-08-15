@@ -10,6 +10,10 @@ public class Expenses
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int Id { get; set; }
     
+    // KhataBook Foreign Key for data isolation
+    public int KhataBookId { get; set; }
+    public virtual KhataBook KhataBook { get; set; } = null!;
+    
     [Required]
     [StringLength(50)]
     public string ExpensesNo { get; set; } = null!;

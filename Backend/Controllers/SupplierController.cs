@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -11,25 +12,33 @@ public class SupplierController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<SupplierController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public SupplierController(ApplicationDbContext context, ILogger<SupplierController> logger)
+    public SupplierController(ApplicationDbContext context, ILogger<SupplierController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Supplier
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Supplier>>> GetSuppliers()
     {
-        return await _context.Suppliers.OrderByDescending(s => s.CreatedAt).ToListAsync();
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return await _context.Suppliers
+            .Where(s => s.KhataBookId == currentKhataBookId)
+            .OrderByDescending(s => s.CreatedAt)
+            .ToListAsync();
     }
 
     // GET: api/Supplier/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Supplier>> GetSupplier(int id)
     {
-        var supplier = await _context.Suppliers.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var supplier = await _context.Suppliers
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
 
         if (supplier == null)
         {
@@ -41,11 +50,21 @@ public class SupplierController : ControllerBase
 
     // POST: api/Supplier
     [HttpPost]
-    public async Task<ActionResult<Supplier>> CreateSupplier(Supplier supplier)
+    public async Task<ActionResult<Supplier>> CreateSupplier(CreateSupplierDto supplierDto)
     {
-        supplier.CreatedAt = DateTime.UtcNow;
-        supplier.UpdatedAt = DateTime.UtcNow;
-
+        var supplier = new Supplier
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            Name = supplierDto.Name,
+            Phone = supplierDto.Phone,
+            Email = supplierDto.Email,
+            Address = supplierDto.Address,
+            Company = supplierDto.Company,
+            Pan = supplierDto.Pan,
+            ContactPerson = supplierDto.ContactPerson,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
 
         _context.Suppliers.Add(supplier);
         
@@ -66,13 +85,22 @@ public class SupplierController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateSupplier(int id, Supplier supplier)
     {
-        if (id != supplier.Id)
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var existingSupplier = await _context.Suppliers
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
+        
+        if (existingSupplier == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        supplier.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(supplier).State = EntityState.Modified;
+        existingSupplier.Name = supplier.Name;
+        existingSupplier.Phone = supplier.Phone;
+        existingSupplier.Email = supplier.Email;
+        existingSupplier.Address = supplier.Address;
+        existingSupplier.Company = supplier.Company;
+        existingSupplier.ContactPerson = supplier.ContactPerson;
+        existingSupplier.UpdatedAt = DateTime.UtcNow;
 
         try
         {
@@ -97,7 +125,9 @@ public class SupplierController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSupplier(int id)
     {
-        var supplier = await _context.Suppliers.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var supplier = await _context.Suppliers
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (supplier == null)
         {
             return NotFound();
@@ -111,6 +141,7 @@ public class SupplierController : ControllerBase
 
     private bool SupplierExists(int id)
     {
-        return _context.Suppliers.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Suppliers.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 

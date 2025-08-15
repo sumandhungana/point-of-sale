@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -11,19 +12,23 @@ public class BillController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<BillController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public BillController(ApplicationDbContext context, ILogger<BillController> logger)
+    public BillController(ApplicationDbContext context, ILogger<BillController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Bill
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Bill>>> GetBills()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Bills
             .Include(b => b.Customer)
+            .Where(b => b.KhataBookId == currentKhataBookId)
             .OrderByDescending(b => b.CreatedAt)
             .ToListAsync();
     }
@@ -32,10 +37,10 @@ public class BillController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Bill>> GetBill(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var bill = await _context.Bills
             .Include(b => b.Customer)
-            .OrderByDescending(b => b.CreatedAt)
-            .FirstOrDefaultAsync(b => b.BillId == id);
+            .FirstOrDefaultAsync(b => b.BillId == id && b.KhataBookId == currentKhataBookId);
 
         if (bill == null)
         {
@@ -47,10 +52,20 @@ public class BillController : ControllerBase
 
     // POST: api/Bill
     [HttpPost]
-    public async Task<ActionResult<Bill>> CreateBill(Bill bill)
+    public async Task<ActionResult<Bill>> CreateBill(CreateBillDto billDto)
     {
-        bill.CreatedAt = DateTime.UtcNow;
-        bill.UpdatedAt = DateTime.UtcNow;
+        var bill = new Bill
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            CustomerId = billDto.CustomerId,
+            BillDate = billDto.BillDate,
+            DueDate = billDto.DueDate,
+            TotalAmount = billDto.TotalAmount,
+            PaidAmount = billDto.PaidAmount,
+            Status = billDto.Status,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
         
         _context.Bills.Add(bill);
         
@@ -71,13 +86,22 @@ public class BillController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateBill(int id, Bill bill)
     {
-        if (id != bill.BillId)
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var existingBill = await _context.Bills
+            .FirstOrDefaultAsync(b => b.BillId == id && b.KhataBookId == currentKhataBookId);
+        
+        if (existingBill == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        bill.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(bill).State = EntityState.Modified;
+        existingBill.CustomerId = bill.CustomerId;
+        existingBill.BillDate = bill.BillDate;
+        existingBill.DueDate = bill.DueDate;
+        existingBill.TotalAmount = bill.TotalAmount;
+        existingBill.PaidAmount = bill.PaidAmount;
+        existingBill.Status = bill.Status;
+        existingBill.UpdatedAt = DateTime.UtcNow;
 
         try
         {
@@ -102,7 +126,9 @@ public class BillController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteBill(int id)
     {
-        var bill = await _context.Bills.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var bill = await _context.Bills
+            .FirstOrDefaultAsync(b => b.BillId == id && b.KhataBookId == currentKhataBookId);
         if (bill == null)
         {
             return NotFound();
@@ -116,6 +142,7 @@ public class BillController : ControllerBase
 
     private bool BillExists(int id)
     {
-        return _context.Bills.Any(e => e.BillId == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Bills.Any(e => e.BillId == id && e.KhataBookId == currentKhataBookId);
     }
 } 

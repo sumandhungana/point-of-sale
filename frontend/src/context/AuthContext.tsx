@@ -105,11 +105,11 @@ export const useAuth = () => {
 
 export const ApiClient = {
   login: async (username: string, password: string) => {
-    const response = await axios.post('http://localhost:5120/api/User/login', { username, password });
+    const response = await axios.post('/api/User/login', { username, password });
     return response.data;
   },
   logout: async (token: string) => {
-    await axios.post('http://localhost:5120/api/User/logout', {}, {
+    await axios.post('/api/User/logout', {}, {
       headers: { Authorization: `Bearer ${token}` }
     });
   },

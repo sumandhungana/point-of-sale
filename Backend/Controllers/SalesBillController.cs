@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
@@ -15,19 +16,23 @@ public class SalesBillController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<SalesBillController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public SalesBillController(ApplicationDbContext context, ILogger<SalesBillController> logger)
+    public SalesBillController(ApplicationDbContext context, ILogger<SalesBillController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/SalesBill
     [HttpGet]
     public async Task<ActionResult<IEnumerable<SalesBill>>> GetSalesBills()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.SalesBills
             .Include(s => s.Customer)
+            .Where(s => s.KhataBookId == currentKhataBookId)
             .OrderByDescending(s => s.CreatedAt)
             .ToListAsync();
     }
@@ -36,9 +41,10 @@ public class SalesBillController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<SalesBill>> GetSalesBill(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var salesBill = await _context.SalesBills
             .Include(s => s.Customer)
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
 
         if (salesBill == null)
         {
@@ -87,6 +93,7 @@ public class SalesBillController : ControllerBase
 
             var salesBill = new SalesBill
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 BillNumber = request.BillNumber,
                 BillDate = request.BillDate.ToUniversalTime(),
                 CustomerId = request.CustomerId,
@@ -126,7 +133,9 @@ public class SalesBillController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var salesBill = await _context.SalesBills.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var salesBill = await _context.SalesBills
+                .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
             if (salesBill == null)
             {
                 return NotFound();
@@ -181,7 +190,9 @@ public class SalesBillController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteSalesBill(int id)
     {
-        var salesBill = await _context.SalesBills.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var salesBill = await _context.SalesBills
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (salesBill == null)
         {
             return NotFound();
@@ -234,7 +245,8 @@ public class SalesBillController : ControllerBase
 
     private bool SalesBillExists(int id)
     {
-        return _context.SalesBills.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.SalesBills.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 }
 

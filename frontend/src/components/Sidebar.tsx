@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { getKhataBooks, KhataBook } from '../services/khataBookService';
+import { getKhataBooks, switchKhataBook, getSelectedKhataBook, KhataBook } from '../services/khataBookService';
 import logo from '../assets/logo.png';
 
 interface NavItem {
@@ -186,6 +186,7 @@ export const Sidebar = () => {
   const popupRef = useRef<HTMLDivElement>(null);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
   const [khataBooks, setKhataBooks] = useState<KhataBook[]>([]);
+  const [currentKhataBook, setCurrentKhataBook] = useState<KhataBook | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -254,6 +255,20 @@ export const Sidebar = () => {
 
     fetchKhataBooks();
   }, [isPopupOpen]);
+
+  // Fetch current selected KhataBook on component mount
+  useEffect(() => {
+    const fetchCurrentKhataBook = async () => {
+      try {
+        const selectedKhataBook = await getSelectedKhataBook();
+        setCurrentKhataBook(selectedKhataBook);
+      } catch (err) {
+        console.error('Failed to fetch current KhataBook:', err);
+      }
+    };
+
+    fetchCurrentKhataBook();
+  }, []);
 
   const styles = {
     sidebar: {
@@ -571,8 +586,16 @@ export const Sidebar = () => {
   };
 
   const handleKhataBookClick = async (khataBook: KhataBook) => {
-    localStorage.setItem('companyName', khataBook.companyName);
-    alert('Selected KhataBook: ' + khataBook.companyName);
+    try {
+      await switchKhataBook(khataBook.id);
+      setCurrentKhataBook(khataBook);
+      localStorage.setItem('companyName', khataBook.companyName);
+      // Refresh the page to load new KhataBook data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error switching KhataBook:', error);
+      alert('Failed to switch KhataBook. Please try again.');
+    }
     setIsPopupOpen(false);
   };
 
@@ -596,7 +619,7 @@ export const Sidebar = () => {
           </div>
           <div style={styles.userInfo}>
             <h3 style={styles.userName}>{user?.username || 'User'}</h3>
-            <p style={styles.userRole}>{user?.role || 'Role'}</p>
+            <p style={styles.userRole}>{currentKhataBook?.companyName || 'Select KhataBook'}</p>
           </div>
         </div>
       </div>

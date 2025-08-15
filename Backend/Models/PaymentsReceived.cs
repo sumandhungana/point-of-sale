@@ -6,8 +6,12 @@ namespace Backend.Models
 {
     public class PaymentsReceived
     {
-        [Key]
-        public int Id { get; set; }
+            [Key]
+    public int Id { get; set; }
+    
+    // KhataBook Foreign Key for data isolation
+    public int KhataBookId { get; set; }
+    public virtual KhataBook KhataBook { get; set; } = null!;
 
         [Required]
         public int PartyId { get; set; }
@@ -32,5 +36,24 @@ namespace Backend.Models
         // Navigation property
         [ForeignKey("PartyId")]
         public virtual Customer? Party { get; set; }
+    }
+
+    // DTO for creating payments received - excludes navigation properties
+    public class CreatePaymentsReceivedDto
+    {
+        [Required]
+        public int PartyId { get; set; }
+
+        [Required]
+        public decimal Amount { get; set; }
+
+        [Required]
+        public string Remarks { get; set; }
+
+        [Required]
+        public DateTime Date { get; set; }
+
+        [Required]
+        public string BillPath { get; set; }
     }
 } 

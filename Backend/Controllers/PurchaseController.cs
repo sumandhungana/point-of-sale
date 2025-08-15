@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
@@ -14,20 +15,24 @@ public class PurchaseController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<PurchaseController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public PurchaseController(ApplicationDbContext context, ILogger<PurchaseController> logger)
+    public PurchaseController(ApplicationDbContext context, ILogger<PurchaseController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Purchase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Purchase>>> GetPurchases()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Purchases
             .Include(p => p.Category)
             .Include(p => p.Item)
+            .Where(p => p.KhataBookId == currentKhataBookId)
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
     }
@@ -36,10 +41,11 @@ public class PurchaseController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Purchase>> GetPurchase(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var purchase = await _context.Purchases
             .Include(p => p.Category)
             .Include(p => p.Item)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.Id == id && p.KhataBookId == currentKhataBookId);
 
         if (purchase == null)
         {
@@ -55,7 +61,9 @@ public class PurchaseController : ControllerBase
     {
         try
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             var lastPurchase = await _context.Purchases
+                .Where(p => p.KhataBookId == currentKhataBookId)
                 .OrderByDescending(p => p.CreatedAt)
                 .FirstOrDefaultAsync();
 
@@ -101,6 +109,7 @@ public class PurchaseController : ControllerBase
 
             var purchase = new Purchase
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 PurchaseNo = purchaseDto.PurchaseNo,
                 Date = purchaseDto.Date.ToUniversalTime(),
                 CategoryId = purchaseDto.CategoryId,
@@ -130,7 +139,9 @@ public class PurchaseController : ControllerBase
     {
         try
         {
-            var purchase = await _context.Purchases.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var purchase = await _context.Purchases
+                .FirstOrDefaultAsync(p => p.Id == id && p.KhataBookId == currentKhataBookId);
             if (purchase == null)
             {
                 return NotFound();
@@ -171,7 +182,9 @@ public class PurchaseController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeletePurchase(int id)
     {
-        var purchase = await _context.Purchases.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var purchase = await _context.Purchases
+            .FirstOrDefaultAsync(p => p.Id == id && p.KhataBookId == currentKhataBookId);
         if (purchase == null)
         {
             return NotFound();

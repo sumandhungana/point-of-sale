@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:5120/api';
+// Use relative URLs to work with Vite proxy
+const API_URL = '/api';
 
 export interface KhataBook {
   id: number;
@@ -12,7 +13,6 @@ export interface KhataBook {
   companyNumber: string;
   companyAddress: string;
   companyEmail: string;
-  schemaName: string;
   businessCategory: number;
   businessType: number;
   taxVat: boolean;
@@ -34,7 +34,6 @@ const defaultAdminKhataBook: KhataBook = {
   companyNumber: '0000000000',
   companyAddress: 'Default Company Address',
   companyEmail: 'admin@company.com',
-  schemaName: 'initSchema',
   businessCategory: 1,
   businessType: 1,
   taxVat: false,
@@ -90,5 +89,44 @@ export async function createKhataBook(formData: FormData) {
       throw new Error(`Failed to create KhataBook: ${error.message}`);
     }
     throw new Error('Failed to create KhataBook: Unknown error');
+  }
+}
+
+export async function switchKhataBook(khataBookId: number) {
+  try {
+    const response = await fetch(`${API_URL}/KhataBook/switch/${khataBookId}`, {
+      method: 'POST',
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error switching KhataBook:', error);
+    throw error;
+  }
+}
+
+export async function getSelectedKhataBook() {
+  try {
+    const response = await fetch(`${API_URL}/KhataBook/selected`, {
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error getting selected KhataBook:', error);
+    throw error;
   }
 } 

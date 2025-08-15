@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
 using Backend.Helpers;
+using Backend.Services;
 using Microsoft.AspNetCore.Http;
 
 namespace Backend.Controllers;
@@ -13,19 +14,23 @@ public class ItemController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<ItemController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public ItemController(ApplicationDbContext context, ILogger<ItemController> logger)
+    public ItemController(ApplicationDbContext context, ILogger<ItemController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Item
     [HttpGet]
     public async Task<ActionResult<ItemsResponseDto>> GetItems()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var items = await _context.Items
             .Include(i => i.Category)
+            .Where(i => i.KhataBookId == currentKhataBookId)
             .OrderByDescending(i => i.CreatedAt)
             .ToListAsync();
 
@@ -43,9 +48,10 @@ public class ItemController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Item>> GetItem(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var item = await _context.Items
             .Include(i => i.Category)
-            .FirstOrDefaultAsync(i => i.Id == id);
+            .FirstOrDefaultAsync(i => i.Id == id && i.KhataBookId == currentKhataBookId);
 
         if (item == null)
         {
@@ -76,6 +82,7 @@ public class ItemController : ControllerBase
 
             var item = new Item
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 Name = itemDto.Name,
                 PrimaryUnit = itemDto.PrimaryUnit,
                 SecondaryUnit = itemDto.SecondaryUnit,
@@ -112,7 +119,9 @@ public class ItemController : ControllerBase
     {
         try
         {
-            var item = await _context.Items.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var item = await _context.Items
+                .FirstOrDefaultAsync(i => i.Id == id && i.KhataBookId == currentKhataBookId);
             if (item == null)
             {
                 return NotFound();
@@ -154,7 +163,9 @@ public class ItemController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteItem(int id)
     {
-        var item = await _context.Items.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var item = await _context.Items
+            .FirstOrDefaultAsync(i => i.Id == id && i.KhataBookId == currentKhataBookId);
         if (item == null)
         {
             return NotFound();
@@ -174,7 +185,8 @@ public class ItemController : ControllerBase
 
     private bool ItemExists(int id)
     {
-        return _context.Items.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Items.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 }
 

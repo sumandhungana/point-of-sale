@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -10,19 +11,23 @@ namespace Backend.Controllers;
 public class StaffController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public StaffController(ApplicationDbContext context)
+    public StaffController(ApplicationDbContext context, IKhataBookContext khataBookContext)
     {
         _context = context;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Staff
     [HttpGet]
     public async Task<ActionResult<IEnumerable<StaffResponse>>> GetStaff()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var staff = await _context.Staff
             .Include(s => s.StaffSalaries)
             .Include(s => s.StaffAttendances)
+            .Where(s => s.KhataBookId == currentKhataBookId)
             .OrderByDescending(s => s.CreatedAt)
             .Select(s => new StaffResponse
             {
@@ -70,10 +75,11 @@ public class StaffController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<StaffResponse>> GetStaff(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var staff = await _context.Staff
             .Include(s => s.StaffSalaries)
             .Include(s => s.StaffAttendances)
-            .FirstOrDefaultAsync(s => s.Id == id);
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
 
         if (staff == null)
         {
@@ -121,10 +127,21 @@ public class StaffController : ControllerBase
 
     // POST: api/Staff
     [HttpPost]
-    public async Task<ActionResult<Staff>> CreateStaff(Staff staff)
+    public async Task<ActionResult<Staff>> CreateStaff(CreateStaffDto staffDto)
     {
-        staff.CreatedAt = DateTime.UtcNow;
-        staff.UpdatedAt = DateTime.UtcNow;
+        var staff = new Staff
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            Name = staffDto.Name,
+            Address = staffDto.Address,
+            Phone = staffDto.Phone,
+            Email = staffDto.Email,
+            Remarks = staffDto.Remarks,
+            ProfileImageUrl = staffDto.ProfileImageUrl,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+        
         _context.Staff.Add(staff);
         await _context.SaveChangesAsync();
 
@@ -135,13 +152,22 @@ public class StaffController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateStaff(int id, Staff staff)
     {
-        if (id != staff.Id)
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var existingStaff = await _context.Staff
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
+        
+        if (existingStaff == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        staff.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(staff).State = EntityState.Modified;
+        existingStaff.Name = staff.Name;
+        existingStaff.Phone = staff.Phone;
+        existingStaff.Address = staff.Address;
+        existingStaff.Email = staff.Email;
+        existingStaff.Remarks = staff.Remarks;
+        existingStaff.ProfileImageUrl = staff.ProfileImageUrl;
+        existingStaff.UpdatedAt = DateTime.UtcNow;
 
         try
         {
@@ -166,7 +192,9 @@ public class StaffController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteStaff(int id)
     {
-        var staff = await _context.Staff.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var staff = await _context.Staff
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (staff == null)
         {
             return NotFound();
@@ -229,7 +257,9 @@ public class StaffController : ControllerBase
     [HttpPost("{id}/attendance")]
     public async Task<ActionResult<StaffAttendanceResponse>> AddAttendance(int id, StaffAttendance attendance)
     {
-        var staff = await _context.Staff.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var staff = await _context.Staff
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (staff == null)
         {
             return NotFound();
@@ -256,7 +286,9 @@ public class StaffController : ControllerBase
     [HttpPost("{id}/salary")]
     public async Task<ActionResult<StaffSalaryResponse>> AddSalary(int id, StaffSalary salary)
     {
-        var staff = await _context.Staff.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var staff = await _context.Staff
+            .FirstOrDefaultAsync(s => s.Id == id && s.KhataBookId == currentKhataBookId);
         if (staff == null)
         {
             return NotFound();
@@ -287,6 +319,7 @@ public class StaffController : ControllerBase
 
     private bool StaffExists(int id)
     {
-        return _context.Staff.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Staff.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 

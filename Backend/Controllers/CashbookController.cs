@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
@@ -14,20 +15,24 @@ public class CashbookController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<CashbookController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public CashbookController(ApplicationDbContext context, ILogger<CashbookController> logger)
+    public CashbookController(ApplicationDbContext context, ILogger<CashbookController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Cashbook
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Cashbook>>> GetCashbooks()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Cashbooks
             .Include(c => c.Category)
             .Include(c => c.Item)
+            .Where(c => c.KhataBookId == currentKhataBookId)
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
     }
@@ -36,10 +41,11 @@ public class CashbookController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Cashbook>> GetCashbook(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var cashbook = await _context.Cashbooks
             .Include(c => c.Category)
             .Include(c => c.Item)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id && c.KhataBookId == currentKhataBookId);
 
         if (cashbook == null)
         {
@@ -71,6 +77,7 @@ public class CashbookController : ControllerBase
 
             var cashbook = new Cashbook
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 CashbookNo = cashbookDto.CashbookNo,
                 Date = cashbookDto.Date.ToUniversalTime(),
                 CategoryId = cashbookDto.CategoryId,
@@ -104,7 +111,9 @@ public class CashbookController : ControllerBase
     {
         try
         {
-            var cashbook = await _context.Cashbooks.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var cashbook = await _context.Cashbooks
+                .FirstOrDefaultAsync(c => c.Id == id && c.KhataBookId == currentKhataBookId);
             if (cashbook == null)
             {
                 return NotFound();
@@ -145,7 +154,9 @@ public class CashbookController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteCashbook(int id)
     {
-        var cashbook = await _context.Cashbooks.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var cashbook = await _context.Cashbooks
+            .FirstOrDefaultAsync(c => c.Id == id && c.KhataBookId == currentKhataBookId);
         if (cashbook == null)
         {
             return NotFound();
@@ -165,7 +176,8 @@ public class CashbookController : ControllerBase
 
     private bool CashbookExists(int id)
     {
-        return _context.Cashbooks.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Cashbooks.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 }
 

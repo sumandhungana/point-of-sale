@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using Backend.Helpers;
 using Microsoft.AspNetCore.Http;
 using System.ComponentModel.DataAnnotations;
@@ -14,20 +15,24 @@ public class ExpensesController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<ExpensesController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public ExpensesController(ApplicationDbContext context, ILogger<ExpensesController> logger)
+    public ExpensesController(ApplicationDbContext context, ILogger<ExpensesController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Expenses
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Expenses>>> GetExpenses()
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Expenses
             .Include(e => e.Category)
             .Include(e => e.Item)
+            .Where(e => e.KhataBookId == currentKhataBookId)
             .OrderByDescending(e => e.CreatedAt)
             .ToListAsync();
     }
@@ -36,10 +41,11 @@ public class ExpensesController : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<Expenses>> GetExpense(int id)
     {
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var expense = await _context.Expenses
             .Include(e => e.Category)
             .Include(e => e.Item)
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync(e => e.Id == id && e.KhataBookId == currentKhataBookId);
 
         if (expense == null)
         {
@@ -55,7 +61,9 @@ public class ExpensesController : ControllerBase
     {
         try
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             var lastExpense = await _context.Expenses
+                .Where(e => e.KhataBookId == currentKhataBookId)
                 .OrderByDescending(e => e.CreatedAt)
                 .FirstOrDefaultAsync();
 
@@ -87,6 +95,7 @@ public class ExpensesController : ControllerBase
 
             var expense = new Expenses
             {
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
                 ExpensesNo = expenseDto.ExpensesNo,
                 Date = expenseDto.Date.ToUniversalTime(),
                 CategoryId = expenseDto.CategoryId,
@@ -116,7 +125,9 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            var expense = await _context.Expenses.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var expense = await _context.Expenses
+                .FirstOrDefaultAsync(e => e.Id == id && e.KhataBookId == currentKhataBookId);
             if (expense == null)
             {
                 return NotFound();
@@ -157,7 +168,9 @@ public class ExpensesController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)
     {
-        var expense = await _context.Expenses.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var expense = await _context.Expenses
+            .FirstOrDefaultAsync(e => e.Id == id && e.KhataBookId == currentKhataBookId);
         if (expense == null)
         {
             return NotFound();
@@ -177,7 +190,8 @@ public class ExpensesController : ControllerBase
 
     private bool ExpenseExists(int id)
     {
-        return _context.Expenses.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Expenses.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 }
 

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +15,22 @@ namespace Backend.Controllers
     public class PaymentsGivenController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly IKhataBookContext _khataBookContext;
 
-        public PaymentsGivenController(ApplicationDbContext context)
+        public PaymentsGivenController(ApplicationDbContext context, IKhataBookContext khataBookContext)
         {
             _context = context;
+            _khataBookContext = khataBookContext;
         }
 
         // GET: api/PaymentsGiven
         [HttpGet]
         public async Task<ActionResult<IEnumerable<PaymentsGiven>>> GetPaymentsGiven()
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             return await _context.PaymentsGiven
                 .Include(p => p.Party)
+                .Where(p => p.KhataBookId == currentKhataBookId)
                 .OrderByDescending(p => p.CreatedAt)
                 .ToListAsync();
         }
@@ -34,9 +39,10 @@ namespace Backend.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PaymentsGiven>> GetPaymentsGiven(int id)
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             var paymentsGiven = await _context.PaymentsGiven
                 .Include(p => p.Party)
-                .FirstOrDefaultAsync(p => p.Id == id);
+                .FirstOrDefaultAsync(p => p.Id == id && p.KhataBookId == currentKhataBookId);
 
             if (paymentsGiven == null)
             {
@@ -50,9 +56,10 @@ namespace Backend.Controllers
         [HttpGet("party/{partyId}")]
         public async Task<ActionResult<IEnumerable<PaymentsGiven>>> GetPaymentsGivenByParty(int partyId)
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             return await _context.PaymentsGiven
                 .Include(p => p.Party)
-                .Where(p => p.PartyId == partyId)
+                .Where(p => p.PartyId == partyId && p.KhataBookId == currentKhataBookId)
                 .ToListAsync();
         }
 
@@ -60,10 +67,11 @@ namespace Backend.Controllers
         [HttpGet("history/party/{partyId}")]
         public async Task<ActionResult<IEnumerable<PaymentHistory>>> GetPaymentHistoryByParty(int partyId)
         {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             // Get all payments given and received for the party
             var givenPayments = await _context.PaymentsGiven
                 .Include(p => p.Party)
-                .Where(p => p.PartyId == partyId)
+                .Where(p => p.PartyId == partyId && p.KhataBookId == currentKhataBookId)
                 .Select(p => new PaymentHistory
                 {
                     Id = p.Id,
@@ -80,7 +88,7 @@ namespace Backend.Controllers
 
             var receivedPayments = await _context.PaymentsReceived
                 .Include(p => p.Party)
-                .Where(p => p.PartyId == partyId)
+                .Where(p => p.PartyId == partyId && p.KhataBookId == currentKhataBookId)
                 .Select(p => new PaymentHistory
                 {
                     Id = p.Id,
@@ -121,7 +129,7 @@ namespace Backend.Controllers
 
         // POST: api/PaymentsGiven
         [HttpPost]
-        public async Task<ActionResult<PaymentsGiven>> PostPaymentsGiven([FromBody] PaymentsGiven paymentsGiven)
+        public async Task<ActionResult<PaymentsGiven>> PostPaymentsGiven([FromBody] CreatePaymentsGivenDto paymentsGivenDto)
         {
             if (!ModelState.IsValid)
             {
@@ -129,7 +137,7 @@ namespace Backend.Controllers
             }
 
             // Find the party first
-            var party = await _context.Customers.FindAsync(paymentsGiven.PartyId);
+            var party = await _context.Customers.FindAsync(paymentsGivenDto.PartyId);
             if (party == null)
             {
                 return BadRequest("Invalid PartyId");
@@ -138,11 +146,12 @@ namespace Backend.Controllers
             // Create a new instance to avoid any navigation property issues
             var newPayment = new PaymentsGiven
             {
-                PartyId = paymentsGiven.PartyId,
-                Amount = paymentsGiven.Amount,
-                Remarks = paymentsGiven.Remarks,
-                Date = paymentsGiven.Date,
-                BillPath = paymentsGiven.BillPath,
+                KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+                PartyId = paymentsGivenDto.PartyId,
+                Amount = paymentsGivenDto.Amount,
+                Remarks = paymentsGivenDto.Remarks,
+                Date = paymentsGivenDto.Date,
+                BillPath = paymentsGivenDto.BillPath,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
             };
@@ -160,7 +169,9 @@ namespace Backend.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPaymentsGiven(int id, [FromBody] PaymentsGivenUpdateDto updateDto)
         {
-            var existingPayment = await _context.PaymentsGiven.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var existingPayment = await _context.PaymentsGiven
+                .FirstOrDefaultAsync(p => p.Id == id && p.KhataBookId == currentKhataBookId);
             if (existingPayment == null)
             {
                 return NotFound();
@@ -195,7 +206,9 @@ namespace Backend.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePaymentsGiven(int id)
         {
-            var paymentsGiven = await _context.PaymentsGiven.FindAsync(id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            var paymentsGiven = await _context.PaymentsGiven
+                .FirstOrDefaultAsync(p => p.Id == id && p.KhataBookId == currentKhataBookId);
             if (paymentsGiven == null)
             {
                 return NotFound();
@@ -208,7 +221,8 @@ namespace Backend.Controllers
 
         private bool PaymentsGivenExists(int id)
         {
-            return _context.PaymentsGiven.Any(e => e.Id == id);
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            return _context.PaymentsGiven.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
         }
 
         // DTO for updating payments given

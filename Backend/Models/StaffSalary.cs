@@ -9,6 +9,10 @@ public class StaffSalary
     [Key]
     public int Id { get; set; }
     
+    // KhataBook Foreign Key for data isolation
+    public int KhataBookId { get; set; }
+    public virtual KhataBook KhataBook { get; set; } = null!;
+    
     [Required]
     public int StaffId { get; set; }
     
@@ -41,4 +45,32 @@ public class StaffSalary
     // Navigation property
     [ForeignKey("StaffId")]
     public Staff? Staff { get; set; } // make it nullable
+}
+
+// DTO for creating staff salaries - excludes navigation properties
+public class CreateStaffSalaryDto
+{
+    [Required]
+    public int StaffId { get; set; }
+    
+    [Range(0, 11)]
+    public int Month { get; set; }
+    
+    public int Year { get; set; }
+    
+    public DateTime SelectedDate { get; set; }
+    
+    public bool IsSlideOn { get; set; } = false;
+    
+    [Required]
+    public DateTime CalculationDate { get; set; }
+    
+    [Required]
+    public string SalaryType { get; set; } = null!; // monthly, weekly, daily
+    
+    [Required]
+    public decimal Amount { get; set; }
+    
+    [Required]
+    public string Permission { get; set; } = null!; // full, limited, restricted
 } 

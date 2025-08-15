@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Models;
+using Backend.Services;
 
 namespace Backend.Controllers;
 
@@ -11,25 +12,33 @@ public class TransactionController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
     private readonly ILogger<TransactionController> _logger;
+    private readonly IKhataBookContext _khataBookContext;
 
-    public TransactionController(ApplicationDbContext context, ILogger<TransactionController> logger)
+    public TransactionController(ApplicationDbContext context, ILogger<TransactionController> logger, IKhataBookContext khataBookContext)
     {
         _context = context;
         _logger = logger;
+        _khataBookContext = khataBookContext;
     }
 
     // GET: api/Transaction
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Transaction>>> GetTransactions()
     {
-        return await _context.Transactions.OrderByDescending(t => t.CreatedAt).ToListAsync();
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return await _context.Transactions
+            .Where(t => t.KhataBookId == currentKhataBookId)
+            .OrderByDescending(t => t.CreatedAt)
+            .ToListAsync();
     }
 
     // GET: api/Transaction/5
     [HttpGet("{id}")]
     public async Task<ActionResult<Transaction>> GetTransaction(int id)
     {
-        var transaction = await _context.Transactions.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var transaction = await _context.Transactions
+            .FirstOrDefaultAsync(t => t.Id == id && t.KhataBookId == currentKhataBookId);
 
         if (transaction == null)
         {
@@ -41,10 +50,18 @@ public class TransactionController : ControllerBase
 
     // POST: api/Transaction
     [HttpPost]
-    public async Task<ActionResult<Transaction>> CreateTransaction(Transaction transaction)
+    public async Task<ActionResult<Transaction>> CreateTransaction(CreateTransactionDto transactionDto)
     {
-        transaction.CreatedAt = DateTime.UtcNow;
-        transaction.UpdatedAt = DateTime.UtcNow;
+        var transaction = new Transaction
+        {
+            KhataBookId = _khataBookContext.GetCurrentKhataBookId(),
+            Description = transactionDto.Description,
+            Amount = transactionDto.Amount,
+            TransactionDate = transactionDto.TransactionDate,
+            TransactionType = transactionDto.TransactionType,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
         
         _context.Transactions.Add(transaction);
         
@@ -65,13 +82,19 @@ public class TransactionController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateTransaction(int id, Transaction transaction)
     {
-        if (id != transaction.Id)
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var existingTransaction = await _context.Transactions
+            .FirstOrDefaultAsync(t => t.Id == id && t.KhataBookId == currentKhataBookId);
+        
+        if (existingTransaction == null)
         {
-            return BadRequest();
+            return NotFound();
         }
 
-        transaction.UpdatedAt = DateTime.UtcNow;
-        _context.Entry(transaction).State = EntityState.Modified;
+        existingTransaction.TransactionType = transaction.TransactionType;
+        existingTransaction.Amount = transaction.Amount;
+        existingTransaction.Description = transaction.Description;
+        existingTransaction.UpdatedAt = DateTime.UtcNow;
 
         try
         {
@@ -96,7 +119,9 @@ public class TransactionController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteTransaction(int id)
     {
-        var transaction = await _context.Transactions.FindAsync(id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        var transaction = await _context.Transactions
+            .FirstOrDefaultAsync(t => t.Id == id && t.KhataBookId == currentKhataBookId);
         if (transaction == null)
         {
             return NotFound();
@@ -110,6 +135,7 @@ public class TransactionController : ControllerBase
 
     private bool TransactionExists(int id)
     {
-        return _context.Transactions.Any(e => e.Id == id);
+        var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+        return _context.Transactions.Any(e => e.Id == id && e.KhataBookId == currentKhataBookId);
     }
 } 

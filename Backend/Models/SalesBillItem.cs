@@ -9,6 +9,10 @@ public class SalesBillItem
     [Key]
     public int Id { get; set; }
     
+    // KhataBook Foreign Key for data isolation
+    public int KhataBookId { get; set; }
+    public virtual KhataBook KhataBook { get; set; } = null!;
+    
     [Required]
     public int SalesBillId { get; set; }
     

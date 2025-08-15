@@ -62,6 +62,9 @@ namespace Backend.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Language")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -125,6 +128,8 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("KhataBookId");
+
                     b.ToTable("AppSettings");
                 });
 
@@ -148,6 +153,9 @@ namespace Backend.Migrations
                     b.Property<DateTime?>("DueDate")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<decimal>("PaidAmount")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -167,6 +175,8 @@ namespace Backend.Migrations
                     b.HasKey("BillId");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Bills");
                 });
@@ -199,6 +209,9 @@ namespace Backend.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PaymentMode")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
@@ -215,6 +228,8 @@ namespace Backend.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Cashbooks");
                 });
@@ -236,6 +251,9 @@ namespace Backend.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -245,6 +263,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Categories");
                 });
@@ -281,6 +301,9 @@ namespace Backend.Migrations
                     b.Property<string>("Email")
                         .HasColumnType("text");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -307,6 +330,8 @@ namespace Backend.Migrations
                         .HasColumnType("boolean");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Customers");
                 });
@@ -339,6 +364,9 @@ namespace Backend.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PaymentMode")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
@@ -355,6 +383,8 @@ namespace Backend.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Expenses");
                 });
@@ -387,6 +417,9 @@ namespace Backend.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PaymentMode")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
@@ -403,6 +436,8 @@ namespace Backend.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("ItemId");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Incomes");
                 });
@@ -446,6 +481,9 @@ namespace Backend.Migrations
                     b.Property<string>("InvoiceTaxSize")
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
+
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Orientation")
                         .HasMaxLength(20)
@@ -511,6 +549,8 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("KhataBookId");
+
                     b.ToTable("InvoiceSettings");
                 });
 
@@ -533,6 +573,9 @@ namespace Backend.Migrations
 
                     b.Property<bool>("IsSecondaryUnitEnabled")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal?>("LowStockAlert")
                         .HasPrecision(10, 2)
@@ -584,6 +627,8 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Items");
                 });
@@ -639,6 +684,9 @@ namespace Backend.Migrations
                     b.Property<string>("ImagePath")
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsUsed")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("KYC")
                         .HasColumnType("boolean")
                         .HasColumnName("Kyc");
@@ -678,6 +726,9 @@ namespace Backend.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Notes")
                         .HasColumnType("text");
 
@@ -692,6 +743,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Payments");
                 });
@@ -716,6 +769,9 @@ namespace Backend.Migrations
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean");
+
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -743,6 +799,8 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("KhataBookId");
+
                     b.ToTable("PaymentGateways");
                 });
 
@@ -766,6 +824,9 @@ namespace Backend.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PartyId")
                         .HasColumnType("integer");
 
@@ -777,6 +838,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.HasIndex("PartyId");
 
@@ -804,6 +867,9 @@ namespace Backend.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("PartyId")
                         .HasColumnType("integer");
 
@@ -815,6 +881,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.HasIndex("PartyId");
 
@@ -1184,6 +1252,9 @@ namespace Backend.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PaymentMode")
                         .IsRequired()
                         .HasColumnType("varchar(20)");
@@ -1206,6 +1277,8 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
+                    b.HasIndex("KhataBookId");
+
                     b.ToTable("Purchases");
                 });
 
@@ -1226,6 +1299,9 @@ namespace Backend.Migrations
 
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
@@ -1256,6 +1332,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("RentalItems");
                 });
@@ -1348,6 +1426,9 @@ namespace Backend.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("integer");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PaymentMode")
                         .IsRequired()
                         .HasColumnType("varchar(10)");
@@ -1365,6 +1446,8 @@ namespace Backend.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("SalesBills");
                 });
@@ -1389,6 +1472,9 @@ namespace Backend.Migrations
                         .HasColumnType("decimal(10,2)");
 
                     b.Property<int>("ItemId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("KhataBookId")
                         .HasColumnType("integer");
 
                     b.Property<decimal>("Quantity")
@@ -1417,6 +1503,8 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
+                    b.HasIndex("KhataBookId");
+
                     b.HasIndex("SalesBillId");
 
                     b.ToTable("SalesBillItems");
@@ -1436,6 +1524,9 @@ namespace Backend.Migrations
                     b.Property<string>("ImagePath")
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(10,2)");
@@ -1461,6 +1552,8 @@ namespace Backend.Migrations
                         .HasColumnType("decimal(5,2)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Services");
                 });
@@ -1488,6 +1581,9 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("PartnerName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1505,6 +1601,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("SmsGateways");
                 });
@@ -1528,6 +1626,9 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
@@ -1549,6 +1650,8 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("KhataBookId");
+
                     b.ToTable("Staff");
                 });
 
@@ -1566,6 +1669,9 @@ namespace Backend.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Note")
                         .HasColumnType("text");
 
@@ -1580,6 +1686,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.HasIndex("StaffId");
 
@@ -1606,6 +1714,9 @@ namespace Backend.Migrations
                     b.Property<bool>("IsSlideOn")
                         .HasColumnType("boolean");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<int>("Month")
                         .HasColumnType("integer");
 
@@ -1630,6 +1741,8 @@ namespace Backend.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.HasIndex("StaffId");
 
@@ -1663,6 +1776,9 @@ namespace Backend.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -1680,6 +1796,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Suppliers");
                 });
@@ -1702,6 +1820,9 @@ namespace Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("KhataBookId")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime>("TransactionDate")
                         .HasColumnType("timestamp with time zone");
 
@@ -1713,6 +1834,8 @@ namespace Backend.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("KhataBookId");
 
                     b.ToTable("Transactions");
                 });
@@ -1802,15 +1925,26 @@ namespace Backend.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 15, 13, 48, 32, 231, DateTimeKind.Utc).AddTicks(2325),
+                            CreatedAt = new DateTime(2025, 8, 15, 15, 11, 43, 248, DateTimeKind.Utc).AddTicks(8413),
                             Enable = true,
                             Password = "",
                             PasswordHash = "wphRXnzVzKYnlQxYSHWH8zlzV8CIxoPUoRyCv2pwCYs=",
                             PasswordSalt = "static_salt_123",
                             Permission = "admin",
-                            UpdatedAt = new DateTime(2025, 8, 15, 13, 48, 32, 231, DateTimeKind.Utc).AddTicks(2326),
+                            UpdatedAt = new DateTime(2025, 8, 15, 15, 11, 43, 248, DateTimeKind.Utc).AddTicks(8413),
                             Username = "admin"
                         });
+                });
+
+            modelBuilder.Entity("Backend.Models.AppSettings", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.Bill", b =>
@@ -1821,7 +1955,15 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Customer");
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.Cashbook", b =>
@@ -1838,9 +1980,39 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Category");
 
                     b.Navigation("Item");
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.Category", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.Customer", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.Expenses", b =>
@@ -1857,9 +2029,17 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Category");
 
                     b.Navigation("Item");
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.Income", b =>
@@ -1876,9 +2056,28 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Category");
 
                     b.Navigation("Item");
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.InvoiceSettings", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.Item", b =>
@@ -1887,27 +2086,73 @@ namespace Backend.Migrations
                         .WithMany()
                         .HasForeignKey("CategoryId");
 
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Category");
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.Payment", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.PaymentGateway", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentsGiven", b =>
                 {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Backend.Models.Customer", "Party")
                         .WithMany()
                         .HasForeignKey("PartyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("KhataBook");
 
                     b.Navigation("Party");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentsReceived", b =>
                 {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Backend.Models.Customer", "Party")
                         .WithMany()
                         .HasForeignKey("PartyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("KhataBook");
 
                     b.Navigation("Party");
                 });
@@ -1926,9 +2171,28 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Category");
 
                     b.Navigation("Item");
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.RentalItem", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.RolePermission", b =>
@@ -1958,7 +2222,15 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.Navigation("Customer");
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.SalesBillItem", b =>
@@ -1966,6 +2238,12 @@ namespace Backend.Migrations
                     b.HasOne("Backend.Models.Item", "Item")
                         .WithMany()
                         .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -1977,29 +2255,102 @@ namespace Backend.Migrations
 
                     b.Navigation("Item");
 
+                    b.Navigation("KhataBook");
+
                     b.Navigation("SalesBill");
+                });
+
+            modelBuilder.Entity("Backend.Models.Service", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.SmsGateway", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.Staff", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.StaffAttendance", b =>
                 {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Backend.Models.Staff", "Staff")
                         .WithMany("StaffAttendances")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("KhataBook");
+
                     b.Navigation("Staff");
                 });
 
             modelBuilder.Entity("Backend.Models.StaffSalary", b =>
                 {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("Backend.Models.Staff", "Staff")
                         .WithMany("StaffSalaries")
                         .HasForeignKey("StaffId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("KhataBook");
+
                     b.Navigation("Staff");
+                });
+
+            modelBuilder.Entity("Backend.Models.Supplier", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
+                });
+
+            modelBuilder.Entity("Backend.Models.Transaction", b =>
+                {
+                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
+                        .WithMany()
+                        .HasForeignKey("KhataBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("KhataBook");
                 });
 
             modelBuilder.Entity("Backend.Models.Permission", b =>
