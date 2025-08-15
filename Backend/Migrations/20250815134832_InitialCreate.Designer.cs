@@ -12,15 +12,14 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250514145958_InitialCleanMigration")]
-    partial class InitialCleanMigration
+    [Migration("20250815134832_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("initSchema")
                 .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
@@ -129,7 +128,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("AppSettings", "initSchema");
+                    b.ToTable("AppSettings");
                 });
 
             modelBuilder.Entity("Backend.Models.Bill", b =>
@@ -172,7 +171,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("Bills", "initSchema");
+                    b.ToTable("Bills");
                 });
 
             modelBuilder.Entity("Backend.Models.Cashbook", b =>
@@ -220,7 +219,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Cashbooks", "initSchema");
+                    b.ToTable("Cashbooks");
                 });
 
             modelBuilder.Entity("Backend.Models.Category", b =>
@@ -250,7 +249,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", "initSchema");
+                    b.ToTable("Categories");
                 });
 
             modelBuilder.Entity("Backend.Models.Customer", b =>
@@ -312,7 +311,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers", "initSchema");
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Backend.Models.Expenses", b =>
@@ -360,7 +359,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Expenses", "initSchema");
+                    b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("Backend.Models.Income", b =>
@@ -408,7 +407,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Incomes", "initSchema");
+                    b.ToTable("Incomes");
                 });
 
             modelBuilder.Entity("Backend.Models.InvoiceSettings", b =>
@@ -515,7 +514,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("InvoiceSettings", "initSchema");
+                    b.ToTable("InvoiceSettings");
                 });
 
             modelBuilder.Entity("Backend.Models.Item", b =>
@@ -589,7 +588,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.ToTable("Items", "initSchema");
+                    b.ToTable("Items");
                 });
 
             modelBuilder.Entity("Backend.Models.KhataBook", b =>
@@ -657,9 +656,6 @@ namespace Backend.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<string>("SchemaName")
-                        .HasColumnType("text");
-
                     b.Property<bool>("TaxVat")
                         .HasColumnType("boolean");
 
@@ -668,7 +664,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("KhataBook", "initSchema");
+                    b.ToTable("KhataBooks");
                 });
 
             modelBuilder.Entity("Backend.Models.Payment", b =>
@@ -700,7 +696,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Payments", "initSchema");
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentGateway", b =>
@@ -750,7 +746,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PaymentGateways", "initSchema");
+                    b.ToTable("PaymentGateways");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentsGiven", b =>
@@ -787,7 +783,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PartyId");
 
-                    b.ToTable("PaymentsGiven", "initSchema");
+                    b.ToTable("PaymentsGiven");
                 });
 
             modelBuilder.Entity("Backend.Models.PaymentsReceived", b =>
@@ -825,7 +821,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("PartyId");
 
-                    b.ToTable("PaymentsReceived", "initSchema");
+                    b.ToTable("PaymentsReceived");
                 });
 
             modelBuilder.Entity("Backend.Models.Permission", b =>
@@ -851,7 +847,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Permissions", "initSchema");
+                    b.ToTable("Permissions");
 
                     b.HasData(
                         new
@@ -1213,7 +1209,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("ItemId");
 
-                    b.ToTable("Purchases", "initSchema");
+                    b.ToTable("Purchases");
                 });
 
             modelBuilder.Entity("Backend.Models.RentalItem", b =>
@@ -1264,7 +1260,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("RentalItems", "initSchema");
+                    b.ToTable("RentalItems");
                 });
 
             modelBuilder.Entity("Backend.Models.Role", b =>
@@ -1297,7 +1293,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", "initSchema");
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Backend.Models.RolePermission", b =>
@@ -1326,7 +1322,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("RolePermissions", "initSchema");
+                    b.ToTable("RolePermissions");
                 });
 
             modelBuilder.Entity("Backend.Models.SalesBill", b =>
@@ -1373,7 +1369,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("CustomerId");
 
-                    b.ToTable("SalesBills", "initSchema");
+                    b.ToTable("SalesBills");
                 });
 
             modelBuilder.Entity("Backend.Models.SalesBillItem", b =>
@@ -1426,7 +1422,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("SalesBillId");
 
-                    b.ToTable("SalesBillItems", "initSchema");
+                    b.ToTable("SalesBillItems");
                 });
 
             modelBuilder.Entity("Backend.Models.Service", b =>
@@ -1469,7 +1465,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Services", "initSchema");
+                    b.ToTable("Services");
                 });
 
             modelBuilder.Entity("Backend.Models.SmsGateway", b =>
@@ -1513,7 +1509,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SmsGateways", "initSchema");
+                    b.ToTable("SmsGateways");
                 });
 
             modelBuilder.Entity("Backend.Models.Staff", b =>
@@ -1556,7 +1552,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Staff", "initSchema");
+                    b.ToTable("Staff");
                 });
 
             modelBuilder.Entity("Backend.Models.StaffAttendance", b =>
@@ -1590,7 +1586,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("StaffAttendances", "initSchema");
+                    b.ToTable("StaffAttendances");
                 });
 
             modelBuilder.Entity("Backend.Models.StaffSalary", b =>
@@ -1640,7 +1636,7 @@ namespace Backend.Migrations
 
                     b.HasIndex("StaffId");
 
-                    b.ToTable("StaffSalaries", "initSchema");
+                    b.ToTable("StaffSalaries");
                 });
 
             modelBuilder.Entity("Backend.Models.Supplier", b =>
@@ -1688,7 +1684,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Suppliers", "initSchema");
+                    b.ToTable("Suppliers");
                 });
 
             modelBuilder.Entity("Backend.Models.Transaction", b =>
@@ -1721,7 +1717,7 @@ namespace Backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Transactions", "initSchema");
+                    b.ToTable("Transactions");
                 });
 
             modelBuilder.Entity("Backend.Models.User", b =>
@@ -1803,7 +1799,21 @@ namespace Backend.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("Users", "initSchema");
+                    b.ToTable("Users");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 8, 15, 13, 48, 32, 231, DateTimeKind.Utc).AddTicks(2325),
+                            Enable = true,
+                            Password = "",
+                            PasswordHash = "wphRXnzVzKYnlQxYSHWH8zlzV8CIxoPUoRyCv2pwCYs=",
+                            PasswordSalt = "static_salt_123",
+                            Permission = "admin",
+                            UpdatedAt = new DateTime(2025, 8, 15, 13, 48, 32, 231, DateTimeKind.Utc).AddTicks(2326),
+                            Username = "admin"
+                        });
                 });
 
             modelBuilder.Entity("Backend.Models.Bill", b =>

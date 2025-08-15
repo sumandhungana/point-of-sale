@@ -8,13 +8,9 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
     public ApplicationDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
-        var connectionString = "Host=localhost;Database=khatabook;Username=postgres;Password=1234567890;SearchPath=initSchema;Include Error Detail=true";
-        optionsBuilder.UseNpgsql(connectionString, 
-            x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema"));
+        var connectionString = "Host=localhost;Database=khatabook;Username=postgres;Password=1234567890;Include Error Detail=true";
+        optionsBuilder.UseNpgsql(connectionString);
 
-        return new ApplicationDbContext(optionsBuilder.Options)
-        {
-            ConnectionString = connectionString
-        };
+        return new ApplicationDbContext(optionsBuilder.Options);
     }
 } 

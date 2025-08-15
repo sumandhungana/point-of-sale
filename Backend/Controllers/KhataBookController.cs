@@ -2,12 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Backend.Models;
 using Backend.Data;
-using Backend.Services;
 using Backend.Helpers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Backend.Controllers
 {
@@ -16,121 +12,17 @@ namespace Backend.Controllers
     public class KhataBookController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
-        private readonly SchemaManagementService _schemaService;
         private readonly ILogger<KhataBookController> _logger;
-        private const string SCHEMA_PREFIX = "khata_";
 
         public KhataBookController(
             ApplicationDbContext context,
-            SchemaManagementService schemaService,
             ILogger<KhataBookController> logger)
         {
             _context = context;
-            _schemaService = schemaService;
             _logger = logger;
         }
 
-        [HttpGet("changeSchema")]
-        public async Task<IActionResult> ChangeSchema()
-        {
-            return await _schemaService.ChangeSchema();
-        }
 
-        [HttpGet("{id}/switch-schema")]
-        public async Task<IActionResult> SwitchSchema(int id)
-        {
-            return await SwitchSchemaInternal(id);
-        }
-
-        [HttpPost("{id}/switch-schema")]
-        public async Task<IActionResult> SwitchSchemaPost(int id)
-            {
-            return await SwitchSchemaInternal(id);
-        }
-
-        private async Task<IActionResult> SwitchSchemaInternal(int id)
-        {
-            try
-            {
-                if (id == 0)
-                {
-                    var result = await _schemaService.SwitchSchema("initSchema");
-                    return Ok(new { message = "Successfully switched to default schema", schema = "initSchema" });
-            }
-
-            var khataBook = await _context.KhataBooks.FindAsync(id);
-            if (khataBook == null)
-            {
-                    return NotFound(new { message = "KhataBook not found", id });
-            }
-
-            if (string.IsNullOrEmpty(khataBook.SchemaName))
-            {
-                    return BadRequest(new { message = "KhataBook does not have an associated schema", id });
-            }
-
-                var schemaResult = await _schemaService.SwitchSchema(khataBook.SchemaName);
-                if (schemaResult is OkObjectResult okResult)
-                {
-                    return Ok(new { 
-                        message = "Successfully switched to KhataBook schema", 
-                        khataBook = new {
-                            id = khataBook.Id,
-                            name = khataBook.Name,
-                            companyName = khataBook.CompanyName,
-                            schemaName = khataBook.SchemaName
-                        }
-                    });
-                }
-                
-                return schemaResult;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error switching schema for KhataBook {Id}", id);
-                return StatusCode(500, new { message = "Internal server error while switching schema", error = ex.Message });
-            }
-        }
-
-        [HttpGet("{id}/tables")]
-        public async Task<ActionResult<IEnumerable<string>>> GetSchemaTables(int id)
-        {
-            var khataBook = await _context.KhataBooks.FindAsync(id);
-            if (khataBook == null)
-            {
-                return NotFound("KhataBook not found");
-            }
-
-            if (string.IsNullOrEmpty(khataBook.SchemaName))
-            {
-                return BadRequest("KhataBook does not have an associated schema");
-            }
-
-            return await _schemaService.GetSchemaTables(khataBook.SchemaName);
-        }
-
-        [HttpGet("schemas")]
-        public async Task<ActionResult<IEnumerable<string>>> GetAllSchemas()
-        {
-            return await _schemaService.GetAllSchemas();
-        }
-
-        [HttpPost("{id}/validate-schema")]
-        public async Task<ActionResult<bool>> ValidateSchema(int id)
-        {
-            var khataBook = await _context.KhataBooks.FindAsync(id);
-            if (khataBook == null)
-            {
-                return NotFound("KhataBook not found");
-            }
-
-            if (string.IsNullOrEmpty(khataBook.SchemaName))
-            {
-                return BadRequest("KhataBook does not have an associated schema");
-            }
-
-            return await _schemaService.ValidateSchema(khataBook.SchemaName);
-        }
 
         // GET: api/KhataBook
         [HttpGet]
@@ -158,12 +50,6 @@ namespace Backend.Controllers
         public async Task<ActionResult<KhataBook>> PostKhataBook([FromForm] KhataBookCreateDto khataBookDto, IFormFile? imageFile)
         {
             _logger.LogInformation("Starting KhataBook creation for {Name}", khataBookDto.Name);
-
-            if (!_schemaService.ValidateSchemaName(khataBookDto.Name))
-            {
-                _logger.LogWarning("Invalid KhataBook name: {Name}", khataBookDto.Name);
-                return BadRequest("Invalid KhataBook name. Name must start with a letter and contain only letters, numbers, and underscores.");
-            }
 
             string? imagePath = null;
             if (imageFile != null && imageFile.Length > 0)
@@ -212,43 +98,13 @@ namespace Backend.Controllers
                 ImagePath = imagePath
             };
 
-            // First save the KhataBook to get its ID
             _logger.LogInformation("Saving KhataBook to database");
             _context.KhataBooks.Add(khataBook);
             await _context.SaveChangesAsync();
 
-            // Create schema name based on KhataBook ID
-            string schemaName = $"{SCHEMA_PREFIX}{khataBook.Id}";
-            _logger.LogInformation("Creating schema {SchemaName} for KhataBook {Id}", schemaName, khataBook.Id);
-
-            // Create the schema
-            var (success, message, executedQueries) = await _schemaService.CreateSchema(schemaName);
-
-            if (!success)
-            {
-                _logger.LogError("Failed to create schema: {Message}", message);
-                _logger.LogError("Executed queries: {Queries}", string.Join("\n", executedQueries));
-
-                // If schema creation fails, delete the KhataBook
-                _context.KhataBooks.Remove(khataBook);
-                await _context.SaveChangesAsync();
-
-                return StatusCode(500, new { error = message, executedQueries });
-            }
-
-            _logger.LogInformation("Successfully created schema {SchemaName}", schemaName);
-
-            // Update KhataBook with schema name
-            khataBook.SchemaName = schemaName;
-            await _context.SaveChangesAsync();
-
             _logger.LogInformation("Successfully created KhataBook with ID {Id}", khataBook.Id);
 
-            return CreatedAtAction(nameof(GetKhataBook), new { id = khataBook.Id }, new
-            {
-                khataBook,
-                executedQueries
-            });
+            return CreatedAtAction(nameof(GetKhataBook), new { id = khataBook.Id }, khataBook);
         }
 
         // PUT: api/KhataBook/5

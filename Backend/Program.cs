@@ -1,8 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Backend.Data;
 using Backend.Middleware;
-using Backend.Services;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,9 +15,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:3000")
               .AllowAnyMethod()
-              .AllowAnyHeader();
+              .AllowAnyHeader()
+              .AllowCredentials();
     });
 });
 
@@ -27,15 +26,8 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-        x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema")
-              .CommandTimeout(60));
+        x => x.CommandTimeout(60));
 });
-
-// Add SchemaConfigurationService
-builder.Services.AddSingleton<SchemaConfigurationService>();
-
-// Add Schema Management Service
-builder.Services.AddScoped<SchemaManagementService>();
 
 var app = builder.Build();
 
@@ -44,22 +36,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-
-// Apply migrations to all schemas
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    try
-    {
-        await MigrationHelper.MigrateAllSchemasAsync(dbContext);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Error during migration: {ex.Message}");
-        // Optionally rethrow if you want to prevent the app from starting with migration errors
-        // throw;
-    }
 }
 
 app.UseHttpsRedirection();

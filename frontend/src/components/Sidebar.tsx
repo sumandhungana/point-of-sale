@@ -571,32 +571,8 @@ export const Sidebar = () => {
   };
 
   const handleKhataBookClick = async (khataBook: KhataBook) => {
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        alert('Please login first');
-        return;
-      }
-
-      const response = await fetch(`http://localhost:5120/api/KhataBook/${khataBook.id}/switch-schema`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-      if (response.ok) {
-        localStorage.setItem('companyName', khataBook.companyName);
-        alert('Successfully switched to KhataBook: ' + khataBook.companyName);
-        window.location.reload();
-      } else {
-        const errorData = await response.json();
-        alert('Failed to switch KhataBook: ' + (errorData.message || 'Unknown error'));
-      }
-    } catch (error) {
-      console.error('Error switching KhataBook:', error);
-      alert('Failed to switch KhataBook. Please try again.');
-    }
+    localStorage.setItem('companyName', khataBook.companyName);
+    alert('Selected KhataBook: ' + khataBook.companyName);
     setIsPopupOpen(false);
   };
 

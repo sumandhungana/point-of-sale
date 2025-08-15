@@ -423,7 +423,6 @@
 /home/xebec/Downloads/point_of_sale/Backend/bin/Debug/net8.0/appsettings.Development.json
 /home/xebec/Downloads/point_of_sale/Backend/bin/Debug/net8.0/appsettings.json
 /home/xebec/Downloads/point_of_sale/Backend/bin/Debug/net8.0/postman_collection.json
-/home/xebec/Downloads/point_of_sale/Backend/bin/Debug/net8.0/schema_config.json
 /home/xebec/Downloads/point_of_sale/Backend/bin/Debug/net8.0/Backend.staticwebassets.runtime.json
 /home/xebec/Downloads/point_of_sale/Backend/bin/Debug/net8.0/Backend
 /home/xebec/Downloads/point_of_sale/Backend/bin/Debug/net8.0/Backend.deps.json
@@ -563,9 +562,9 @@
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/staticwebassets/msbuild.buildTransitive.Backend.props
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/staticwebassets.pack.json
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/scopedcss/bundle/Backend.styles.css
-/home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/Backend.csproj.CopyComplete
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/Backend.dll
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/refint/Backend.dll
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/Backend.pdb
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/Backend.genruntimeconfig.cache
 /home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/ref/Backend.dll
+/home/xebec/Downloads/point_of_sale/Backend/obj/Debug/net8.0/Backend.csproj.Up2Date

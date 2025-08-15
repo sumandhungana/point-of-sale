@@ -1,45 +1,15 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Backend.Models;
 using Backend.Data.Seeders;
-using Backend.Services;
-using System.Data;
-using Npgsql;
-using Microsoft.EntityFrameworkCore.Design;
 
 namespace Backend.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    private readonly SchemaConfigurationService? _schemaConfig;
-    private string? _currentSchema;
-
-    public required string ConnectionString { get; set; }
-
-    public ApplicationDbContext()
-    {
-        _currentSchema = "initSchema";
-        _schemaConfig = null;
-    }
-
-    public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options,
-        SchemaConfigurationService? schemaConfig = null) 
-        : base(options)
-    {
-        _schemaConfig = schemaConfig;
-        _currentSchema = schemaConfig?.GetCurrentSchema() ?? "initSchema";
-    }
-
-    // Add constructor for design-time
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
-        _currentSchema = "initSchema";
-        _schemaConfig = null!;
     }
-
-    public string? GetCurrentSchema() => _currentSchema;
 
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Customer> Customers { get; set; } = null!;
@@ -71,27 +41,12 @@ public class ApplicationDbContext : DbContext
     public DbSet<PaymentsGiven> PaymentsGiven { get; set; } = null!;
     public DbSet<KhataBook> KhataBooks { get; set; } = null!;
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql(ConnectionString,
-                x => x.MigrationsHistoryTable("__EFMigrationsHistory", "initSchema"));
-        }
-
-        optionsBuilder.ReplaceService<IModelCacheKeyFactory, CustomModelCacheKeyFactory>();
-    }
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.HasDefaultSchema("initSchema");
 
         // Configure KhataBook properties
-        
         modelBuilder.Entity<KhataBook>()
-         .ToTable("KhataBook", "initSchema") 
             .Property(k => k.KYC)
             .HasColumnName("Kyc");
 
@@ -193,37 +148,5 @@ public class ApplicationDbContext : DbContext
         });
     }
 
-    public async Task ReloadWithSchemaAsync(string schemaName)
-    {
-        _currentSchema = schemaName;
-        await Database.CloseConnectionAsync();
-        await Database.OpenConnectionAsync();
-        await Database.ExecuteSqlRawAsync($"SET search_path TO {schemaName}");
-        ChangeTracker.Clear();
-    }
 
-    public async Task EnsureMigrationsHistoryTableExistsAsync()
-    {
-        try
-        {
-            await Database.ExecuteSqlRawAsync($@"
-                CREATE SCHEMA IF NOT EXISTS initSchema;
-                CREATE TABLE IF NOT EXISTS initSchema.""__EFMigrationsHistory"" (
-                    ""MigrationId"" character varying(150) NOT NULL,
-                    ""ProductVersion"" character varying(32) NOT NULL,
-                    CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")
-                );");
-        }
-        catch (Exception ex)
-        {
-            // Log the error but don't throw - we want the application to continue
-            Console.WriteLine($"Error ensuring migrations history table exists: {ex.Message}");
-        }
-    }
-
-    public void SetCurrentSchema(string schema)
-    {
-        _currentSchema = schema;
-        Database.SetConnectionString(Database.GetConnectionString());
-    }
 } 
