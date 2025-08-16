@@ -80,7 +80,7 @@ public class TransactionController : ControllerBase
 
     // PUT: api/Transaction/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateTransaction(int id, Transaction transaction)
+    public async Task<IActionResult> UpdateTransaction(int id, UpdateTransactionDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingTransaction = await _context.Transactions
@@ -91,9 +91,16 @@ public class TransactionController : ControllerBase
             return NotFound();
         }
 
-        existingTransaction.TransactionType = transaction.TransactionType;
-        existingTransaction.Amount = transaction.Amount;
-        existingTransaction.Description = transaction.Description;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.Description))
+            existingTransaction.Description = updateDto.Description;
+        if (updateDto.Amount.HasValue)
+            existingTransaction.Amount = updateDto.Amount.Value;
+        if (updateDto.TransactionDate.HasValue)
+            existingTransaction.TransactionDate = updateDto.TransactionDate.Value;
+        if (!string.IsNullOrEmpty(updateDto.TransactionType))
+            existingTransaction.TransactionType = updateDto.TransactionType;
+        
         existingTransaction.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -112,7 +119,7 @@ public class TransactionController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Transaction updated successfully" });
     }
 
     // DELETE: api/Transaction/5

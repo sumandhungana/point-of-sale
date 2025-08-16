@@ -93,7 +93,7 @@ public class AppSettingsController : ControllerBase
 
     // PUT: api/AppSettings/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateAppSettings(int id, AppSettings appSettings)
+    public async Task<IActionResult> UpdateAppSettings(int id, UpdateAppSettingsDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingAppSettings = await _context.AppSettings
@@ -104,24 +104,44 @@ public class AppSettingsController : ControllerBase
             return NotFound();
         }
 
-        existingAppSettings.SideMenuBgColor = appSettings.SideMenuBgColor;
-        existingAppSettings.SideMenuBgEndColor = appSettings.SideMenuBgEndColor;
-        existingAppSettings.SideMenuFontColor = appSettings.SideMenuFontColor;
-        existingAppSettings.SideMenuHoverFontColor = appSettings.SideMenuHoverFontColor;
-        existingAppSettings.SideMenuHoverBgColor = appSettings.SideMenuHoverBgColor;
-        existingAppSettings.TopMenuBgColor = appSettings.TopMenuBgColor;
-        existingAppSettings.TopMenuFontColor = appSettings.TopMenuFontColor;
-        existingAppSettings.AppBgColor = appSettings.AppBgColor;
-        existingAppSettings.AppForegroundColor = appSettings.AppForegroundColor;
-        existingAppSettings.LogoPath = appSettings.LogoPath;
-        existingAppSettings.FaviconPath = appSettings.FaviconPath;
-        existingAppSettings.LoginBgPath = appSettings.LoginBgPath;
-        existingAppSettings.Currency = appSettings.Currency;
-        existingAppSettings.CurrencyPosition = appSettings.CurrencyPosition;
-        existingAppSettings.DateFormat = appSettings.DateFormat;
-        existingAppSettings.TimeFormat = appSettings.TimeFormat;
-        existingAppSettings.NumberFormat = appSettings.NumberFormat;
-        existingAppSettings.Language = appSettings.Language;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.SideMenuBgColor))
+            existingAppSettings.SideMenuBgColor = updateDto.SideMenuBgColor;
+        if (!string.IsNullOrEmpty(updateDto.SideMenuBgEndColor))
+            existingAppSettings.SideMenuBgEndColor = updateDto.SideMenuBgEndColor;
+        if (!string.IsNullOrEmpty(updateDto.SideMenuFontColor))
+            existingAppSettings.SideMenuFontColor = updateDto.SideMenuFontColor;
+        if (!string.IsNullOrEmpty(updateDto.SideMenuHoverFontColor))
+            existingAppSettings.SideMenuHoverFontColor = updateDto.SideMenuHoverFontColor;
+        if (!string.IsNullOrEmpty(updateDto.SideMenuHoverBgColor))
+            existingAppSettings.SideMenuHoverBgColor = updateDto.SideMenuHoverBgColor;
+        if (!string.IsNullOrEmpty(updateDto.TopMenuBgColor))
+            existingAppSettings.TopMenuBgColor = updateDto.TopMenuBgColor;
+        if (!string.IsNullOrEmpty(updateDto.TopMenuFontColor))
+            existingAppSettings.TopMenuFontColor = updateDto.TopMenuFontColor;
+        if (!string.IsNullOrEmpty(updateDto.AppBgColor))
+            existingAppSettings.AppBgColor = updateDto.AppBgColor;
+        if (!string.IsNullOrEmpty(updateDto.AppForegroundColor))
+            existingAppSettings.AppForegroundColor = updateDto.AppForegroundColor;
+        if (updateDto.LogoPath != null)
+            existingAppSettings.LogoPath = updateDto.LogoPath;
+        if (updateDto.FaviconPath != null)
+            existingAppSettings.FaviconPath = updateDto.FaviconPath;
+        if (updateDto.LoginBgPath != null)
+            existingAppSettings.LoginBgPath = updateDto.LoginBgPath;
+        if (!string.IsNullOrEmpty(updateDto.Currency))
+            existingAppSettings.Currency = updateDto.Currency;
+        if (!string.IsNullOrEmpty(updateDto.CurrencyPosition))
+            existingAppSettings.CurrencyPosition = updateDto.CurrencyPosition;
+        if (!string.IsNullOrEmpty(updateDto.DateFormat))
+            existingAppSettings.DateFormat = updateDto.DateFormat;
+        if (!string.IsNullOrEmpty(updateDto.TimeFormat))
+            existingAppSettings.TimeFormat = updateDto.TimeFormat;
+        if (!string.IsNullOrEmpty(updateDto.NumberFormat))
+            existingAppSettings.NumberFormat = updateDto.NumberFormat;
+        if (!string.IsNullOrEmpty(updateDto.Language))
+            existingAppSettings.Language = updateDto.Language;
+        
         existingAppSettings.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -139,8 +159,7 @@ public class AppSettingsController : ControllerBase
                 throw;
             }
         }
-        return CreatedAtAction(nameof(GetAppSettings), new { id = appSettings.Id }, appSettings);
-
+        return Ok(new { message = "App settings updated successfully" });
     }
 
     // DELETE: api/AppSettings/5

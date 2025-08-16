@@ -71,7 +71,7 @@ public class SmsGatewayController : ControllerBase
 
     // PUT: api/SmsGateway/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSmsGateway(int id, SmsGateway smsGateway)
+    public async Task<IActionResult> UpdateSmsGateway(int id, UpdateSmsGatewayDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingSmsGateway = await _context.SmsGateways
@@ -82,12 +82,20 @@ public class SmsGatewayController : ControllerBase
             return NotFound();
         }
 
-        existingSmsGateway.PartnerName = smsGateway.PartnerName;
-        existingSmsGateway.Active = smsGateway.Active;
-        existingSmsGateway.Form = smsGateway.Form;
-        existingSmsGateway.Token = smsGateway.Token;
-        existingSmsGateway.ApiUrl = smsGateway.ApiUrl;
-        existingSmsGateway.TestSms = smsGateway.TestSms;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.PartnerName))
+            existingSmsGateway.PartnerName = updateDto.PartnerName;
+        if (updateDto.Active.HasValue)
+            existingSmsGateway.Active = updateDto.Active.Value;
+        if (!string.IsNullOrEmpty(updateDto.Form))
+            existingSmsGateway.Form = updateDto.Form;
+        if (!string.IsNullOrEmpty(updateDto.Token))
+            existingSmsGateway.Token = updateDto.Token;
+        if (!string.IsNullOrEmpty(updateDto.ApiUrl))
+            existingSmsGateway.ApiUrl = updateDto.ApiUrl;
+        if (updateDto.TestSms != null)
+            existingSmsGateway.TestSms = updateDto.TestSms;
+        
         existingSmsGateway.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -106,7 +114,7 @@ public class SmsGatewayController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "SMS gateway updated successfully" });
     }
 
     // DELETE: api/SmsGateway/5

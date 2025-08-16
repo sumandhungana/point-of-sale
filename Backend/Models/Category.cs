@@ -9,7 +9,7 @@ public class Category
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [StringLength(100)]
@@ -36,4 +36,14 @@ public class CreateCategoryDto
     
     [Required]
     public int CategoryType { get; set; } = 0; // 0: General, 1: Income, 2: Expense, 3: Purchase, 4: Cashbook
+}
+
+// DTO for updating categories - excludes navigation properties and system fields
+public class UpdateCategoryDto
+{
+    public string? Name { get; set; }
+    
+    public string? Description { get; set; }
+    
+    public int? CategoryType { get; set; }
 } 

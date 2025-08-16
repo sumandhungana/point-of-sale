@@ -10,7 +10,7 @@ public class RentalItem
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [StringLength(255)]
@@ -71,5 +71,18 @@ public class CreateRentalItemDto
     [Required]
     public DateTime EndDate { get; set; }
     
+    public string? Remarks { get; set; }
+}
+
+// DTO for updating rental items - excludes navigation properties and system fields
+public class UpdateRentalItemDto
+{
+    public string? RentalItemName { get; set; }
+    public string? PhoneNumber { get; set; }
+    public string? Address { get; set; }
+    public decimal? RentalAmount { get; set; }
+    public string? RentalPeriod { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
     public string? Remarks { get; set; }
 } 

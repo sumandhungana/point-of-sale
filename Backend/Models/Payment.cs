@@ -11,7 +11,7 @@ public class Payment
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [Column(TypeName = "decimal(10,2)")]
@@ -43,4 +43,13 @@ public class CreatePaymentDto
     
     [Required]
     public string PaymentMode { get; set; } = null!; // cash, online
+}
+
+// DTO for updating payments - excludes navigation properties and system fields
+public class UpdatePaymentDto
+{
+    public decimal? Amount { get; set; }
+    public string? Notes { get; set; }
+    public DateTime? PaymentDate { get; set; }
+    public string? PaymentMode { get; set; }
 } 

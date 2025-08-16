@@ -62,6 +62,7 @@ public class SupplierController : ControllerBase
             Company = supplierDto.Company,
             Pan = supplierDto.Pan,
             ContactPerson = supplierDto.ContactPerson,
+            ProfileImage = supplierDto.ProfileImage,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };
@@ -83,7 +84,7 @@ public class SupplierController : ControllerBase
 
     // PUT: api/Supplier/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateSupplier(int id, Supplier supplier)
+    public async Task<IActionResult> UpdateSupplier(int id, UpdateSupplierDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingSupplier = await _context.Suppliers
@@ -94,12 +95,24 @@ public class SupplierController : ControllerBase
             return NotFound();
         }
 
-        existingSupplier.Name = supplier.Name;
-        existingSupplier.Phone = supplier.Phone;
-        existingSupplier.Email = supplier.Email;
-        existingSupplier.Address = supplier.Address;
-        existingSupplier.Company = supplier.Company;
-        existingSupplier.ContactPerson = supplier.ContactPerson;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.Name))
+            existingSupplier.Name = updateDto.Name;
+        if (updateDto.Phone != null)
+            existingSupplier.Phone = updateDto.Phone;
+        if (updateDto.Email != null)
+            existingSupplier.Email = updateDto.Email;
+        if (updateDto.Address != null)
+            existingSupplier.Address = updateDto.Address;
+        if (updateDto.Company != null)
+            existingSupplier.Company = updateDto.Company;
+        if (updateDto.Pan != null)
+            existingSupplier.Pan = updateDto.Pan;
+        if (updateDto.ContactPerson != null)
+            existingSupplier.ContactPerson = updateDto.ContactPerson;
+        if (updateDto.ProfileImage != null)
+            existingSupplier.ProfileImage = updateDto.ProfileImage;
+        
         existingSupplier.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -118,7 +131,7 @@ public class SupplierController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Supplier updated successfully" });
     }
 
     // DELETE: api/Supplier/5

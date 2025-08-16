@@ -10,7 +10,7 @@ public class SmsGateway
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [StringLength(100)]
@@ -56,5 +56,16 @@ public class CreateSmsGatewayDto
     [Required]
     public string ApiUrl { get; set; } = null!;
     
+    public string? TestSms { get; set; }
+}
+
+// DTO for updating SMS gateways - excludes navigation properties and system fields
+public class UpdateSmsGatewayDto
+{
+    public string? PartnerName { get; set; }
+    public bool? Active { get; set; }
+    public string? Form { get; set; }
+    public string? Token { get; set; }
+    public string? ApiUrl { get; set; }
     public string? TestSms { get; set; }
 } 

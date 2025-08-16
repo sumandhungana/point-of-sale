@@ -104,7 +104,7 @@ public class InvoiceSettingsController : ControllerBase
 
     // PUT: api/InvoiceSettings/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateInvoiceSettings(int id, InvoiceSettings invoiceSettings)
+    public async Task<IActionResult> UpdateInvoiceSettings(int id, UpdateInvoiceSettingsDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingInvoiceSettings = await _context.InvoiceSettings
@@ -115,34 +115,64 @@ public class InvoiceSettingsController : ControllerBase
             return NotFound();
         }
 
-        existingInvoiceSettings.PremiumBill = invoiceSettings.PremiumBill;
-        existingInvoiceSettings.ThermalBill = invoiceSettings.ThermalBill;
-        existingInvoiceSettings.BasicBill = invoiceSettings.BasicBill;
-        existingInvoiceSettings.RegularPrinterField1 = invoiceSettings.RegularPrinterField1;
-        existingInvoiceSettings.RegularPrinterField2 = invoiceSettings.RegularPrinterField2;
-        existingInvoiceSettings.RegularPrinterField3 = invoiceSettings.RegularPrinterField3;
-        existingInvoiceSettings.ThermalPrinterField1 = invoiceSettings.ThermalPrinterField1;
-        existingInvoiceSettings.ThermalPrinterField2 = invoiceSettings.ThermalPrinterField2;
-        existingInvoiceSettings.ThermalPrinterField3 = invoiceSettings.ThermalPrinterField3;
-        existingInvoiceSettings.ShowCompanyName = invoiceSettings.ShowCompanyName;
-        existingInvoiceSettings.ShowCompanyLogo = invoiceSettings.ShowCompanyLogo;
-        existingInvoiceSettings.ShowAddress = invoiceSettings.ShowAddress;
-        existingInvoiceSettings.ShowEmail = invoiceSettings.ShowEmail;
-        existingInvoiceSettings.ShowPhone = invoiceSettings.ShowPhone;
-        existingInvoiceSettings.ShowPanVat = invoiceSettings.ShowPanVat;
-        existingInvoiceSettings.CompanyName = invoiceSettings.CompanyName;
-        existingInvoiceSettings.CompanyLogo = invoiceSettings.CompanyLogo;
-        existingInvoiceSettings.Address = invoiceSettings.Address;
-        existingInvoiceSettings.Email = invoiceSettings.Email;
-        existingInvoiceSettings.Phone = invoiceSettings.Phone;
-        existingInvoiceSettings.PanVat = invoiceSettings.PanVat;
-        existingInvoiceSettings.ShowAuthorizedSignature = invoiceSettings.ShowAuthorizedSignature;
-        existingInvoiceSettings.AuthorizedSignatureText = invoiceSettings.AuthorizedSignatureText;
-        existingInvoiceSettings.ChangeSignature = invoiceSettings.ChangeSignature;
-        existingInvoiceSettings.PaperSize = invoiceSettings.PaperSize;
-        existingInvoiceSettings.Orientation = invoiceSettings.Orientation;
-        existingInvoiceSettings.CompanyNameTextSize = invoiceSettings.CompanyNameTextSize;
-        existingInvoiceSettings.InvoiceTaxSize = invoiceSettings.InvoiceTaxSize;
+        // Update only the provided properties
+        if (updateDto.PremiumBill != null)
+            existingInvoiceSettings.PremiumBill = updateDto.PremiumBill;
+        if (updateDto.ThermalBill != null)
+            existingInvoiceSettings.ThermalBill = updateDto.ThermalBill;
+        if (updateDto.BasicBill != null)
+            existingInvoiceSettings.BasicBill = updateDto.BasicBill;
+        if (updateDto.RegularPrinterField1 != null)
+            existingInvoiceSettings.RegularPrinterField1 = updateDto.RegularPrinterField1;
+        if (updateDto.RegularPrinterField2 != null)
+            existingInvoiceSettings.RegularPrinterField2 = updateDto.RegularPrinterField2;
+        if (updateDto.RegularPrinterField3 != null)
+            existingInvoiceSettings.RegularPrinterField3 = updateDto.RegularPrinterField3;
+        if (updateDto.ThermalPrinterField1 != null)
+            existingInvoiceSettings.ThermalPrinterField1 = updateDto.ThermalPrinterField1;
+        if (updateDto.ThermalPrinterField2 != null)
+            existingInvoiceSettings.ThermalPrinterField2 = updateDto.ThermalPrinterField2;
+        if (updateDto.ThermalPrinterField3 != null)
+            existingInvoiceSettings.ThermalPrinterField3 = updateDto.ThermalPrinterField3;
+        if (updateDto.ShowCompanyName.HasValue)
+            existingInvoiceSettings.ShowCompanyName = updateDto.ShowCompanyName.Value;
+        if (updateDto.ShowCompanyLogo.HasValue)
+            existingInvoiceSettings.ShowCompanyLogo = updateDto.ShowCompanyLogo.Value;
+        if (updateDto.ShowAddress.HasValue)
+            existingInvoiceSettings.ShowAddress = updateDto.ShowAddress.Value;
+        if (updateDto.ShowEmail.HasValue)
+            existingInvoiceSettings.ShowEmail = updateDto.ShowEmail.Value;
+        if (updateDto.ShowPhone.HasValue)
+            existingInvoiceSettings.ShowPhone = updateDto.ShowPhone.Value;
+        if (updateDto.ShowPanVat.HasValue)
+            existingInvoiceSettings.ShowPanVat = updateDto.ShowPanVat.Value;
+        if (updateDto.CompanyName != null)
+            existingInvoiceSettings.CompanyName = updateDto.CompanyName;
+        if (updateDto.CompanyLogo != null)
+            existingInvoiceSettings.CompanyLogo = updateDto.CompanyLogo;
+        if (updateDto.Address != null)
+            existingInvoiceSettings.Address = updateDto.Address;
+        if (updateDto.Email != null)
+            existingInvoiceSettings.Email = updateDto.Email;
+        if (updateDto.Phone != null)
+            existingInvoiceSettings.Phone = updateDto.Phone;
+        if (updateDto.PanVat != null)
+            existingInvoiceSettings.PanVat = updateDto.PanVat;
+        if (updateDto.ShowAuthorizedSignature.HasValue)
+            existingInvoiceSettings.ShowAuthorizedSignature = updateDto.ShowAuthorizedSignature.Value;
+        if (updateDto.AuthorizedSignatureText != null)
+            existingInvoiceSettings.AuthorizedSignatureText = updateDto.AuthorizedSignatureText;
+        if (updateDto.ChangeSignature != null)
+            existingInvoiceSettings.ChangeSignature = updateDto.ChangeSignature;
+        if (updateDto.PaperSize != null)
+            existingInvoiceSettings.PaperSize = updateDto.PaperSize;
+        if (updateDto.Orientation != null)
+            existingInvoiceSettings.Orientation = updateDto.Orientation;
+        if (updateDto.CompanyNameTextSize != null)
+            existingInvoiceSettings.CompanyNameTextSize = updateDto.CompanyNameTextSize;
+        if (updateDto.InvoiceTaxSize != null)
+            existingInvoiceSettings.InvoiceTaxSize = updateDto.InvoiceTaxSize;
+        
         existingInvoiceSettings.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -161,7 +191,7 @@ public class InvoiceSettingsController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Invoice settings updated successfully" });
     }
 
     // DELETE: api/InvoiceSettings/5

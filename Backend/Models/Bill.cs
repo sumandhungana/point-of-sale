@@ -10,7 +10,7 @@ public class Bill
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     public int CustomerId { get; set; }
@@ -56,4 +56,15 @@ public class CreateBillDto
     
     [StringLength(20)]
     public string Status { get; set; } = "unpaid";
+}
+
+// DTO for updating bills - excludes navigation properties and system fields
+public class UpdateBillDto
+{
+    public int? CustomerId { get; set; }
+    public DateTime? BillDate { get; set; }
+    public DateTime? DueDate { get; set; }
+    public decimal? TotalAmount { get; set; }
+    public decimal? PaidAmount { get; set; }
+    public string? Status { get; set; }
 } 

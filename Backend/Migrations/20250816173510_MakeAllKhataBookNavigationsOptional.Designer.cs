@@ -3,6 +3,7 @@ using System;
 using Backend.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Backend.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250816173510_MakeAllKhataBookNavigationsOptional")]
+    partial class MakeAllKhataBookNavigationsOptional
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1792,9 +1795,6 @@ namespace Backend.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)");
 
-                    b.Property<string>("ProfileImage")
-                        .HasColumnType("text");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1928,13 +1928,13 @@ namespace Backend.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 8, 16, 18, 24, 0, 340, DateTimeKind.Utc).AddTicks(4869),
+                            CreatedAt = new DateTime(2025, 8, 16, 17, 35, 10, 3, DateTimeKind.Utc).AddTicks(8065),
                             Enable = true,
                             Password = "",
                             PasswordHash = "wphRXnzVzKYnlQxYSHWH8zlzV8CIxoPUoRyCv2pwCYs=",
                             PasswordSalt = "static_salt_123",
                             Permission = "admin",
-                            UpdatedAt = new DateTime(2025, 8, 16, 18, 24, 0, 340, DateTimeKind.Utc).AddTicks(4870),
+                            UpdatedAt = new DateTime(2025, 8, 16, 17, 35, 10, 3, DateTimeKind.Utc).AddTicks(8069),
                             Username = "admin"
                         });
                 });

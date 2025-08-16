@@ -10,7 +10,7 @@ public class PaymentGateway
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [StringLength(100)]
@@ -65,4 +65,24 @@ public class CreatePaymentGatewayDto
     
     [Required]
     public string SecretKey { get; set; } = null!;
+}
+
+// DTO for updating payment gateways - excludes navigation properties and system fields
+public class UpdatePaymentGatewayDto
+{
+    public string? Name { get; set; }
+    
+    public string? PaymentMode { get; set; }
+    
+    public string? Description { get; set; }
+    
+    public bool? IsActive { get; set; }
+    
+    public string? ImagePath { get; set; }
+    
+    public string? VerificationUrl { get; set; }
+    
+    public string? PublicKey { get; set; }
+    
+    public string? SecretKey { get; set; }
 } 

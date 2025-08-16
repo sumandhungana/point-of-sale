@@ -117,7 +117,7 @@ public class CustomerController : ControllerBase
 
     // PUT: api/Customer/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCustomer(int id, Customer updatedCustomer)
+    public async Task<IActionResult> UpdateCustomer(int id, UpdateCustomerDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var customer = await _context.Customers
@@ -127,37 +127,37 @@ public class CustomerController : ControllerBase
             return NotFound();
         }
 
-        // Update only the non-null properties
-        if (!string.IsNullOrEmpty(updatedCustomer.Name))
-            customer.Name = updatedCustomer.Name;
-        if (updatedCustomer.Phone != null)
-            customer.Phone = updatedCustomer.Phone;
-        if (updatedCustomer.Email != null)
-            customer.Email = updatedCustomer.Email;
-        if (updatedCustomer.Address != null)
-            customer.Address = updatedCustomer.Address;
-        if (updatedCustomer.Company != null)
-            customer.Company = updatedCustomer.Company;
-        if (updatedCustomer.Pan != null)
-            customer.Pan = updatedCustomer.Pan;
-        if (updatedCustomer.ContactPerson != null)
-            customer.ContactPerson = updatedCustomer.ContactPerson;
-        if (updatedCustomer.BankAccount != null)
-            customer.BankAccount = updatedCustomer.BankAccount;
-        if (updatedCustomer.ProfileImage != null)
-            customer.ProfileImage = updatedCustomer.ProfileImage;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.Name))
+            customer.Name = updateDto.Name;
+        if (updateDto.Phone != null)
+            customer.Phone = updateDto.Phone;
+        if (updateDto.Email != null)
+            customer.Email = updateDto.Email;
+        if (updateDto.Address != null)
+            customer.Address = updateDto.Address;
+        if (updateDto.Company != null)
+            customer.Company = updateDto.Company;
+        if (updateDto.Pan != null)
+            customer.Pan = updateDto.Pan;
+        if (updateDto.ContactPerson != null)
+            customer.ContactPerson = updateDto.ContactPerson;
+        if (updateDto.BankAccount != null)
+            customer.BankAccount = updateDto.BankAccount;
+        if (updateDto.ProfileImage != null)
+            customer.ProfileImage = updateDto.ProfileImage;
         
-        // Update boolean and decimal fields only if they have non-default values
-        if (updatedCustomer.isSupplier != customer.isSupplier)
-            customer.isSupplier = updatedCustomer.isSupplier;
-        if (updatedCustomer.CashBalance != 0)
-            customer.CashBalance = updatedCustomer.CashBalance;
-        if (updatedCustomer.CustomerSmsSetting != customer.CustomerSmsSetting)
-            customer.CustomerSmsSetting = updatedCustomer.CustomerSmsSetting;
-        if (updatedCustomer.SmsLanguage != customer.SmsLanguage)
-            customer.SmsLanguage = updatedCustomer.SmsLanguage;
-        if (updatedCustomer.TransactionHistoryCheck != customer.TransactionHistoryCheck)
-            customer.TransactionHistoryCheck = updatedCustomer.TransactionHistoryCheck;
+        // Update boolean and decimal fields only if they are provided
+        if (updateDto.isSupplier.HasValue)
+            customer.isSupplier = updateDto.isSupplier.Value;
+        if (updateDto.CashBalance.HasValue)
+            customer.CashBalance = updateDto.CashBalance.Value;
+        if (updateDto.CustomerSmsSetting.HasValue)
+            customer.CustomerSmsSetting = updateDto.CustomerSmsSetting.Value;
+        if (updateDto.SmsLanguage.HasValue)
+            customer.SmsLanguage = updateDto.SmsLanguage.Value;
+        if (updateDto.TransactionHistoryCheck.HasValue)
+            customer.TransactionHistoryCheck = updateDto.TransactionHistoryCheck.Value;
 
         customer.UpdatedAt = DateTime.UtcNow;
 
@@ -174,7 +174,7 @@ public class CustomerController : ControllerBase
             throw;
         }
 
-        return Ok(customer);
+        return Ok(new { message = "Customer updated successfully" });
     }
 
     // DELETE: api/Customer/5

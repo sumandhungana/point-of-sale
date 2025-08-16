@@ -79,7 +79,7 @@ public class CategoryController : ControllerBase
 
     // PUT: api/Category/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateCategory(int id, Category category)
+    public async Task<IActionResult> UpdateCategory(int id, UpdateCategoryDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingCategory = await _context.Categories
@@ -90,9 +90,14 @@ public class CategoryController : ControllerBase
             return NotFound();
         }
 
-        existingCategory.Name = category.Name;
-        existingCategory.Description = category.Description;
-        existingCategory.CategoryType = category.CategoryType;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.Name))
+            existingCategory.Name = updateDto.Name;
+        if (updateDto.Description != null)
+            existingCategory.Description = updateDto.Description;
+        if (updateDto.CategoryType.HasValue)
+            existingCategory.CategoryType = updateDto.CategoryType.Value;
+        
         existingCategory.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -111,7 +116,7 @@ public class CategoryController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Category updated successfully" });
     }
 
     // DELETE: api/Category/5

@@ -8,7 +8,7 @@ public class Transaction
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     public string Description { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public DateTime TransactionDate { get; set; }
@@ -24,4 +24,13 @@ public class CreateTransactionDto
     public decimal Amount { get; set; }
     public DateTime TransactionDate { get; set; }
     public string TransactionType { get; set; } = string.Empty;
+}
+
+// DTO for updating transactions - excludes navigation properties and system fields
+public class UpdateTransactionDto
+{
+    public string? Description { get; set; }
+    public decimal? Amount { get; set; }
+    public DateTime? TransactionDate { get; set; }
+    public string? TransactionType { get; set; }
 } 

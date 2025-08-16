@@ -9,7 +9,7 @@ public class AppSettings
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [StringLength(7)]
@@ -156,4 +156,44 @@ public class CreateAppSettingsDto
     [Required]
     [StringLength(50)]
     public string Language { get; set; } = "English";
+}
+
+// DTO for updating app settings - excludes navigation properties and system fields
+public class UpdateAppSettingsDto
+{
+    public string? SideMenuBgColor { get; set; }
+    
+    public string? SideMenuBgEndColor { get; set; }
+    
+    public string? SideMenuFontColor { get; set; }
+    
+    public string? SideMenuHoverFontColor { get; set; }
+    
+    public string? SideMenuHoverBgColor { get; set; }
+    
+    public string? TopMenuBgColor { get; set; }
+    
+    public string? TopMenuFontColor { get; set; }
+    
+    public string? AppBgColor { get; set; }
+    
+    public string? AppForegroundColor { get; set; }
+    
+    public string? LogoPath { get; set; }
+    
+    public string? FaviconPath { get; set; }
+    
+    public string? LoginBgPath { get; set; }
+    
+    public string? Currency { get; set; }
+    
+    public string? CurrencyPosition { get; set; }
+    
+    public string? DateFormat { get; set; }
+    
+    public string? TimeFormat { get; set; }
+    
+    public string? NumberFormat { get; set; }
+    
+    public string? Language { get; set; }
 } 

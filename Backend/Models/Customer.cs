@@ -10,7 +10,7 @@ public class Customer
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     public string Name { get; set; } = string.Empty;
     
@@ -78,4 +78,36 @@ public class CreateCustomerDto
     public bool SmsLanguage { get; set; } = false;
 
     public bool TransactionHistoryCheck { get; set; } = false;
+}
+
+// DTO for updating customers - excludes navigation properties and system fields
+public class UpdateCustomerDto
+{
+    public string? Name { get; set; }
+    
+    public string? Phone { get; set; }
+    
+    public string? Email { get; set; }
+    
+    public string? Address { get; set; }
+    
+    public string? Company { get; set; }
+    
+    public string? Pan { get; set; }
+
+    public string? ContactPerson { get; set; }
+
+    public bool? isSupplier { get; set; }
+
+    public string? BankAccount { get; set; }
+
+    public decimal? CashBalance { get; set; }
+
+    public string? ProfileImage { get; set; }
+
+    public bool? CustomerSmsSetting { get; set; }
+
+    public bool? SmsLanguage { get; set; }
+
+    public bool? TransactionHistoryCheck { get; set; }
 } 

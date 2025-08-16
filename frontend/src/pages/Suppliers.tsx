@@ -33,12 +33,11 @@ export const Suppliers = () => {
         const fetchSuppliers = async () => {
             try {
                 const data = await getSuppliers();
-                const suppliersData = data.filter(customer => customer.isSupplier);
                 const suppliersWithBalance = await Promise.all(
-                    suppliersData.map(async (supplier) => {
+                    data.map(async (supplier: Customer) => {
                         try {
                             const paymentHistory = await getPaymentHistory(supplier.id);
-                            const balance = paymentHistory.reduce((acc, payment) => {
+                            const balance = paymentHistory.reduce((acc: number, payment: PaymentHistory) => {
                                 if (payment.type === 'Received') {
                                     return acc + payment.amount;
                                 } else {
@@ -55,8 +54,8 @@ export const Suppliers = () => {
                 setSuppliers(suppliersWithBalance);
 
                 // Calculate overall totals
-                const totals = suppliersWithBalance.reduce((acc, supplier) => {
-                    supplier.paymentHistory.forEach(payment => {
+                const totals = suppliersWithBalance.reduce((acc: { given: number; received: number; online: number }, supplier: SupplierWithBalance) => {
+                    supplier.paymentHistory.forEach((payment: PaymentHistory) => {
                         if (payment.type === 'Given') {
                             acc.given += payment.amount;
                         } else if (payment.type === 'Received') {
@@ -444,10 +443,36 @@ export const Suppliers = () => {
                             onClick={() => handleSupplierClick(supplier.id.toString())}
                         >
                             <div style={styles.supplierInfo}>
-                                <div style={styles.profileImage} />
+                                {supplier.profileImage ? (
+                                    <img 
+                                        src={`http://localhost:5000${supplier.profileImage}`} 
+                                        alt={supplier.name}
+                                        style={styles.profileImage}
+                                        onError={(e) => {
+                                            e.currentTarget.style.display = 'none';
+                                            const nextSibling = e.currentTarget.nextSibling as HTMLElement;
+                                            if (nextSibling) {
+                                                nextSibling.style.display = 'flex';
+                                            }
+                                        }}
+                                    />
+                                ) : null}
+                                <div 
+                                    style={{
+                                        ...styles.profileImage,
+                                        display: supplier.profileImage ? 'none' : 'flex',
+                                        backgroundColor: '#e9ecef',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '1.5rem',
+                                        color: '#6c757d'
+                                    }}
+                                >
+                                    {supplier.name.charAt(0).toUpperCase()}
+                                </div>
                                 <div style={styles.supplierDetails}>
                                     <h3 style={styles.supplierName}>{supplier.name}</h3>
-                                    <p style={styles.workingHours}>Contact: {supplier.ContactPerson || 'N/A'}</p>
+                                                                         <p style={styles.workingHours}>Contact: {supplier.ContactPerson || 'N/A'}</p>
                                 </div>
                                 <div style={{
                                     ...styles.supplierAmount,

@@ -150,7 +150,7 @@ public class StaffController : ControllerBase
 
     // PUT: api/Staff/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateStaff(int id, Staff staff)
+    public async Task<IActionResult> UpdateStaff(int id, UpdateStaffDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingStaff = await _context.Staff
@@ -161,12 +161,20 @@ public class StaffController : ControllerBase
             return NotFound();
         }
 
-        existingStaff.Name = staff.Name;
-        existingStaff.Phone = staff.Phone;
-        existingStaff.Address = staff.Address;
-        existingStaff.Email = staff.Email;
-        existingStaff.Remarks = staff.Remarks;
-        existingStaff.ProfileImageUrl = staff.ProfileImageUrl;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.Name))
+            existingStaff.Name = updateDto.Name;
+        if (updateDto.Phone != null)
+            existingStaff.Phone = updateDto.Phone;
+        if (updateDto.Address != null)
+            existingStaff.Address = updateDto.Address;
+        if (updateDto.Email != null)
+            existingStaff.Email = updateDto.Email;
+        if (updateDto.Remarks != null)
+            existingStaff.Remarks = updateDto.Remarks;
+        if (updateDto.ProfileImageUrl != null)
+            existingStaff.ProfileImageUrl = updateDto.ProfileImageUrl;
+        
         existingStaff.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -185,7 +193,7 @@ public class StaffController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Staff updated successfully" });
     }
 
     // DELETE: api/Staff/5

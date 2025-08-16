@@ -90,7 +90,7 @@ public class StaffSalaryController : ControllerBase
 
     // PUT: api/StaffSalary/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateStaffSalary(int id, StaffSalary staffSalary)
+    public async Task<IActionResult> UpdateStaffSalary(int id, UpdateStaffSalaryDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingSalary = await _context.StaffSalaries
@@ -101,15 +101,26 @@ public class StaffSalaryController : ControllerBase
             return NotFound();
         }
 
-        existingSalary.StaffId = staffSalary.StaffId;
-        existingSalary.Year = staffSalary.Year;
-        existingSalary.Month = staffSalary.Month;
-        existingSalary.SelectedDate = staffSalary.SelectedDate;
-        existingSalary.IsSlideOn = staffSalary.IsSlideOn;
-        existingSalary.CalculationDate = staffSalary.CalculationDate;
-        existingSalary.SalaryType = staffSalary.SalaryType;
-        existingSalary.Amount = staffSalary.Amount;
-        existingSalary.Permission = staffSalary.Permission;
+        // Update only the provided properties
+        if (updateDto.StaffId.HasValue)
+            existingSalary.StaffId = updateDto.StaffId.Value;
+        if (updateDto.Year.HasValue)
+            existingSalary.Year = updateDto.Year.Value;
+        if (updateDto.Month.HasValue)
+            existingSalary.Month = updateDto.Month.Value;
+        if (updateDto.SelectedDate.HasValue)
+            existingSalary.SelectedDate = updateDto.SelectedDate.Value;
+        if (updateDto.IsSlideOn.HasValue)
+            existingSalary.IsSlideOn = updateDto.IsSlideOn.Value;
+        if (updateDto.CalculationDate.HasValue)
+            existingSalary.CalculationDate = updateDto.CalculationDate.Value;
+        if (!string.IsNullOrEmpty(updateDto.SalaryType))
+            existingSalary.SalaryType = updateDto.SalaryType;
+        if (updateDto.Amount.HasValue)
+            existingSalary.Amount = updateDto.Amount.Value;
+        if (!string.IsNullOrEmpty(updateDto.Permission))
+            existingSalary.Permission = updateDto.Permission;
+        
         existingSalary.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -128,7 +139,7 @@ public class StaffSalaryController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Staff salary updated successfully" });
     }
 
     // DELETE: api/StaffSalary/5

@@ -84,7 +84,7 @@ public class BillController : ControllerBase
 
     // PUT: api/Bill/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateBill(int id, Bill bill)
+    public async Task<IActionResult> UpdateBill(int id, UpdateBillDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingBill = await _context.Bills
@@ -95,12 +95,20 @@ public class BillController : ControllerBase
             return NotFound();
         }
 
-        existingBill.CustomerId = bill.CustomerId;
-        existingBill.BillDate = bill.BillDate;
-        existingBill.DueDate = bill.DueDate;
-        existingBill.TotalAmount = bill.TotalAmount;
-        existingBill.PaidAmount = bill.PaidAmount;
-        existingBill.Status = bill.Status;
+        // Update only the provided properties
+        if (updateDto.CustomerId.HasValue)
+            existingBill.CustomerId = updateDto.CustomerId.Value;
+        if (updateDto.BillDate.HasValue)
+            existingBill.BillDate = updateDto.BillDate.Value;
+        if (updateDto.DueDate.HasValue)
+            existingBill.DueDate = updateDto.DueDate.Value;
+        if (updateDto.TotalAmount.HasValue)
+            existingBill.TotalAmount = updateDto.TotalAmount.Value;
+        if (updateDto.PaidAmount.HasValue)
+            existingBill.PaidAmount = updateDto.PaidAmount.Value;
+        if (!string.IsNullOrEmpty(updateDto.Status))
+            existingBill.Status = updateDto.Status;
+        
         existingBill.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -119,7 +127,7 @@ public class BillController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Bill updated successfully" });
     }
 
     // DELETE: api/Bill/5

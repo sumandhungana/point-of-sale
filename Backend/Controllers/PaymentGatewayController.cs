@@ -73,7 +73,7 @@ public class PaymentGatewayController : ControllerBase
 
     // PUT: api/PaymentGateway/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePaymentGateway(int id, PaymentGateway paymentGateway)
+    public async Task<IActionResult> UpdatePaymentGateway(int id, UpdatePaymentGatewayDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingPaymentGateway = await _context.PaymentGateways
@@ -84,14 +84,24 @@ public class PaymentGatewayController : ControllerBase
             return NotFound();
         }
 
-        existingPaymentGateway.Name = paymentGateway.Name;
-        existingPaymentGateway.PaymentMode = paymentGateway.PaymentMode;
-        existingPaymentGateway.Description = paymentGateway.Description;
-        existingPaymentGateway.IsActive = paymentGateway.IsActive;
-        existingPaymentGateway.ImagePath = paymentGateway.ImagePath;
-        existingPaymentGateway.VerificationUrl = paymentGateway.VerificationUrl;
-        existingPaymentGateway.PublicKey = paymentGateway.PublicKey;
-        existingPaymentGateway.SecretKey = paymentGateway.SecretKey;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.Name))
+            existingPaymentGateway.Name = updateDto.Name;
+        if (!string.IsNullOrEmpty(updateDto.PaymentMode))
+            existingPaymentGateway.PaymentMode = updateDto.PaymentMode;
+        if (updateDto.Description != null)
+            existingPaymentGateway.Description = updateDto.Description;
+        if (updateDto.IsActive.HasValue)
+            existingPaymentGateway.IsActive = updateDto.IsActive.Value;
+        if (updateDto.ImagePath != null)
+            existingPaymentGateway.ImagePath = updateDto.ImagePath;
+        if (!string.IsNullOrEmpty(updateDto.VerificationUrl))
+            existingPaymentGateway.VerificationUrl = updateDto.VerificationUrl;
+        if (!string.IsNullOrEmpty(updateDto.PublicKey))
+            existingPaymentGateway.PublicKey = updateDto.PublicKey;
+        if (!string.IsNullOrEmpty(updateDto.SecretKey))
+            existingPaymentGateway.SecretKey = updateDto.SecretKey;
+        
         existingPaymentGateway.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -110,7 +120,7 @@ public class PaymentGatewayController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Payment gateway updated successfully" });
     }
 
     // DELETE: api/PaymentGateway/5

@@ -9,7 +9,7 @@ public class Supplier
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [StringLength(100)]
@@ -33,6 +33,8 @@ public class Supplier
     [Required]
     [StringLength(100)]
     public string? ContactPerson { get; set; }
+    
+    public string? ProfileImage { get; set; }
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
@@ -64,4 +66,26 @@ public class CreateSupplierDto
     [Required]
     [StringLength(100)]
     public string? ContactPerson { get; set; }
+    
+    public string? ProfileImage { get; set; }
+}
+
+// DTO for updating suppliers - excludes navigation properties and system fields
+public class UpdateSupplierDto
+{
+    public string? Name { get; set; }
+    
+    public string? Phone { get; set; }
+    
+    public string? Email { get; set; }
+    
+    public string? Address { get; set; }
+    
+    public string? Company { get; set; }
+    
+    public string? Pan { get; set; }
+    
+    public string? ContactPerson { get; set; }
+    
+    public string? ProfileImage { get; set; }
 } 

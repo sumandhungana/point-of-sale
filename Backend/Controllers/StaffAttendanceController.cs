@@ -104,27 +104,44 @@ public class StaffAttendanceController : ControllerBase
 
     // PUT: api/StaffAttendance/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateStaffAttendance(int id, StaffAttendance staffAttendance)
+    public async Task<IActionResult> UpdateStaffAttendance(int id, UpdateStaffAttendanceDto updateDto)
     {
-        if (id != staffAttendance.Id)
-        {
-            return BadRequest();
-        }
-
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingAttendance = await _context.StaffAttendances
-            .FirstOrDefaultAsync(a => 
-                a.StaffId == staffAttendance.StaffId && 
-                a.Date.Date == staffAttendance.Date.Date &&
-                a.KhataBookId == currentKhataBookId && 
-                a.Id != staffAttendance.Id);
-
-        if (existingAttendance != null)
+            .FirstOrDefaultAsync(a => a.Id == id && a.KhataBookId == currentKhataBookId);
+        
+        if (existingAttendance == null)
         {
-            return BadRequest("Attendance for this staff member on this date already exists.");
+            return NotFound();
         }
 
-        _context.Entry(staffAttendance).State = EntityState.Modified;
+        // Update only the provided properties
+        if (updateDto.StaffId.HasValue)
+            existingAttendance.StaffId = updateDto.StaffId.Value;
+        if (updateDto.Date.HasValue)
+            existingAttendance.Date = updateDto.Date.Value;
+        if (!string.IsNullOrEmpty(updateDto.Status))
+            existingAttendance.Status = updateDto.Status;
+        if (updateDto.Note != null)
+            existingAttendance.Note = updateDto.Note;
+        
+        existingAttendance.UpdatedAt = DateTime.UtcNow;
+
+        // Check for duplicate attendance if staff or date is being updated
+        if (updateDto.StaffId.HasValue || updateDto.Date.HasValue)
+        {
+            var duplicateAttendance = await _context.StaffAttendances
+                .FirstOrDefaultAsync(a => 
+                    a.StaffId == existingAttendance.StaffId && 
+                    a.Date.Date == existingAttendance.Date.Date &&
+                    a.KhataBookId == currentKhataBookId && 
+                    a.Id != id);
+
+            if (duplicateAttendance != null)
+            {
+                return BadRequest("Attendance for this staff member on this date already exists.");
+            }
+        }
 
         try
         {
@@ -142,7 +159,7 @@ public class StaffAttendanceController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Staff attendance updated successfully" });
     }
 
     // DELETE: api/StaffAttendance/5

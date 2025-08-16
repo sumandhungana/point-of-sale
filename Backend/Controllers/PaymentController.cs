@@ -93,7 +93,7 @@ public class PaymentController : ControllerBase
 
     // PUT: api/Payment/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdatePayment(int id, Payment payment)
+    public async Task<IActionResult> UpdatePayment(int id, UpdatePaymentDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingPayment = await _context.Payments
@@ -104,10 +104,16 @@ public class PaymentController : ControllerBase
             return NotFound();
         }
 
-        existingPayment.PaymentDate = payment.PaymentDate;
-        existingPayment.Amount = payment.Amount;
-        existingPayment.PaymentMode = payment.PaymentMode;
-        existingPayment.Notes = payment.Notes;
+        // Update only the provided properties
+        if (updateDto.PaymentDate.HasValue)
+            existingPayment.PaymentDate = updateDto.PaymentDate.Value;
+        if (updateDto.Amount.HasValue)
+            existingPayment.Amount = updateDto.Amount.Value;
+        if (!string.IsNullOrEmpty(updateDto.PaymentMode))
+            existingPayment.PaymentMode = updateDto.PaymentMode;
+        if (updateDto.Notes != null)
+            existingPayment.Notes = updateDto.Notes;
+        
         existingPayment.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -126,7 +132,7 @@ public class PaymentController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Payment updated successfully" });
     }
 
     // DELETE: api/Payment/5

@@ -11,7 +11,7 @@ public class Staff
     
     // KhataBook Foreign Key for data isolation
     public int KhataBookId { get; set; }
-    public virtual KhataBook KhataBook { get; set; } = null!;
+    public virtual KhataBook? KhataBook { get; set; }
     
     [Required]
     [StringLength(255)]
@@ -60,5 +60,21 @@ public class CreateStaffDto
     public string? Remarks { get; set; }
     
     [StringLength(255)]
+    public string? ProfileImageUrl { get; set; }
+}
+
+// DTO for updating staff - excludes navigation properties and system fields
+public class UpdateStaffDto
+{
+    public string? Name { get; set; }
+    
+    public string? Address { get; set; }
+    
+    public string? Phone { get; set; }
+    
+    public string? Email { get; set; }
+    
+    public string? Remarks { get; set; }
+    
     public string? ProfileImageUrl { get; set; }
 } 

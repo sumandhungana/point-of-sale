@@ -91,7 +91,7 @@ public class RentalItemController : ControllerBase
 
     // PUT: api/RentalItem/5
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateRentalItem(int id, RentalItem rentalItem)
+    public async Task<IActionResult> UpdateRentalItem(int id, UpdateRentalItemDto updateDto)
     {
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         var existingRentalItem = await _context.RentalItems
@@ -102,14 +102,24 @@ public class RentalItemController : ControllerBase
             return NotFound();
         }
 
-        existingRentalItem.RentalItemName = rentalItem.RentalItemName;
-        existingRentalItem.PhoneNumber = rentalItem.PhoneNumber;
-        existingRentalItem.Address = rentalItem.Address;
-        existingRentalItem.RentalAmount = rentalItem.RentalAmount;
-        existingRentalItem.RentalPeriod = rentalItem.RentalPeriod;
-        existingRentalItem.StartDate = rentalItem.StartDate;
-        existingRentalItem.EndDate = rentalItem.EndDate;
-        existingRentalItem.Remarks = rentalItem.Remarks;
+        // Update only the provided properties
+        if (!string.IsNullOrEmpty(updateDto.RentalItemName))
+            existingRentalItem.RentalItemName = updateDto.RentalItemName;
+        if (!string.IsNullOrEmpty(updateDto.PhoneNumber))
+            existingRentalItem.PhoneNumber = updateDto.PhoneNumber;
+        if (!string.IsNullOrEmpty(updateDto.Address))
+            existingRentalItem.Address = updateDto.Address;
+        if (updateDto.RentalAmount.HasValue)
+            existingRentalItem.RentalAmount = updateDto.RentalAmount.Value;
+        if (!string.IsNullOrEmpty(updateDto.RentalPeriod))
+            existingRentalItem.RentalPeriod = updateDto.RentalPeriod;
+        if (updateDto.StartDate.HasValue)
+            existingRentalItem.StartDate = updateDto.StartDate.Value;
+        if (updateDto.EndDate.HasValue)
+            existingRentalItem.EndDate = updateDto.EndDate.Value;
+        if (updateDto.Remarks != null)
+            existingRentalItem.Remarks = updateDto.Remarks;
+        
         existingRentalItem.UpdatedAt = DateTime.UtcNow;
 
         try
@@ -128,7 +138,7 @@ public class RentalItemController : ControllerBase
             }
         }
 
-        return NoContent();
+        return Ok(new { message = "Rental item updated successfully" });
     }
 
     // DELETE: api/RentalItem/5

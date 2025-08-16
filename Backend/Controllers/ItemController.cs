@@ -150,7 +150,7 @@ public class ItemController : ControllerBase
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(new { message = "Item updated successfully" });
         }
         catch (Exception ex)
         {
