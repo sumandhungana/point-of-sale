@@ -10,6 +10,18 @@ import { fetchCashbooks } from '../services/cashbookService';
 import { fetchRentalItems } from '../services/rentalItemService';
 import { fetchUsers } from '../services/userService';
 import { fetchItems } from '../services/itemService';
+import '../styles/Dashboard.css';
+
+const hexToRgba = (hex: string, alpha: number): string => {
+  const sanitized = hex.replace('#', '');
+  const bigint = parseInt(sanitized.length === 3
+    ? sanitized.split('').map(c => c + c).join('')
+    : sanitized, 16);
+  const r = (bigint >> 16) & 255;
+  const g = (bigint >> 8) & 255;
+  const b = bigint & 255;
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+};
 
 const Dashboard: React.FC = () => {
   const [totalCustomers, setTotalCustomers] = useState<number>(0);
@@ -28,51 +40,56 @@ const Dashboard: React.FC = () => {
   const [totalPaid, setTotalPaid] = useState<number>(0);
   const [totalDeposit, setTotalDeposit] = useState<number>(0);
 
+
   useEffect(() => {
     const fetchData = async () => {
       try {
         const customers = await getCustomers();
-        setTotalCustomers(customers.length);
+        setTotalCustomers(customers.length || 0);
 
         const suppliers = await getSuppliers();
-        setTotalSuppliers(suppliers.length);
+        setTotalSuppliers(suppliers.length || 0);
 
         const staff = await fetchStaff();
-        setTotalStaff(staff.length);
+        setTotalStaff(staff.length || 0);
 
         const salesBills = await fetchSalesBills();
-        setTotalSales(salesBills.length);
+        setTotalSales(salesBills.length || 0);
+        console.log('Sales Bills:', salesBills.length);
 
         const purchases = await fetchPurchases();
-        setTotalPurchase(purchases.length);
+        setTotalPurchase(purchases.length || 0);
+        console.log('Purchases:', purchases.length);
 
         const expenses = await fetchExpenses();
-        setTotalExpenses(expenses.length);
+        setTotalExpenses(expenses.length || 0);
+        console.log('Expenses:', expenses.length);
 
         const incomes = await fetchIncomes();
-        setTotalIncome(incomes.length);
+        setTotalIncome(incomes.length || 0);
+        console.log('Incomes:', incomes.length);
 
         const cashbooks = await fetchCashbooks();
-        setTotalCashbook(cashbooks.length);
+        setTotalCashbook(cashbooks.length || 0);
 
         const rentalItems = await fetchRentalItems();
-        setTotalRentalItem(rentalItems.length);
+        setTotalRentalItem(rentalItems.length || 0);
 
-        // Assuming branch data is fetched from a branch service or similar
-        // For now, setting a static value
+        // Static/placeholder values
         setTotalBranch(1);
 
         const users = await fetchUsers();
-        setTotalAppUser(users.length);
+        setTotalAppUser(users.length || 0);
 
         const items = await fetchItems();
-        setTotalItem(items.length);
+        setTotalItem(items.length || 0);
 
-        // Assuming due, paid, and deposit are calculated from payment history or similar
-        // For now, setting static values
+        // Placeholder financial aggregates
         setTotalDue(0);
         setTotalPaid(0);
         setTotalDeposit(0);
+
+
       } catch (error) {
         console.error('Error fetching dashboard data:', error);
       }
@@ -81,153 +98,79 @@ const Dashboard: React.FC = () => {
     fetchData();
   }, []);
 
-  const styles = {
-    container: {
-      display: 'flex',
-      minHeight: '100vh',
-    },
-    mainContent: {
-      flex: 1,
-      padding: '2rem',
-      backgroundColor: '#f5f5f5',
-    },
-    card: {
-      backgroundColor: 'white',
-      borderRadius: '8px',
-      padding: '1.5rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    cardHeader: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.75rem',
-      marginBottom: '1rem',
-    },
-    cardTitle: {
-      margin: 0,
-      fontSize: '1rem',
-      color: '#666',
-    },
-    cardValue: {
-      margin: 0,
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#333',
-    },
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    e.currentTarget.style.setProperty('--mouse-x', `${x}px`);
+    e.currentTarget.style.setProperty('--mouse-y', `${y}px`);
   };
 
+  const handleCardMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.currentTarget.style.setProperty('--mouse-x', '50%');
+    e.currentTarget.style.setProperty('--mouse-y', '0%');
+  };
+
+  const metrics: Array<{
+    title: string;
+    value: number;
+    icon: string;
+    iconColor: string;
+  }> = [
+    { title: 'Total Customers', value: totalCustomers, icon: 'bi-people-fill', iconColor: '#4CAF50' },
+    { title: 'Total Suppliers', value: totalSuppliers, icon: 'bi-shop', iconColor: '#2196F3' },
+    { title: 'Total Staff', value: totalStaff, icon: 'bi-people', iconColor: '#FF9800' },
+    { title: 'Total Sales', value: totalSales, icon: 'bi-cash-coin', iconColor: '#4CAF50' },
+    { title: 'Total Purchase', value: totalPurchase, icon: 'bi-cart-check', iconColor: '#FF9800' },
+    { title: 'Total Expenses', value: totalExpenses, icon: 'bi-box-seam', iconColor: '#F44336' },
+    { title: 'Total Income', value: totalIncome, icon: 'bi-wallet2', iconColor: '#4CAF50' },
+    { title: 'Total Cashbook', value: totalCashbook, icon: 'bi-credit-card', iconColor: '#2196F3' },
+    { title: 'Total Rental Item', value: totalRentalItem, icon: 'bi-file-earmark', iconColor: '#9C27B0' },
+    { title: 'Total Branch', value: totalBranch, icon: 'bi-building', iconColor: '#9C27B0' },
+    { title: 'Total App User', value: totalAppUser, icon: 'bi-person-badge', iconColor: '#2196F3' },
+    { title: 'Total Item', value: totalItem, icon: 'bi-bag-check', iconColor: '#FF9800' },
+    { title: 'Total Due', value: totalDue, icon: 'bi-credit-card-2-back', iconColor: '#F44336' },
+    { title: 'Total Paid', value: totalPaid, icon: 'bi-currency-exchange', iconColor: '#4CAF50' },
+    { title: 'Total Deposit', value: totalDeposit, icon: 'bi-bank', iconColor: '#4CAF50' },
+  ];
+
   return (
-    <div style={styles.container}>
+    <div className="dashboard-page-wrapper">
       <Sidebar />
-      <main style={styles.mainContent}>
-        <h1 className="text-2xl font-bold mb-6">Dashboard</h1>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>👥</span>
-              <h3 style={styles.cardTitle}>Total Customers</h3>
-            </div>
-            <p style={styles.cardValue}>{totalCustomers}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#2196F3' }}>🏪</span>
-              <h3 style={styles.cardTitle}>Total Suppliers</h3>
-            </div>
-            <p style={styles.cardValue}>{totalSuppliers}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#FF9800' }}>👥</span>
-              <h3 style={styles.cardTitle}>Total Staff</h3>
-            </div>
-            <p style={styles.cardValue}>{totalStaff}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>💰</span>
-              <h3 style={styles.cardTitle}>Total Sales</h3>
-            </div>
-            <p style={styles.cardValue}>{totalSales}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#FF9800' }}>🛒</span>
-              <h3 style={styles.cardTitle}>Total Purchase</h3>
-            </div>
-            <p style={styles.cardValue}>{totalPurchase}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#F44336' }}>📦</span>
-              <h3 style={styles.cardTitle}>Total Expenses</h3>
-            </div>
-            <p style={styles.cardValue}>{totalExpenses}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>💰</span>
-              <h3 style={styles.cardTitle}>Total Income</h3>
-            </div>
-            <p style={styles.cardValue}>{totalIncome}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#2196F3' }}>💳</span>
-              <h3 style={styles.cardTitle}>Total Cashbook</h3>
-            </div>
-            <p style={styles.cardValue}>{totalCashbook}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#9C27B0' }}>📄</span>
-              <h3 style={styles.cardTitle}>Total Rental Item</h3>
-            </div>
-            <p style={styles.cardValue}>{totalRentalItem}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#9C27B0' }}>🏪</span>
-              <h3 style={styles.cardTitle}>Total Branch</h3>
-            </div>
-            <p style={styles.cardValue}>{totalBranch}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#2196F3' }}>👤</span>
-              <h3 style={styles.cardTitle}>Total App User</h3>
-            </div>
-            <p style={styles.cardValue}>{totalAppUser}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#FF9800' }}>🛒</span>
-              <h3 style={styles.cardTitle}>Total Item</h3>
-            </div>
-            <p style={styles.cardValue}>{totalItem}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#F44336' }}>💳</span>
-              <h3 style={styles.cardTitle}>Total Due</h3>
-            </div>
-            <p style={styles.cardValue}>{totalDue}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>💰</span>
-              <h3 style={styles.cardTitle}>Total Paid</h3>
-            </div>
-            <p style={styles.cardValue}>{totalPaid}</p>
-          </div>
-          <div style={styles.card}>
-            <div style={styles.cardHeader}>
-              <span style={{ fontSize: '1.5rem', color: '#4CAF50' }}>🏦</span>
-              <h3 style={styles.cardTitle}>Total Deposit</h3>
-            </div>
-            <p style={styles.cardValue}>{totalDeposit}</p>
-          </div>
+      <main className="dashboard-container">
+        <div className="dashboard-header">
+          <h1 className="dashboard-title">
+            <i className="bi bi-speedometer2"></i>
+            Dashboard Overview
+          </h1>
+          <p className="dashboard-subtitle">Welcome back! Here's what's happening with your business today.</p>
         </div>
+
+        <div className="dashboard-grid">
+          {metrics.map((m) => (
+            <div key={m.title} className="dashboard-card-wrapper">
+              <div
+                className="dashboard-card"
+                style={{
+                  ['--glow' as any]: hexToRgba(m.iconColor, 0.28),
+                  ['--glow-strong' as any]: hexToRgba(m.iconColor, 0.45),
+                } as React.CSSProperties}
+                onMouseMove={handleCardMouseMove}
+                onMouseLeave={handleCardMouseLeave}
+              >
+                <div className="dashboard-card-header">
+                  <div className="dashboard-card-icon" style={{ backgroundColor: hexToRgba(m.iconColor, 0.1) }}>
+                    <i className={`bi ${m.icon}`} style={{ color: m.iconColor }}></i>
+                  </div>
+                  <div className="dashboard-card-title">{m.title}</div>
+                </div>
+                <div className="dashboard-card-value">{(m.value || 0).toLocaleString()}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+
       </main>
     </div>
   );

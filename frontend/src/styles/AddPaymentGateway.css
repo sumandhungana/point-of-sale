@@ -1,0 +1,275 @@
+/* AddPaymentGateway Page Styles */
+.add-payment-gateway-container {
+  flex: 1;
+  padding-top: 40px;
+  margin-left: 300px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.add-payment-gateway-card {
+  padding: 2rem;
+  max-width: calc(100% - 500px);
+  margin-right: 500px;
+  width: 100%;
+}
+
+.add-payment-gateway-form-card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-payment-gateway-heading {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-payment-gateway-section-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 1.5rem;
+  margin-top: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-payment-gateway-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.add-payment-gateway-row {
+  display: flex;
+  gap: 2rem;
+}
+
+.add-payment-gateway-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-payment-gateway-label {
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-payment-gateway-input {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: #f8f9fa;
+}
+
+.add-payment-gateway-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  background: white;
+}
+
+.add-payment-gateway-select {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.add-payment-gateway-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.add-payment-gateway-textarea {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  min-height: 100px;
+  resize: vertical;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: #f8f9fa;
+  font-family: inherit;
+}
+
+.add-payment-gateway-textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  background: white;
+}
+
+.add-payment-gateway-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-payment-gateway-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #007bff;
+}
+
+.add-payment-gateway-image-preview {
+  width: 200px;
+  height: 200px;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.add-payment-gateway-image-preview:hover {
+  border-color: #007bff;
+}
+
+.add-payment-gateway-image-placeholder {
+  font-size: 3rem;
+  color: #6c757d;
+}
+
+.add-payment-gateway-file-input {
+  display: none;
+}
+
+.add-payment-gateway-button-group {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+
+.add-payment-gateway-save-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-payment-gateway-save-button:hover {
+  background: linear-gradient(135deg, #20c997, #17a2b8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.add-payment-gateway-save-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-payment-gateway-error {
+  color: #dc3545;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.add-payment-gateway-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .add-payment-gateway-card {
+    max-width: calc(100% - 300px);
+    margin-right: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-payment-gateway-container {
+    margin-left: 0;
+  }
+  
+  .add-payment-gateway-card {
+    max-width: 100%;
+    margin-right: 0;
+    padding: 1rem;
+  }
+  
+  .add-payment-gateway-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .add-payment-gateway-input-group {
+    flex: none;
+  }
+  
+  .add-payment-gateway-image-preview {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-payment-gateway-card {
+    padding: 0.5rem;
+  }
+  
+  .add-payment-gateway-form-card {
+    padding: 1rem;
+  }
+  
+  .add-payment-gateway-heading {
+    font-size: 1.25rem;
+  }
+  
+  .add-payment-gateway-section-header {
+    font-size: 1.1rem;
+  }
+} 

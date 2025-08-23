@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
+import Navbar from '../components/Navbar';
 import { salesConfig } from '../config/sales';
 import { fetchCustomers, fetchLastBillNumber, saveSalesBill } from '../services/salesBillService';
+import '../styles/AddSalesBill.css';
 
 interface Customer {
   id: number;
@@ -138,16 +140,16 @@ export const AddSalesBill = () => {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    const file = e.target.files?.[0];
+    if (file) {
       setFormData(prev => ({
         ...prev,
         PhotoPath: URL.createObjectURL(file)
       }));
 
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result as string);
+      reader.onload = (e) => {
+        setSelectedImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -157,153 +159,64 @@ export const AddSalesBill = () => {
     customer.name.toLowerCase().includes(partySearch.toLowerCase())
   );
 
-  const styles = {
-    container: {
-      display: 'flex',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    main: {
-      flex: 1,
-      padding: '2rem',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-    },
-    formGroup: {
-      marginBottom: '1rem',
-    },
-    formRow: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1rem',
-    },
-    formColumn: {
-      flex: 1,
-    },
-    label: {
-      display: 'block',
-      marginBottom: '0.5rem',
-      color: '#212529',
-      fontWeight: 'bold',
-    },
-    input: {
-      width: '100%',
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #dee2e6',
-      fontSize: '1rem',
-    },
-    searchContainer: {
-      position: 'relative' as const,
-    },
-    searchResults: {
-      position: 'absolute' as const,
-      top: '100%',
-      left: 0,
-      right: 0,
-      background: 'white',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      maxHeight: '200px',
-      overflowY: 'auto' as const,
-      zIndex: 100,
-    },
-    searchItem: {
-      padding: '0.5rem',
-      cursor: 'pointer',
-      '&:hover': {
-        background: '#f8f9fa',
-      },
-    },
-    textarea: {
-      width: '100%',
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #dee2e6',
-      fontSize: '1rem',
-      minHeight: '100px',
-    },
-    fileInput: {
-      display: 'none',
-    },
-    fileLabel: {
-      display: 'inline-block',
-      padding: '0.5rem 1rem',
-      background: '#f8f9fa',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      marginBottom: '1rem',
-    },
-    actionButtons: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      gap: '1rem',
-      marginTop: '2rem',
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-    },
-    error: {
-      color: 'red',
-      marginBottom: '1rem',
-    },
-  };
-
   return (
-    <div style={styles.container}>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={styles.main}>
-        <div style={styles.card}>
-          <form onSubmit={handleSubmit}>
-            <div style={styles.formRow}>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Sales Bill Number</label>
-                  <input
-                    type="text"
-                    name="BillNumber"
-                    value={formData.BillNumber}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                    disabled
-                  />
-                </div>
+      <div className="add-sales-bill-container">
+        <Navbar />
+        <div className="add-sales-bill-card">
+          <h1 className="add-sales-bill-title">
+            <i className="bi bi-plus-circle"></i>
+            {isEditMode ? 'Edit Sales Bill' : 'Add New Sales Bill'}
+          </h1>
+          {error && (
+            <div className="add-sales-bill-error">
+              <i className="bi bi-exclamation-triangle"></i>
+              {error}
+            </div>
+          )}
+          <form className="add-sales-bill-form" onSubmit={handleSubmit}>
+            <div className="add-sales-bill-row">
+              <div className="add-sales-bill-group">
+                <label className="add-sales-bill-label">
+                  <i className="bi bi-hash"></i>
+                  Sales Bill Number
+                </label>
+                <input
+                  type="text"
+                  name="BillNumber"
+                  value={formData.BillNumber}
+                  onChange={handleInputChange}
+                  className="add-sales-bill-input"
+                  required
+                  disabled
+                />
               </div>
-              <div style={styles.formColumn}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Date</label>
-                  <input
-                    type="date"
-                    name="BillDate"
-                    value={formData.BillDate}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                  />
-                </div>
+              <div className="add-sales-bill-group">
+                <label className="add-sales-bill-label">
+                  <i className="bi bi-calendar"></i>
+                  Date
+                </label>
+                <input
+                  type="date"
+                  name="BillDate"
+                  value={formData.BillDate}
+                  onChange={handleInputChange}
+                  className="add-sales-bill-input"
+                  required
+                />
               </div>
             </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Bill To</label>
-              <div style={styles.searchContainer}>
+            <div className="add-sales-bill-group">
+              <label className="add-sales-bill-label">
+                <i className="bi bi-person"></i>
+                Bill To
+              </label>
+              <div className="add-sales-bill-dropdown">
                 <input
                   type="text"
-                  style={styles.input}
+                  className="add-sales-bill-dropdown-input"
                   value={partySearch}
                   onChange={(e) => setPartySearch(e.target.value)}
                   onFocus={() => setShowPartySearch(true)}
@@ -312,102 +225,131 @@ export const AddSalesBill = () => {
                   required
                 />
                 {showPartySearch && partySearch && (
-                  <div style={styles.searchResults}>
-                    {filteredCustomers.map(customer => (
-                      <div
-                        key={customer.id}
-                        style={styles.searchItem}
-                        onClick={() => {
-                          setPartySearch(customer.name);
-                          setSelectedCustomer(customer);
-                          setShowPartySearch(false);
-                        }}
-                      >
-                        {customer.name}
+                  <div className="add-sales-bill-dropdown-list">
+                    {filteredCustomers.length > 0 ? (
+                      filteredCustomers.map(customer => (
+                        <div
+                          key={customer.id}
+                          className="add-sales-bill-dropdown-item"
+                          onClick={() => {
+                            setPartySearch(customer.name);
+                            setSelectedCustomer(customer);
+                            setShowPartySearch(false);
+                          }}
+                        >
+                          {customer.name}
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ padding: '0.75rem', color: '#6c757d' }}>
+                        No customers found
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
               </div>
             </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Amount</label>
-              <input
-                type="number"
-                name="Amount"
-                value={formData.Amount}
-                onChange={handleInputChange}
-                style={styles.input}
-                required
-              />
+            <div className="add-sales-bill-row">
+              <div className="add-sales-bill-group">
+                <label className="add-sales-bill-label">
+                  <i className="bi bi-currency-rupee"></i>
+                  Amount
+                </label>
+                <input
+                  type="number"
+                  name="Amount"
+                  value={formData.Amount}
+                  onChange={handleInputChange}
+                  className="add-sales-bill-input"
+                  required
+                  placeholder="Enter amount"
+                />
+              </div>
+              <div className="add-sales-bill-group">
+                <label className="add-sales-bill-label">
+                  <i className="bi bi-credit-card"></i>
+                  Payment Mode
+                </label>
+                <select
+                  name="PaymentMode"
+                  value={formData.PaymentMode}
+                  onChange={handleInputChange}
+                  className="add-sales-bill-select"
+                  required
+                >
+                  <option value="cash">Cash</option>
+                  <option value="card">Card</option>
+                  <option value="upi">UPI</option>
+                  <option value="bank">Bank Transfer</option>
+                </select>
+              </div>
             </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Payment Mode</label>
-              <select
-                name="PaymentMode"
-                value={formData.PaymentMode}
-                onChange={handleInputChange}
-                style={styles.input}
-                required
-              >
-                <option value="cash">Cash</option>
-                <option value="card">Card</option>
-                <option value="upi">UPI</option>
-                <option value="bank">Bank Transfer</option>
-              </select>
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Remarks</label>
+            <div className="add-sales-bill-group">
+              <label className="add-sales-bill-label">
+                <i className="bi bi-chat-text"></i>
+                Remarks
+              </label>
               <textarea
                 name="Remarks"
                 value={formData.Remarks}
                 onChange={handleInputChange}
-                style={styles.textarea}
+                className="add-sales-bill-textarea"
+                placeholder="Enter remarks..."
               />
             </div>
 
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Photo</label>
+            <div className="add-sales-bill-group">
+              <label className="add-sales-bill-label">
+                <i className="bi bi-image"></i>
+                Photo
+              </label>
               <input
                 type="file"
                 onChange={handleFileChange}
                 accept="image/*"
-                style={styles.fileInput}
+                className="add-sales-bill-file-input"
                 id="photo-upload"
               />
-              <label htmlFor="photo-upload" style={styles.fileLabel}>
+              <label htmlFor="photo-upload" className="add-sales-bill-file-label">
+                <i className="bi bi-cloud-upload"></i>
                 {selectedImage ? 'Change Photo' : 'Upload Photo'}
               </label>
               {selectedImage && (
-                <div style={{ marginTop: '1rem' }}>
-                  <img
-                    src={selectedImage}
-                    alt="Selected"
-                    style={{ maxWidth: '200px', borderRadius: '4px' }}
-                  />
-                </div>
+                <img
+                  src={selectedImage}
+                  alt="Selected"
+                  className="add-sales-bill-image-preview"
+                />
               )}
             </div>
 
-            {error && <div style={styles.error}>{error}</div>}
-
-            <div style={styles.actionButtons}>
+            <div className="add-sales-bill-button-container">
               <button
                 type="button"
-                onClick={() => navigate('/sales')}
-                style={{ ...styles.saveButton, background: '#6c757d' }}
+                className="add-sales-bill-cancel-button"
+                onClick={() => navigate('/bills/sales')}
               >
+                <i className="bi bi-x-circle"></i>
                 Cancel
               </button>
               <button
                 type="submit"
-                style={styles.saveButton}
+                className="add-sales-bill-submit-button"
                 disabled={loading}
               >
-                {loading ? 'Saving...' : isEditMode ? 'Edit Bill' : 'Save Bill'}
+                {loading ? (
+                  <>
+                    <div className="add-sales-bill-spinner"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-circle"></i>
+                    {isEditMode ? 'Update Bill' : 'Save Bill'}
+                  </>
+                )}
               </button>
             </div>
           </form>

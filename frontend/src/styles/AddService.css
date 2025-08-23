@@ -1,0 +1,295 @@
+/* AddService.css - Modern Bootstrap-like styles */
+
+.add-service-container {
+  padding: 2rem;
+  max-width: calc(100% - 500px);
+  margin-right: 500px;
+  width: 100%;
+}
+
+.add-service-form-card {
+  background: white;
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.add-service-form-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.add-service-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.add-service-image-placeholder {
+  width: 200px;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  position: relative;
+  overflow: hidden;
+  border: 2px dashed #e9ecef;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.add-service-image-placeholder:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
+}
+
+.add-service-image-placeholder.has-image {
+  border: 2px solid #667eea;
+  background: none;
+}
+
+.add-service-image-icon {
+  font-size: 3rem;
+  color: #6c757d;
+  z-index: 1;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.add-service-image-placeholder.has-image .add-service-image-icon {
+  color: white;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.add-service-image-label {
+  font-size: 1rem;
+  color: #495057;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-service-image-label::before {
+  content: '📷';
+  font-size: 1.1rem;
+}
+
+.add-service-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.add-service-row {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.add-service-input-group {
+  flex: 1;
+}
+
+.add-service-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-service-label::before {
+  content: '📝';
+  font-size: 1rem;
+}
+
+.add-service-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.add-service-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: white;
+  transform: translateY(-1px);
+}
+
+.add-service-input::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.add-service-tax-included-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.add-service-tax-included-label {
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-service-tax-included-label::before {
+  content: '💰';
+  font-size: 1rem;
+}
+
+.add-service-slide-button {
+  width: 50px;
+  height: 24px;
+  background: #6c757d;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+  border: none;
+}
+
+.add-service-slide-button.active {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+}
+
+.add-service-slide-circle {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: left 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.add-service-slide-button.active .add-service-slide-circle {
+  left: 28px;
+}
+
+.add-service-button-group {
+  display: flex;
+  justify-content: center;
+  margin-top: 2.5rem;
+}
+
+.add-service-save-button {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.add-service-save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+}
+
+.add-service-save-button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .add-service-container {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+  }
+  
+  .add-service-form-card {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-service-container {
+    padding: 1rem;
+  }
+  
+  .add-service-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .add-service-input-group {
+    flex: none;
+  }
+  
+  .add-service-tax-included-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .add-service-save-button {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .add-service-form-card {
+    padding: 1.5rem;
+  }
+  
+  .add-service-image-placeholder {
+    width: 150px;
+    height: 150px;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-service-form-card {
+    padding: 1rem;
+  }
+  
+  .add-service-image-placeholder {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .add-service-image-icon {
+    font-size: 2rem;
+    padding: 0.75rem;
+  }
+  
+  .add-service-input {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+} 

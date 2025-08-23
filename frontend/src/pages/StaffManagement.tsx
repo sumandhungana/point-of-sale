@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { fetchStaff } from '../services/staffService';
+import '../styles/StaffManagement.css';
 
 interface StaffSalary {
   id: number;
@@ -127,281 +129,50 @@ export const StaffManagement = () => {
       }
     });
 
-  const styles = {
-    container: {
-      display: 'flex',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-   
-    main: {
-      flex: 1,
-      padding: '2rem',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-    },
-    table: {
-      width: '100%',
-      borderCollapse: 'collapse' as const,
-      marginBottom: '1.5rem',
-    },
-    th: {
-      padding: '1rem',
-      textAlign: 'left' as const,
-      borderBottom: '2px solid #dee2e6',
-      color: '#212529',
-      fontWeight: 'bold',
-    },
-    td: {
-      padding: '1rem',
-      borderBottom: '1px solid #dee2e6',
-      color: '#212529',
-    },
-    amountCell: {
-      fontWeight: 'bold',
-      color: '#28a745',
-    },
-    attendanceCell: {
-      display: 'flex',
-      flexWrap: 'wrap' as const,
-      gap: '1rem',
-      width: '100%',
-    },
-    attendanceItem: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'center',
-      width: 'calc(50% - 0.5rem)',
-    },
-    attendanceValue: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    attendanceLabel: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-    },
-    actionButtons: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      marginBottom: '1rem',
-    },
-    buttonRow: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    searchBar: {
-      display: 'flex',
-      alignItems: 'center',
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-      padding: '0.5rem',
-      background: 'white',
-      width: '100%',
-      maxWidth: '300px',
-    },
-    searchInput: {
-      border: 'none',
-      outline: 'none',
-      flex: 1,
-      padding: '0.25rem',
-    },
-    searchIcon: {
-      color: '#6c757d',
-      marginRight: '0.5rem',
-    },
-    dropdown: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      minWidth: '150px',
-    },
-    forStaffButton: {
-      padding: '0.5rem 1rem',
-      background: '#007bff',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    reminderButton: {
-      padding: '0.5rem 1rem',
-      background: '#ffc107',
-      color: '#212529',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    staffCard: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-      marginTop: '1.5rem',
-    },
-    staffHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-start',
-      marginBottom: '1rem',
-    },
-    staffInfo: {
-      display: 'flex',
-      gap: '1rem',
-      alignItems: 'center',
-    },
-    imagePlaceholder: {
-      width: '60px',
-      height: '60px',
-      background: '#e9ecef',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#6c757d',
-    },
-    staffDetails: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-    },
-    staffName: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    salaryPattern: {
-      color: '#6c757d',
-      fontSize: '0.875rem',
-    },
-    amount: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#28a745',
-    },
-    divider: {
-      borderBottom: '1px solid #dee2e6',
-      margin: '1rem 0',
-    },
-    permissionSection: {
-      marginTop: '1rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'flex-end',
-      gap: '1rem',
-    },
-    permissionInput: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-      flex: 1,
-    },
-    permissionLabel: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      fontWeight: 'bold',
-    },
-    permissionTags: {
-      display: 'flex',
-      flexWrap: 'wrap' as const,
-      gap: '0.5rem',
-      marginTop: '0.5rem',
-    },
-    permissionTag: {
-      background: '#e9ecef',
-      padding: '0.25rem 0.5rem',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      color: '#212529',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.25rem',
-    },
-    removeTag: {
-      cursor: 'pointer',
-      color: '#dc3545',
-      fontSize: '1rem',
-    },
-    permissionField: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      width: '200px',
-    },
-    attendanceDropdown: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      minWidth: '150px',
-      marginLeft: 'auto',
-    },
-    addStaffButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      marginTop: '2rem',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-    },
-  };
-
   return (
-    <div style={styles.container}>
+    <div className="staff-management-page-wrapper">
       <Sidebar />
-      <div style={styles.main}>
-       
-        <div style={styles.card}>
-          <table style={styles.table}>
+      <div className="staff-management-container">
+        <Navbar />
+        <div className="staff-management-card">
+          <div className="staff-management-header">
+            <h1 className="staff-management-title">Staff Management</h1>
+            <p className="staff-management-subtitle">Manage your team members, salaries, and attendance</p>
+          </div>
+          
+          <table className="staff-management-table">
             <thead>
               <tr>
-                <th style={styles.th}>Total Due</th>
-                <th style={styles.th}>Total Advance</th>
-                <th style={styles.th}>Attendance Date ({today})</th>
+                <th className="staff-management-th">Total Due</th>
+                <th className="staff-management-th">Total Advance</th>
+                <th className="staff-management-th">Attendance Date ({today})</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style={{ ...styles.td, ...styles.amountCell }}>रु{totalDue.toLocaleString()}</td>
-                <td style={{ ...styles.td, ...styles.amountCell }}>रु{totalAdvance.toLocaleString()}</td>
-                <td style={styles.td}>
-                  <div style={styles.attendanceCell}>
-                    <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>{todayAttendances['Present'] || 0}</span>
-                      <span style={styles.attendanceLabel}>Present</span>
+                <td className={`staff-management-td staff-management-amount-cell`}>₹{totalDue.toLocaleString()}</td>
+                <td className={`staff-management-td staff-management-amount-cell`}>₹{totalAdvance.toLocaleString()}</td>
+                <td className="staff-management-td">
+                  <div className="staff-management-attendance-cell">
+                    <div className="staff-management-attendance-item">
+                      <i className="bi bi-check-circle-fill staff-management-attendance-icon present"></i>
+                      <span className="staff-management-attendance-value">{todayAttendances['Present'] || 0}</span>
+                      <span className="staff-management-attendance-label">Present</span>
                     </div>
-                    <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>{todayAttendances['Absent'] || 0}</span>
-                      <span style={styles.attendanceLabel}>Absent</span>
+                    <div className="staff-management-attendance-item">
+                      <i className="bi bi-x-circle-fill staff-management-attendance-icon absent"></i>
+                      <span className="staff-management-attendance-value">{todayAttendances['Absent'] || 0}</span>
+                      <span className="staff-management-attendance-label">Absent</span>
                     </div>
-                    <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>{todayAttendances['Half Day'] || 0}</span>
-                      <span style={styles.attendanceLabel}>Half Day</span>
+                    <div className="staff-management-attendance-item">
+                      <i className="bi bi-clock-fill staff-management-attendance-icon halfday"></i>
+                      <span className="staff-management-attendance-value">{todayAttendances['Half Day'] || 0}</span>
+                      <span className="staff-management-attendance-label">Half Day</span>
                     </div>
-                    <div style={styles.attendanceItem}>
-                      <span style={styles.attendanceValue}>{todayAttendances['Leave'] || 0}</span>
-                      <span style={styles.attendanceLabel}>Leave</span>
+                    <div className="staff-management-attendance-item">
+                      <i className="bi bi-calendar-x-fill staff-management-attendance-icon leave"></i>
+                      <span className="staff-management-attendance-value">{todayAttendances['Leave'] || 0}</span>
+                      <span className="staff-management-attendance-label">Leave</span>
                     </div>
                   </div>
                 </td>
@@ -409,101 +180,128 @@ export const StaffManagement = () => {
             </tbody>
           </table>
           
-          <div style={styles.actionButtons}>
-              <button style={styles.forStaffButton}>
-                👥 For Staff
-              </button>
-              <div style={styles.searchBar}>
-                <span style={styles.searchIcon}>🔍</span>
-                <input
-                  type="text"
-                  placeholder="Search by name or phone..."
-                  style={styles.searchInput}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
-              <select 
-                style={styles.dropdown}
-                value={filterBy}
-                onChange={(e) => setFilterBy(e.target.value)}
-              >
-                <option value="">Filter By</option>
-                <option value="monthly">Monthly Salary</option>
-                <option value="daily">Daily Salary</option>
-                <option value="full">Full Permission</option>
-                <option value="restricted">Restricted Permission</option>
-              </select>
-              <select 
-                style={styles.dropdown}
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="">Sort By</option>
-                <option value="name_asc">Name (A-Z)</option>
-                <option value="name_desc">Name (Z-A)</option>
-                <option value="salary_asc">Salary (Low to High)</option>
-                <option value="salary_desc">Salary (High to Low)</option>
-              </select>
-            <button style={styles.reminderButton}>
-              ⏰ Reminder
+          <div className="staff-management-action-buttons">
+            <button className="staff-management-for-staff-button">
+              <i className="bi bi-people"></i>
+              For Staff
+            </button>
+            <div className="staff-management-search-bar">
+              <i className="bi bi-search staff-management-search-icon"></i>
+              <input
+                type="text"
+                placeholder="Search by name or phone..."
+                className="staff-management-search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button 
+                  className="staff-management-clear-search"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <i className="bi bi-x"></i>
+                </button>
+              )}
+            </div>
+            <select 
+              className="staff-management-dropdown"
+              value={filterBy}
+              onChange={(e) => setFilterBy(e.target.value)}
+            >
+              <option value="">Filter By</option>
+              <option value="monthly">Monthly Salary</option>
+              <option value="daily">Daily Salary</option>
+              <option value="full">Full Permission</option>
+              <option value="restricted">Restricted Permission</option>
+            </select>
+            <select 
+              className="staff-management-dropdown"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="">Sort By</option>
+              <option value="name_asc">Name (A-Z)</option>
+              <option value="name_desc">Name (Z-A)</option>
+              <option value="salary_asc">Salary (Low to High)</option>
+              <option value="salary_desc">Salary (High to Low)</option>
+            </select>
+            <button className="staff-management-reminder-button">
+              <i className="bi bi-clock"></i>
+              Reminder
             </button>
           </div>
-        
         </div>
 
         {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '2rem' }}>Loading staff data...</div>
+          <div className="staff-management-loading">
+            <i className="bi bi-arrow-clockwise me-2"></i>
+            Loading staff data...
+          </div>
+        ) : filteredStaff.length === 0 ? (
+          <div className="staff-management-empty">
+            <i className="bi bi-people me-2"></i>
+            {searchQuery ? 'No staff found matching your search' : 'No staff members found'}
+          </div>
         ) : (
           filteredStaff.map(staff => (
             <div 
               key={staff.id}
-              style={{
-                ...styles.staffCard,
-                cursor: 'pointer',
-              }}
+              className="staff-management-staff-card"
               onClick={() => navigate(`/staff/payment/${staff.id}`)}
             >
-              <div style={styles.staffHeader}>
-                <div style={styles.staffInfo}>
-                  <div style={styles.imagePlaceholder}>
+              <div className="staff-management-staff-header">
+                <div className="staff-management-staff-info">
+                  <div className="staff-management-image-placeholder">
                     {staff.profileImageUrl ? (
                       <img 
                         src={staff.profileImageUrl} 
                         alt={staff.name}
-                        style={{ width: '100%', height: '100%', borderRadius: '50%' }}
+                        className="staff-management-staff-image"
                       />
-                    ) : '👤'}
+                    ) : (
+                      <i className="bi bi-person"></i>
+                    )}
                   </div>
-                  <div style={styles.staffDetails}>
-                    <div style={styles.staffName}>{staff.name}</div>
-                    <div style={styles.salaryPattern}>
+                  <div className="staff-management-staff-details">
+                    <div className="staff-management-staff-name">{staff.name}</div>
+                    <div className="staff-management-staff-contact">
+                      <i className="bi bi-telephone me-1"></i>
+                      {staff.phone || 'No phone'}
+                    </div>
+                    <div className="staff-management-salary-pattern">
+                      <i className="bi bi-cash-coin me-1"></i>
                       {staff.staffSalaries[0]?.salaryType || 'No salary record'}
                     </div>
                   </div>
                 </div>
-                <div style={styles.amount}>
-                  रु{staff.staffSalaries[0]?.amount.toLocaleString() || '0'}
+                <div className="staff-management-amount-section">
+                  <div className="staff-management-amount">
+                    ₹{staff.staffSalaries[0]?.amount.toLocaleString() || '0'}
+                  </div>
+                  <div className="staff-management-amount-label">
+                    {staff.staffSalaries[0]?.salaryType || 'Salary'}
+                  </div>
                 </div>
               </div>
-              <div style={styles.divider} />
-              <div style={styles.permissionSection}>
-                <div style={styles.permissionInput}>
-                  <label style={styles.permissionLabel}>Add Permission</label>
+              <div className="staff-management-divider" />
+              <div className="staff-management-permission-section">
+                <div className="staff-management-permission-input">
+                  <label className="staff-management-permission-label">Add Permission</label>
                   <input
                     type="text"
                     value={permissionInput}
                     onChange={(e) => setPermissionInput(e.target.value)}
                     onKeyDown={handlePermissionKeyDown}
                     placeholder="Type to add permission and press Enter..."
-                    style={styles.permissionField}
+                    className="staff-management-permission-field"
                   />
-                  <div style={styles.permissionTags}>
+                  <div className="staff-management-permission-tags">
                     {permissions.map((permission, index) => (
-                      <div key={index} style={styles.permissionTag}>
+                      <div key={index} className="staff-management-permission-tag">
+                        <i className="bi bi-shield-check me-1"></i>
                         {permission}
                         <span 
-                          style={styles.removeTag}
+                          className="staff-management-remove-tag"
                           onClick={(e) => {
                             e.stopPropagation();
                             removePermission(index);
@@ -513,9 +311,15 @@ export const StaffManagement = () => {
                         </span>
                       </div>
                     ))}
+                    {permissions.length === 0 && (
+                      <div className="staff-management-no-permissions">
+                        <i className="bi bi-shield-x me-1"></i>
+                        No permissions added
+                      </div>
+                    )}
                   </div>
                 </div>
-                <select style={styles.attendanceDropdown}>
+                <select className="staff-management-attendance-dropdown">
                   <option value="">Today's Attendance</option>
                   <option value="present">Present</option>
                   <option value="absent">Absent</option>
@@ -526,12 +330,27 @@ export const StaffManagement = () => {
             </div>
           ))
         )}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2rem' }}>
+        <div className="staff-management-button-container">
+          <div className="staff-management-summary">
+            <div className="staff-management-summary-item">
+              <i className="bi bi-people-fill"></i>
+              <span>Total Staff: {staffList.length}</span>
+            </div>
+            <div className="staff-management-summary-item">
+              <i className="bi bi-cash-stack"></i>
+              <span>Total Salary: ₹{totalDue.toLocaleString()}</span>
+            </div>
+            <div className="staff-management-summary-item">
+              <i className="bi bi-calendar-check"></i>
+              <span>Today's Attendance: {Object.values(todayAttendances).reduce((a, b) => a + b, 0)}</span>
+            </div>
+          </div>
           <button 
-            style={styles.addStaffButton}
+            className="staff-management-add-staff-button"
             onClick={() => navigate('/staff/add')}
           >
-            👥 Add Staff
+            <i className="bi bi-person-plus"></i>
+            Add Staff
           </button>
         </div>
       </div>

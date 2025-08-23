@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Sidebar } from "../components/Sidebar"
 import { useNavigate, useParams } from "react-router-dom"
+import '../styles/DownloadCustomerStatementReport.css'
 
 interface Transaction {
   id: number
@@ -55,318 +56,229 @@ export const DownloadCustomerStatementReport = () => {
     navigate(`/parties/customers/statements/report/${id}`)
   }
 
-  const styles = {
-    container: {
-      minHeight: '100vh',
-      background: '#f8f9fa',
-    },
-   
-    mainContent: {
-      padding: '2rem',
-      marginTop: '64px',
-    },
-    contentContainer: {
-      background: 'white',
-      padding: '2rem',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    backButton: {
-      background: 'none',
-      border: 'none',
-      fontSize: '1.5rem',
-      cursor: 'pointer',
-      color: '#dc4c39',
-      padding: '0.5rem',
-      '&:hover': {
-        color: '#c23321',
-      },
-    },
-    reportTitle: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#212529',
-      textAlign: 'center' as const,
-      marginBottom: '0.5rem',
-      borderBottom: '2px solid #dc4c39',
-      paddingBottom: '0.5rem',
-    },
-    logoSection: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '1rem',
-    },
-    logoContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    logoImage: {
-      width: '50px',
-      height: '50px',
-      borderRadius: '4px',
-      backgroundColor: '#dc4c39',
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      fontSize: '1.5rem',
-      color: 'white',
-    },
-    companyName: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#dc4c39',
-    },
-    printOption: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    reportDate: {
-      color: '#6c757d',
-      textAlign: 'center' as const,
-      marginBottom: '1.5rem',
-    },
-    summarySection: {
-      display: 'flex',
-      justifyContent: 'space-around',
-      padding: '1rem',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      marginBottom: '1.5rem',
-      border: '1px solid #dee2e6',
-    },
-    summaryItem: {
-      textAlign: 'center' as const,
-    },
-    summaryItemTitle: {
-      color: '#6c757d',
-      marginBottom: '0.5rem',
-    },
-    summaryItemValue: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-    },
-    gaveValue: {
-      color: '#dc3545',
-    },
-    receivedValue: {
-      color: '#28a745',
-    },
-    netValue: {
-      color: '#17a2b8',
-    },
-    summaryDivider: {
-      width: '1px',
-      background: '#dee2e6',
-    },
-    customerCount: {
-      color: '#6c757d',
-      marginBottom: '1rem',
-      padding: '0.5rem',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      textAlign: 'center' as const,
-    },
-    tableContainer: {
-      marginTop: '2rem',
-      overflowX: 'auto' as const,
-    },
-    customerTable: {
-      width: '100%',
-      borderCollapse: 'collapse' as const,
-      marginTop: '1rem',
-    },
-    tableHeader: {
-      background: '#f8f9fa',
-      padding: '0.75rem',
-      textAlign: 'left' as const,
-      borderBottom: '2px solid #dee2e6',
-      color: '#212529',
-      fontWeight: 'bold',
-    },
-    tableCell: {
-      padding: '0.75rem',
-      borderBottom: '1px solid #dee2e6',
-    },
-    totalBalance: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-      marginBottom: '1rem',
-      textAlign: 'right' as const,
-    },
-    reportFooter: {
-      textAlign: 'center' as const,
-      color: '#6c757d',
-      marginTop: '2rem',
-      paddingTop: '1rem',
-      borderTop: '1px solid #dee2e6',
-      background: '#f8f9fa',
-      padding: '1rem',
-      borderRadius: '4px',
-    },
-  }
-
   return (
-    <div style={styles.container}>
+    <div className="download-statement-container">
       <Sidebar />
     
-      <main style={styles.mainContent}>
-        <div style={styles.contentContainer}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-            <button style={styles.backButton} onClick={handleBack}>
-              ←
+      <main className="download-statement-main-content">
+        <div className="download-statement-content-container">
+          <div className="download-statement-button-container">
+            <button className="download-statement-back-button" onClick={handleBack}>
+              <i className="bi bi-arrow-left"></i>
+              Back
             </button>
           </div>
 
-     
-
-          <div style={styles.reportDate}>
-            <div>{customerName} Statement</div>
-            <div>Phone Number: {phoneNumber}</div>
-            <div>Start Date: {startDate}</div>
-            <div>End Date: {endDate}</div>
-          </div>
-
-          <div style={styles.summarySection}>
-            <div style={styles.summaryItem}>
-              <div style={styles.summaryItemTitle}>Opening Balance</div>
-              <div style={styles.summaryItemValue}>Rs. {openingBalance.toLocaleString()}</div>
-              <div style={styles.summaryItemTitle}>Date: {startDate}</div>
+          <div className="download-statement-report-date">
+            <div>
+              <i className="bi bi-person me-1"></i>
+              {customerName} Statement
             </div>
-            <div style={styles.summaryDivider} />
-            <div style={styles.summaryItem}>
-              <div style={styles.summaryItemTitle}>Total Gave</div>
-              <div style={{ ...styles.summaryItemValue, ...styles.gaveValue }}>Rs. {totalGave.toLocaleString()}</div>
+            <div>
+              <i className="bi bi-telephone me-1"></i>
+              Phone Number: {phoneNumber}
             </div>
-            <div style={styles.summaryDivider} />
-            <div style={styles.summaryItem}>
-              <div style={styles.summaryItemTitle}>Total Received</div>
-              <div style={{ ...styles.summaryItemValue, ...styles.receivedValue }}>Rs. {totalReceived.toLocaleString()}</div>
+            <div>
+              <i className="bi bi-calendar-event me-1"></i>
+              Start Date: {startDate}
             </div>
-            <div style={styles.summaryDivider} />
-            <div style={styles.summaryItem}>
-              <div style={styles.summaryItemTitle}>Net Balance</div>
-              <div style={{ ...styles.summaryItemValue, ...styles.netValue }}>Rs. {netBalance.toLocaleString()}</div>
-              <div style={styles.summaryItemTitle}>{netBalance >= 0 ? "Received" : "Gave"}</div>
+            <div>
+              <i className="bi bi-calendar-check me-1"></i>
+              End Date: {endDate}
             </div>
           </div>
 
-          <div style={styles.customerCount}>No. of Statements: {totalStatements}</div>
+          <div className="download-statement-summary-section">
+            <div className="download-statement-summary-item">
+              <div className="download-statement-summary-item-title">
+                <i className="bi bi-calculator me-1"></i>
+                Opening Balance
+              </div>
+              <div className="download-statement-summary-item-value">Rs. {openingBalance.toLocaleString()}</div>
+              <div className="download-statement-summary-item-title">Date: {startDate}</div>
+            </div>
+            <div className="download-statement-summary-divider" />
+            <div className="download-statement-summary-item">
+              <div className="download-statement-summary-item-title">
+                <i className="bi bi-arrow-up-circle me-1"></i>
+                Total Gave
+              </div>
+              <div className="download-statement-summary-item-value download-statement-gave-value">Rs. {totalGave.toLocaleString()}</div>
+            </div>
+            <div className="download-statement-summary-divider" />
+            <div className="download-statement-summary-item">
+              <div className="download-statement-summary-item-title">
+                <i className="bi bi-arrow-down-circle me-1"></i>
+                Total Received
+              </div>
+              <div className="download-statement-summary-item-value download-statement-received-value">Rs. {totalReceived.toLocaleString()}</div>
+            </div>
+            <div className="download-statement-summary-divider" />
+            <div className="download-statement-summary-item">
+              <div className="download-statement-summary-item-title">
+                <i className="bi bi-calculator me-1"></i>
+                Net Balance
+              </div>
+              <div className="download-statement-summary-item-value download-statement-net-value">Rs. {netBalance.toLocaleString()}</div>
+              <div className="download-statement-summary-item-title">{netBalance >= 0 ? "Received" : "Gave"}</div>
+            </div>
+          </div>
 
-          <div style={styles.tableContainer}>
-            <table style={styles.customerTable}>
+          <div className="download-statement-customer-count">
+            <i className="bi bi-file-text me-1"></i>
+            No. of Statements: {totalStatements}
+          </div>
+
+          <div className="download-statement-table-container">
+            <table className="download-statement-table">
               <thead>
                 <tr>
-                  <th style={styles.tableHeader}>Date</th>
-                  <th style={styles.tableHeader}>Details(Remarks)</th>
-                  <th style={styles.tableHeader}>Gave</th>
-                  <th style={styles.tableHeader}>Received</th>
-                  <th style={styles.tableHeader}>Balance</th>
+                  <th className="download-statement-table-header">
+                    <i className="bi bi-calendar-event me-1"></i>
+                    Date
+                  </th>
+                  <th className="download-statement-table-header">
+                    <i className="bi bi-info-circle me-1"></i>
+                    Details(Remarks)
+                  </th>
+                  <th className="download-statement-table-header">
+                    <i className="bi bi-arrow-up-circle me-1"></i>
+                    Gave
+                  </th>
+                  <th className="download-statement-table-header">
+                    <i className="bi bi-arrow-down-circle me-1"></i>
+                    Received
+                  </th>
+                  <th className="download-statement-table-header">
+                    <i className="bi bi-calculator me-1"></i>
+                    Balance
+                  </th>
                 </tr>
                 <tr>
-                  <th style={styles.tableHeader} colSpan={3}>Full Date Opening Month</th>
-                  <th style={styles.tableHeader} colSpan={2}>Opening Balance: Rs. {openingBalance.toLocaleString()}</th>
+                  <th className="download-statement-table-header" colSpan={3}>
+                    <i className="bi bi-calendar-month me-1"></i>
+                    Full Date Opening Month
+                  </th>
+                  <th className="download-statement-table-header" colSpan={2}>
+                    Opening Balance: Rs. {openingBalance.toLocaleString()}
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td style={styles.tableCell}>{startDate}</td>
-                  <td style={styles.tableCell}>Opening Balance</td>
-                  <td style={styles.tableCell}>-</td>
-                  <td style={styles.tableCell}>-</td>
-                  <td style={styles.tableCell}>Rs. {openingBalance.toLocaleString()}</td>
+                  <td className="download-statement-table-cell">{startDate}</td>
+                  <td className="download-statement-table-cell">Opening Balance</td>
+                  <td className="download-statement-table-cell">-</td>
+                  <td className="download-statement-table-cell">-</td>
+                  <td className="download-statement-table-cell">Rs. {openingBalance.toLocaleString()}</td>
                 </tr>
                 {currentMonthTransactions.map((transaction) => (
                   <tr key={transaction.id}>
-                    <td style={styles.tableCell}>{transaction.date}</td>
-                    <td style={styles.tableCell}>{transaction.details}</td>
-                    <td style={styles.tableCell}>
+                    <td className="download-statement-table-cell">{transaction.date}</td>
+                    <td className="download-statement-table-cell">{transaction.details}</td>
+                    <td className="download-statement-table-cell">
                       {transaction.gave > 0 ? `Rs. ${transaction.gave.toLocaleString()}` : "-"}
                     </td>
-                    <td style={styles.tableCell}>
+                    <td className="download-statement-table-cell">
                       {transaction.received > 0 ? `Rs. ${transaction.received.toLocaleString()}` : "-"}
                     </td>
-                    <td style={styles.tableCell}>Rs. {transaction.balance.toLocaleString()}</td>
+                    <td className="download-statement-table-cell">Rs. {transaction.balance.toLocaleString()}</td>
                   </tr>
                 ))}
                 <tr>
-                  <td style={styles.tableCell} colSpan={2}>
+                  <td className="download-statement-table-cell" colSpan={2}>
                     <strong>Total</strong>
                   </td>
-                  <td style={styles.tableCell}>
+                  <td className="download-statement-table-cell">
                     <strong>Rs. {currentMonthTotalGave.toLocaleString()}</strong>
                   </td>
-                  <td style={styles.tableCell}>
+                  <td className="download-statement-table-cell">
                     <strong>Rs. {currentMonthTotalReceived.toLocaleString()}</strong>
                   </td>
-                  <td style={styles.tableCell}></td>
+                  <td className="download-statement-table-cell"></td>
                 </tr>
               </tbody>
             </table>
 
             <div style={{ marginTop: '2rem' }}>
-              <div style={{ 
-                fontSize: '1.1rem', 
-                fontWeight: 'bold', 
-                color: '#212529',
-                marginBottom: '1rem',
-                padding: '0.5rem',
-                background: '#f8f9fa',
-                borderRadius: '4px'
-              }}>
+              <div className="download-statement-month-header">
+                <i className="bi bi-calendar-month me-1"></i>
                 Full Date: Next Month
               </div>
-              <table style={styles.customerTable}>
+              <table className="download-statement-table">
                 <thead>
                   <tr>
-                    <th style={styles.tableHeader}>Date</th>
-                    <th style={styles.tableHeader}>Details(Remarks)</th>
-                    <th style={styles.tableHeader}>Gave</th>
-                    <th style={styles.tableHeader}>Received</th>
-                    <th style={styles.tableHeader}>Balance</th>
+                    <th className="download-statement-table-header">
+                      <i className="bi bi-calendar-event me-1"></i>
+                      Date
+                    </th>
+                    <th className="download-statement-table-header">
+                      <i className="bi bi-info-circle me-1"></i>
+                      Details(Remarks)
+                    </th>
+                    <th className="download-statement-table-header">
+                      <i className="bi bi-arrow-up-circle me-1"></i>
+                      Gave
+                    </th>
+                    <th className="download-statement-table-header">
+                      <i className="bi bi-arrow-down-circle me-1"></i>
+                      Received
+                    </th>
+                    <th className="download-statement-table-header">
+                      <i className="bi bi-calculator me-1"></i>
+                      Balance
+                    </th>
                   </tr>
                   <tr>
-                    <th style={styles.tableHeader} colSpan={3}>Full Date Next Month</th>
-                    <th style={styles.tableHeader} colSpan={2}>Opening Balance: Rs. {openingBalance.toLocaleString()}</th>
+                    <th className="download-statement-table-header" colSpan={3}>
+                      <i className="bi bi-calendar-month me-1"></i>
+                      Full Date Next Month
+                    </th>
+                    <th className="download-statement-table-header" colSpan={2}>
+                      Opening Balance: Rs. {openingBalance.toLocaleString()}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
                   {nextMonthTransactions.map((transaction) => (
                     <tr key={transaction.id}>
-                      <td style={styles.tableCell}>{transaction.date}</td>
-                      <td style={styles.tableCell}>{transaction.details}</td>
-                      <td style={styles.tableCell}>
+                      <td className="download-statement-table-cell">{transaction.date}</td>
+                      <td className="download-statement-table-cell">{transaction.details}</td>
+                      <td className="download-statement-table-cell">
                         {transaction.gave > 0 ? `Rs. ${transaction.gave.toLocaleString()}` : "-"}
                       </td>
-                      <td style={styles.tableCell}>
+                      <td className="download-statement-table-cell">
                         {transaction.received > 0 ? `Rs. ${transaction.received.toLocaleString()}` : "-"}
                       </td>
-                      <td style={styles.tableCell}>Rs. {transaction.balance.toLocaleString()}</td>
+                      <td className="download-statement-table-cell">Rs. {transaction.balance.toLocaleString()}</td>
                     </tr>
                   ))}
                   <tr>
-                    <td style={styles.tableCell} colSpan={2}>
+                    <td className="download-statement-table-cell" colSpan={2}>
                       <strong>Total</strong>
                     </td>
-                    <td style={styles.tableCell}>
+                    <td className="download-statement-table-cell">
                       <strong>Rs. {nextMonthTotalGave.toLocaleString()}</strong>
                     </td>
-                    <td style={styles.tableCell}>
+                    <td className="download-statement-table-cell">
                       <strong>Rs. {nextMonthTotalReceived.toLocaleString()}</strong>
                     </td>
-                    <td style={styles.tableCell}></td>
+                    <td className="download-statement-table-cell"></td>
                   </tr>
                 </tbody>
               </table>
             </div>
           </div>
 
-          <div style={styles.reportFooter}>
-            <div>Company Details</div>
-            <div>Phone Number</div>
+          <div className="download-statement-report-footer">
+            <div>
+              <i className="bi bi-building me-1"></i>
+              Company Details
+            </div>
+            <div>
+              <i className="bi bi-telephone me-1"></i>
+              Phone Number
+            </div>
           </div>
         </div>
       </main>

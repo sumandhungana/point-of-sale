@@ -3,7 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
-import './CustomerStatements.css';
+import '../styles/CustomerStatements.css';
 
 interface CustomerData {
     id: number;
@@ -254,13 +254,6 @@ export const CustomerStatements = () => {
         container: {
             minHeight: '100vh',
             background: '#f8f9fa',
-        },
-        
-        mainContent: {
-            padding: '2rem',
-            maxWidth: 'calc(100% - 500px)',
-            marginRight: '500px',
-            width: '100%',
         },
         profileContainer: {
             background: 'white',
@@ -612,21 +605,22 @@ export const CustomerStatements = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div style={{minHeight: '100vh', background: '#f8f9fa'}}>
             <Sidebar />
          
-            <main style={styles.mainContent} className="customer-statements-main-content">
-                <div style={styles.profileContainer}>
-                    <div style={styles.profileHeader}>
+            <main className="customer-statements-main-content">
+                <div className="customer-statements-profile-container">
+                    <div className="customer-statements-profile-header">
                         <button 
-                            style={styles.backButton} 
+                            className="customer-statements-back-button"
                             onClick={handleBack}
                             aria-label="Go back to customers"
                         >
-                            ← Back
+                            <i className="bi bi-arrow-left"></i>
+                            Back
                         </button>
                         <div 
-                            style={styles.profileImageContainer}
+                            className="customer-statements-profile-image-container"
                             onClick={handleProfileClick}
                             title="View customer profile"
                         >
@@ -634,33 +628,37 @@ export const CustomerStatements = () => {
                                 <img 
                                     src={customerData.profileImage} 
                                     alt={customerData.name || 'Customer'} 
-                                    style={styles.profileImage} 
+                                    className="customer-statements-profile-image"
                                 />
                             ) : (
-                                <div style={{ fontSize: '2rem', color: '#adb5bd' }}>👤</div>
+                                <div style={{ fontSize: '2.5rem', color: 'white' }}>
+                                    <i className="bi bi-person"></i>
+                                </div>
                             )}
                         </div>
-                        <div style={styles.buttonContainer}>
+                        <div style={{position: 'absolute', right: 0, display: 'flex', gap: '0.5rem'}}>
                             <button 
-                                style={styles.depositButton}
+                                className="customer-statements-deposit-button"
                                 onClick={() => navigate(`/parties/customers/deposit/${id}`)}
                                 aria-label="Make a deposit"
                                 title="Make a deposit"
                             >
-                                💰 Deposit
+                                <i className="bi bi-cash-coin"></i>
+                                Deposit
                             </button>
                             <button 
-                                style={styles.callButton} 
+                                className="customer-statements-call-button"
                                 onClick={handleCall}
                                 aria-label={`Call ${customerData.name || 'Customer'}`}
                                 title={customerData.phone || 'No phone number available'}
                             >
-                                📞 Call
+                                <i className="bi bi-telephone"></i>
+                                Call
                             </button>
                         </div>
                     </div>
                     <div 
-                        style={styles.customerName}
+                        className="customer-statements-customer-name"
                         onClick={handleProfileClick}
                         title="View customer profile"
                     >
@@ -668,70 +666,85 @@ export const CustomerStatements = () => {
                     </div>
                 </div>
 
-                <div style={styles.amountCard}>
-                    <div style={styles.amountRow}>
-                        <div style={styles.amountItem}>
-                            <div style={styles.amountLabel}>You Received Amount</div>
-                            <div style={{
-                                ...styles.amountValue,
-                                color: (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) === 0 ? '#212529' : 
-                                      (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) > 0 ? '#28a745' : '#dc3545'
+                <div className="customer-statements-amount-card">
+                    <div className="customer-statements-amount-row">
+                        <div className="customer-statements-amount-item">
+                            <div className="customer-statements-amount-label">
+                                <i className="bi bi-arrow-down-circle me-2"></i>
+                                You Received Amount
+                            </div>
+                            <div className="customer-statements-amount-value" style={{
+                                color: (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) === 0 ? '#2c3e50' : 
+                                      (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) > 0 ? '#27ae60' : '#2c3e50'
                             }}>
-                                रु{totals.received - totals.given < 0 ? 0 : totals.received - totals.given}
+                                रु{(totals.received - totals.given < 0 ? 0 : totals.received - totals.given).toLocaleString()}
                             </div>
                         </div>
-                        <div style={styles.amountItem}>
-                            <div style={styles.amountLabel}>You Gave Amount</div>
-                            <div style={{
-                                ...styles.amountValue,
-                                color: (totals.given - totals.received < 0 ? 0 : totals.given - totals.received) === 0 ? '#212529' : 
-                                      (totals.given - totals.received < 0 ? 0 : totals.given - totals.received) > 0 ? '#28a745' : '#dc3545'
+                        <div className="customer-statements-amount-item">
+                            <div className="customer-statements-amount-label">
+                                <i className="bi bi-arrow-up-circle me-2"></i>
+                                You Gave Amount
+                            </div>
+                            <div className="customer-statements-amount-value" style={{
+                                color: '#2c3e50'
                             }}>
-                                रु{totals.given - totals.received < 0 ? 0 : totals.given - totals.received}
+                                रु{(totals.given - totals.received < 0 ? 0 : totals.given - totals.received).toLocaleString()}
                             </div>
                         </div>
                     </div>
-                    <div style={styles.reminderRow}>
-                        <div style={styles.reminderLabel}>Set Date Reminder</div>
+                    <div className="customer-statements-reminder-row">
+                        <div className="customer-statements-reminder-label">
+                            <i className="bi bi-calendar-event me-2"></i>
+                            Set Date Reminder
+                        </div>
                         <input 
                             type="date" 
                             value={reminderDate} 
                             onChange={handleDateChange}
-                            style={styles.dateInput}
+                            className="customer-statements-date-input"
                         />
                     </div>
                 </div>
 
-                <div style={styles.actionButtonsRow}>
-                    <button style={{...styles.actionButton, ...styles.reportButton}} onClick={handleReport}>
-                        📊 Report
+                <div className="customer-statements-action-buttons-container">
+                    <button className="customer-statements-action-button" style={{background: 'linear-gradient(135deg, #17a2b8, #138496)', color: 'white'}} onClick={handleReport}>
+                        <i className="bi bi-graph-up"></i>
+                        Report
                     </button>
-                    <button style={{...styles.actionButton, ...styles.reminderButton}}>
-                        ⏰ Reminder
+                    <button className="customer-statements-action-button" style={{background: 'linear-gradient(135deg, #ffc107, #e0a800)', color: '#212529'}}>
+                        <i className="bi bi-alarm"></i>
+                        Reminder
                     </button>
-                    <button style={{...styles.actionButton, ...styles.smsButton}}>
-                        💬 SMS
+                    <button className="customer-statements-action-button" style={{background: 'linear-gradient(135deg, #9b59b6, #8e44ad)', color: 'white'}}>
+                        <i className="bi bi-chat-dots"></i>
+                        SMS
                     </button>
                 </div>
 
-                <div style={styles.transactionsContainer}>
-                    <h3 style={styles.transactionsTitle}>Recent Transactions</h3>
+                <div className="customer-statements-transactions-container">
+                    <h3 className="customer-statements-transactions-title">
+                        <i className="bi bi-clock-history me-2"></i>
+                        Recent Transactions
+                    </h3>
                     
                     {isLoading ? (
-                        <div style={{ textAlign: 'center', padding: '2rem' }}>
+                        <div className="customer-statements-no-transactions">
+                            <i className="bi bi-hourglass-split me-2"></i>
                             Loading transactions...
                         </div>
                     ) : paymentHistory.length === 0 ? (
-                        <div style={{ textAlign: 'center', padding: '2rem' }}>
+                        <div className="customer-statements-no-transactions">
+                            <i className="bi bi-inbox me-2"></i>
                             No transactions found
                         </div>
                     ) : (
-                        <div style={styles.transactionSection}>
+                        <div>
                             {Object.entries(groupedTransactions)
                                 .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
                                 .map(([date, dateTransactions]) => (
-                                <div key={date} style={styles.dateGroup}>
-                                    <div style={styles.dateLabel}>
+                                <div key={date} className="customer-statements-date-group">
+                                    <div className="customer-statements-date-label">
+                                        <i className="bi bi-calendar-date me-2"></i>
                                         {new Date(date).toLocaleDateString('en-US', { 
                                             weekday: 'long', 
                                             year: 'numeric', 
@@ -744,44 +757,42 @@ export const CustomerStatements = () => {
                                         .map(transaction => (
                                         <div 
                                             key={transaction.id} 
-                                            style={styles.transactionCard}
+                                            className="customer-statements-transaction-card"
                                             onClick={() => handleTransactionClick(transaction)}
                                         >
-                                            <div style={styles.transactionInfo}>
-                                                <div style={styles.transactionRow}>
-                                                    <div style={styles.transactionLabel}>Payment Type:</div>
-                                                    <div style={{
-                                                        ...styles.transactionValue,
-                                                        ...(transaction.type === 'payment_in' ? styles.paymentIn : styles.paymentOut)
-                                                    }}>
+                                            <div className="customer-statements-transaction-info">
+                                                <div className="customer-statements-transaction-row">
+                                                    <div className="customer-statements-transaction-label">Payment Type:</div>
+                                                    <div className={`customer-statements-transaction-value ${transaction.type === 'payment_in' ? 'customer-statements-payment-in' : 'customer-statements-payment-out'}`}>
+                                                        <i className={`bi ${transaction.type === 'payment_in' ? 'bi-arrow-down-circle' : 'bi-arrow-up-circle'} me-1`}></i>
                                                         {transaction.type === 'payment_in' ? 'Payment In' : 'Payment Out'}
                                                     </div>
                                                 </div>
-                                                <div style={styles.transactionRow}>
-                                                    <div style={styles.transactionLabel}>Date/Time:</div>
-                                                    <div style={styles.transactionValue}>
+                                                <div className="customer-statements-transaction-row">
+                                                    <div className="customer-statements-transaction-label">Date/Time:</div>
+                                                    <div className="customer-statements-transaction-value">
+                                                        <i className="bi bi-clock me-1"></i>
                                                         {new Date(transaction.date).toLocaleDateString()} {transaction.time}
                                                     </div>
                                                 </div>
-                                                <div style={styles.transactionRow}>
-                                                    <div style={styles.transactionLabel}>Balance:</div>
-                                                    <div style={styles.transactionValue}>
+                                                <div className="customer-statements-transaction-row">
+                                                    <div className="customer-statements-transaction-label">Balance:</div>
+                                                    <div className="customer-statements-transaction-value">
+                                                        <i className="bi bi-wallet2 me-1"></i>
                                                         रु{transaction.oldBalance.toLocaleString()}
                                                     </div>
                                                 </div>
-                                                <div style={styles.transactionRow}>
-                                                    <div style={styles.transactionLabel}>Remarks:</div>
-                                                    <div style={styles.transactionValue}>
+                                                <div className="customer-statements-transaction-row">
+                                                    <div className="customer-statements-transaction-label">Remarks:</div>
+                                                    <div className="customer-statements-transaction-value">
+                                                        <i className="bi bi-chat-text me-1"></i>
                                                         {transaction.remarks}
                                                     </div>
                                                 </div>
                                             </div>
-                                            <div style={styles.transactionAmounts}>
-                                                <div style={{
-                                                    ...styles.currentAmount,
-                                                    ...(transaction.type === 'payment_out' ? styles.currentAmountRed : {})
-                                                }}>
-                                                    रू {Math.abs(transaction.amount)}
+                                            <div className="customer-statements-transaction-amounts">
+                                                <div className={`customer-statements-current-amount ${transaction.type === 'payment_out' ? 'customer-statements-current-amount-red' : ''}`}>
+                                                    रु {Math.abs(transaction.amount).toLocaleString()}
                                                 </div>
                                             </div>
                                         </div>
@@ -792,20 +803,20 @@ export const CustomerStatements = () => {
                     )}
                 </div>
 
-                <div style={styles.actionButtonsContainer} className="customer-statements-action-buttons">
+                <div className="customer-statements-action-buttons-container">
                         <button 
-                            style={{...styles.actionButton, ...styles.giveButton}} 
                             className="customer-statements-action-button customer-statements-give-button"
                             onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}
                         >
-                            💸 You Gave
+                            <i className="bi bi-arrow-up-circle"></i>
+                            You Gave
                         </button>
                         <button 
-                            style={{...styles.actionButton, ...styles.receiveButton}} 
                             className="customer-statements-action-button customer-statements-receive-button"
                             onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}
                         >
-                            💰 You Received
+                            <i className="bi bi-arrow-down-circle"></i>
+                            You Received
                         </button>
                 </div>
 

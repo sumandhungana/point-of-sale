@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { createPaymentGateway } from '../services/paymentGatewayService';
+import '../styles/AddPaymentGateway.css';
 
 export const AddPaymentGateway = () => {
   const navigate = useNavigate();
@@ -61,139 +62,44 @@ export const AddPaymentGateway = () => {
     }
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    heading: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '2rem',
-    },
-    sectionHeader: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1.5rem',
-      marginTop: '2rem',
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1.5rem',
-    },
-    row: {
-      display: 'flex',
-      gap: '2rem',
-    },
-    inputGroup: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    label: {
-      fontSize: '0.9rem',
-      color: '#495057',
-      fontWeight: '500',
-    },
-    input: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    select: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      background: 'white',
-    },
-    checkboxGroup: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    imagePreview: {
-      width: '200px',
-      height: '200px',
-      border: '1px dashed #dee2e6',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: '1rem',
-      background: selectedImage ? `url(${selectedImage})` : '#f8f9fa',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    },
-    imagePlaceholder: {
-      fontSize: '3rem',
-      color: '#6c757d',
-    },
-    buttonGroup: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      marginTop: '2rem',
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: '500',
-      cursor: 'pointer',
-    },
-  };
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="add-payment-gateway-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <h1 style={styles.heading}>Add Payment Gateway</h1>
-            <form style={styles.form} onSubmit={handleSubmit}>
-              <div style={styles.row}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Name</label>
+        <div className="add-payment-gateway-card">
+          <div className="add-payment-gateway-form-card">
+            <h1 className="add-payment-gateway-heading">
+              <i className="bi bi-credit-card"></i>
+              Add Payment Gateway
+            </h1>
+            <form className="add-payment-gateway-form" onSubmit={handleSubmit}>
+              <div className="add-payment-gateway-row">
+                <div className="add-payment-gateway-input-group">
+                  <label className="add-payment-gateway-label">
+                    <i className="bi bi-building"></i>
+                    Name
+                  </label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-payment-gateway-input"
+                    placeholder="Enter gateway name"
                     required
                   />
                 </div>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Payment Mode</label>
+                <div className="add-payment-gateway-input-group">
+                  <label className="add-payment-gateway-label">
+                    <i className="bi bi-credit-card-2-front"></i>
+                    Payment Mode
+                  </label>
                   <select
                     name="paymentMode"
                     value={formData.paymentMode}
                     onChange={handleInputChange}
-                    style={styles.select}
+                    className="add-payment-gateway-select"
                     required
                   >
                     <option value="">Select Payment Mode</option>
@@ -206,104 +112,148 @@ export const AddPaymentGateway = () => {
                 </div>
               </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Description</label>
+              <div className="add-payment-gateway-input-group">
+                <label className="add-payment-gateway-label">
+                  <i className="bi bi-chat-text"></i>
+                  Description
+                </label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleInputChange}
-                  style={{ ...styles.input, minHeight: '100px', resize: 'vertical' }}
+                  className="add-payment-gateway-textarea"
+                  placeholder="Enter description"
                 />
               </div>
 
-              <div style={styles.inputGroup}>
-                <div style={styles.checkboxGroup}>
+              <div className="add-payment-gateway-input-group">
+                <div className="add-payment-gateway-checkbox-group">
                   <input
                     type="checkbox"
                     name="isActive"
                     checked={formData.isActive}
                     onChange={handleInputChange}
                     id="isActive"
+                    className="add-payment-gateway-checkbox"
                   />
-                  <label htmlFor="isActive" style={styles.label}>Is Active</label>
+                  <label htmlFor="isActive" className="add-payment-gateway-label">
+                    <i className="bi bi-toggle-on"></i>
+                    Is Active
+                  </label>
                 </div>
               </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Select File</label>
+              <div className="add-payment-gateway-input-group">
+                <label className="add-payment-gateway-label">
+                  <i className="bi bi-image"></i>
+                  Select File
+                </label>
                 <div 
-                  style={styles.imagePreview}
+                  className="add-payment-gateway-image-preview"
                   onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    background: selectedImage ? `url(${selectedImage})` : '#f8f9fa'
+                  }}
                 >
-                  {!selectedImage && <span style={styles.imagePlaceholder}>📁</span>}
+                  {!selectedImage && (
+                    <span className="add-payment-gateway-image-placeholder">
+                      <i className="bi bi-image"></i>
+                    </span>
+                  )}
                 </div>
                 <input
                   type="file"
                   ref={fileInputRef}
-                  style={{ display: 'none' }}
+                  className="add-payment-gateway-file-input"
                   onChange={handleFileChange}
                   accept="image/*"
                 />
                 <input
                   type="text"
                   placeholder="Click to upload file"
-                  style={styles.input}
+                  className="add-payment-gateway-input"
                   readOnly
                   value={formData.imagePath}
                 />
               </div>
 
-              <h2 style={styles.sectionHeader}>Configuration</h2>
+              <h2 className="add-payment-gateway-section-header">
+                <i className="bi bi-gear"></i>
+                Configuration
+              </h2>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Verification URL</label>
+              <div className="add-payment-gateway-input-group">
+                <label className="add-payment-gateway-label">
+                  <i className="bi bi-link-45deg"></i>
+                  Verification URL
+                </label>
                 <input
                   type="url"
                   name="verificationUrl"
                   value={formData.verificationUrl}
                   onChange={handleInputChange}
-                  style={styles.input}
+                  className="add-payment-gateway-input"
+                  placeholder="Enter verification URL"
                   required
                 />
               </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Public Key</label>
+              <div className="add-payment-gateway-input-group">
+                <label className="add-payment-gateway-label">
+                  <i className="bi bi-key"></i>
+                  Public Key
+                </label>
                 <input
                   type="text"
                   name="publicKey"
                   value={formData.publicKey}
                   onChange={handleInputChange}
-                  style={styles.input}
+                  className="add-payment-gateway-input"
+                  placeholder="Enter public key"
                   required
                 />
               </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Secret Key</label>
+              <div className="add-payment-gateway-input-group">
+                <label className="add-payment-gateway-label">
+                  <i className="bi bi-shield-lock"></i>
+                  Secret Key
+                </label>
                 <input
                   type="password"
                   name="secretKey"
                   value={formData.secretKey}
                   onChange={handleInputChange}
-                  style={styles.input}
+                  className="add-payment-gateway-input"
+                  placeholder="Enter secret key"
                   required
                 />
               </div>
 
               {error && (
-                <div style={{ color: 'red', marginBottom: '1rem' }}>
+                <div className="add-payment-gateway-error">
+                  <i className="bi bi-exclamation-triangle"></i>
                   {error}
                 </div>
               )}
 
-              <div style={styles.buttonGroup}>
+              <div className="add-payment-gateway-button-group">
                 <button 
                   type="submit" 
-                  style={styles.saveButton}
+                  className="add-payment-gateway-save-button"
                   disabled={loading}
                 >
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? (
+                    <>
+                      <div className="add-payment-gateway-spinner"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle"></i>
+                      Save Payment Gateway
+                    </>
+                  )}
                 </button>
               </div>
             </form>

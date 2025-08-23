@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchRoles, fetchPermissions } from '../services/permissionService';
+import '../styles/Permission.css';
 
 interface Permission {
   id: number;
@@ -52,92 +53,15 @@ export const Permission = () => {
     return acc;
   }, {} as Record<string, Permission[]>);
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    selectContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      marginBottom: '2rem',
-    },
-    select: {
-      padding: '0.75rem',
-      width: '300px',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    sectionHeader: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1.5rem',
-      borderBottom: '1px solid #dee2e6',
-      paddingBottom: '0.5rem',
-    },
-    cardGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(2, 1fr)',
-      gap: '1.5rem',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '1.5rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    cardHeader: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1rem',
-      borderBottom: '1px solid #dee2e6',
-      paddingBottom: '0.5rem',
-    },
-    checkboxGroup: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    checkboxLabel: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      fontSize: '0.9rem',
-      color: '#495057',
-    },
-    errorMessage: {
-      color: 'red',
-      textAlign: 'center' as const,
-      marginBottom: '1rem',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      marginBottom: '1rem',
-      color: '#495057',
-    },
-  };
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="permission-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.selectContainer}>
+        <div className="permission-card">
+          <div className="permission-select-container">
             <select 
-              style={styles.select}
+              className="permission-select"
               value={selectedRole}
               onChange={(e) => setSelectedRole(e.target.value)}
               disabled={loading}
@@ -151,23 +75,41 @@ export const Permission = () => {
             </select>
           </div>
 
-          {loading && <div style={styles.loadingMessage}>Loading data...</div>}
-          {error && <div style={styles.errorMessage}>{error}</div>}
+          {loading && (
+            <div className="permission-loading-message">
+              <i className="bi bi-arrow-clockwise"></i>
+              Loading data...
+            </div>
+          )}
+          {error && (
+            <div className="permission-error-message">
+              <i className="bi bi-exclamation-triangle"></i>
+              {error}
+            </div>
+          )}
 
-          <h2 style={styles.sectionHeader}>Permission Role</h2>
+          <h2 className="permission-section-header">
+            <i className="bi bi-shield-lock"></i>
+            Permission Role
+          </h2>
 
-          <div style={styles.cardGrid}>
+          <div className="permission-card-grid">
             {Object.entries(groupedPermissions).map(([module, modulePermissions]) => (
-              <div key={module} style={styles.card}>
-                <h3 style={styles.cardHeader}>{module}</h3>
-                <div style={styles.checkboxGroup}>
+              <div key={module} className="permission-module-card">
+                <h3 className="permission-card-header">
+                  <i className="bi bi-folder"></i>
+                  {module}
+                </h3>
+                <div className="permission-checkbox-group">
                   {modulePermissions.map((permission) => (
-                    <label key={permission.id} style={styles.checkboxLabel}>
+                    <label key={permission.id} className="permission-checkbox-label">
                       <input
                         type="checkbox"
+                        className="permission-checkbox"
                         name={`${module}-${permission.permissionName}`}
                         disabled={!selectedRole}
                       />
+                      <i className="bi bi-check-square"></i>
                       {permission.permissionName}
                     </label>
                   ))}

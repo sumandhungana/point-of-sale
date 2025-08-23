@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchServices } from '../services/serviceService';
+import '../styles/Service.css';
 
 interface Service {
   id: number;
@@ -66,158 +67,6 @@ export const Service = () => {
     service.serviceName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    salesCard: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      marginBottom: '2rem',
-      display: 'flex',
-      gap: '2rem',
-    },
-    salesSection: {
-      flex: 1,
-      padding: '1.5rem',
-      background: '#f8f9fa',
-      borderRadius: '8px',
-    },
-    salesTitle: {
-      fontSize: '1rem',
-      color: '#6c757d',
-      marginBottom: '0.5rem',
-    },
-    salesAmount: {
-      fontSize: '2rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    searchContainer: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '2rem',
-    },
-    searchInput: {
-      flex: 1,
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    filterSelect: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      background: 'white',
-      minWidth: '200px',
-    },
-    sectionHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: '1rem 0',
-      borderTop: '1px solid #dee2e6',
-      borderBottom: '1px solid #dee2e6',
-      marginBottom: '2rem',
-    },
-    sectionTitle: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    totalServices: {
-      fontSize: '1rem',
-      color: '#6c757d',
-    },
-    servicesGrid: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1.5rem',
-    },
-    serviceCard: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      overflow: 'hidden',
-      display: 'flex',
-      width: '100%',
-    },
-    serviceImage: {
-      width: '120px',
-      height: '120px',
-      background: '#f8f9fa',
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '0.5rem',
-    },
-    imagePlaceholder: {
-      fontSize: '2rem',
-      color: '#6c757d',
-    },
-    priceLabel: {
-      fontSize: '0.8rem',
-      color: '#6c757d',
-    },
-    serviceDetails: {
-      flex: 1,
-      padding: '1rem',
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    serviceName: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    servicePrice: {
-      fontSize: '1rem',
-      color: '#28a745',
-      fontWeight: 'bold',
-    },
-    serviceInfo: {
-      fontSize: '0.9rem',
-      color: '#6c757d',
-    },
-    addButtonContainer: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      marginTop: '2rem',
-    },
-    addButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
-    },
-  };
-
   const handleServiceClick = (service: Service) => {
     navigate('/add-service', { 
       state: { 
@@ -243,12 +92,14 @@ export const Service = () => {
         <div style={{ 
           flex: 1, 
           marginLeft: '50px',
-          
           minHeight: '100vh',
           background: '#f8f9fa',
         }}>
           <Navbar />
-          <div style={styles.loadingMessage}>Loading services...</div>
+          <div className="service-loading-message">
+            <i className="bi bi-arrow-clockwise spin me-2"></i>
+            Loading services...
+          </div>
         </div>
       </div>
     );
@@ -261,12 +112,14 @@ export const Service = () => {
         <div style={{ 
           flex: 1, 
           marginLeft: '50px',
-          
           minHeight: '100vh',
           background: '#f8f9fa',
         }}>
           <Navbar />
-          <div style={styles.errorMessage}>{error}</div>
+          <div className="service-error-message">
+            <i className="bi bi-exclamation-triangle me-2"></i>
+            {error}
+          </div>
         </div>
       </div>
     );
@@ -279,35 +132,40 @@ export const Service = () => {
         flex: 1, 
         paddingTop: '40px', 
         marginLeft: '50px',
-        
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.salesCard}>
-            <div style={styles.salesSection}>
-              <div style={styles.salesTitle}>Net Monthly Sales</div>
-              <div style={styles.salesAmount}>${netMonthlySales.toFixed(2)}</div>
+        <div className="service-container">
+          <div className="service-sales-card">
+            <div className="service-sales-section">
+              <div className="service-sales-title">
+                <i className="bi bi-graph-up me-1"></i>
+                Net Monthly Sales
+              </div>
+              <div className="service-sales-amount">${netMonthlySales.toFixed(2)}</div>
             </div>
-            <div style={styles.salesSection}>
-              <div style={styles.salesTitle}>Gross Monthly Sales</div>
-              <div style={styles.salesAmount}>${grossMonthlySales.toFixed(2)}</div>
+            <div className="service-sales-section">
+              <div className="service-sales-title">
+                <i className="bi bi-graph-up-arrow me-1"></i>
+                Gross Monthly Sales
+              </div>
+              <div className="service-sales-amount">${grossMonthlySales.toFixed(2)}</div>
             </div>
           </div>
 
-          <div style={styles.searchContainer}>
+          <div className="service-search-container">
             <input
               type="text"
               placeholder="Search services..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              style={styles.searchInput}
+              className="service-search-input"
             />
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              style={styles.filterSelect}
+              className="service-filter-select"
             >
               <option value="all">All Services</option>
               <option value="active">Active Services</option>
@@ -316,31 +174,45 @@ export const Service = () => {
             </select>
           </div>
 
-          <div style={styles.sectionHeader}>
-            <div style={styles.sectionTitle}>Services</div>
-            <div style={styles.totalServices}>Total Services: {totalItems}</div>
+          <div className="service-section-header">
+            <div className="service-section-title">
+              <i className="bi bi-tools me-2"></i>
+              Services
+            </div>
+            <div className="service-total-services">
+              <i className="bi bi-collection me-1"></i>
+              Total Services: {totalItems}
+            </div>
           </div>
 
-          <div style={styles.servicesGrid}>
+          <div className="service-services-grid">
             {filteredServices.map(service => (
               <div 
                 key={service.id} 
-                style={styles.serviceCard}
+                className="service-card"
                 onClick={() => handleServiceClick(service)}
               >
-                <div style={styles.serviceImage}>
-                    {service.imagePath && <img src={service.imagePath} alt={service.serviceName} style={styles.serviceImage} />}
-                  <div style={styles.servicePrice}>${service.price.toFixed(2)}</div>
+                <div className="service-image">
+                  {service.imagePath ? (
+                    <img src={service.imagePath} alt={service.serviceName} />
+                  ) : (
+                    <div className="service-image-placeholder">
+                      <i className="bi bi-image"></i>
+                    </div>
+                  )}
+                  <div className="service-price">${service.price.toFixed(2)}</div>
                 </div>
-                <div style={styles.serviceDetails}>
-                  <div style={styles.serviceName}>{service.serviceName}</div>
-                  <div style={styles.serviceInfo}>
+                <div className="service-details">
+                  <div className="service-name">{service.serviceName}</div>
+                  <div className="service-info">
+                    <i className="bi bi-info-circle me-1"></i>
                     {service.taxIncluded ? 'Tax Included' : 'Tax Excluded'} | 
                     Tax: {service.tax?.toFixed(2) || '0'}% | 
                     VAT: {service.vat?.toFixed(2) || '0'}%
                   </div>
                   {service.taxIncluded && (
-                    <div style={styles.serviceInfo}>
+                    <div className="service-info">
+                      <i className="bi bi-calculator me-1"></i>
                       Total with Tax: ${service.taxIncludedAmount.toFixed(2)}
                     </div>
                   )}
@@ -349,12 +221,13 @@ export const Service = () => {
             ))}
           </div>
 
-          <div style={styles.addButtonContainer}>
+          <div className="service-add-button-container">
             <button 
-              style={styles.addButton}
+              className="service-add-button"
               onClick={() => navigate('/add-service')}
             >
-              <span>+</span> Add Service
+              <i className="bi bi-plus-circle me-2"></i>
+              Add Service
             </button>
           </div>
         </div>

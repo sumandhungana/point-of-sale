@@ -1,0 +1,273 @@
+.add-sales-bill-container {
+  flex: 1;
+  padding-top: 40px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.add-sales-bill-card {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.add-sales-bill-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.add-sales-bill-title i {
+  color: #dc4c39;
+}
+
+.add-sales-bill-error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #f5c6cb;
+}
+
+.add-sales-bill-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-sales-bill-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.add-sales-bill-group {
+  margin-bottom: 1.5rem;
+}
+
+.add-sales-bill-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-sales-bill-label i {
+  color: #dc4c39;
+}
+
+.add-sales-bill-input,
+.add-sales-bill-select,
+.add-sales-bill-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.add-sales-bill-input:focus,
+.add-sales-bill-select:focus,
+.add-sales-bill-textarea:focus {
+  outline: none;
+  border-color: #dc4c39;
+  box-shadow: 0 0 0 3px rgba(220, 76, 57, 0.1);
+}
+
+.add-sales-bill-input:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.add-sales-bill-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.add-sales-bill-dropdown {
+  position: relative;
+}
+
+.add-sales-bill-dropdown-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.add-sales-bill-dropdown-input:focus {
+  outline: none;
+  border-color: #dc4c39;
+  box-shadow: 0 0 0 3px rgba(220, 76, 57, 0.1);
+}
+
+.add-sales-bill-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-sales-bill-dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.add-sales-bill-dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.add-sales-bill-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.add-sales-bill-file-input {
+  display: none;
+}
+
+.add-sales-bill-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.add-sales-bill-file-label:hover {
+  background: #e9ecef;
+  border-color: #dc4c39;
+  color: #dc4c39;
+}
+
+.add-sales-bill-image-preview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-top: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-sales-bill-button-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.add-sales-bill-cancel-button,
+.add-sales-bill-submit-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.add-sales-bill-cancel-button {
+  background: #6c757d;
+  color: white;
+}
+
+.add-sales-bill-cancel-button:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.add-sales-bill-submit-button {
+  background: #dc4c39;
+  color: white;
+}
+
+.add-sales-bill-submit-button:hover {
+  background: #c73e2d;
+  transform: translateY(-1px);
+}
+
+.add-sales-bill-submit-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.add-sales-bill-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-sales-bill-card {
+    padding: 1rem;
+  }
+  
+  .add-sales-bill-form {
+    padding: 1.5rem;
+  }
+  
+  .add-sales-bill-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .add-sales-bill-button-container {
+    flex-direction: column;
+  }
+  
+  .add-sales-bill-cancel-button,
+  .add-sales-bill-submit-button {
+    width: 100%;
+  }
+} 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
+import '../styles/Login.css';
 
 type FieldType = {
   username: string;
@@ -48,219 +49,82 @@ export const Login = () => {
     }
   };
 
-  // Styles
-  const containerStyle = {
-    minHeight: '100vh',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '1.5rem',
-    background: '#f8f9fa',
-  };
-
-  const cardStyle = {
-    display: 'flex',
-    background: 'white',
-    borderRadius: '16px',
-    overflow: 'hidden',
-    width: '100%',
-    maxWidth: '1200px',
-    height: '500px',
-    margin: '0 auto',
-    boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
-  };
-
-  const leftPanelStyle = {
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'rgba(178, 66, 66, 0.1)',
-    padding: '1.5rem',
-    borderRadius: '29px 0 0 29px',
-    width: '500px',
-    position: 'relative' as const,
-    overflow: 'hidden',
-    height: '100%',
-  };
-
-  const topSectionStyle = {
-    width: '100%',
-    height: '50%',
-    background: 'rgba(178, 66, 66, 0.2)',
-    position: 'absolute' as const,
-    top: 0,
-    left: 0,
-    zIndex: 0,
-  };
-
-  const bottomSectionStyle = {
-    width: '100%',
-    height: '50%',
-    background: 'rgba(178, 66, 66, 0.05)',
-    position: 'absolute' as const,
-    bottom: 0,
-    left: 0,
-    zIndex: 0,
-  };
-
-  const curveStyle = {
-    position: 'absolute' as const,
-    top: '50%',
-    left: 0,
-    width: '100%',
-    height: '20px',
-    background: 'transparent',
-    zIndex: 1,
-  };
-
-  const curveSvgStyle = {
-    width: '100%',
-    height: '100%',
-  };
-
-  const contentStyle = {
-    position: 'relative' as const,
-    zIndex: 2,
-    width: '100%',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    height: '100%',
-    paddingTop: '0',
-  };
-
-  const logoImageStyle = {
-    width: '200px',
-    height: 'auto',
-    marginBottom: '6rem',
-    marginTop: '6rem',
-  };
-
-  const logoStyle = {
-    color: '#0d6efd',
-    fontSize: '2rem',
-    fontWeight: 'bold', 
-    marginBottom: '4rem',
-  };
-
-  const taglineStyle = {
-    color: '#6c757d',
-    fontStyle: 'italic',
-    fontSize: '0.875rem',
-    marginBottom: '4rem',
-  };
-
-  const copyrightStyle = {
-    color: '#6c757d',
-    fontSize: '0.75rem',
-    marginBottom: '3rem',
-  };
-
-  const socialLinksStyle = {
-    display: 'flex',
-    gap: '0.75rem',
-    marginTop: '4rem',
-  };
-
-  const rightPanelStyle = {
-    flex: 1,
-    padding: '2rem',
-    display: 'flex',
-    flexDirection: 'column' as const,
-    justifyContent: 'center',
-  };
-
-  const headingStyle = {
-    marginBottom: '1.5rem',
-    textAlign: 'center' as const,
-  };
-
-  const inputStyle = {
-    width: '100%',
-    padding: '0.75rem',
-    marginBottom: '1rem',
-    border: 'none',
-    borderBottom: '1px solid #dee2e6',
-    outline: 'none',
-  };
-
-  const errorStyle = {
-    color: '#dc3545',
-    marginBottom: '1rem',
-    textAlign: 'center' as const,
-  };
-
-  const buttonStyle = {
-    width: '100%',
-    padding: '0.75rem',
-    background: '#dc4c39',
-    color: 'white',
-    border: 'none',
-    borderRadius: '50px',
-    fontWeight: 'bold',
-    cursor: 'pointer',
-    opacity: isLoading ? 0.7 : 1,
-  };
-
   return (
-    <div style={containerStyle}>
-      <div style={cardStyle}>
-        <div style={leftPanelStyle}>
-          <div style={topSectionStyle}></div>
-          <div style={bottomSectionStyle}></div>
-          <div style={curveStyle}>
-            <svg style={curveSvgStyle} viewBox="0 0 320 20" preserveAspectRatio="none">
-              <path d="M0,0 Q160,20 320,0" fill="rgba(178, 66, 66, 0.2)" />
+    <div className="login-container">
+      <div className="login-card">
+        <div className="login-left-panel">
+          <div className="login-top-section"></div>
+          <div className="login-bottom-section"></div>
+          <div className="login-curve">
+            <svg className="login-curve-svg" viewBox="0 0 320 20" preserveAspectRatio="none">
+              <path d="M0,0 Q160,20 320,0" fill="rgba(102, 126, 234, 0.2)" />
             </svg>
           </div>
           <img 
             src={logo} 
             alt="Logo" 
-            style={logoImageStyle}
+            className="login-logo-image"
           />
-          <div style={contentStyle}>
-            <p style={taglineStyle}>"Simple, Smart & Secure POS System!"</p>
-            <p style={copyrightStyle}>© 2024 POS System<br/>All rights reserved.</p>
-            <div style={socialLinksStyle}>
+          <div className="login-content">
+            <p className="login-tagline">"Simple, Smart & Secure POS System!"</p>
+            <p className="login-copyright">© 2024 POS System<br/>All rights reserved.</p>
+            <div className="login-social-links">
             </div>
           </div>
         </div>
         
-        <div style={rightPanelStyle}>
-          <h2 style={headingStyle}>Account Login</h2>
-          <form onSubmit={handleSubmit}>
-            <input
-              type="text"
-              name="username"
-              placeholder="Username"
-              required
-              value={formData.username}
-              onChange={handleInputChange}
-              style={inputStyle}
-            />
-            <input
-              type="password"
-              name="password"
-              placeholder="Password"
-              required
-              value={formData.password}
-              onChange={handleInputChange}
-              style={inputStyle}
-            />
+        <div className="login-right-panel">
+          <h2 className="login-heading">
+            <i className="bi bi-person-circle me-2"></i>
+            Account Login
+          </h2>
+          <form onSubmit={handleSubmit} className="login-form">
+            <div className="login-input-group">
+              <i className="bi bi-person login-input-icon"></i>
+              <input
+                type="text"
+                name="username"
+                placeholder="Enter your username"
+                required
+                value={formData.username}
+                onChange={handleInputChange}
+                className="login-input"
+              />
+            </div>
+            <div className="login-input-group">
+              <i className="bi bi-lock login-input-icon"></i>
+              <input
+                type="password"
+                name="password"
+                placeholder="Enter your password"
+                required
+                value={formData.password}
+                onChange={handleInputChange}
+                className="login-input"
+              />
+            </div>
             {error && (
-              <div style={errorStyle}>
+              <div className="login-error">
+                <i className="bi bi-exclamation-triangle me-2"></i>
                 {error}
               </div>
             )}
             <button 
               type="submit" 
               disabled={isLoading}
-              style={buttonStyle}
+              className="login-button"
             >
-              {isLoading ? 'Logging in...' : 'Login'}
+              {isLoading ? (
+                <>
+                  <div className="login-button-spinner"></div>
+                  Logging in...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-box-arrow-in-right me-2"></i>
+                  Login
+                </>
+              )}
             </button>
           </form>
         </div>

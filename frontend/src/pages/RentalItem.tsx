@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { fetchRentalItems } from '../services/rentalItemService';
+import '../styles/RentalItem.css';
 
 interface RentalItem {
   id: number;
@@ -112,175 +113,15 @@ export const RentalItem = () => {
     return 'In Progress';
   };
 
-  const styles = {
-    container: {
-      display: 'flex',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    main: {
-      marginLeft: '280px',
-      flex: 1,
-      padding: '2rem',
-      paddingTop: '80px',
-    },
-    searchContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      marginBottom: '1.5rem',
-    },
-    searchBar: {
-      display: 'flex',
-      alignItems: 'center',
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-      padding: '0.5rem',
-      background: 'white',
-      width: '100%',
-      maxWidth: '300px',
-    },
-    searchInput: {
-      border: 'none',
-      outline: 'none',
-      flex: 1,
-      padding: '0.25rem',
-    },
-    searchIcon: {
-      color: '#6c757d',
-      marginRight: '0.5rem',
-    },
-    reminderButton: {
-      padding: '0.5rem 1rem',
-      background: '#ffc107',
-      color: '#212529',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    filterContainer: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1.5rem',
-    },
-    dropdown: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      minWidth: '150px',
-    },
-    summaryCard: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-      marginBottom: '1.5rem',
-    },
-    summaryGrid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '1rem',
-    },
-    summaryItem: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    summaryLabel: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-    },
-    summaryAmount: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#28a745',
-    },
-    rentalCard: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-      marginBottom: '1rem',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
-    rentalInfo: {
-      display: 'flex',
-      gap: '1rem',
-      alignItems: 'center',
-    },
-    imagePlaceholder: {
-      width: '60px',
-      height: '60px',
-      background: '#e9ecef',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#6c757d',
-    },
-    rentalDetails: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.25rem',
-    },
-    rentalName: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    rentalTime: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-    },
-    rentalAmount: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#28a745',
-    },
-    addButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      marginTop: '2rem',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-    },
-    addButtonContainer: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      marginTop: '2rem',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
-    },
-  };
-
   if (loading) {
     return (
-      <div style={styles.container}>
+      <div className="rental-item-container">
         <Sidebar />
-        <div style={styles.main}>
-          <div style={styles.loadingMessage}>Loading rental items...</div>
+        <div className="rental-item-main">
+          <div className="rental-item-loading-message">
+            <i className="bi bi-arrow-clockwise spin"></i>
+            Loading rental items...
+          </div>
         </div>
       </div>
     );
@@ -288,10 +129,13 @@ export const RentalItem = () => {
 
   if (error) {
     return (
-      <div style={styles.container}>
+      <div className="rental-item-container">
         <Sidebar />
-        <div style={styles.main}>
-          <div style={styles.errorMessage}>{error}</div>
+        <div className="rental-item-main">
+          <div className="rental-item-error-message">
+            <i className="bi bi-exclamation-triangle-fill"></i>
+            {error}
+          </div>
         </div>
       </div>
     );
@@ -300,24 +144,24 @@ export const RentalItem = () => {
   return (
     <>
       <Navbar />
-      <div style={styles.container}>
+      <div className="rental-item-container">
         <Sidebar />
-        <div style={styles.main}>
-          <div style={styles.searchContainer}>
-            <div style={styles.searchBar}>
-              <span style={styles.searchIcon}>🔍</span>
+        <div className="rental-item-main">
+          <div className="rental-item-search-container">
+            <div className="rental-item-search-bar">
+              <i className="bi bi-search rental-item-search-icon"></i>
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search rental items..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={styles.searchInput}
+                className="rental-item-search-input"
               />
             </div>
             <select 
               value={filter} 
               onChange={(e) => setFilter(e.target.value)}
-              style={styles.dropdown}
+              className="rental-item-dropdown"
             >
               <option value="">Filter By</option>
               <option value="name">Name</option>
@@ -327,7 +171,7 @@ export const RentalItem = () => {
             <select 
               value={sort} 
               onChange={(e) => setSort(e.target.value)}
-              style={styles.dropdown}
+              className="rental-item-dropdown"
             >
               <option value="">Sort By</option>
               <option value="name_asc">Name (A-Z)</option>
@@ -335,20 +179,27 @@ export const RentalItem = () => {
               <option value="date_asc">Date (Oldest)</option>
               <option value="date_desc">Date (Newest)</option>
             </select>
-            <button style={styles.reminderButton}>
-              ⏰ Reminder
+            <button className="rental-item-reminder-button">
+              <i className="bi bi-alarm"></i>
+              Reminder
             </button>
           </div>
 
-          <div style={styles.summaryCard}>
-            <div style={styles.summaryGrid}>
-              <div style={styles.summaryItem}>
-                <span style={styles.summaryLabel}>You Give</span>
-                <span style={styles.summaryAmount}>रु{youGive.toFixed(2)}</span>
+          <div className="rental-item-summary-card">
+            <div className="rental-item-summary-grid">
+              <div className="rental-item-summary-item">
+                <span className="rental-item-summary-label">
+                  <i className="bi bi-arrow-up-circle me-1"></i>
+                  You Give
+                </span>
+                <span className="rental-item-summary-amount">रु{youGive.toFixed(2)}</span>
               </div>
-              <div style={styles.summaryItem}>
-                <span style={styles.summaryLabel}>Advance Amount</span>
-                <span style={styles.summaryAmount}>रु{advanceAmount.toFixed(2)}</span>
+              <div className="rental-item-summary-item">
+                <span className="rental-item-summary-label">
+                  <i className="bi bi-cash-coin me-1"></i>
+                  Advance Amount
+                </span>
+                <span className="rental-item-summary-amount">रु{advanceAmount.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -356,43 +207,45 @@ export const RentalItem = () => {
           {sortedItems.map(item => {
             const calculatedAmount = calculateRentalAmount(item);
             const status = getRentalStatus(item);
-            const statusColor = status === 'Completed' ? '#28a745' : 
-                              status === 'Not Started' ? '#6c757d' : '#ffc107';
+            const statusClass = status === 'Completed' ? 'rental-item-status-completed' : 
+                              status === 'Not Started' ? 'rental-item-status-not-started' : 
+                              'rental-item-status-in-progress';
 
             return (
-              <div key={item.id} style={styles.rentalCard}>
-                <div style={styles.rentalInfo}>
-                  <div style={styles.imagePlaceholder}>📷</div>
-                  <div style={styles.rentalDetails}>
-                    <div style={styles.rentalName}>{item.rentalItemName}</div>
-                    <div style={styles.rentalTime}>
+              <div key={item.id} className="rental-item-card">
+                <div className="rental-item-info">
+                  <div className="rental-item-image-placeholder">
+                    <i className="bi bi-image"></i>
+                  </div>
+                  <div className="rental-item-details">
+                    <div className="rental-item-name">{item.rentalItemName}</div>
+                    <div className="rental-item-time">
+                      <i className="bi bi-calendar-event me-1"></i>
                       Period: {item.rentalPeriod} | 
                       Start: {new Date(item.startDate).toLocaleDateString()} | 
                       End: {new Date(item.endDate).toLocaleDateString()}
                     </div>
-                    <div style={styles.rentalTime}>
-                      Phone: {item.phoneNumber} | Address: {item.address}
+                    <div className="rental-item-time">
+                      <i className="bi bi-telephone me-1"></i>
+                      Phone: {item.phoneNumber} | 
+                      <i className="bi bi-geo-alt me-1"></i>
+                      Address: {item.address}
                     </div>
                     {item.remarks && (
-                      <div style={styles.rentalTime}>Remarks: {item.remarks}</div>
+                      <div className="rental-item-time">
+                        <i className="bi bi-chat-text me-1"></i>
+                        Remarks: {item.remarks}
+                      </div>
                     )}
-                    <div style={{ 
-                      ...styles.rentalTime, 
-                      color: statusColor,
-                      fontWeight: 'bold',
-                      marginTop: '0.5rem'
-                    }}>
+                    <div className={`rental-item-status ${statusClass}`}>
+                      <i className="bi bi-circle-fill me-1"></i>
                       Status: {status}
                     </div>
                   </div>
                 </div>
-                <div style={styles.rentalAmount}>
+                <div className="rental-item-amount">
                   <div>रु{calculatedAmount.toFixed(2)}</div>
-                  <div style={{ 
-                    fontSize: '0.875rem', 
-                    color: '#6c757d',
-                    textAlign: 'right'
-                  }}>
+                  <div className="rental-item-amount-total">
                     of रु{item.rentalAmount.toFixed(2)}
                   </div>
                 </div>
@@ -400,12 +253,13 @@ export const RentalItem = () => {
             );
           })}
 
-          <div style={styles.addButtonContainer}>
+          <div className="rental-item-add-button-container">
             <button 
-              style={styles.addButton}
+              className="rental-item-add-button"
               onClick={() => navigate('/rental/add')}
             >
-              ➕ Add Rental Items
+              <i className="bi bi-plus-circle"></i>
+              Add Rental Items
             </button>
           </div>
         </div>

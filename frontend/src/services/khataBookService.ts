@@ -23,26 +23,7 @@ export interface KhataBook {
   updatedAt: string;
 }
 
-// Default admin KhataBook
-const defaultAdminKhataBook: KhataBook = {
-  id: 0,
-  name: 'Admin',
-  number: '0000000000',
-  address: 'Default Address',
-  email: 'admin@example.com',
-  companyName: 'Admin Company',
-  companyNumber: '0000000000',
-  companyAddress: 'Default Company Address',
-  companyEmail: 'admin@company.com',
-  businessCategory: 1,
-  businessType: 1,
-  taxVat: false,
-  bookAccount: true,
-  kyc: true,
-  imagePath: 'https://via.placeholder.com/150?text=Admin',
-  createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString()
-};
+
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('authToken');
@@ -53,15 +34,13 @@ export const getKhataBooks = async (): Promise<KhataBook[]> => {
   try {
     const response = await fetch(`${API_URL}/KhataBook`, { headers: getAuthHeaders() });
     const data = await response.json();
-    // Add default admin entry if no KhataBooks exist
-    if (!data || data.length === 0) {
-      return [defaultAdminKhataBook];
-    }
-    return [defaultAdminKhataBook,...data];
+    
+    // Return the data as is - the backend migration ensures a default KhataBook exists
+    return data || [];
   } catch (error) {
     console.error('Error fetching KhataBooks:', error);
-    // Return default admin entry if API call fails
-    return [defaultAdminKhataBook];
+    // Return empty array if API call fails
+    return [];
   }
 };
 
@@ -121,10 +100,18 @@ export async function getSelectedKhataBook() {
     });
 
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      // If no KhataBook is selected, throw an error
+      throw new Error('No KhataBook is currently selected');
     }
 
-    return await response.json();
+    const selectedKhataBook = await response.json();
+    
+    // If the selected KhataBook is null or undefined, throw an error
+    if (!selectedKhataBook || !selectedKhataBook.id) {
+      throw new Error('Selected KhataBook is null or undefined');
+    }
+
+    return selectedKhataBook;
   } catch (error) {
     console.error('Error getting selected KhataBook:', error);
     throw error;

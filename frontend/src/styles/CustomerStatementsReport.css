@@ -1,0 +1,115 @@
+/* Customer Statements Report - Modern Styles */
+.customer-statements-report-page { min-height: 100vh; background: #f8f9fa; }
+
+.customer-statements-report-main-content { padding: 2rem; margin-top: 64px; }
+
+.customer-statements-report-content-container {
+  background: #fff; padding: 2rem; border-radius: 20px; margin: 0 auto; max-width: 1200px;
+  border: 1px solid rgba(0,0,0,.05); box-shadow: 0 12px 35px rgba(0,0,0,.08); position: relative; overflow: hidden;
+}
+.customer-statements-report-content-container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg,#3498db,#2ecc71); transform: scaleX(0); transition: transform .3s; }
+.customer-statements-report-content-container:hover::before { transform: scaleX(1); }
+
+.customer-statements-report-header { display: flex; align-items: center; margin-bottom: 2rem; gap: 1rem; }
+
+.customer-statements-report-back-button {
+  background: linear-gradient(135deg, #6c757d, #495057); color: #fff; border: 0; border-radius: 12px;
+  padding: 0.75rem 1rem; font-size: 1rem; cursor: pointer; transition: .3s; display: flex; align-items: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,.15);
+}
+.customer-statements-report-back-button:hover { transform: translateY(-2px); }
+
+.customer-statements-report-title { 
+  font-size: 1.75rem; font-weight: 700; color: #2c3e50; margin: 0; display: flex; align-items: center;
+  text-align: center; flex: 1; justify-content: center;
+}
+
+.customer-statements-report-controls-card {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 1.5rem; border-radius: 16px;
+  border: 1px solid rgba(0,0,0,.05); margin-bottom: 2rem; box-shadow: 0 4px 15px rgba(0,0,0,.05);
+}
+
+.customer-statements-report-controls-row { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+
+.customer-statements-report-search-container { position: relative; flex: 1; min-width: 250px; }
+.customer-statements-report-search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #6c757d; z-index: 2; }
+.customer-statements-report-search-input {
+  width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 2px solid #e9ecef; border-radius: 12px;
+  background: #fff; color: #495057; transition: .2s; font-size: 0.9rem;
+}
+.customer-statements-report-search-input:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,.1); }
+
+.customer-statements-report-dropdown {
+  padding: 0.75rem 1rem; border: 2px solid #e9ecef; border-radius: 12px; background: #fff; color: #495057;
+  min-width: 180px; transition: .2s; font-size: 0.9rem;
+}
+.customer-statements-report-dropdown:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,.1); }
+
+.customer-statements-report-date-controls { display: flex; gap: 1rem; flex-wrap: wrap; }
+.customer-statements-report-date-input { display: flex; flex-direction: column; min-width: 150px; }
+.customer-statements-report-date-label { margin-bottom: 0.5rem; color: #495057; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; }
+.customer-statements-report-date-select {
+  padding: 0.75rem 1rem; border: 2px solid #e9ecef; border-radius: 12px; background: #fff; color: #495057;
+  transition: .2s; font-size: 0.9rem;
+}
+.customer-statements-report-date-select:focus { outline: none; border-color: #3498db; box-shadow: 0 0 0 3px rgba(52,152,219,.1); }
+
+.customer-statements-report-summary-section {
+  display: flex; justify-content: space-around; padding: 1.5rem; background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 16px; margin-bottom: 2rem; border: 1px solid rgba(0,0,0,.05); box-shadow: 0 4px 15px rgba(0,0,0,.05);
+}
+.customer-statements-report-summary-item { text-align: center; flex: 1; }
+.customer-statements-report-summary-title { color: #6c757d; margin-bottom: 0.5rem; font-size: 0.875rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.customer-statements-report-summary-value { font-size: 1.5rem; font-weight: 700; }
+.customer-statements-report-gave-value { color: #dc3545; }
+.customer-statements-report-received-value { color: #28a745; }
+.customer-statements-report-net-value { color: #17a2b8; }
+.customer-statements-report-summary-divider { width: 1px; background: #dee2e6; margin: 0 1rem; }
+
+.customer-statements-report-table-container { margin-top: 2rem; overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
+.customer-statements-report-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; }
+.customer-statements-report-table-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;
+  color: #2c3e50; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
+}
+.customer-statements-report-table-row { transition: .2s; }
+.customer-statements-report-table-row:hover { background: rgba(52,152,219,.05); }
+.customer-statements-report-table-cell { padding: 1rem; border-bottom: 1px solid #e9ecef; color: #495057; font-size: 0.9rem; }
+
+.customer-statements-report-transaction-type {
+  padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.customer-statements-report-type-gave { background: rgba(220,53,69,.1); color: #dc3545; }
+.customer-statements-report-type-received { background: rgba(40,167,69,.1); color: #28a745; }
+
+.customer-statements-report-action-buttons { display: flex; justify-content: space-between; margin-top: 2rem; gap: 1rem; }
+.customer-statements-report-download-button, .customer-statements-report-share-button {
+  padding: 0.9rem 1.5rem; border: 0; border-radius: 12px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; gap: 0.5rem; transition: .3s; font-size: 0.9rem;
+}
+.customer-statements-report-download-button {
+  background: linear-gradient(135deg, #dc3545, #c82333); color: #fff; box-shadow: 0 4px 15px rgba(220,53,69,.25);
+}
+.customer-statements-report-download-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(220,53,69,.35); }
+.customer-statements-report-share-button {
+  background: linear-gradient(135deg, #28a745, #218838); color: #fff; box-shadow: 0 4px 15px rgba(40,167,69,.25);
+}
+.customer-statements-report-share-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(40,167,69,.35); }
+
+.customer-statements-report-footer {
+  text-align: center; color: #6c757d; margin-top: 2rem; padding: 1.5rem; border-top: 1px solid #e9ecef;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-radius: 12px; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;
+}
+.customer-statements-report-footer-item { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.9rem; }
+
+@media (max-width: 768px) {
+  .customer-statements-report-main-content { padding: 1rem; }
+  .customer-statements-report-content-container { padding: 1.25rem; }
+  .customer-statements-report-controls-row { flex-direction: column; align-items: stretch; }
+  .customer-statements-report-search-container { min-width: auto; }
+  .customer-statements-report-summary-section { flex-direction: column; gap: 1rem; }
+  .customer-statements-report-summary-divider { display: none; }
+  .customer-statements-report-action-buttons { flex-direction: column; }
+  .customer-statements-report-footer { grid-template-columns: 1fr; }
+} 

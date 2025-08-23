@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchCashbooks as fetchCashbooksApi } from '../services/cashbookService';
+import '../styles/Cashbook.css';
 
 interface Cashbook {
   id: number;
@@ -61,6 +62,10 @@ export const Cashbook = () => {
     navigate('/bills/cashbook/add');
   };
 
+  const handleCashbookClick = (cashbook: Cashbook) => {
+    navigate('/bills/cashbook/add', { state: { cashbook } });
+  };
+
   const filteredCashbooks = cashbooks
     .filter(cashbook => {
       const matchesSearch = 
@@ -81,375 +86,181 @@ export const Cashbook = () => {
       return 0;
     });
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-    },
-    searchContainer: {
-      background: 'white',
-      padding: '1.5rem',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      marginBottom: '1rem',
-    },
-    searchBar: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      marginBottom: '1rem',
-      flexWrap: 'wrap' as const,
-    },
-    searchInput: {
-      flex: 2,
-      padding: '0.75rem 1rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      minWidth: '200px',
-      transition: 'border-color 0.2s, box-shadow 0.2s',
-      '&:focus': {
-        outline: 'none',
-        borderColor: '#dc4c39',
-        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-      },
-    },
-    filterGroup: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      flex: 1,
-      minWidth: '200px',
-    },
-    select: {
-      padding: '0.75rem 1rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      flex: 1,
-      backgroundColor: 'white',
-      cursor: 'pointer',
-      transition: 'border-color 0.2s, box-shadow 0.2s',
-      '&:focus': {
-        outline: 'none',
-        borderColor: '#dc4c39',
-        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-      },
-    },
-    label: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      whiteSpace: 'nowrap',
-    },
-    actionButtons: {
-      display: 'flex',
-      gap: '0.75rem',
-      marginLeft: 'auto',
-    },
-    button: {
-      padding: '0.5rem 1rem',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    primaryButton: {
-      background: '#dc4c39',
-      color: 'white',
-    },
-    secondaryButton: {
-      background: '#f8f9fa',
-      color: '#212529',
-      border: '1px solid #dee2e6',
-    },
-    infoCard: {
-      display: 'flex',
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    infoSection: {
-      flex: 1,
-      padding: '1rem',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      textAlign: 'center' as const,
-    },
-    infoTitle: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      marginBottom: '0.5rem',
-    },
-    infoValue: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    viewReportButton: {
-      width: '100%',
-      padding: '0.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      marginTop: '0.5rem',
-    },
-    cashbookList: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1rem',
-      marginTop: '1.5rem',
-    },
-    cashbookCard: {
-      display: 'flex',
-      gap: '1rem',
-      padding: '1rem',
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-      cursor: 'pointer',
-      '&:hover': {
-        transform: 'translateY(-2px)',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-      },
-    },
-    imageContainer: {
-      flex: '0 0 100px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      overflow: 'hidden',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover' as const,
-    },
-    placeholderImage: {
-      width: '80px',
-      height: '80px',
-      background: '#e9ecef',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#6c757d',
-      fontSize: '0.875rem',
-    },
-    detailsContainer: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    cashbookNo: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    detailsRow: {
-      display: 'flex',
-      flexWrap: 'wrap' as const,
-      gap: '0.5rem',
-    },
-    detailPill: {
-      padding: '0.25rem 0.75rem',
-      background: '#f8f9fa',
-      borderRadius: '9999px',
-      fontSize: '0.875rem',
-      color: '#495057',
-    },
-    amountContainer: {
-      flex: '0 0 120px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    amount: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#28a745',
-      background: '#e8f5e9',
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-    },
-    addButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
-    },
-  };
+  const totalCashbook = cashbooks.reduce((sum, cashbook) => sum + cashbook.amount, 0);
+  const pendingAmount = 0; // This would be calculated based on business logic
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="cashbook-page-wrapper">
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="cashbook-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <div style={styles.searchContainer}>
-              <div style={styles.searchBar}>
+        <div className="cashbook-card">
+          <div className="cashbook-header">
+            <h1 className="cashbook-title">Cashbook Management</h1>
+            <p className="cashbook-subtitle">Track all your cash transactions and entries</p>
+          </div>
+          
+          <div className="cashbook-search-container">
+            <div className="cashbook-search-bar">
+              <div className="cashbook-search-input-container">
+                <i className="bi bi-search cashbook-search-icon"></i>
                 <input
                   type="text"
-                  placeholder="Search cashbooks..."
-                  style={styles.searchInput}
+                  placeholder="Search by cashbook number, category, or item..."
                   value={searchQuery}
                   onChange={handleSearchChange}
+                  className="cashbook-search-input"
                 />
-                <div style={styles.filterGroup}>
-                  <label style={styles.label}>Filter:</label>
-                  <select 
-                    style={styles.select}
-                    value={statusFilter}
-                    onChange={handleStatusFilterChange}
-                  >
-                    <option value="">All Status</option>
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-                <div style={styles.filterGroup}>
-                  <label style={styles.label}>Sort:</label>
-                  <select 
-                    style={styles.select}
-                    value={dateSort}
-                    onChange={handleDateSortChange}
-                  >
-                    <option value="">Date Added</option>
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-                </div>
-                <div style={styles.actionButtons}>
+                {searchQuery && (
                   <button 
-                    style={{ ...styles.button, ...styles.primaryButton }}
+                    className="cashbook-clear-search"
+                    onClick={() => setSearchQuery('')}
                   >
-                    <span>📝</span> Bulk Reminder
+                    <i className="bi bi-x"></i>
                   </button>
-                  <button 
-                    style={{ ...styles.button, ...styles.secondaryButton }}
-                  >
-                    PDF
-                  </button>
-                </div>
+                )}
               </div>
-            </div>
-            <div style={styles.infoCard}>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Amount</div>
-                <div style={styles.infoValue}>
-                  रु{cashbooks.reduce((sum, cashbook) => sum + cashbook.amount, 0).toLocaleString()}
-                </div>
-                <button style={styles.viewReportButton}>View Report</button>
+              <div className="cashbook-filter-group">
+                <label className="cashbook-label">Filter:</label>
+                <select
+                  value={statusFilter}
+                  onChange={handleStatusFilterChange}
+                  className="cashbook-select"
+                >
+                  <option value="">All Payment Modes</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="UPI">UPI</option>
+                </select>
               </div>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>रु0</div>
-                <button style={styles.viewReportButton}>View Details</button>
+              <div className="cashbook-filter-group">
+                <label className="cashbook-label">Sort:</label>
+                <select
+                  value={dateSort}
+                  onChange={handleDateSortChange}
+                  className="cashbook-select"
+                >
+                  <option value="">Default</option>
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
               </div>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Entries</div>
-                <div style={styles.infoValue}>{cashbooks.length}</div>
-                <button style={styles.viewReportButton}>View All</button>
-              </div>
-            </div>
-            
-          </div>
-            <div style={styles.cashbookList}>
-              {loading ? (
-                <div style={styles.loadingMessage}>Loading cashbooks...</div>
-              ) : error ? (
-                <div style={styles.errorMessage}>{error}</div>
-              ) : (
-                filteredCashbooks.map((cashbook) => (
-                  <div key={cashbook.id} style={styles.cashbookCard}>
-                    <div style={styles.imageContainer}>
-                      {cashbook.photoPath ? (
-                        <img 
-                          src={cashbook.photoPath} 
-                          alt={cashbook.cashbookNo}
-                          style={styles.image}
-                        />
-                      ) : (
-                        <div style={styles.placeholderImage}>
-                          No Photo
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.detailsContainer}>
-                      <div style={styles.cashbookNo}>{cashbook.cashbookNo}</div>
-                      <div style={styles.detailsRow}>
-                        <span style={styles.detailPill}>
-                          Category: {cashbook.category.name}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Item: {cashbook.item.name}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Payment: {cashbook.paymentMode}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Date: {new Date(cashbook.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {cashbook.remarks && (
-                        <div style={styles.detailPill}>
-                          Remarks: {cashbook.remarks}
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.amountContainer}>
-                      <div style={styles.amount}>
-                        रु{cashbook.amount.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-
-              <div style={styles.actionButtons}>
-                <button style={styles.addButton} onClick={handleAddCashbook}>
-                  Add New Cashbook
+              <div className="cashbook-action-buttons">
+                <button 
+                  className="cashbook-button cashbook-primary-button"
+                  onClick={handleAddCashbook}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  Add Cashbook
+                </button>
+                <button className="cashbook-button cashbook-secondary-button">
+                  <i className="bi bi-download"></i>
+                  Export
                 </button>
               </div>
             </div>
+            <div className="cashbook-info-card">
+              <div className="cashbook-info-section">
+                <div className="cashbook-info-title">Total Cashbook</div>
+                <div className="cashbook-info-value">₹{totalCashbook.toLocaleString()}</div>
+                <button className="cashbook-view-report-button">
+                  <i className="bi bi-graph-up me-1"></i>
+                  View Report
+                </button>
+              </div>
+              <div className="cashbook-info-section">
+                <div className="cashbook-info-title">Pending Amount</div>
+                <div className="cashbook-info-value">₹{pendingAmount.toLocaleString()}</div>
+                <button className="cashbook-view-report-button">
+                  <i className="bi bi-clock me-1"></i>
+                  View Details
+                </button>
+              </div>
+              <div className="cashbook-info-section">
+                <div className="cashbook-info-title">Total Entries</div>
+                <div className="cashbook-info-value">{cashbooks.length}</div>
+                <button className="cashbook-view-report-button">
+                  <i className="bi bi-list-ul me-1"></i>
+                  View All
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="cashbook-list">
+            {loading ? (
+              <div className="cashbook-loading-message">
+                <i className="bi bi-arrow-clockwise me-2"></i>
+                Loading cashbooks...
+              </div>
+            ) : error ? (
+              <div className="cashbook-error-message">
+                <i className="bi bi-exclamation-triangle me-2"></i>
+                {error}
+              </div>
+            ) : filteredCashbooks.length === 0 ? (
+              <div className="cashbook-loading-message">
+                <i className="bi bi-inbox me-2"></i>
+                No cashbooks found
+              </div>
+            ) : (
+              filteredCashbooks.map(cashbook => (
+                <div
+                  key={cashbook.id}
+                  className="cashbook-item"
+                  onClick={() => handleCashbookClick(cashbook)}
+                >
+                  <div className="cashbook-image-container">
+                    {cashbook.photoPath ? (
+                      <img
+                        src={cashbook.photoPath}
+                        alt={cashbook.item.name}
+                        className="cashbook-image"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="cashbook-placeholder-image">
+                      <i className="bi bi-image"></i>
+                    </div>
+                  </div>
+                  <div className="cashbook-details-container">
+                    <div className="cashbook-number">{cashbook.cashbookNo}</div>
+                    <div className="cashbook-details-row">
+                      <span className="cashbook-detail-pill">
+                        <i className="bi bi-tag me-1"></i>
+                        {cashbook.category.name}
+                      </span>
+                      <span className="cashbook-detail-pill">
+                        <i className="bi bi-box me-1"></i>
+                        {cashbook.item.name}
+                      </span>
+                      <span className="cashbook-detail-pill">
+                        <i className="bi bi-credit-card me-1"></i>
+                        {cashbook.paymentMode}
+                      </span>
+                    </div>
+                    <div className="cashbook-date">
+                      <i className="bi bi-calendar me-1"></i>
+                      {new Date(cashbook.date).toLocaleDateString()}
+                    </div>
+                    {cashbook.remarks && (
+                      <div className="cashbook-remarks">
+                        <i className="bi bi-chat-text me-1"></i>
+                        {cashbook.remarks}
+                      </div>
+                    )}
+                  </div>
+                  <div className="cashbook-amount">
+                    ₹{cashbook.amount.toLocaleString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>

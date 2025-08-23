@@ -1,0 +1,285 @@
+.add-cashbook-container {
+  flex: 1;
+  padding-top: 40px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.add-cashbook-card {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.add-cashbook-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.add-cashbook-title i {
+  color: #dc4c39;
+}
+
+.add-cashbook-error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid #f5c6cb;
+}
+
+.add-cashbook-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-cashbook-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.add-cashbook-group {
+  margin-bottom: 1.5rem;
+}
+
+.add-cashbook-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-cashbook-label i {
+  color: #dc4c39;
+}
+
+.add-cashbook-input,
+.add-cashbook-select,
+.add-cashbook-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.add-cashbook-input:focus,
+.add-cashbook-select:focus,
+.add-cashbook-textarea:focus {
+  outline: none;
+  border-color: #dc4c39;
+  box-shadow: 0 0 0 3px rgba(220, 76, 57, 0.1);
+}
+
+.add-cashbook-input:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+}
+
+.add-cashbook-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.add-cashbook-dropdown {
+  position: relative;
+}
+
+.add-cashbook-dropdown-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.add-cashbook-dropdown-input:focus {
+  outline: none;
+  border-color: #dc4c39;
+  box-shadow: 0 0 0 3px rgba(220, 76, 57, 0.1);
+}
+
+.add-cashbook-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e9ecef;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.add-cashbook-dropdown-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  border-bottom: 1px solid #f8f9fa;
+}
+
+.add-cashbook-dropdown-item:hover {
+  background: #f8f9fa;
+}
+
+.add-cashbook-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.add-cashbook-file-input {
+  display: none;
+}
+
+.add-cashbook-file-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #f8f9fa;
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.add-cashbook-file-label:hover {
+  background: #e9ecef;
+  border-color: #dc4c39;
+  color: #dc4c39;
+}
+
+.add-cashbook-image-preview {
+  max-width: 200px;
+  max-height: 200px;
+  border-radius: 8px;
+  margin-top: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-cashbook-button-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.add-cashbook-cancel-button,
+.add-cashbook-submit-button,
+.add-cashbook-secondary-button {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.add-cashbook-cancel-button {
+  background: #6c757d;
+  color: white;
+}
+
+.add-cashbook-cancel-button:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+.add-cashbook-submit-button {
+  background: #dc4c39;
+  color: white;
+}
+
+.add-cashbook-submit-button:hover {
+  background: #c73e2d;
+  transform: translateY(-1px);
+}
+
+.add-cashbook-submit-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.add-cashbook-secondary-button {
+  background: #6c757d;
+  color: white;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+}
+
+.add-cashbook-secondary-button:hover {
+  background: #5a6268;
+}
+
+.add-cashbook-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-cashbook-card {
+    padding: 1rem;
+  }
+  
+  .add-cashbook-form {
+    padding: 1.5rem;
+  }
+  
+  .add-cashbook-row {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .add-cashbook-button-container {
+    flex-direction: column;
+  }
+  
+  .add-cashbook-cancel-button,
+  .add-cashbook-submit-button {
+    width: 100%;
+  }
+} 

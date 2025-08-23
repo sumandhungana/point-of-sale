@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { fetchItems, createItem, updateItem } from '../services/itemService';
 import { fetchCategories } from '../services/categoryService';
+import '../styles/AddItem.css';
 
 interface Category {
   id: number;
@@ -167,10 +168,7 @@ export const AddItem = () => {
       
       // Create preview URL for the selected image
       const previewUrl = URL.createObjectURL(file);
-      setFormDataState(prev => ({
-        ...prev,
-        imageUrl: previewUrl
-      }));
+      setImagePreview(previewUrl);
     }
   };
 
@@ -183,309 +181,80 @@ export const AddItem = () => {
     };
   }, [imagePreview]);
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      display: 'flex',
-      gap: '2rem',
-      alignItems: 'flex-start',
-      marginBottom: '2rem',
-    },
-    section: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      marginBottom: '2rem',
-    },
-    sectionTitle: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-      marginBottom: '1.5rem',
-    },
-    photoSection: {
-      width: '200px',
-      height: '200px',
-      border: '2px dashed #dee2e6',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      position: 'relative' as const,
-      overflow: 'hidden',
-      background: imagePreview ? `url(${imagePreview})` : '#f8f9fa',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    },
-    photoPlaceholder: {
-      textAlign: 'center' as const,
-      color: '#6c757d',
-      zIndex: 1,
-      background: imagePreview ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
-      padding: '1rem',
-      borderRadius: '4px',
-    },
-    photoIcon: {
-      fontSize: '3rem',
-      marginBottom: '0.5rem',
-      color: imagePreview ? 'white' : '#6c757d',
-    },
-    formSection: {
-      flex: 1,
-    },
-    formGroup: {
-      marginBottom: '1.5rem',
-    },
-    label: {
-      display: 'block',
-      marginBottom: '0.5rem',
-      color: '#495057',
-      fontSize: '0.9rem',
-    },
-    input: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    unitsContainer: {
-      display: 'flex',
-      marginBottom: '1.5rem',
-      alignItems: 'center',
-    },
-    primaryUnitContainer: {
-      flex: 2,
-      marginRight: '1rem',
-    },
-    secondaryUnitContainer: {
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    unitInput: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    select: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      background: 'white',
-    },
-    slideContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    slideButton: {
-      width: '60px',
-      height: '30px',
-      background: '#6c757d',
-      borderRadius: '15px',
-      position: 'relative' as const,
-      cursor: 'pointer',
-    },
-    slideCircle: {
-      width: '26px',
-      height: '26px',
-      background: 'white',
-      borderRadius: '50%',
-      position: 'absolute' as const,
-      top: '2px',
-      left: '2px',
-      transition: 'transform 0.3s ease',
-    },
-    secondaryUnitSlideButton: {
-      width: '60px',
-      height: '30px',
-      background: formDataState.isSecondaryUnitEnabled ? '#28a745' : '#6c757d',
-      borderRadius: '15px',
-      position: 'relative' as const,
-      cursor: 'pointer',
-    },
-    secondaryUnitSlideCircle: {
-      width: '26px',
-      height: '26px',
-      background: 'white',
-      borderRadius: '50%',
-      position: 'absolute' as const,
-      top: '2px',
-      left: formDataState.isSecondaryUnitEnabled ? '32px' : '2px',
-      transition: 'transform 0.3s ease',
-    },
-    taxSlideButton: {
-      width: '60px',
-      height: '30px',
-      background: formDataState.taxIncluded ? '#28a745' : '#6c757d',
-      borderRadius: '15px',
-      position: 'relative' as const,
-      cursor: 'pointer',
-    },
-    taxSlideCircle: {
-      width: '26px',
-      height: '26px',
-      background: 'white',
-      borderRadius: '50%',
-      position: 'absolute' as const,
-      top: '2px',
-      left: formDataState.taxIncluded ? '32px' : '2px',
-      transition: 'transform 0.3s ease',
-    },
-    vatSlideButton: {
-      width: '60px',
-      height: '30px',
-      background: formDataState.vatPercentage ? '#28a745' : '#6c757d',
-      borderRadius: '15px',
-      position: 'relative' as const,
-      cursor: 'pointer',
-    },
-    vatSlideCircle: {
-      width: '26px',
-      height: '26px',
-      background: 'white',
-      borderRadius: '50%',
-      position: 'absolute' as const,
-      top: '2px',
-      left: formDataState.vatPercentage ? '32px' : '2px',
-      transition: 'transform 0.3s ease',
-    },
-    priceContainer: {
-      display: 'flex',
-      gap: '1rem',
-    },
-    priceField: {
-      flex: 1,
-    },
-    taxContainer: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '1.5rem',
-    },
-    taxLabel: {
-      fontSize: '1rem',
-      color: '#495057',
-      fontWeight: 'bold',
-    },
-    stockContainer: {
-      display: 'flex',
-      gap: '1rem',
-    },
-    stockField: {
-      flex: 1,
-    },
-    vatContainer: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1.5rem',
-    },
-    vatField: {
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    vatLabel: {
-      fontSize: '1rem',
-      color: '#495057',
-      fontWeight: 'bold',
-      marginBottom: '0.5rem',
-    },
-    saveButton: {
-      width: '100%',
-      padding: '1rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-      marginTop: '2rem',
-    },
-  };
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="add-item-container">
         <Navbar />
-        <div style={styles.container}>
+        <div className="add-item-card">
           <form onSubmit={handleSubmit}>
-            <div style={styles.card}>
-              <div style={styles.photoSection} onClick={handlePhotoClick}>
+            <div className="add-item-main-card">
+              <div 
+                className="add-item-photo-section" 
+                onClick={handlePhotoClick}
+                style={{
+                  background: imagePreview ? `url(${imagePreview})` : '#f8f9fa'
+                }}
+              >
                 <input
                   type="file"
                   ref={fileInputRef}
-                  style={{ display: 'none' }}
+                  className="add-item-file-input"
                   onChange={handleFileChange}
                   accept="image/*"
                 />
-                <div style={styles.photoPlaceholder}>
-                  <div style={styles.photoIcon}>📷</div>
+                <div className="add-item-photo-placeholder">
+                  <div className="add-item-photo-icon">
+                    <i className="bi bi-camera"></i>
+                  </div>
                   <div style={{ color: imagePreview ? 'white' : '#6c757d' }}>
                     {selectedFile ? selectedFile.name : 'Add Item Photo'}
                   </div>
                 </div>
               </div>
-              <div style={styles.formSection}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Item Name</label>
+              <div className="add-item-form-section">
+                <div className="add-item-group">
+                  <label className="add-item-label">
+                    <i className="bi bi-box"></i>
+                    Item Name
+                  </label>
                   <input
                     type="text"
                     name="name"
                     value={formDataState.name}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-item-input"
                     placeholder="Enter item name"
                     required
                   />
                 </div>
-                <div style={styles.unitsContainer}>
-                  <div style={styles.primaryUnitContainer}>
-                    <label style={styles.label}>Primary Unit</label>
+                <div className="add-item-units-container">
+                  <div className="add-item-primary-unit-container">
+                    <label className="add-item-label">
+                      <i className="bi bi-rulers"></i>
+                      Primary Unit
+                    </label>
                     <input
                       type="text"
                       name="primaryUnit"
                       value={formDataState.primaryUnit}
                       onChange={handleInputChange}
-                      style={styles.unitInput}
+                      className="add-item-unit-input"
                       placeholder="e.g., kg"
                       required
                     />
                   </div>
-                  <div style={styles.secondaryUnitContainer}>
+                  <div className="add-item-secondary-unit-container">
                     <div style={{ flex: 1 }}>
-                      <label style={styles.label}>Secondary Unit</label>
+                      <label className="add-item-label">
+                        <i className="bi bi-rulers"></i>
+                        Secondary Unit
+                      </label>
                       <select
                         name="secondaryUnit"
                         value={formDataState.secondaryUnit}
                         onChange={handleInputChange}
-                        style={styles.select}
+                        className="add-item-select"
                         disabled={!formDataState.isSecondaryUnitEnabled}
                       >
                         <option value="">Select unit</option>
@@ -498,25 +267,31 @@ export const AddItem = () => {
                       </select>
                     </div>
                     <div 
-                      style={styles.secondaryUnitSlideButton}
+                      className={`add-item-slide-button ${formDataState.isSecondaryUnitEnabled ? 'active' : ''}`}
                       onClick={() => setFormDataState(prev => ({ ...prev, isSecondaryUnitEnabled: !prev.isSecondaryUnitEnabled }))}
                     >
-                      <div style={styles.secondaryUnitSlideCircle} />
+                      <div className="add-item-slide-circle" />
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div style={styles.section}>
-              <h2 style={styles.sectionTitle}>Select Items Category</h2>
-              <div style={styles.formGroup}>
-                <label style={styles.label}>Category</label>
+            <div className="add-item-section">
+              <h2 className="add-item-section-title">
+                <i className="bi bi-tag"></i>
+                Select Items Category
+              </h2>
+              <div className="add-item-group">
+                <label className="add-item-label">
+                  <i className="bi bi-folder"></i>
+                  Category
+                </label>
                 <select
                   name="categoryId"
                   value={formDataState.categoryId}
                   onChange={handleInputChange}
-                  style={styles.select}
+                  className="add-item-select"
                   required
                 >
                   <option value="">Select category</option>
@@ -527,28 +302,34 @@ export const AddItem = () => {
                   ))}
                 </select>
               </div>
-              <div style={styles.priceContainer}>
-                <div style={styles.priceField}>
-                  <label style={styles.label}>Sales Price</label>
+              <div className="add-item-price-container">
+                <div className="add-item-price-field">
+                  <label className="add-item-label">
+                    <i className="bi bi-currency-rupee"></i>
+                    Sales Price
+                  </label>
                   <input
                     type="number"
                     name="salesPrice"
                     value={formDataState.salesPrice}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-item-input"
                     placeholder="Enter sales price"
                     required
                     step="0.01"
                   />
                 </div>
-                <div style={styles.priceField}>
-                  <label style={styles.label}>Purchase Price</label>
+                <div className="add-item-price-field">
+                  <label className="add-item-label">
+                    <i className="bi bi-currency-rupee"></i>
+                    Purchase Price
+                  </label>
                   <input
                     type="number"
                     name="purchasePrice"
                     value={formDataState.purchasePrice}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-item-input"
                     placeholder="Enter purchase price"
                     required
                     step="0.01"
@@ -557,38 +338,47 @@ export const AddItem = () => {
               </div>
             </div>
 
-            <div style={styles.section}>
-              <div style={styles.taxContainer}>
-                <h2 style={styles.taxLabel}>Tax Included</h2>
+            <div className="add-item-section">
+              <div className="add-item-tax-container">
+                <h2 className="add-item-tax-label">
+                  <i className="bi bi-percent"></i>
+                  Tax Included
+                </h2>
                 <div 
-                  style={styles.taxSlideButton}
+                  className={`add-item-slide-button ${formDataState.taxIncluded ? 'active' : ''}`}
                   onClick={() => setFormDataState(prev => ({ ...prev, taxIncluded: !prev.taxIncluded }))}
                 >
-                  <div style={styles.taxSlideCircle} />
+                  <div className="add-item-slide-circle" />
                 </div>
               </div>
-              <div style={styles.stockContainer}>
-                <div style={styles.stockField}>
-                  <label style={styles.label}>Opening Stock</label>
+              <div className="add-item-stock-container">
+                <div className="add-item-stock-field">
+                  <label className="add-item-label">
+                    <i className="bi bi-boxes"></i>
+                    Opening Stock
+                  </label>
                   <input
                     type="number"
                     name="openingStock"
                     value={formDataState.openingStock}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-item-input"
                     placeholder="Enter count"
                     required
                     step="0.01"
                   />
                 </div>
-                <div style={styles.stockField}>
-                  <label style={styles.label}>Low Stock Alert</label>
+                <div className="add-item-stock-field">
+                  <label className="add-item-label">
+                    <i className="bi bi-exclamation-triangle"></i>
+                    Low Stock Alert
+                  </label>
                   <input
                     type="number"
                     name="lowStockAlert"
                     value={formDataState.lowStockAlert}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-item-input"
                     placeholder="Enter count"
                     required
                     step="0.01"
@@ -597,17 +387,20 @@ export const AddItem = () => {
               </div>
             </div>
 
-            <div style={styles.section}>
-              <div style={styles.vatContainer}>
-                <div style={styles.vatField}>
+            <div className="add-item-section">
+              <div className="add-item-vat-container">
+                <div className="add-item-vat-field">
                   <div style={{ flex: 1 }}>
-                    <label style={styles.vatLabel}>VAT Percentage</label>
+                    <label className="add-item-vat-label">
+                      <i className="bi bi-percent"></i>
+                      VAT Percentage
+                    </label>
                     <input
                       type="number"
                       name="vatPercentage"
                       value={formDataState.vatPercentage}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-item-input"
                       placeholder="VAT %"
                       required
                       step="0.01"
@@ -615,24 +408,27 @@ export const AddItem = () => {
                   </div>
                 </div>
                 <div style={{ flex: 1 }}>
-                  <label style={styles.label}>VAT As of Date</label>
+                  <label className="add-item-label">
+                    <i className="bi bi-calendar"></i>
+                    VAT As of Date
+                  </label>
                   <input
                     type="date"
                     name="vatDate"
                     value={formDataState.vatDate}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-item-input"
                     required
                   />
                 </div>
                 <div style={{ display: 'none' }}>
                   <input
-                  hidden
+                    hidden
                     type="text"
                     name="imageUrl"
                     value={formDataState.imageUrl}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-item-input"
                     placeholder="Enter image URL"
                   />
                 </div>
@@ -640,17 +436,28 @@ export const AddItem = () => {
             </div>
 
             {error && (
-              <div style={{ color: 'red', marginBottom: '1rem' }}>
+              <div className="add-item-error">
+                <i className="bi bi-exclamation-triangle"></i>
                 {error}
               </div>
             )}
 
             <button 
               type="submit" 
-              style={styles.saveButton}
+              className="add-item-save-button"
               disabled={loading}
             >
-              {loading ? (isEdit ? 'Updating...' : 'Saving...') : (isEdit ? 'Update Item' : 'Save Item')}
+              {loading ? (
+                <>
+                  <div className="add-item-spinner"></div>
+                  {isEdit ? 'Updating...' : 'Saving...'}
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-check-circle"></i>
+                  {isEdit ? 'Update Item' : 'Save Item'}
+                </>
+              )}
             </button>
           </form>
         </div>

@@ -111,6 +111,22 @@ const App: React.FC = () => {
             }
           />
           <Route
+            path="/parties/supplier/statements/you-gave/:id"
+            element={
+              <PrivateRoute>
+                <YouGave />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/parties/supplier/statements/you-received/:id"
+            element={
+              <PrivateRoute>
+                <YouReceived />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/category/add/:pageName"
             element={
               <PrivateRoute>
@@ -214,6 +230,15 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+          {/* Supplier profile alias (uses same component) */}
+          <Route
+            path="/parties/supplier/profile/:id"
+            element={
+              <PrivateRoute>
+                <CustomerProfile />
+              </PrivateRoute>
+            }
+          />
           <Route
             path="/parties/customers/statements/:id"
             element={
@@ -259,6 +284,22 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <AddSupplier />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/parties/cash-bank/cash"
+            element={
+              <PrivateRoute>
+                <YouGave />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/parties/cash-bank/bank"
+            element={
+              <PrivateRoute>
+                <YouReceived />
               </PrivateRoute>
             }
           />
@@ -332,6 +373,70 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <AddSalesBill />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/purchase"
+            element={
+              <PrivateRoute>
+                <Purchase />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/purchase/add"
+            element={
+              <PrivateRoute>
+                <AddPurchase />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/expenses"
+            element={
+              <PrivateRoute>
+                <Expenses />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/expenses/add"
+            element={
+              <PrivateRoute>
+                <AddExpenses />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/income"
+            element={
+              <PrivateRoute>
+                <Income />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/income/add"
+            element={
+              <PrivateRoute>
+                <AddIncome />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/cashbook"
+            element={
+              <PrivateRoute>
+                <Cashbook />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/bills/cashbook/add"
+            element={
+              <PrivateRoute>
+                <AddCashbook />
               </PrivateRoute>
             }
           />
@@ -463,13 +568,212 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-          <Route path="/rental-items" element={<RentalItem />} />
-          <Route path="/rental/add" element={<AddRentalItem />} />
-          <Route path="/user" element={<User />} />
-          <Route path="/add-user" element={<AddUser />} />
-          <Route path="/app-settings" element={<AppSetting />} />
+          <Route 
+            path="/rental-items" 
+            element={
+              <PrivateRoute>
+                <RentalItem />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/rental/add" 
+            element={
+              <PrivateRoute>
+                <AddRentalItem />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/user" 
+            element={
+              <PrivateRoute>
+                <User />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/add-user" 
+            element={
+              <PrivateRoute>
+                <AddUser />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/app-settings" 
+            element={
+              <PrivateRoute>
+                <AppSetting />
+              </PrivateRoute>
+            } 
+          />
           <Route path="/" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-          <Route path="/parties/suppliers/:id" element={<SupplierStatements />} />
+          
+          {/* Reports Routes */}
+          <Route
+            path="/reports/sales"
+            element={
+              <PrivateRoute>
+                <div>Sales Report Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/reports/purchase"
+            element={
+              <PrivateRoute>
+                <div>Purchase Report Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/reports/total-sale"
+            element={
+              <PrivateRoute>
+                <div>Total Sale Report Page</div>
+              </PrivateRoute>
+            }
+          />
+          
+          {/* System Routes */}
+          <Route
+            path="/system/multi-user"
+            element={
+              <PrivateRoute>
+                <div>Multi User Login Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/system/reminder"
+            element={
+              <PrivateRoute>
+                <div>Reminder Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/system/import"
+            element={
+              <PrivateRoute>
+                <div>Import Data Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/system/notis"
+            element={
+              <PrivateRoute>
+                <div>Notifications Page</div>
+              </PrivateRoute>
+            }
+          />
+          
+          {/* Settings Routes */}
+          <Route
+            path="/settings/backup"
+            element={
+              <PrivateRoute>
+                <div>Backup Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/recycle-bin"
+            element={
+              <PrivateRoute>
+                <div>Recycle Bin Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/delete-khata"
+            element={
+              <PrivateRoute>
+                <div>Delete Khata Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/business"
+            element={
+              <PrivateRoute>
+                <div>Business Setting Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/settings/dashboard"
+            element={
+              <PrivateRoute>
+                <div>Dashboard Setting Page</div>
+              </PrivateRoute>
+            }
+          />
+          
+          {/* Abouts Routes */}
+          <Route
+            path="/abouts/app-name"
+            element={
+              <PrivateRoute>
+                <div>App Name Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/abouts/backup-info"
+            element={
+              <PrivateRoute>
+                <div>Backup Info Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/abouts/privacy"
+            element={
+              <PrivateRoute>
+                <div>Privacy Policy Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/abouts/terms"
+            element={
+              <PrivateRoute>
+                <div>Terms & Conditions Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/abouts/version"
+            element={
+              <PrivateRoute>
+                <div>Version Page</div>
+              </PrivateRoute>
+            }
+          />
+          
+          {/* Others Routes */}
+          <Route
+            path="/others/note"
+            element={
+              <PrivateRoute>
+                <div>Note Page</div>
+              </PrivateRoute>
+            }
+          />
+          {/* Supplier statements routes */}
+          <Route
+            path="/parties/supplier/statements/:id"
+            element={
+              <PrivateRoute>
+                <SupplierStatements />
+              </PrivateRoute>
+            }
+          />
+          {/* Backward-compatible route */}
+          <Route path="/parties/suppliers/:id" element={<PrivateRoute><SupplierStatements /></PrivateRoute>} />
         </Routes>
       </Router>
     </AuthProvider>

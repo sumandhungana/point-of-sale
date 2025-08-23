@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
-import { CSSProperties } from 'react';
+import '../styles/AddPayments.css';
 
 export const AddPayments: React.FC = () => {
   const [amount, setAmount] = useState('');
@@ -8,138 +8,69 @@ export const AddPayments: React.FC = () => {
   const [date, setDate] = useState('');
   const [paymentMode, setPaymentMode] = useState<'cash' | 'online'>('cash');
 
-  const styles: Record<string, CSSProperties> = {
-    container: {
-      display: 'flex',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    main: {
-      flex: 1,
-      padding: '2rem',
-    },
-  
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-      marginTop: '1.5rem',
-    },
-    formGroup: {
-      marginBottom: '1.5rem',
-    },
-    label: {
-      display: 'block',
-      marginBottom: '0.5rem',
-      color: '#495057',
-      fontSize: '0.875rem',
-    },
-    input: {
-      width: '100%',
-      padding: '0.5rem',
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-    },
-    textarea: {
-      width: '100%',
-      padding: '0.5rem',
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      minHeight: '100px',
-      resize: 'vertical' as const,
-    },
-    paymentModeContainer: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1.5rem',
-    },
-    paymentModeButton: {
-      flex: 1,
-      padding: '0.5rem',
-      border: '1px solid #ced4da',
-      borderRadius: '4px',
-      background: 'white',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-    },
-    activePaymentMode: {
-      background: '#28a745',
-      color: 'white',
-      borderColor: '#28a745',
-    },
-    saveButton: {
-      padding: '0.5rem 1rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      fontWeight: 'bold',
-      marginLeft: 'auto',
-      display: 'block',
-    },
-  };
-
   return (
-    <div style={styles.container}>
+    <div className="add-payments-container">
       <Sidebar />
-      <div style={styles.main}>
+      <div className="add-payments-main">
        
-        <div style={styles.card}>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Enter Amount</label>
+        <div className="add-payments-card">
+          <div className="add-payments-form-group">
+            <label className="add-payments-label amount">
+              <i className="bi bi-currency-dollar me-1"></i>
+              Enter Amount
+            </label>
             <input
               type="number"
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
-              style={styles.input}
+              className="add-payments-input"
               placeholder="Enter amount"
             />
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Add Any Notes</label>
+          <div className="add-payments-form-group">
+            <label className="add-payments-label notes">
+              <i className="bi bi-journal-text me-1"></i>
+              Add Any Notes
+            </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              style={styles.textarea}
+              className="add-payments-textarea"
               placeholder="Add any notes here..."
             />
           </div>
-          <div style={styles.formGroup}>
-            <label style={styles.label}>Date</label>
+          <div className="add-payments-form-group">
+            <label className="add-payments-label date">
+              <i className="bi bi-calendar me-1"></i>
+              Date
+            </label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              style={styles.input}
+              className="add-payments-input"
             />
           </div>
-          <div style={styles.paymentModeContainer}>
+          <div className="add-payments-payment-mode-container">
             <button
-              style={{
-                ...styles.paymentModeButton,
-                ...(paymentMode === 'cash' ? styles.activePaymentMode : {}),
-              }}
+              className={`add-payments-payment-mode-button ${paymentMode === 'cash' ? 'active' : ''}`}
               onClick={() => setPaymentMode('cash')}
             >
+              <i className="bi bi-cash-coin me-1"></i>
               Cash
             </button>
             <button
-              style={{
-                ...styles.paymentModeButton,
-                ...(paymentMode === 'online' ? styles.activePaymentMode : {}),
-              }}
+              className={`add-payments-payment-mode-button ${paymentMode === 'online' ? 'active' : ''}`}
               onClick={() => setPaymentMode('online')}
             >
+              <i className="bi bi-credit-card me-1"></i>
               Online
             </button>
           </div>
-          <button style={styles.saveButton}>Save Payment</button>
+          <button className="add-payments-save-button">
+            <i className="bi bi-check-circle me-2"></i>
+            Save Payment
+          </button>
         </div>
       </div>
     </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchInvoiceSettings, saveInvoiceSettings } from '../services/appSettingService';
+import '../styles/BillsAndPrintSelling.css';
 
 export const BillsAndPrintSelling = () => {
   const [loading, setLoading] = useState(false);
@@ -192,143 +193,48 @@ export const BillsAndPrintSelling = () => {
     }
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    section: {
-      marginBottom: '2rem',
-    },
-    sectionHeader: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1rem',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '1.5rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      marginBottom: '1.5rem',
-    },
-    row: {
-      display: 'flex',
-      gap: '2rem',
-      marginBottom: '1rem',
-    },
-    inputGroup: {
-      flex: 1,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    label: {
-      fontSize: '0.9rem',
-      color: '#495057',
-      fontWeight: '500',
-    },
-    checkbox: {
-      margin: 0,
-    },
-    input: {
-      flex: 1,
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    select: {
-      flex: 1,
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      background: 'white',
-    },
-    printerLabel: {
-      textAlign: 'center' as const,
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1rem',
-    },
-    link: {
-      color: '#007bff',
-      textDecoration: 'none',
-      '&:hover': {
-        textDecoration: 'underline',
-      },
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: '500',
-      cursor: 'pointer',
-      marginTop: '1rem',
-    },
-    errorMessage: {
-      color: 'red',
-      marginBottom: '1rem',
-    },
-    formGroup: {
-      marginBottom: '1rem',
-    },
-  };
-
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="bills-container">
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="bills-main-content">
         <Navbar />
-        <div style={styles.container}>
+        <div className="bills-form-container">
           <form onSubmit={handleSubmit}>
             {/* Invoice Setting Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionHeader}>Invoice Setting</h2>
-              <div style={styles.card}>
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
+            <div className="bills-section">
+              <h2 className="bills-section-header">
+                <i className="bi bi-gear-fill"></i>
+                Invoice Setting
+              </h2>
+              <div className="bills-card">
+                <div className="bills-row">
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="premiumBill"
                       value={formData.premiumBill}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Premium Bill"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="thermalBill"
                       value={formData.thermalBill}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Thermal Bill"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="basicBill"
                       value={formData.basicBill}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Basic Bill"
                     />
                   </div>
@@ -337,72 +243,81 @@ export const BillsAndPrintSelling = () => {
             </div>
 
             {/* Invoice Style Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionHeader}>Invoice Style</h2>
-              <div style={styles.card}>
-                <div style={styles.printerLabel}>Regular Printer</div>
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
+            <div className="bills-section">
+              <h2 className="bills-section-header">
+                <i className="bi bi-printer-fill"></i>
+                Invoice Style
+              </h2>
+              <div className="bills-card">
+                <div className="bills-printer-label">
+                  <i className="bi bi-printer me-2"></i>
+                  Regular Printer
+                </div>
+                <div className="bills-row">
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="regularPrinter.field1"
                       value={formData.regularPrinter.field1}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Field 1"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="regularPrinter.field2"
                       value={formData.regularPrinter.field2}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Field 2"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="regularPrinter.field3"
                       value={formData.regularPrinter.field3}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Field 3"
                     />
                   </div>
                 </div>
 
-                <div style={styles.printerLabel}>Thermal Printer</div>
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
+                <div className="bills-printer-label">
+                  <i className="bi bi-thermal-printer me-2"></i>
+                  Thermal Printer
+                </div>
+                <div className="bills-row">
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="thermalPrinter.field1"
                       value={formData.thermalPrinter.field1}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Field 1"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="thermalPrinter.field2"
                       value={formData.thermalPrinter.field2}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Field 2"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="thermalPrinter.field3"
                       value={formData.thermalPrinter.field3}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Field 3"
                     />
                   </div>
@@ -411,115 +326,118 @@ export const BillsAndPrintSelling = () => {
             </div>
 
             {/* Company Info and Header Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionHeader}>Company Info and Header</h2>
-              <div style={styles.card}>
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
+            <div className="bills-section">
+              <h2 className="bills-section-header">
+                <i className="bi bi-building-fill"></i>
+                Company Info and Header
+              </h2>
+              <div className="bills-card">
+                <div className="bills-row">
+                  <div className="bills-input-group">
                     <input
                       type="checkbox"
                       name="companyInfo.companyName"
                       checked={formData.companyInfo.companyName}
                       onChange={handleInputChange}
-                      style={styles.checkbox}
+                      className="bills-checkbox"
                     />
                     <input
                       type="text"
                       name="companyValues.companyName"
                       value={formData.companyValues.companyName}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Company Name"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="checkbox"
                       name="companyInfo.companyLogo"
                       checked={formData.companyInfo.companyLogo}
                       onChange={handleInputChange}
-                      style={styles.checkbox}
+                      className="bills-checkbox"
                     />
                     <input
                       type="text"
                       name="companyValues.companyLogo"
                       value={formData.companyValues.companyLogo}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Company Logo"
                     />
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
+                <div className="bills-row">
+                  <div className="bills-input-group">
                     <input
                       type="checkbox"
                       name="companyInfo.address"
                       checked={formData.companyInfo.address}
                       onChange={handleInputChange}
-                      style={styles.checkbox}
+                      className="bills-checkbox"
                     />
                     <input
                       type="text"
                       name="companyValues.address"
                       value={formData.companyValues.address}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Address"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="checkbox"
                       name="companyInfo.email"
                       checked={formData.companyInfo.email}
                       onChange={handleInputChange}
-                      style={styles.checkbox}
+                      className="bills-checkbox"
                     />
                     <input
                       type="email"
                       name="companyValues.email"
                       value={formData.companyValues.email}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Email"
                     />
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
+                <div className="bills-row">
+                  <div className="bills-input-group">
                     <input
                       type="checkbox"
                       name="companyInfo.phone"
                       checked={formData.companyInfo.phone}
                       onChange={handleInputChange}
-                      style={styles.checkbox}
+                      className="bills-checkbox"
                     />
                     <input
                       type="text"
                       name="companyValues.phone"
                       value={formData.companyValues.phone}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Phone"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="checkbox"
                       name="companyInfo.panVat"
                       checked={formData.companyInfo.panVat}
                       onChange={handleInputChange}
-                      style={styles.checkbox}
+                      className="bills-checkbox"
                     />
                     <input
                       type="text"
                       name="companyValues.panVat"
                       value={formData.companyValues.panVat}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="PAN/VAT"
                     />
                   </div>
@@ -528,56 +446,65 @@ export const BillsAndPrintSelling = () => {
             </div>
 
             {/* Footer Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionHeader}>Footer</h2>
-              <div style={styles.card}>
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
+            <div className="bills-section">
+              <h2 className="bills-section-header">
+                <i className="bi bi-file-text-fill"></i>
+                Footer
+              </h2>
+              <div className="bills-card">
+                <div className="bills-row">
+                  <div className="bills-input-group">
                     <input
                       type="checkbox"
                       name="authorizedSignature"
                       checked={formData.authorizedSignature}
                       onChange={handleInputChange}
-                      style={styles.checkbox}
+                      className="bills-checkbox"
                     />
                     <input
                       type="text"
                       name="authorizedSignatureText"
                       value={formData.authorizedSignatureText}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Authorized Signature"
                     />
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <input
                       type="text"
                       name="changeSignature"
                       value={formData.changeSignature}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="bills-input"
                       placeholder="Change Signature"
                     />
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <a href="#" style={styles.link}>Terms and Conditions</a>
+                <div className="bills-row">
+                  <a href="#" className="bills-link">
+                    <i className="bi bi-file-earmark-text"></i>
+                    Terms and Conditions
+                  </a>
                 </div>
               </div>
             </div>
 
             {/* Bill Size Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionHeader}>Bill Size</h2>
-              <div style={styles.card}>
-                <div style={{...styles.row, flexDirection: 'column', gap: '1rem'}}>
-                  <div style={styles.inputGroup}>
+            <div className="bills-section">
+              <h2 className="bills-section-header">
+                <i className="bi bi-arrows-fullscreen"></i>
+                Bill Size
+              </h2>
+              <div className="bills-card">
+                <div className="bills-column-layout">
+                  <div className="bills-input-group">
                     <select
                       name="paperSize"
                       value={formData.paperSize}
                       onChange={handleInputChange}
-                      style={styles.select}
+                      className="bills-select"
                     >
                       <option value="">Select Paper Size</option>
                       <option value="a4">A4</option>
@@ -585,24 +512,24 @@ export const BillsAndPrintSelling = () => {
                       <option value="letter">Letter</option>
                     </select>
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <select
                       name="orientation"
                       value={formData.orientation}
                       onChange={handleInputChange}
-                      style={styles.select}
+                      className="bills-select"
                     >
                       <option value="">Select Orientation</option>
                       <option value="portrait">Portrait</option>
                       <option value="landscape">Landscape</option>
                     </select>
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <select
                       name="companyNameTextSize"
                       value={formData.companyNameTextSize}
                       onChange={handleInputChange}
-                      style={styles.select}
+                      className="bills-select"
                     >
                       <option value="">Company Name Text Size</option>
                       <option value="small">Small</option>
@@ -610,12 +537,12 @@ export const BillsAndPrintSelling = () => {
                       <option value="large">Large</option>
                     </select>
                   </div>
-                  <div style={styles.inputGroup}>
+                  <div className="bills-input-group">
                     <select
                       name="invoiceTaxSize"
                       value={formData.invoiceTaxSize}
                       onChange={handleInputChange}
-                      style={styles.select}
+                      className="bills-select"
                     >
                       <option value="">Invoice Tax Size</option>
                       <option value="small">Small</option>
@@ -628,17 +555,28 @@ export const BillsAndPrintSelling = () => {
             </div>
 
             {error && (
-              <div style={styles.errorMessage}>
+              <div className="bills-error-message">
+                <i className="bi bi-exclamation-triangle-fill"></i>
                 {error}
               </div>
             )}
 
             <button 
               type="submit" 
-              style={styles.saveButton}
+              className="bills-save-button"
               disabled={loading}
             >
-              {loading ? 'Saving...' : 'Save Settings'}
+              {loading ? (
+                <>
+                  <i className="bi bi-arrow-clockwise spin"></i>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-check-circle"></i>
+                  Save Settings
+                </>
+              )}
             </button>
           </form>
         </div>

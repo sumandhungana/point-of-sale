@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createUser, updateUser } from '../services/userService';
+import '../styles/AddUser.css';
 
 interface LocationState {
   isEdit: boolean;
@@ -87,176 +88,79 @@ export const AddUser = () => {
     }
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    section: {
-      marginBottom: '2rem',
-    },
-    sectionHeader: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1rem',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '1.5rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    row: {
-      display: 'flex',
-      gap: '2rem',
-      marginBottom: '1rem',
-    },
-    inputGroup: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    label: {
-      fontSize: '0.9rem',
-      color: '#495057',
-      fontWeight: '500',
-    },
-    input: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    select: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      background: 'white',
-    },
-    sliderContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    slider: {
-      width: '50px',
-      height: '24px',
-      backgroundColor: '#dee2e6',
-      borderRadius: '12px',
-      position: 'relative' as const,
-      cursor: 'pointer',
-    },
-    sliderCircle: {
-      width: '20px',
-      height: '20px',
-      backgroundColor: 'white',
-      borderRadius: '50%',
-      position: 'absolute' as const,
-      top: '2px',
-      left: '2px',
-      transition: 'transform 0.2s',
-    },
-    sliderActive: {
-      backgroundColor: '#28a745',
-    },
-    sliderCircleActive: {
-      transform: 'translateX(26px)',
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      backgroundColor: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      alignSelf: 'flex-end',
-    },
-    saveButtonContainer: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      marginTop: '1rem',
-    },
-  };
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '300px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="add-user-container">
         <Navbar />
-        <div style={styles.container}>
+        <div className="add-user-card">
           <form onSubmit={handleSubmit}>
             {/* Basic Information Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionHeader}>Basic Information</h2>
-              <div style={styles.card}>
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Username</label>
+            <div className="add-user-section">
+              <h2 className="add-user-section-header">
+                <i className="bi bi-person-badge"></i>
+                Basic Information
+              </h2>
+              <div className="add-user-form-card">
+                <div className="add-user-row">
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-person"></i>
+                      Username
+                    </label>
                     <input
                       type="text"
                       name="username"
                       value={formData.username}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter username"
                       required
                     />
                   </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Enable</label>
-                    <div style={styles.sliderContainer}>
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-toggle-on"></i>
+                      Enable
+                    </label>
+                    <div className="add-user-slider-container">
                       <div 
-                        style={{
-                          ...styles.slider,
-                          ...(formData.enable ? styles.sliderActive : {})
-                        }}
+                        className={`add-user-slider ${formData.enable ? 'active' : ''}`}
                         onClick={() => setFormData(prev => ({ ...prev, enable: !prev.enable }))}
                       >
-                        <div 
-                          style={{
-                            ...styles.sliderCircle,
-                            ...(formData.enable ? styles.sliderCircleActive : {})
-                          }}
-                        />
+                        <div className={`add-user-slider-circle ${formData.enable ? 'active' : ''}`} />
                       </div>
-                      <span>{formData.enable ? 'Enabled' : 'Disabled'}</span>
+                      <span className="add-user-slider-text">{formData.enable ? 'Enabled' : 'Disabled'}</span>
                     </div>
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Password</label>
+                <div className="add-user-row">
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-key"></i>
+                      Password
+                    </label>
                     <input
                       type="password"
                       name="password"
                       value={formData.password}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter password"
                       required
                     />
                   </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Branch</label>
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-geo-alt"></i>
+                      Branch
+                    </label>
                     <select
                       name="branch"
                       value={formData.branch}
                       onChange={handleInputChange}
-                      style={styles.select}
+                      className="add-user-select"
                       required
                     >
                       <option value="">Select Branch</option>
@@ -266,14 +170,17 @@ export const AddUser = () => {
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Permission</label>
+                <div className="add-user-row">
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-shield-check"></i>
+                      Permission
+                    </label>
                     <select
                       name="permission"
                       value={formData.permission}
                       onChange={handleInputChange}
-                      style={styles.select}
+                      className="add-user-select"
                       required
                     >
                       <option value="">Select Permission</option>
@@ -282,13 +189,16 @@ export const AddUser = () => {
                       <option value="manager">Manager</option>
                     </select>
                   </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Parent</label>
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-diagram-3"></i>
+                      Parent
+                    </label>
                     <select
                       name="parent"
                       value={formData.parent}
                       onChange={handleInputChange}
-                      style={styles.select}
+                      className="add-user-select"
                       required
                     >
                       <option value="">Select Parent</option>
@@ -301,99 +211,123 @@ export const AddUser = () => {
             </div>
 
             {/* Personal Information Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionHeader}>Personal Information</h2>
-              <div style={styles.card}>
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Name</label>
+            <div className="add-user-section">
+              <h2 className="add-user-section-header">
+                <i className="bi bi-person-lines-fill"></i>
+                Personal Information
+              </h2>
+              <div className="add-user-form-card">
+                <div className="add-user-row">
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-person"></i>
+                      Name
+                    </label>
                     <input
                       type="text"
                       name="name"
                       value={formData.name}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter name"
                       required
                     />
                   </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Address</label>
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-geo-alt"></i>
+                      Address
+                    </label>
                     <input
                       type="text"
                       name="address"
                       value={formData.address}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter address"
                       required
                     />
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Company</label>
+                <div className="add-user-row">
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-building"></i>
+                      Company
+                    </label>
                     <input
                       type="text"
                       name="company"
                       value={formData.company}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter company name"
                       required
                     />
                   </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Email</label>
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-envelope"></i>
+                      Email
+                    </label>
                     <input
                       type="email"
                       name="email"
                       value={formData.email}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter email"
                       required
                     />
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>Phone</label>
+                <div className="add-user-row">
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-telephone"></i>
+                      Phone
+                    </label>
                     <input
                       type="text"
                       name="phone"
                       value={formData.phone}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter phone number"
                       required
                     />
                   </div>
-                  <div style={styles.inputGroup}>
-                    <label style={styles.label}>PAN</label>
+                  <div className="add-user-input-group">
+                    <label className="add-user-label">
+                      <i className="bi bi-card-text"></i>
+                      PAN
+                    </label>
                     <input
                       type="text"
                       name="pan"
                       value={formData.pan}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter PAN number"
                       required
                     />
                   </div>
                 </div>
 
-                <div style={styles.row}>
-                  <div style={{...styles.inputGroup, flex: 2}}>
-                    <label style={styles.label}>Remarks</label>
+                <div className="add-user-row">
+                  <div className="add-user-input-group" style={{ flex: 2 }}>
+                    <label className="add-user-label">
+                      <i className="bi bi-chat-text"></i>
+                      Remarks
+                    </label>
                     <input
                       type="text"
                       name="remarks"
                       value={formData.remarks}
                       onChange={handleInputChange}
-                      style={styles.input}
+                      className="add-user-input"
                       placeholder="Enter remarks"
                       required
                     />
@@ -403,18 +337,29 @@ export const AddUser = () => {
             </div>
 
             {error && (
-              <div style={{ color: 'red', marginBottom: '1rem' }}>
+              <div className="add-user-error">
+                <i className="bi bi-exclamation-triangle"></i>
                 {error}
               </div>
             )}
 
-            <div style={styles.saveButtonContainer}>
+            <div className="add-user-save-button-container">
               <button 
                 type="submit" 
-                style={styles.saveButton}
+                className="add-user-save-button"
                 disabled={loading}
               >
-                {loading ? 'Saving...' : (isEdit ? 'Update' : 'Save')}
+                {loading ? (
+                  <>
+                    <div className="add-user-spinner"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-circle"></i>
+                    {isEdit ? 'Update' : 'Save'}
+                  </>
+                )}
               </button>
             </div>
           </form>

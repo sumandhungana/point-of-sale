@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
+import '../styles/EditCustomerStatement.css';
 
 export const EditCustomerStatement = () => {
     const navigate = useNavigate();
@@ -51,164 +52,52 @@ export const EditCustomerStatement = () => {
         navigate(`/parties/customers/statements/${id}`);
     };
 
-    const styles = {
-        container: {
-            minHeight: '100vh',
-            background: '#f8f9fa',
-        },
-      
-       mainContent: {
-            padding: '2rem',
-            marginTop: '64px',
-            maxWidth: 'calc(100% - 500px)',
-            marginRight: '500px',
-            width: '100%',
-        },ntainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        },
-        formTitle: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '2rem',
-        },
-        summaryBox: {
-            background: '#f8f9fa',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            marginBottom: '2rem',
-            border: '1px solid #dee2e6',
-        },
-        summaryText: {
-            fontSize: '1.25rem',
-            color: '#212529',
-            marginBottom: '0.5rem',
-        },
-        highlightedAmount: {
-            color: '#dc4c39',
-            fontWeight: 'bold',
-        },
-        formRow: {
-            display: 'flex',
-            gap: '2rem',
-            marginBottom: '1.5rem',
-        },
-        formGroup: {
-            flex: 1,
-        },
-        label: {
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontSize: '0.875rem',
-            color: '#495057',
-            fontWeight: '500',
-        },
-        input: {
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            '&:focus': {
-                outline: 'none',
-                borderColor: '#80bdff',
-                boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-            },
-        },
-        textarea: {
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            minHeight: '100px',
-            resize: 'vertical' as const,
-            '&:focus': {
-                outline: 'none',
-                borderColor: '#80bdff',
-                boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-            },
-        },
-        select: {
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            background: 'white',
-            '&:focus': {
-                outline: 'none',
-                borderColor: '#80bdff',
-                boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-            },
-        },
-        buttonContainer: {
-            display: 'flex',
-            justifyContent: 'flex-end',
-            gap: '1rem',
-            marginTop: '2rem',
-        },
-        button: {
-            padding: '0.75rem 1.5rem',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-        },
-        saveButton: {
-            background: '#dc4c39',
-            color: 'white',
-            '&:hover': {
-                background: '#c82333',
-            },
-        },
-        cancelButton: {
-            background: '#6c757d',
-            color: 'white',
-            '&:hover': {
-                background: '#5a6268',
-            },
-        },
-    };
-
     return (
-        <div style={styles.container}>
+        <div className="edit-statement-container">
             <Sidebar />
            
-            <main style={styles.mainContent}>
-                <div style={styles.formContainer}>
-                    <div style={styles.summaryBox}>
-                        <p style={styles.summaryText}>
+            <main className="edit-statement-main-content">
+                <div className="edit-statement-form-container">
+                    <h2 className="edit-statement-form-title">
+                        <i className="bi bi-pencil-square"></i>
+                        Edit Customer Statement
+                    </h2>
+
+                    <div className="edit-statement-summary-box">
+                        <p className="edit-statement-summary-text">
+                            <i className="bi bi-currency-rupee"></i>
                             You {transactionType === 'give' ? 'give' : 'receive'} 
-                            <span style={styles.highlightedAmount}> Rs. {totalAmount.toLocaleString()} </span> 
+                            <span className="edit-statement-highlighted-amount"> Rs. {totalAmount.toLocaleString()} </span> 
                             from {customerName}
                         </p>
                     </div>
 
                     <form onSubmit={handleSave}>
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Give/Receive Amount (Rs.)</label>
+                        <div className="edit-statement-form-row">
+                            <div className="edit-statement-form-group">
+                                <label className="edit-statement-label">
+                                    <i className="bi bi-currency-rupee me-1"></i>
+                                    Give/Receive Amount (Rs.)
+                                </label>
                                 <input
                                     type="number"
                                     name="amount"
                                     value={formData.amount}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="edit-statement-input"
                                     required
                                 />
                             </div>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Transaction Type</label>
+                            <div className="edit-statement-form-group">
+                                <label className="edit-statement-label">
+                                    <i className="bi bi-arrow-left-right me-1"></i>
+                                    Transaction Type
+                                </label>
                                 <select
                                     name="transactionType"
                                     value={transactionType}
                                     onChange={(e) => setTransactionType(e.target.value)}
-                                    style={styles.select}
+                                    className="edit-statement-select"
                                 >
                                     <option value="give">Give</option>
                                     <option value="receive">Receive</option>
@@ -216,58 +105,82 @@ export const EditCustomerStatement = () => {
                             </div>
                         </div>
 
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Enter Details Remarks</label>
+                        <div className="edit-statement-form-row">
+                            <div className="edit-statement-form-group">
+                                <label className="edit-statement-label">
+                                    <i className="bi bi-chat-text me-1"></i>
+                                    Enter Details Remarks
+                                </label>
                                 <input
                                     type="text"
                                     name="details"
                                     value={formData.details}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="edit-statement-input"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Add Bill Number</label>
+                        <div className="edit-statement-form-row">
+                            <div className="edit-statement-form-group">
+                                <label className="edit-statement-label">
+                                    <i className="bi bi-receipt me-1"></i>
+                                    Add Bill Number
+                                </label>
                                 <input
                                     type="text"
                                     name="billNumber"
                                     value={formData.billNumber}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="edit-statement-input"
                                 />
                             </div>
                         </div>
 
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Date</label>
+                        <div className="edit-statement-form-row">
+                            <div className="edit-statement-form-group">
+                                <label className="edit-statement-label">
+                                    <i className="bi bi-calendar-event me-1"></i>
+                                    Date
+                                </label>
                                 <input
                                     type="date"
                                     name="date"
                                     value={formData.date}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="edit-statement-input"
                                     required
                                 />
                             </div>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Attach File</label>
+                            <div className="edit-statement-form-group">
+                                <label className="edit-statement-label">
+                                    <i className="bi bi-paperclip me-1"></i>
+                                    Attach File
+                                </label>
                                 <input
                                     type="file"
                                     name="file"
                                     onChange={handleFileChange}
-                                    style={styles.input}
+                                    className="edit-statement-file-input"
                                 />
                             </div>
                         </div>
 
-                        <div style={styles.buttonContainer}>
-                            <button type="submit" style={{ ...styles.button, ...styles.saveButton }}>
+                        <div className="edit-statement-button-container">
+                            <button 
+                                type="button" 
+                                className="edit-statement-button edit-statement-cancel-button"
+                                onClick={handleCancel}
+                            >
+                                <i className="bi bi-x-circle"></i>
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit" 
+                                className="edit-statement-button edit-statement-save-button"
+                            >
+                                <i className="bi bi-check-circle"></i>
                                 Save
                             </button>
                         </div>

@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { createKhataBook } from '../services/khataBookService';
+import '../styles/AddKhataBook.css';
 
 export const AddKhataBook = () => {
   const navigate = useNavigate();
@@ -83,248 +84,172 @@ export const AddKhataBook = () => {
     }
   };
 
-  const styles = {
-    container: {
-      width: 'calc(100% - 4rem)',
-      padding: '2rem',
-      boxSizing: 'border-box' as const,
-    },
-    imageSection: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'center',
-      marginBottom: '3rem',
-    },
-    imagePlaceholder: {
-      width: '150px',
-      height: '150px',
-      borderRadius: '50%',
-      background: '#e9ecef',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '3rem',
-      color: '#6c757d',
-      marginBottom: '1rem',
-      backgroundImage: formData.imagepath ? `url(${formData.imagepath})` : 'none',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-    },
-    addPhotoButton: {
-      padding: '0.5rem 1rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-    },
-    hiddenFileInput: {
-      display: 'none',
-    },
-    section: {
-      marginBottom: '3rem',
-      background: 'white',
-      padding: '2rem',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    sectionTitle: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-      marginBottom: '1.5rem',
-    },
-    hr: {
-      border: 'none',
-      borderTop: '1px solid #dee2e6',
-      margin: '1.5rem 0',
-    },
-    formGrid: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '2rem',
-    },
-    formGroup: {
-      marginBottom: '1.5rem',
-    },
-    label: {
-      display: 'block',
-      marginBottom: '0.5rem',
-      color: '#495057',
-      fontSize: '0.9rem',
-    },
-    input: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    select: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      background: 'white',
-    },
-    checkboxGroup: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    checkboxLabel: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      cursor: 'pointer',
-      padding: '0.5rem',
-      borderRadius: '4px',
-      '&:hover': {
-        background: '#f8f9fa',
-      },
-    },
-    saveButton: {
-      padding: '0.75rem 2rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      float: 'right' as const,
-      marginTop: '2rem',
-    },
-  };
-
-  return (
-    <div style={{ display: 'flex' }}>
-      <Sidebar />
-      <div style={{ flex: 1, marginLeft: '280px', overflowX: 'hidden' }}>
+      return (
+        <div className="add-khatabook-page-wrapper">
+            <Sidebar />
+            <div className="add-khatabook-page-main">
         <Navbar />
-        <div style={styles.container}>
+        <div className="add-khata-book-container">
           <form onSubmit={handleSubmit}>
             {/* Image Section */}
-            <div style={styles.imageSection}>
-              <div style={styles.imagePlaceholder}>
-                {!formData.imagepath && '👤'}
+            <div className="add-khata-book-image-section">
+              <div 
+                className={`add-khata-book-image-placeholder ${formData.imagepath ? 'has-image' : ''}`}
+                style={formData.imagepath ? { backgroundImage: `url(${formData.imagepath})` } : {}}
+              >
+                {!formData.imagepath && (
+                  <i className="bi bi-person-circle"></i>
+                )}
               </div>
               <input
                 type="file"
                 ref={fileInputRef}
-                style={styles.hiddenFileInput}
+                className="add-khata-book-hidden-file-input"
                 accept="image/*"
                 onChange={handleImageSelect}
               />
               <button 
                 type="button" 
-                style={styles.addPhotoButton}
+                className="add-khata-book-add-photo-button"
                 onClick={() => fileInputRef.current?.click()}
               >
+                <i className="bi bi-camera me-1"></i>
                 {formData.imagepath ? 'Change Photo' : 'Add Photo'}
               </button>
             </div>
 
             {/* Personal Info Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionTitle}>Personal Info</h2>
-              <div style={styles.formGrid}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Name *</label>
+            <div className="add-khata-book-section">
+              <h2 className="add-khata-book-section-title">
+                <i className="bi bi-person me-2"></i>
+                Personal Info
+              </h2>
+              <div className="add-khata-book-form-grid">
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label required">
+                    <i className="bi bi-person me-1"></i>
+                    Name
+                  </label>
                   <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                     required
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Number (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-telephone me-1"></i>
+                    Number (Optional)
+                  </label>
                   <input
                     type="tel"
                     name="number"
                     value={formData.number}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Address (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-geo-alt me-1"></i>
+                    Address (Optional)
+                  </label>
                   <input
                     type="text"
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Email (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-envelope me-1"></i>
+                    Email (Optional)
+                  </label>
                   <input
                     type="email"
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                   />
                 </div>
               </div>
             </div>
 
             {/* Business Info Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionTitle}>Business Info</h2>
-              <div style={styles.formGrid}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Name (Optional)</label>
+            <div className="add-khata-book-section">
+              <h2 className="add-khata-book-section-title">
+                <i className="bi bi-building me-2"></i>
+                Business Info
+              </h2>
+              <div className="add-khata-book-form-grid">
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-building me-1"></i>
+                    Company Name (Optional)
+                  </label>
                   <input
                     type="text"
                     name="companyName"
                     value={formData.companyName}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Number (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-telephone me-1"></i>
+                    Company Number (Optional)
+                  </label>
                   <input
                     type="tel"
                     name="companyNumber"
                     value={formData.companyNumber}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Address (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-geo-alt me-1"></i>
+                    Company Address (Optional)
+                  </label>
                   <input
                     type="text"
                     name="companyAddress"
                     value={formData.companyAddress}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Company Email (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-envelope me-1"></i>
+                    Company Email (Optional)
+                  </label>
                   <input
                     type="email"
                     name="companyEmail"
                     value={formData.companyEmail}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-khata-book-input"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Business Category (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-tags me-1"></i>
+                    Business Category (Optional)
+                  </label>
                   <select
                     name="businessCategory"
                     value={formData.businessCategory}
                     onChange={handleInputChange}
-                    style={styles.select}
+                    className="add-khata-book-select"
                   >
                     <option value="">Select Category</option>
                     <option value="0">Retail</option>
@@ -333,13 +258,16 @@ export const AddKhataBook = () => {
                     <option value="3">Service</option>
                   </select>
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Business Type (Optional)</label>
+                <div className="add-khata-book-form-group">
+                  <label className="add-khata-book-label">
+                    <i className="bi bi-briefcase me-1"></i>
+                    Business Type (Optional)
+                  </label>
                   <select
                     name="businessType"
                     value={formData.businessType}
                     onChange={handleInputChange}
-                    style={styles.select}
+                    className="add-khata-book-select"
                   >
                     <option value="">Select Type</option>
                     <option value="0">Sole Proprietorship</option>
@@ -352,34 +280,40 @@ export const AddKhataBook = () => {
             </div>
 
             {/* Financial Info Section */}
-            <div style={styles.section}>
-              <h2 style={styles.sectionTitle}>Financial Info</h2>
-              <div style={styles.checkboxGroup}>
-                <label style={styles.checkboxLabel}>
+            <div className="add-khata-book-section">
+              <h2 className="add-khata-book-section-title">
+                <i className="bi bi-cash-stack me-2"></i>
+                Financial Info
+              </h2>
+              <div className="add-khata-book-checkbox-group">
+                <label className="add-khata-book-checkbox-label">
                   <input
                     type="checkbox"
                     name="taxVat"
                     checked={formData.taxVat}
                     onChange={handleInputChange}
                   />
+                  <i className="bi bi-receipt me-2"></i>
                   Tax/VAT
                 </label>
-                <label style={styles.checkboxLabel}>
+                <label className="add-khata-book-checkbox-label">
                   <input
                     type="checkbox"
                     name="bookAccount"
                     checked={formData.bookAccount}
                     onChange={handleInputChange}
                   />
+                  <i className="bi bi-journal-text me-2"></i>
                   Book A/C
                 </label>
-                <label style={styles.checkboxLabel}>
+                <label className="add-khata-book-checkbox-label">
                   <input
                     type="checkbox"
                     name="kyc"
                     checked={formData.kyc}
                     onChange={handleInputChange}
                   />
+                  <i className="bi bi-shield-check me-2"></i>
                   KYC
                 </label>
               </div>
@@ -387,10 +321,20 @@ export const AddKhataBook = () => {
 
             <button 
               type="submit" 
-              style={styles.saveButton}
+              className="add-khata-book-save-button"
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Saving...' : 'Save'}
+              {isSubmitting ? (
+                <>
+                  <i className="bi bi-arrow-clockwise spin me-2"></i>
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <i className="bi bi-check-circle me-2"></i>
+                  Save
+                </>
+              )}
             </button>
           </form>
         </div>

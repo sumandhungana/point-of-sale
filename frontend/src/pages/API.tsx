@@ -2,94 +2,46 @@ import React from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import '../styles/API.css';
 
 export const API = () => {
   const navigate = useNavigate();
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    heading: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1.5rem',
-    },
-    buttonContainer: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '2rem',
-    },
-    button: {
-      flex: 1,
-      padding: '1rem',
-      background: 'white',
-      border: '1px solid #dee2e6',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      gap: '0.5rem',
-      cursor: 'pointer',
-      transition: 'all 0.3s ease',
-      '&:hover': {
-        background: '#f8f9fa',
-        borderColor: '#adb5bd',
-      },
-    },
-    buttonIcon: {
-      fontSize: '1.5rem',
-    },
-    buttonText: {
-      fontSize: '1rem',
-      fontWeight: '500',
-      color: '#495057',
-      margin: 0,
-    },
-  };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="api-page-wrapper">
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="api-page-main">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <h1 style={styles.heading}>API</h1>
-            <div style={styles.buttonContainer}>
+        <div className="api-container">
+          <div className="api-card">
+            <h1 className="api-heading">
+              <i className="bi bi-gear me-2"></i>
+              API
+            </h1>
+            <div className="api-button-container">
               <button 
-                style={styles.button}
+                className="api-button"
                 onClick={() => navigate('/sms')}
               >
-                <span style={styles.buttonIcon}>📱</span>
-                <span style={styles.buttonText}>SMS API</span>
+                <span className="api-button-icon">
+                  <i className="bi bi-phone"></i>
+                </span>
+                <span className="api-button-text">SMS API</span>
               </button>
-              <button style={styles.button}>
-                <span style={styles.buttonIcon}>🌐</span>
-                <span style={styles.buttonText}>Radius API</span>
+              <button className="api-button">
+                <span className="api-button-icon">
+                  <i className="bi bi-globe"></i>
+                </span>
+                <span className="api-button-text">Radius API</span>
               </button>
               <button 
-                style={styles.button}
+                className="api-button"
                 onClick={() => navigate('/payment-gateway')}
               >
-                <span style={styles.buttonIcon}>💳</span>
-                <span style={styles.buttonText}>Payment Gateway</span>
+                <span className="api-button-icon">
+                  <i className="bi bi-credit-card"></i>
+                </span>
+                <span className="api-button-text">Payment Gateway</span>
               </button>
             </div>
           </div>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { createStaff, createStaffSalary } from '../services/staffService';
+import '../styles/AddStaff.css';
 
 export const AddStaff: React.FC = () => {
   const navigate = useNavigate();
@@ -96,334 +98,117 @@ export const AddStaff: React.FC = () => {
     }
   };
 
-  const styles = {
-    container: {
-      display: 'flex',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    
-    main: {
-      flex: 1,
-      padding: '2rem',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1rem',
-    },
-    sections: {
-      display: 'flex',
-      gap: '2rem',
-      marginBottom: '2rem',
-    },
-    section: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1rem',
-    },
-    imagePlaceholder: {
-      width: '150px',
-      height: '150px',
-      background: '#e9ecef',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#6c757d',
-      fontSize: '2rem',
-      marginBottom: '1rem',
-    },
-    formGroup: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    label: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      fontWeight: 'bold',
-    },
-    input: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-    },
-    textarea: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      minHeight: '100px',
-      resize: 'vertical' as const,
-    },
-    button: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      marginTop: '1rem',
-    },
-    salaryManagementSection: {
-      marginTop: '2rem',
-      display: 'flex',
-      flexDirection: 'column' as const,
-    },
-    salaryHeading: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-      marginBottom: '1rem',
-    },
-    salaryCard: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-    },
-    salarySections: {
-      display: 'flex',
-      gap: '2rem',
-      justifyContent: 'space-between',
-    },
-    salarySection: {
-      flex: 1,
-      maxWidth: '300px',
-    },
-    sectionLabel: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      fontWeight: 'bold',
-      marginBottom: '0.5rem',
-    },
-    calendarContainer: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '1rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      maxWidth: '300px',
-    },
-    calendarHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '1rem',
-    },
-    calendarTitle: {
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    calendarGrid: {
-      display: 'grid',
-      gridTemplateColumns: 'repeat(7, 1fr)',
-      gap: '0.5rem',
-    },
-    calendarDay: {
-      textAlign: 'center' as const,
-      padding: '0.5rem',
-      fontSize: '0.875rem',
-      color: '#6c757d',
-    },
-    calendarDate: {
-      textAlign: 'center' as const,
-      padding: '0.5rem',
-      fontSize: '0.875rem',
-      cursor: 'pointer',
-      borderRadius: '4px',
-      '&:hover': {
-        background: '#f8f9fa',
-      },
-    },
-    selectedDate: {
-      background: '#28a745',
-      color: 'white',
-      '&:hover': {
-        background: '#28a745',
-      },
-    },
-    slideContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    slideButton: {
-      width: '60px',
-      height: '30px',
-      background: isSlideOn ? '#28a745' : '#6c757d',
-      borderRadius: '15px',
-      position: 'relative' as const,
-      cursor: 'pointer',
-    },
-    slideCircle: {
-      width: '26px',
-      height: '26px',
-      background: 'white',
-      borderRadius: '50%',
-      position: 'absolute' as const,
-      top: '2px',
-      left: isSlideOn ? '32px' : '2px',
-      transition: 'transform 0.3s ease',
-    },
-    salaryFields: {
-      display: 'grid',
-      gridTemplateColumns: '1fr 1fr',
-      gap: '1rem',
-      marginTop: '1.5rem',
-    },
-    fieldGroup: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    fieldLabel: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      fontWeight: 'bold',
-    },
-    fieldInput: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      width: '100%',
-    },
-    select: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      width: '100%',
-    },
-    slideSection: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      alignItems: 'center',
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      marginTop: '1.5rem',
-      alignSelf: 'flex-end',
-    },
-    calendarControls: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1rem',
-    },
-    calendarSelect: {
-      padding: '0.5rem',
-      borderRadius: '4px',
-      border: '1px solid #ced4da',
-      background: 'white',
-      fontSize: '0.875rem',
-    },
-  };
-
   return (
-    <div style={styles.container}>
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={styles.main}>
-        <div style={styles.card}>
-          <form style={styles.form} onSubmit={handleSubmit}>
-            <div style={styles.sections}>
+      <div className="add-staff-container">
+        <Navbar />
+        <div className="add-staff-card">
+          <form className="add-staff-form" onSubmit={handleSubmit}>
+            <div className="add-staff-sections">
               {/* First Section - Image */}
-              <div style={styles.section}>
-                <div style={styles.imagePlaceholder}>👤</div>
+              <div className="add-staff-section">
+                <div className="add-staff-image-placeholder">
+                  <i className="bi bi-person"></i>
+                </div>
               </div>
 
               {/* Second Section - Name and Address */}
-              <div style={styles.section}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Staff Name</label>
+              <div className="add-staff-section">
+                <div className="add-staff-form-group">
+                  <label className="add-staff-label">
+                    <i className="bi bi-person"></i>
+                    Staff Name
+                  </label>
                   <input 
                     type="text" 
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    style={styles.input} 
+                    className="add-staff-input" 
                     required
+                    placeholder="Enter staff name"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Address</label>
+                <div className="add-staff-form-group">
+                  <label className="add-staff-label">
+                    <i className="bi bi-geo-alt"></i>
+                    Address
+                  </label>
                   <input 
                     type="text" 
                     name="address"
                     value={formData.address}
                     onChange={handleInputChange}
-                    style={styles.input} 
+                    className="add-staff-input" 
+                    placeholder="Enter address"
                   />
                 </div>
               </div>
 
               {/* Third Section - Contact Information */}
-              <div style={styles.section}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Phone Number</label>
+              <div className="add-staff-section">
+                <div className="add-staff-form-group">
+                  <label className="add-staff-label">
+                    <i className="bi bi-telephone"></i>
+                    Phone Number
+                  </label>
                   <input 
                     type="tel" 
                     name="phone"
                     value={formData.phone}
                     onChange={handleInputChange}
-                    style={styles.input} 
+                    className="add-staff-input" 
+                    placeholder="Enter phone number"
                   />
                 </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Email</label>
+                <div className="add-staff-form-group">
+                  <label className="add-staff-label">
+                    <i className="bi bi-envelope"></i>
+                    Email
+                  </label>
                   <input 
                     type="email" 
                     name="email"
                     value={formData.email}
                     onChange={handleInputChange}
-                    style={styles.input} 
+                    className="add-staff-input" 
+                    placeholder="Enter email address"
                   />
                 </div>
               </div>
             </div>
 
             {/* Remarks Section */}
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Remarks</label>
+            <div className="add-staff-form-group">
+              <label className="add-staff-label">
+                <i className="bi bi-chat-text"></i>
+                Remarks
+              </label>
               <textarea 
                 name="remarks"
                 value={formData.remarks}
                 onChange={handleInputChange}
-                style={styles.textarea} 
+                className="add-staff-textarea" 
+                placeholder="Enter any additional remarks..."
               />
             </div>
           </form>
         </div>
 
-        <div style={styles.salaryManagementSection}>
-          <h2 style={styles.salaryHeading}>Manage Salary</h2>
-          <div style={styles.salaryCard}>
-            <div style={styles.salarySections}>
-              <div style={styles.salarySection}>
-                <div style={styles.sectionLabel}>Attendance and Salary</div>
-                <div style={styles.calendarContainer}>
-                  <div style={styles.calendarControls}>
+        <div className="add-staff-salary-management-section">
+          <h2 className="add-staff-salary-heading">
+            <i className="bi bi-currency-dollar"></i>
+            Manage Salary
+          </h2>
+          <div className="add-staff-salary-card">
+            <div className="add-staff-salary-sections">
+              <div className="add-staff-salary-section">
+                <div className="add-staff-section-label">Attendance and Salary</div>
+                <div className="add-staff-calendar-container">
+                  <div className="add-staff-calendar-controls">
                     <select 
-                      style={styles.calendarSelect}
+                      className="add-staff-calendar-select"
                       value={currentMonth}
                       onChange={(e) => setCurrentMonth(Number(e.target.value))}
                     >
@@ -432,7 +217,7 @@ export const AddStaff: React.FC = () => {
                       ))}
                     </select>
                     <select 
-                      style={styles.calendarSelect}
+                      className="add-staff-calendar-select"
                       value={currentYear}
                       onChange={(e) => setCurrentYear(Number(e.target.value))}
                     >
@@ -441,12 +226,12 @@ export const AddStaff: React.FC = () => {
                       ))}
                     </select>
                   </div>
-                  <div style={styles.calendarGrid}>
+                  <div className="add-staff-calendar-grid">
                     {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                      <div key={day} style={styles.calendarDay}>{day}</div>
+                      <div key={day} className="add-staff-calendar-day">{day}</div>
                     ))}
                     {Array.from({ length: firstDayOfMonth }).map((_, index) => (
-                      <div key={`empty-${index}`} style={styles.calendarDate}></div>
+                      <div key={`empty-${index}`} className="add-staff-calendar-date"></div>
                     ))}
                     {Array.from({ length: daysInMonth }).map((_, index) => {
                       const date = new Date(currentYear, currentMonth, index + 1);
@@ -458,10 +243,7 @@ export const AddStaff: React.FC = () => {
                       return (
                         <div
                           key={index + 1}
-                          style={{
-                            ...styles.calendarDate,
-                            ...(isSelected ? styles.selectedDate : {}),
-                          }}
+                          className={`add-staff-calendar-date ${isSelected ? 'selected' : ''}`}
                           onClick={() => setSelectedDate(date)}
                         >
                           {index + 1}
@@ -471,62 +253,74 @@ export const AddStaff: React.FC = () => {
                   </div>
                 </div>
               </div>
-              <div style={styles.slideSection}>
-                <div style={styles.sectionLabel}>Slide</div>
-                <div style={styles.slideContainer}>
+              <div className="add-staff-slide-section">
+                <div className="add-staff-section-label">Slide</div>
+                <div className="add-staff-slide-container">
                   <div 
-                    style={styles.slideButton}
+                    className={`add-staff-slide-button ${isSlideOn ? 'active' : ''}`}
                     onClick={() => setIsSlideOn(!isSlideOn)}
                   >
-                    <div style={styles.slideCircle} />
+                    <div className="add-staff-slide-circle" />
                   </div>
                 </div>
               </div>
             </div>
 
-            <div style={styles.salaryFields}>
-              <div style={styles.fieldGroup}>
-                <label style={styles.fieldLabel}>Salary Calculation Date</label>
+            <div className="add-staff-salary-fields">
+              <div className="add-staff-field-group">
+                <label className="add-staff-field-label">
+                  <i className="bi bi-calendar"></i>
+                  Salary Calculation Date
+                </label>
                 <input 
                   type="date" 
                   name="calculationDate"
                   value={salaryData.calculationDate.split('T')[0]}
                   onChange={handleSalaryInputChange}
-                  style={styles.fieldInput} 
+                  className="add-staff-field-input" 
                 />
               </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.fieldLabel}>Salary Type</label>
+              <div className="add-staff-field-group">
+                <label className="add-staff-field-label">
+                  <i className="bi bi-clock"></i>
+                  Salary Type
+                </label>
                 <select 
                   name="salaryType"
                   value={salaryData.salaryType}
                   onChange={handleSalaryInputChange}
-                  style={styles.select}
+                  className="add-staff-select"
                 >
                   <option value="monthly">Monthly</option>
                   <option value="weekly">Weekly</option>
                   <option value="daily">Daily</option>
                 </select>
               </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.fieldLabel}>Salary Amount</label>
+              <div className="add-staff-field-group">
+                <label className="add-staff-field-label">
+                  <i className="bi bi-currency-rupee"></i>
+                  Salary Amount
+                </label>
                 <input 
                   type="number" 
                   name="amount"
                   value={salaryData.amount}
                   onChange={handleSalaryInputChange}
-                  style={styles.fieldInput} 
+                  className="add-staff-field-input" 
                   placeholder="Enter amount" 
                   required
                 />
               </div>
-              <div style={styles.fieldGroup}>
-                <label style={styles.fieldLabel}>Permission</label>
+              <div className="add-staff-field-group">
+                <label className="add-staff-field-label">
+                  <i className="bi bi-shield-check"></i>
+                  Permission
+                </label>
                 <select 
                   name="permission"
                   value={salaryData.permission}
                   onChange={handleSalaryInputChange}
-                  style={styles.select}
+                  className="add-staff-select"
                 >
                   <option value="full">Full Access</option>
                   <option value="limited">Limited Access</option>
@@ -536,17 +330,28 @@ export const AddStaff: React.FC = () => {
             </div>
           </div>
           {error && (
-            <div style={{ color: 'red', marginBottom: '1rem' }}>
+            <div className="add-staff-error">
+              <i className="bi bi-exclamation-triangle"></i>
               {error}
             </div>
           )}
           <button 
             type="submit" 
-            style={styles.saveButton}
+            className="add-staff-save-button"
             disabled={loading}
             onClick={handleSubmit}
           >
-            {loading ? 'Saving...' : 'Save'}
+            {loading ? (
+              <>
+                <div className="add-staff-spinner"></div>
+                Saving...
+              </>
+            ) : (
+              <>
+                <i className="bi bi-check-circle"></i>
+                Save Staff
+              </>
+            )}
           </button>
         </div>
       </div>

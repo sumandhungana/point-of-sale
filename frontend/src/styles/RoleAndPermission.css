@@ -1,0 +1,98 @@
+/* RoleAndPermission Page Styles */
+.role-permission-page-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+.role-permission-container {
+  flex: 1;
+  padding-top: 40px;
+  margin-left: 300px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.role-permission-card {
+  padding: 2rem;
+  max-width: calc(100% - 500px);
+  margin-right: 500px;
+  width: 100%;
+}
+
+.role-permission-form-card {
+  background: white;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.role-permission-button-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.role-permission-button {
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  min-width: 150px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.role-permission-button:hover {
+  background: linear-gradient(135deg, #20c997, #17a2b8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .role-permission-card {
+    max-width: calc(100% - 300px);
+    margin-right: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .role-permission-container {
+    margin-left: 0;
+  }
+  
+  .role-permission-card {
+    max-width: 100%;
+    margin-right: 0;
+    padding: 1rem;
+  }
+  
+  .role-permission-button-container {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .role-permission-button {
+    width: 100%;
+    max-width: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .role-permission-card {
+    padding: 0.5rem;
+  }
+  
+  .role-permission-form-card {
+    padding: 1rem;
+  }
+} 

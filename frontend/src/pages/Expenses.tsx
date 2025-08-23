@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchExpenses } from '../services/expensesListService';
+import '../styles/Expenses.css';
 
 interface Expense {
   id: number;
@@ -80,378 +81,167 @@ export const Expenses = () => {
     navigate('/bills/expenses/add', { state: { expense } });
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-    },
-    searchContainer: {
-      background: 'white',
-      padding: '1.5rem',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      marginBottom: '1rem',
-    },
-    searchBar: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      marginBottom: '1rem',
-      flexWrap: 'wrap' as const,
-    },
-    searchInput: {
-      flex: 2,
-      padding: '0.75rem 1rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      minWidth: '200px',
-      transition: 'border-color 0.2s, box-shadow 0.2s',
-      '&:focus': {
-        outline: 'none',
-        borderColor: '#dc4c39',
-        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-      },
-    },
-    filterGroup: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      flex: 1,
-      minWidth: '200px',
-    },
-    select: {
-      padding: '0.75rem 1rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      flex: 1,
-      backgroundColor: 'white',
-      cursor: 'pointer',
-      transition: 'border-color 0.2s, box-shadow 0.2s',
-      '&:focus': {
-        outline: 'none',
-        borderColor: '#dc4c39',
-        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-      },
-    },
-    label: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      whiteSpace: 'nowrap',
-    },
-    actionButtons: {
-      display: 'flex',
-      gap: '0.75rem',
-      marginLeft: 'auto',
-    },
-    button: {
-      padding: '0.5rem 1rem',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    primaryButton: {
-      background: '#dc4c39',
-      color: 'white',
-    },
-    secondaryButton: {
-      background: '#f8f9fa',
-      color: '#212529',
-      border: '1px solid #dee2e6',
-    },
-    infoCard: {
-      display: 'flex',
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    infoSection: {
-      flex: 1,
-      padding: '1rem',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      textAlign: 'center' as const,
-    },
-    infoTitle: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      marginBottom: '0.5rem',
-    },
-    infoValue: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    viewReportButton: {
-      width: '100%',
-      padding: '0.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      marginTop: '0.5rem',
-    },
-    expenseList: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    expenseCard: {
-      display: 'flex',
-      gap: '1rem',
-      padding: '1rem',
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-      cursor: 'pointer',
-      ':hover': {
-        transform: 'translateY(-2px)',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-      },
-    },
-    imageContainer: {
-      flex: '0 0 100px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      overflow: 'hidden',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover' as const,
-    },
-    placeholderImage: {
-      width: '80px',
-      height: '80px',
-      background: '#e9ecef',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#6c757d',
-      fontSize: '0.875rem',
-    },
-    detailsContainer: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    expenseNo: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    detailsRow: {
-      display: 'flex',
-      flexWrap: 'wrap' as const,
-      gap: '0.5rem',
-    },
-    detailPill: {
-      padding: '0.25rem 0.75rem',
-      background: '#f8f9fa',
-      borderRadius: '20px',
-      fontSize: '0.875rem',
-      color: '#495057',
-    },
-    amountContainer: {
-      flex: '0 0 120px',
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'flex-end',
-      justifyContent: 'center',
-    },
-    amount: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#dc3545',
-      background: '#fff5f5',
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
-    },
-    addButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-    },
-  };
+  const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+  const pendingAmount = 0; // This would be calculated based on business logic
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="expenses-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <div style={styles.searchContainer}>
-              <div style={styles.searchBar}>
+        <div className="expenses-card">
+          <div className="expenses-search-container">
+            <div className="expenses-search-bar">
+              <div style={{ position: 'relative', flex: 2 }}>
+                <i className="bi bi-search expenses-search-icon"></i>
                 <input
                   type="text"
-                  placeholder="Search expenses..."
-                  style={styles.searchInput}
+                  placeholder="Search by expense number, category, item, or payment mode..."
                   value={searchQuery}
                   onChange={handleSearchChange}
+                  className="expenses-search-input"
                 />
-                <div style={styles.filterGroup}>
-                  <label style={styles.label}>Filter:</label>
-                  <select 
-                    style={styles.select}
-                    value={statusFilter}
-                    onChange={handleStatusFilterChange}
-                  >
-                    <option value="">All Status</option>
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="cancelled">Cancelled</option>
-                  </select>
-                </div>
-                <div style={styles.filterGroup}>
-                  <label style={styles.label}>Sort:</label>
-                  <select 
-                    style={styles.select}
-                    value={dateSort}
-                    onChange={handleDateSortChange}
-                  >
-                    <option value="">Date Added</option>
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-                </div>
-                <div style={styles.actionButtons}>
-                  <button 
-                    style={{ ...styles.button, ...styles.primaryButton }}
-                  >
-                    <span>📝</span> Bulk Reminder
-                  </button>
-                  <button 
-                    style={{ ...styles.button, ...styles.secondaryButton }}
-                  >
-                    PDF
-                  </button>
-                </div>
+              </div>
+              <div className="expenses-filter-group">
+                <label className="expenses-label">Filter:</label>
+                <select
+                  value={statusFilter}
+                  onChange={handleStatusFilterChange}
+                  className="expenses-select"
+                >
+                  <option value="">All Payment Modes</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="UPI">UPI</option>
+                </select>
+              </div>
+              <div className="expenses-filter-group">
+                <label className="expenses-label">Sort:</label>
+                <select
+                  value={dateSort}
+                  onChange={handleDateSortChange}
+                  className="expenses-select"
+                >
+                  <option value="">Default</option>
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
+              </div>
+              <div className="expenses-action-buttons">
+                <button 
+                  className="expenses-button expenses-primary-button"
+                  onClick={() => navigate('/bills/expenses/add')}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  Add Expense
+                </button>
+                <button className="expenses-button expenses-secondary-button">
+                  <i className="bi bi-download"></i>
+                  Export
+                </button>
               </div>
             </div>
-            <div style={styles.infoCard}>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Expenses</div>
-                <div style={styles.infoValue}>
-                  रु{expenses.reduce((sum, expense) => sum + expense.amount, 0).toLocaleString()}
-                </div>
-                <button style={styles.viewReportButton}>View Report</button>
+            <div className="expenses-info-card">
+              <div className="expenses-info-section">
+                <div className="expenses-info-title">Total Expenses</div>
+                <div className="expenses-info-value">₹{totalExpenses.toLocaleString()}</div>
+                <button className="expenses-view-report-button">
+                  <i className="bi bi-graph-up me-1"></i>
+                  View Report
+                </button>
               </div>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>रु0</div>
-                <button style={styles.viewReportButton}>View Details</button>
+              <div className="expenses-info-section">
+                <div className="expenses-info-title">Pending Amount</div>
+                <div className="expenses-info-value">₹{pendingAmount.toLocaleString()}</div>
+                <button className="expenses-view-report-button">
+                  <i className="bi bi-clock me-1"></i>
+                  View Details
+                </button>
               </div>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Entries</div>
-                <div style={styles.infoValue}>{expenses.length}</div>
-                <button style={styles.viewReportButton}>View All</button>
+              <div className="expenses-info-section">
+                <div className="expenses-info-title">Total Entries</div>
+                <div className="expenses-info-value">{expenses.length}</div>
+                <button className="expenses-view-report-button">
+                  <i className="bi bi-list-ul me-1"></i>
+                  View All
+                </button>
               </div>
             </div>
-            
-            <div style={styles.expenseList}>
-              {loading ? (
-                <div style={styles.loadingMessage}>Loading expenses...</div>
-              ) : error ? (
-                <div style={styles.errorMessage}>{error}</div>
-              ) : (
-                filteredExpenses.map((expense) => (
-                  <div 
-                    key={expense.id} 
-                    style={styles.expenseCard}
-                    onClick={() => handleExpenseClick(expense)}
-                  >
-                    <div style={styles.imageContainer}>
-                      {expense.photoPath ? (
-                        <img 
-                          src={expense.photoPath} 
-                          alt={expense.expensesNo}
-                          style={styles.image}
-                        />
-                      ) : (
-                        <div style={styles.placeholderImage}>
-                          No Photo
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.detailsContainer}>
-                      <div style={styles.expenseNo}>{expense.expensesNo}</div>
-                      <div style={styles.detailsRow}>
-                        <span style={styles.detailPill}>
-                          Category: {expense.category.name}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Item: {expense.item.name}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Payment: {expense.paymentMode}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Date: {new Date(expense.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {expense.remarks && (
-                        <div style={styles.detailPill}>
-                          Remarks: {expense.remarks}
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.amountContainer}>
-                      <div style={styles.amount}>
-                        रु{expense.amount.toLocaleString()}
-                      </div>
+          </div>
+          
+          <div className="expenses-list">
+            {loading ? (
+              <div className="expenses-loading-message">
+                <i className="bi bi-arrow-clockwise me-2"></i>
+                Loading expenses...
+              </div>
+            ) : error ? (
+              <div className="expenses-error-message">
+                <i className="bi bi-exclamation-triangle me-2"></i>
+                {error}
+              </div>
+            ) : filteredExpenses.length === 0 ? (
+              <div className="expenses-loading-message">
+                <i className="bi bi-inbox me-2"></i>
+                No expenses found
+              </div>
+            ) : (
+              filteredExpenses.map(expense => (
+                <div
+                  key={expense.id}
+                  className="expenses-item"
+                  onClick={() => handleExpenseClick(expense)}
+                >
+                  <div className="expenses-image-container">
+                    {expense.photoPath ? (
+                      <img
+                        src={expense.photoPath}
+                        alt={expense.item.name}
+                        className="expenses-image"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling!.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="expenses-placeholder-image">
+                      <i className="bi bi-image"></i>
                     </div>
                   </div>
-                ))
-              )}
-              <div style={styles.actionButtons}>
-              <button style={styles.addButton} onClick={() => navigate('/bills/expenses/add')}>
-                Add New Expense
-              </button>
-            </div>
-            </div>
+                  <div className="expenses-details-container">
+                    <div className="expenses-number">{expense.expensesNo}</div>
+                    <div className="expenses-details-row">
+                      <span className="expenses-detail-pill">
+                        <i className="bi bi-tag me-1"></i>
+                        {expense.category.name}
+                      </span>
+                      <span className="expenses-detail-pill">
+                        <i className="bi bi-box me-1"></i>
+                        {expense.item.name}
+                      </span>
+                      <span className="expenses-detail-pill">
+                        <i className="bi bi-credit-card me-1"></i>
+                        {expense.paymentMode}
+                      </span>
+                    </div>
+                    <div className="expenses-date">
+                      <i className="bi bi-calendar me-1"></i>
+                      {new Date(expense.date).toLocaleDateString()}
+                    </div>
+                    {expense.remarks && (
+                      <div className="expenses-remarks">
+                        <i className="bi bi-chat-text me-1"></i>
+                        {expense.remarks}
+                      </div>
+                    )}
+                  </div>
+                  <div className="expenses-amount">
+                    ₹{expense.amount.toLocaleString()}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

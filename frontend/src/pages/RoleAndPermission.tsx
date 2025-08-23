@@ -2,66 +2,31 @@ import React from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
+import '../styles/RoleAndPermission.css';
 
 export const RoleAndPermission = () => {
   const navigate = useNavigate();
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    buttonContainer: {
-      display: 'flex',
-      justifyContent: 'center',
-      gap: '1rem',
-      marginBottom: '2rem',
-    },
-    button: {
-      padding: '0.75rem 2rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: '500',
-      cursor: 'pointer',
-      minWidth: '150px',
-    },
-  };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="role-permission-page-wrapper">
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="role-permission-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <div style={styles.buttonContainer}>
+        <div className="role-permission-card">
+          <div className="role-permission-form-card">
+            <div className="role-permission-button-container">
               <button 
-                style={styles.button}
+                className="role-permission-button"
                 onClick={() => navigate('/role')}
               >
+                <i className="bi bi-shield-check"></i>
                 Role
               </button>
               <button 
-                style={styles.button}
+                className="role-permission-button"
                 onClick={() => navigate('/permission')}
               >
+                <i className="bi bi-shield-lock"></i>
                 Permission
               </button>
             </div>

@@ -4,6 +4,7 @@ import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
 import { fetchCategories, fetchItems, fetchLastIncome, saveIncome } from '../services/incomeService';
+import '../styles/AddIncome.css';
 
 interface Category {
   id: number;
@@ -98,8 +99,6 @@ export const AddIncome = () => {
         }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -107,24 +106,23 @@ export const AddIncome = () => {
   }, [isEditMode, initialData]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'number' ? Number(value) : value
+      [name]: value
     }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
+    const file = e.target.files?.[0];
+    if (file) {
       setFormData(prev => ({
         ...prev,
         photo: file
       }));
-
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setSelectedImage(reader.result as string);
+      reader.onload = (e) => {
+        setSelectedImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -137,35 +135,24 @@ export const AddIncome = () => {
 
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append('IncomeNo', formData.incomeNo);
-      formDataToSend.append('Date', formData.date);
-      formDataToSend.append('CategoryId', selectedCategory?.id.toString() || '');
-      formDataToSend.append('ItemId', selectedItem?.id.toString() || '');
-      formDataToSend.append('PaymentMode', formData.paymentMode);
-      formDataToSend.append('Amount', formData.amount.toString());
-      formDataToSend.append('Remarks', formData.remarks || '');
+      formDataToSend.append('incomeNo', formData.incomeNo);
+      formDataToSend.append('date', formData.date);
+      formDataToSend.append('categoryId', formData.categoryId.toString());
+      formDataToSend.append('itemId', formData.itemId);
+      formDataToSend.append('paymentMode', formData.paymentMode);
+      formDataToSend.append('amount', formData.amount);
+      formDataToSend.append('remarks', formData.remarks);
       if (formData.photo) {
-        formDataToSend.append('Photo', formData.photo);
+        formDataToSend.append('photo', formData.photo);
       }
-      if(isEditMode){
-        formDataToSend.append('Id', initialData.id.toString());
-      }
+
       await saveIncome(formDataToSend, isEditMode, initialData?.id);
-      alert(`Income entry ${isEditMode ? 'updated' : 'created'} successfully!`);
       navigate('/bills/income');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : 'An error occurred while saving income');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleAddCategory = () => {
-    navigate(`/category/add/income`);
-  };
-
-  const handleAddItem = () => {
-    setShowItemModal(true);
   };
 
   const handleItemSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -188,14 +175,6 @@ export const AddIncome = () => {
       itemId: item.id.toString()
     }));
   };
-
-  const filteredItems = items.filter(item =>
-    item.name.toLowerCase().includes(itemSearch.toLowerCase())
-  );
-
-  const filteredCategories = categories.filter(category =>
-    category.name.toLowerCase().includes(categorySearchQuery.toLowerCase())
-  );
 
   const handleCategorySearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -224,279 +203,178 @@ export const AddIncome = () => {
     }, 200);
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    heading: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '2rem',
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1.5rem',
-    },
-    row: {
-      display: 'flex',
-      gap: '2rem',
-    },
-    inputGroup: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    label: {
-      fontSize: '0.9rem',
-      color: '#495057',
-      fontWeight: '500',
-    },
-    input: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    select: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      background: 'white',
-    },
-    textarea: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      minHeight: '100px',
-      resize: 'vertical' as const,
-    },
-    imagePreview: {
-      width: '200px',
-      height: '200px',
-      objectFit: 'cover' as const,
-      borderRadius: '4px',
-      border: '1px solid #dee2e6',
-    },
-    searchContainer: {
-      position: 'relative' as const,
-      display: 'flex',
-      gap: '0.5rem',
-      marginBottom: '0.5rem',
-    },
-    dropdownContainer: {
-      position: 'relative' as const,
-      width: '100%',
-    },
-    dropdown: {
-      position: 'absolute' as const,
-      top: '100%',
-      left: 0,
-      right: 0,
-      background: 'white',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      maxHeight: '200px',
-      overflowY: 'auto' as const,
-      zIndex: 1,
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    dropdownItem: {
-      padding: '0.75rem',
-      cursor: 'pointer',
-      borderBottom: '1px solid #dee2e6',
-      backgroundColor: 'white',
-    },
-    searchInput: {
-      flex: 1,
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    addButton: {
-      padding: '0.75rem 1rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      fontWeight: '500',
-    },
-    buttonGroup: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      marginTop: '2rem',
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: '500',
-      cursor: 'pointer',
-    },
-    errorMessage: {
-      color: 'red',
-      marginBottom: '1rem',
-    },
+  const handleAddCategory = () => {
+    setShowCategoryModal(true);
   };
+
+  const handleAddItem = () => {
+    setShowItemModal(true);
+  };
+
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(categorySearchQuery.toLowerCase())
+  );
+
+  const filteredItems = items.filter(item =>
+    item.name.toLowerCase().includes(itemSearch.toLowerCase())
+  );
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="add-income-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <h1 style={styles.heading}>{isEditMode ? 'Edit Income' : 'Add New Income'}</h1>
-            <form style={styles.form} onSubmit={handleSubmit}>
-              <div style={styles.row}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Income No.</label>
+        <div className="add-income-card">
+          <h1 className="add-income-title">
+            <i className="bi bi-plus-circle"></i>
+            {isEditMode ? 'Edit Income' : 'Add New Income'}
+          </h1>
+          
+          {error && (
+            <div className="add-income-error">
+              <i className="bi bi-exclamation-triangle"></i>
+              {error}
+            </div>
+          )}
+
+          <form className="add-income-form" onSubmit={handleSubmit}>
+            <div className="add-income-row">
+              <div className="add-income-group">
+                <label className="add-income-label">
+                  <i className="bi bi-hash"></i>
+                  Income No.
+                </label>
+                <input
+                  type="text"
+                  name="incomeNo"
+                  value={formData.incomeNo}
+                  onChange={handleInputChange}
+                  className="add-income-input"
+                  required
+                  disabled
+                />
+              </div>
+              <div className="add-income-group">
+                <label className="add-income-label">
+                  <i className="bi bi-calendar"></i>
+                  Date
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleInputChange}
+                  className="add-income-input"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="add-income-group">
+              <label className="add-income-label">
+                <i className="bi bi-tag"></i>
+                Income Category
+              </label>
+              <div className="add-income-dropdown">
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <input
                     type="text"
-                    name="incomeNo"
-                    value={formData.incomeNo}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
-                    disabled
+                    placeholder="Search category..."
+                    value={categorySearchQuery}
+                    onChange={handleCategorySearch}
+                    onFocus={() => setShowCategoryDropdown(true)}
+                    onBlur={handleCategoryBlur}
+                    className="add-income-dropdown-input"
                   />
+                  <button 
+                    type="button" 
+                    className="add-income-button add-income-secondary-button"
+                    onClick={handleAddCategory}
+                  >
+                    <i className="bi bi-plus"></i>
+                    Add Category
+                  </button>
                 </div>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Date</label>
+                {showCategoryDropdown && categorySearchQuery && (
+                  <div className="add-income-dropdown-list">
+                    {filteredCategories.length > 0 ? (
+                      filteredCategories.map(category => (
+                        <div
+                          key={category.id}
+                          onClick={() => handleCategorySelect(category)}
+                          className="add-income-dropdown-item"
+                        >
+                          {category.name}
+                        </div>
+                      ))
+                    ) : (
+                      <div style={{ padding: '0.75rem', color: '#6c757d' }}>
+                        No categories found
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="add-income-group">
+              <label className="add-income-label">
+                <i className="bi bi-box"></i>
+                Item Name
+              </label>
+              <div className="add-income-dropdown">
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem' }}>
                   <input
-                    type="date"
-                    name="date"
-                    value={formData.date}
-                    onChange={handleInputChange}
-                    style={styles.input}
-                    required
+                    type="text"
+                    placeholder="Search item..."
+                    value={itemSearch}
+                    onChange={handleItemSearch}
+                    onFocus={() => setShowItemDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowItemDropdown(false), 200)}
+                    className="add-income-dropdown-input"
                   />
+                  <button 
+                    type="button" 
+                    className="add-income-button add-income-secondary-button"
+                    onClick={handleAddItem}
+                  >
+                    <i className="bi bi-plus"></i>
+                    Add Item
+                  </button>
                 </div>
-              </div>
-
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Income Category</label>
-                <div style={styles.dropdownContainer}>
-                  <div style={styles.searchContainer}>
-                    <input
-                      type="text"
-                      placeholder="Search category..."
-                      value={categorySearchQuery}
-                      onChange={handleCategorySearch}
-                      onFocus={() => setShowCategoryDropdown(true)}
-                      onBlur={handleCategoryBlur}
-                      style={styles.searchInput}
-                    />
-                    <button type="button" style={styles.addButton} onClick={handleAddCategory}>
-                      Add Category
-                    </button>
-                  </div>
-                  {showCategoryDropdown && categorySearchQuery && (
-                    <div style={styles.dropdown}>
-                      {filteredCategories.length > 0 ? (
-                        filteredCategories.map(category => (
-                          <div
-                            key={category.id}
-                            onClick={() => handleCategorySelect(category)}
-                            style={styles.dropdownItem}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f8f9fa';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'white';
-                            }}
-                          >
-                            {category.name}
-                          </div>
-                        ))
-                      ) : (
-                        <div style={{ padding: '0.75rem', color: '#6c757d' }}>
-                          No categories found
+                {showItemDropdown && itemSearch && (
+                  <div className="add-income-dropdown-list">
+                    {filteredItems.length > 0 ? (
+                      filteredItems.map(item => (
+                        <div
+                          key={item.id}
+                          onClick={() => handleItemSelect(item)}
+                          className="add-income-dropdown-item"
+                        >
+                          {item.name}
                         </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Item Name</label>
-                <div style={styles.dropdownContainer}>
-                  <div style={styles.searchContainer}>
-                    <input
-                      type="text"
-                      placeholder="Search item..."
-                      value={itemSearch}
-                      onChange={handleItemSearch}
-                      onFocus={() => setShowItemDropdown(true)}
-                      onBlur={() => setTimeout(() => setShowItemDropdown(false), 200)}
-                      style={styles.searchInput}
-                    />
-                    <button type="button" style={styles.addButton} onClick={handleAddItem}>
-                      Add Item
-                    </button>
+                      ))
+                    ) : (
+                      <div style={{ padding: '0.75rem', color: '#6c757d' }}>
+                        No items found
+                      </div>
+                    )}
                   </div>
-                  {showItemDropdown && itemSearch && (
-                    <div style={styles.dropdown}>
-                      {filteredItems.length > 0 ? (
-                        filteredItems.map(item => (
-                          <div
-                            key={item.id}
-                            onClick={() => handleItemSelect(item)}
-                            style={styles.dropdownItem}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.backgroundColor = '#f8f9fa';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.backgroundColor = 'white';
-                            }}
-                          >
-                            {item.name}
-                          </div>
-                        ))
-                      ) : (
-                        <div style={{ padding: '0.75rem', color: '#6c757d' }}>
-                          No items found
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                )}
               </div>
+            </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Payment Mode</label>
+            <div className="add-income-row">
+              <div className="add-income-group">
+                <label className="add-income-label">
+                  <i className="bi bi-credit-card"></i>
+                  Payment Mode
+                </label>
                 <select
                   name="paymentMode"
                   value={formData.paymentMode}
                   onChange={handleInputChange}
-                  style={styles.select}
+                  className="add-income-select"
                   required
                 >
                   <option value="">Select Payment Mode</option>
@@ -506,60 +384,86 @@ export const AddIncome = () => {
                   <option value="upi">UPI</option>
                 </select>
               </div>
-
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Amount</label>
+              <div className="add-income-group">
+                <label className="add-income-label">
+                  <i className="bi bi-currency-rupee"></i>
+                  Amount
+                </label>
                 <input
                   type="number"
                   name="amount"
                   value={formData.amount}
                   onChange={handleInputChange}
-                  style={styles.input}
+                  className="add-income-input"
                   required
+                  placeholder="Enter amount"
                 />
               </div>
+            </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Remarks</label>
-                <textarea
-                  name="remarks"
-                  value={formData.remarks}
-                  onChange={handleInputChange}
-                  style={styles.textarea}
-                  placeholder="Enter remarks..."
-                />
-              </div>
+            <div className="add-income-group">
+              <label className="add-income-label">
+                <i className="bi bi-chat-text"></i>
+                Remarks
+              </label>
+              <textarea
+                name="remarks"
+                value={formData.remarks}
+                onChange={handleInputChange}
+                className="add-income-textarea"
+                placeholder="Enter remarks..."
+              />
+            </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>Photo</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  style={styles.input}
-                />
-                {selectedImage && (
-                  <img src={selectedImage} alt="Preview" style={styles.imagePreview} />
-                )}
-              </div>
-
-              {error && (
-                <div style={styles.errorMessage}>
-                  {error}
-                </div>
+            <div className="add-income-group">
+              <label className="add-income-label">
+                <i className="bi bi-image"></i>
+                Photo
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="add-income-file-input"
+                id="photo-upload"
+              />
+              <label htmlFor="photo-upload" className="add-income-file-label">
+                <i className="bi bi-cloud-upload"></i>
+                Choose Photo
+              </label>
+              {selectedImage && (
+                <img src={selectedImage} alt="Preview" className="add-income-image-preview" />
               )}
+            </div>
 
-              <div style={styles.buttonGroup}>
-                <button 
-                  type="submit" 
-                  style={styles.saveButton}
-                  disabled={loading}
-                >
-                  {loading ? 'Saving...' : isEditMode ? 'Edit Income' : 'Save Income'}
-                </button>
-              </div>
-            </form>
-          </div>
+            <div className="add-income-button-container">
+              <button 
+                type="button"
+                className="add-income-cancel-button"
+                onClick={() => navigate('/bills/income')}
+              >
+                <i className="bi bi-x-circle"></i>
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                className="add-income-submit-button"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <div className="add-income-spinner"></div>
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-check-circle"></i>
+                    {isEditMode ? 'Update Income' : 'Save Income'}
+                  </>
+                )}
+              </button>
+            </div>
+          </form>
         </div>
       </div>
     </div>

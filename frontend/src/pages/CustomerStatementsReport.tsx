@@ -7,6 +7,7 @@ import { PaymentHistory } from '../services/paymentService';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 import CustomerStatementsPDFTemplate from '../components/CustomerStatementsPDFTemplate';
+import '../styles/CustomerStatementsReport.css';
 
 interface CustomerData {
     name: string;
@@ -33,9 +34,9 @@ export const CustomerStatementsReport = () => {
     const { customer, paymentHistory, totals } = location.state as ReportData || {
         customer: {
             name: '',
-        phoneNumber: '',
-        profileImage: null,
-        balance: 0,
+            phoneNumber: '',
+            profileImage: null,
+            balance: 0,
             paymentHistory: []
         },
         paymentHistory: [],
@@ -113,379 +114,186 @@ export const CustomerStatementsReport = () => {
             }
         });
 
-    const styles = {
-        container: {
-            minHeight: '100vh',
-            background: '#f8f9fa',
-        },
-        
-        mainContent: {
-            padding: '2rem',
-            marginTop: '64px',
-            maxWidth: 'calc(100% - 500px)',
-            marginRight: '500px',
-            width: '100%',
-        },
-        contentContainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            '@media print': {
-                boxShadow: 'none',
-                padding: '0',
-                maxWidth: '100%',
-                pageBreakAfter: 'always',
-            },
-        },
-        backButton: {
-            background: 'none',
-            border: 'none',
-            fontSize: '1.5rem',
-            cursor: 'pointer',
-            color: '#dc4c39',
-            padding: '0.5rem',
-            '&:hover': {
-                color: '#c23321',
-            },
-        },
-        reportTitle: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            textAlign: 'center' as const,
-            marginBottom: '0.5rem',
-            borderBottom: '2px solid #dc4c39',
-            paddingBottom: '0.5rem',
-        },
-        controlsCard: {
-            background: '#f8f9fa',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            border: '1px solid #dee2e6',
-            marginBottom: '2rem',
-            '@media print': {
-                display: 'none',
-            },
-        },
-        controlsRow: {
-            display: 'flex',
-            gap: '1rem',
-            marginBottom: '1rem',
-            flexWrap: 'wrap' as const,
-        },
-        searchInput: {
-            padding: '0.5rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            flex: 1,
-            minWidth: '200px',
-        },
-        dropdownSelect: {
-            padding: '0.5rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            background: 'white',
-            color: '#212529',
-            minWidth: '150px',
-        },
-        dateControls: {
-            display: 'flex',
-            gap: '1rem',
-            flexWrap: 'wrap' as const,
-        },
-        dateLabel: {
-            display: 'block',
-            marginBottom: '0.5rem',
-            color: '#6c757d',
-            fontSize: '0.875rem',
-        },
-        dateInput: {
-            display: 'flex',
-            flexDirection: 'column' as const,
-            minWidth: '150px',
-        },
-        dateSelect: {
-            padding: '0.5rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            background: 'white',
-            minWidth: '150px',
-        },
-        logoSection: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '1rem',
-        },
-        logoContainer: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-        },
-        logoImage: {
-            width: '50px',
-            height: '50px',
-            borderRadius: '4px',
-            backgroundColor: '#dc4c39',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            fontSize: '1.5rem',
-            color: 'white',
-        },
-        companyName: {
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-            color: '#dc4c39',
-        },
-        printOption: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-        },
-        reportDate: {
-            color: '#6c757d',
-            textAlign: 'center' as const,
-            marginBottom: '1.5rem',
-        },
-        summarySection: {
-            display: 'flex',
-            justifyContent: 'space-around',
-            padding: '1rem',
-            background: '#f8f9fa',
-            borderRadius: '4px',
-            marginBottom: '1.5rem',
-            border: '1px solid #dee2e6',
-        },
-        summaryItem: {
-            textAlign: 'center' as const,
-        },
-        summaryItemTitle: {
-            color: '#6c757d',
-            marginBottom: '0.5rem',
-        },
-        summaryItemValue: {
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-        },
-        gaveValue: {
-            color: '#dc3545',
-        },
-        receivedValue: {
-            color: '#28a745',
-        },
-        netValue: {
-            color: '#17a2b8',
-        },
-        summaryDivider: {
-            width: '1px',
-            background: '#dee2e6',
-        },
-        customerCount: {
-            color: '#6c757d',
-            marginBottom: '1rem',
-            padding: '0.5rem',
-            background: '#f8f9fa',
-            borderRadius: '4px',
-            textAlign: 'center' as const,
-        },
-        tableContainer: {
-            marginTop: '2rem',
-            overflowX: 'auto' as const,
-            '@media print': {
-                overflowX: 'visible',
-                pageBreakInside: 'avoid',
-            },
-        },
-        customerTable: {
-            width: '100%',
-            borderCollapse: 'collapse' as const,
-            marginTop: '1rem',
-            '@media print': {
-                pageBreakInside: 'avoid',
-            },
-        },
-        tableHeader: {
-            background: '#f8f9fa',
-            padding: '0.75rem',
-            textAlign: 'left' as const,
-            borderBottom: '2px solid #dee2e6',
-            color: '#212529',
-            fontWeight: 'bold',
-        },
-        tableCell: {
-            padding: '0.75rem',
-            borderBottom: '1px solid #dee2e6',
-        },
-        totalBalance: {
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '1rem',
-            textAlign: 'right' as const,
-        },
-        reportFooter: {
-            textAlign: 'center' as const,
-            color: '#6c757d',
-            marginTop: '2rem',
-            paddingTop: '1rem',
-            borderTop: '1px solid #dee2e6',
-            background: '#f8f9fa',
-            padding: '1rem',
-            borderRadius: '4px',
-        },
-        actionButtons: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '2rem',
-            '@media print': {
-                display: 'none',
-            },
-        },
-        actionButton: {
-            padding: '0.75rem 1.5rem',
-            borderRadius: '4px',
-            border: 'none',
-            cursor: 'pointer',
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-        },
-        downloadButton: {
-            background: '#dc4c39',
-            color: 'white',
-            '&:hover': {
-                background: '#c23321',
-            },
-        },
-        shareButton: {
-            background: '#28a745',
-            color: 'white',
-            '&:hover': {
-                background: '#218838',
-            },
-        },
-    };
-
     return (
-        <div style={styles.container}>
+        <div className="customer-statements-report-page">
             <Sidebar />
          
-            <main style={styles.mainContent}>
-                <div ref={contentRef} style={styles.contentContainer}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-                        <button style={styles.backButton} onClick={handleBack}>
-                            ←
+            <main className="customer-statements-report-main-content">
+                <div ref={contentRef} className="customer-statements-report-content-container">
+                    <div className="customer-statements-report-header">
+                        <button className="customer-statements-report-back-button" onClick={handleBack}>
+                            <i className="bi bi-arrow-left"></i>
                         </button>
-                        <h1 style={styles.reportTitle}>Report of {customer.name}</h1>
-                </div>
+                        <h1 className="customer-statements-report-title">
+                            <i className="bi bi-file-earmark-text me-2"></i>
+                            Report of {customer.name}
+                        </h1>
+                    </div>
 
-                    <div style={styles.controlsCard}>
-                        <div style={styles.controlsRow}>
-                            <input
-                                type="text"
-                                placeholder="Search remarks"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                style={styles.searchInput}
-                            />
-                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} style={styles.dropdownSelect}>
+                    <div className="customer-statements-report-controls-card">
+                        <div className="customer-statements-report-controls-row">
+                            <div className="customer-statements-report-search-container">
+                                <i className="bi bi-search customer-statements-report-search-icon"></i>
+                                <input
+                                    type="text"
+                                    placeholder="Search remarks"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                    className="customer-statements-report-search-input"
+                                />
+                            </div>
+                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="customer-statements-report-dropdown">
                                 <option value="date-desc">Sort: Date (Newest)</option>
                                 <option value="date-asc">Sort: Date (Oldest)</option>
                                 <option value="amount-desc">Sort: Amount (High to Low)</option>
                                 <option value="amount-asc">Sort: Amount (Low to High)</option>
                             </select>
-                            <select value={filterOption} onChange={(e) => setFilterOption(e.target.value)} style={styles.dropdownSelect}>
+                            <select value={filterOption} onChange={(e) => setFilterOption(e.target.value)} className="customer-statements-report-dropdown">
                                 <option value="all">Filter: All</option>
                                 <option value="gave">Filter: You Gave</option>
                                 <option value="received">Filter: You Received</option>
                             </select>
                         </div>
 
-                        <div style={styles.dateControls}>
-                            <div style={styles.dateInput}>
-                                <label style={styles.dateLabel}>Start Date</label>
+                        <div className="customer-statements-report-date-controls">
+                            <div className="customer-statements-report-date-input">
+                                <label className="customer-statements-report-date-label">
+                                    <i className="bi bi-calendar3 me-1"></i>
+                                    Start Date
+                                </label>
                                 <input
                                     type="date"
                                     value={startDate}
                                     onChange={(e) => setStartDate(e.target.value)}
-                                    style={styles.dateSelect}
+                                    className="customer-statements-report-date-select"
                                 />
-                        </div>
-                            <div style={styles.dateInput}>
-                                <label style={styles.dateLabel}>End Date</label>
-                            <input 
-                                type="date" 
+                            </div>
+                            <div className="customer-statements-report-date-input">
+                                <label className="customer-statements-report-date-label">
+                                    <i className="bi bi-calendar3 me-1"></i>
+                                    End Date
+                                </label>
+                                <input 
+                                    type="date" 
                                     value={endDate}
                                     onChange={(e) => setEndDate(e.target.value)}
-                                    style={styles.dateSelect}
+                                    className="customer-statements-report-date-select"
                                 />
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                    <div style={styles.totalBalance}>
-                        Total Net Balance: रु{netBalance.toLocaleString()}
-                </div>
+                    <div className="customer-statements-report-summary-section">
+                        <div className="customer-statements-report-summary-item">
+                            <div className="customer-statements-report-summary-title">Total Given</div>
+                            <div className="customer-statements-report-summary-value customer-statements-report-gave-value">
+                                रु{totalGave.toLocaleString()}
+                            </div>
+                        </div>
+                        <div className="customer-statements-report-summary-divider"></div>
+                        <div className="customer-statements-report-summary-item">
+                            <div className="customer-statements-report-summary-title">Total Received</div>
+                            <div className="customer-statements-report-summary-value customer-statements-report-received-value">
+                                रु{totalReceived.toLocaleString()}
+                            </div>
+                        </div>
+                        <div className="customer-statements-report-summary-divider"></div>
+                        <div className="customer-statements-report-summary-item">
+                            <div className="customer-statements-report-summary-title">Net Balance</div>
+                            <div className="customer-statements-report-summary-value customer-statements-report-net-value">
+                                रु{netBalance.toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
 
-                    <div style={styles.tableContainer}>
-                        <table style={styles.customerTable}>
+                    <div className="customer-statements-report-table-container">
+                        <table className="customer-statements-report-table">
                             <thead>
                                 <tr>
-                                    <th style={styles.tableHeader}>Date</th>
-                                    <th style={styles.tableHeader}>Type</th>
-                                    <th style={styles.tableHeader}>Amount</th>
-                                    <th style={styles.tableHeader}>Remarks</th>
-                                    <th style={styles.tableHeader}>Balance</th>
+                                    <th className="customer-statements-report-table-header">
+                                        <i className="bi bi-calendar3 me-1"></i>
+                                        Date
+                                    </th>
+                                    <th className="customer-statements-report-table-header">
+                                        <i className="bi bi-arrow-left-right me-1"></i>
+                                        Type
+                                    </th>
+                                    <th className="customer-statements-report-table-header">
+                                        <i className="bi bi-currency-rupee me-1"></i>
+                                        Amount
+                                    </th>
+                                    <th className="customer-statements-report-table-header">
+                                        <i className="bi bi-chat-text me-1"></i>
+                                        Remarks
+                                    </th>
+                                    <th className="customer-statements-report-table-header">
+                                        <i className="bi bi-wallet2 me-1"></i>
+                                        Balance
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {filteredTransactions.map((transaction) => (
-                                    <tr key={transaction.id}>
-                                        <td style={styles.tableCell}>
+                                    <tr key={transaction.id} className="customer-statements-report-table-row">
+                                        <td className="customer-statements-report-table-cell">
                                             {new Date(transaction.createdAt).toLocaleDateString()}
                                         </td>
-                                        <td style={styles.tableCell}>
-                                            {transaction.type}
+                                        <td className="customer-statements-report-table-cell">
+                                            <span className={`customer-statements-report-transaction-type ${
+                                                transaction.type === 'Given' ? 'customer-statements-report-type-gave' : 'customer-statements-report-type-received'
+                                            }`}>
+                                                {transaction.type}
+                                            </span>
                                         </td>
-                                        <td style={styles.tableCell}>
+                                        <td className="customer-statements-report-table-cell">
                                             रु{Math.abs(transaction.amount).toLocaleString()}
                                         </td>
-                                        <td style={styles.tableCell}>
-                                                            {transaction.remarks}
+                                        <td className="customer-statements-report-table-cell">
+                                            {transaction.remarks}
                                         </td>
-                                        <td style={styles.tableCell}>
+                                        <td className="customer-statements-report-table-cell">
                                             रु{transaction.newBalance.toLocaleString()}
                                         </td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
-                            </div>
+                    </div>
 
-                    <div style={styles.actionButtons}>
+                    <div className="customer-statements-report-action-buttons">
                         <button 
-                            style={{ ...styles.actionButton, ...styles.downloadButton }}
+                            className="customer-statements-report-download-button"
                             onClick={handleGeneratePdf}
                         >
-                            <span>📄</span> Download PDF
+                            <i className="bi bi-download me-1"></i>
+                            Download PDF
                         </button>
                         <button 
-                            style={{ ...styles.actionButton, ...styles.shareButton }}
+                            className="customer-statements-report-share-button"
                             onClick={() => console.log('Share functionality to be implemented')}
                         >
-                            <span>📤</span> Share
+                            <i className="bi bi-share me-1"></i>
+                            Share
                         </button>
                     </div>
 
-                    <div style={styles.reportFooter}>
-                        <div>Phone: {customer.phoneNumber}</div>
-                        <div>Total Transactions: {paymentHistory.length}</div>
-                        <div>Total Given: रु{totalGave.toLocaleString()}</div>
-                        <div>Total Received: रु{totalReceived.toLocaleString()}</div>
+                    <div className="customer-statements-report-footer">
+                        <div className="customer-statements-report-footer-item">
+                            <i className="bi bi-telephone me-1"></i>
+                            Phone: {customer.phoneNumber}
+                        </div>
+                        <div className="customer-statements-report-footer-item">
+                            <i className="bi bi-list-ul me-1"></i>
+                            Total Transactions: {paymentHistory.length}
+                        </div>
+                        <div className="customer-statements-report-footer-item">
+                            <i className="bi bi-arrow-up-circle me-1"></i>
+                            Total Given: रु{totalGave.toLocaleString()}
+                        </div>
+                        <div className="customer-statements-report-footer-item">
+                            <i className="bi bi-arrow-down-circle me-1"></i>
+                            Total Received: रु{totalReceived.toLocaleString()}
+                        </div>
                     </div>
                 </div>
             </main>

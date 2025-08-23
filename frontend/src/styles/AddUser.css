@@ -1,0 +1,237 @@
+/* AddUser Page Styles */
+.add-user-container {
+  flex: 1;
+  padding-top: 40px;
+  margin-left: 300px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.add-user-card {
+  padding: 2rem;
+  max-width: calc(100% - 500px);
+  margin-right: 500px;
+  width: 100%;
+}
+
+.add-user-section {
+  margin-bottom: 2rem;
+}
+
+.add-user-section-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-user-form-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-user-row {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.add-user-input-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-user-label {
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-user-input {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  background: #f8f9fa;
+}
+
+.add-user-input:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  background: white;
+}
+
+.add-user-select {
+  padding: 0.75rem;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.add-user-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.add-user-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.add-user-slider {
+  width: 50px;
+  height: 24px;
+  background-color: #dee2e6;
+  border-radius: 12px;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-user-slider.active {
+  background-color: #28a745;
+}
+
+.add-user-slider-circle {
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.add-user-slider-circle.active {
+  transform: translateX(26px);
+}
+
+.add-user-slider-text {
+  font-size: 0.9rem;
+  color: #495057;
+  font-weight: 500;
+}
+
+.add-user-save-button-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+.add-user-save-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-user-save-button:hover {
+  background: linear-gradient(135deg, #20c997, #17a2b8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.add-user-save-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.add-user-error {
+  color: #dc3545;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.add-user-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .add-user-card {
+    max-width: calc(100% - 300px);
+    margin-right: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-user-container {
+    margin-left: 0;
+  }
+  
+  .add-user-card {
+    max-width: 100%;
+    margin-right: 0;
+    padding: 1rem;
+  }
+  
+  .add-user-row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .add-user-input-group {
+    flex: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-user-card {
+    padding: 0.5rem;
+  }
+  
+  .add-user-form-card {
+    padding: 1rem;
+  }
+  
+  .add-user-section-header {
+    font-size: 1.1rem;
+  }
+} 

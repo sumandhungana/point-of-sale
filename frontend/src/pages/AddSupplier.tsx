@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
 import { createCustomer } from '../services/customerService';
+import '../styles/AddSupplier.css';
 
 export const AddSupplier = () => {
     const navigate = useNavigate();
@@ -140,126 +141,172 @@ export const AddSupplier = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div className="add-supplier-page-wrapper">
             <Sidebar />
            
-            <main style={styles.mainContent}>
-                <div style={styles.container}>
-                    <h2 style={styles.formTitle}>Add New Supplier</h2>
+            <main className="add-supplier-main-content">
+                <div className="add-supplier-form-container">
+                    <h2 className="add-supplier-form-title">
+                        <i className="bi bi-plus-circle"></i>
+                        Add New Supplier
+                    </h2>
                     <form onSubmit={handleSubmit}>
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Supplier Name</label>
+                        <div className="add-supplier-form-row">
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-person me-1"></i>
+                                    Supplier Name
+                                </label>
                                 <input
                                     type="text"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter supplier name"
                                     required
                                 />
                             </div>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Phone</label>
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-telephone me-1"></i>
+                                    Phone Number
+                                </label>
                                 <input
                                     type="tel"
                                     name="phone"
                                     value={formData.phone}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter phone number"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Company Name</label>
+                        <div className="add-supplier-form-row">
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-building me-1"></i>
+                                    Company Name
+                                </label>
                                 <input
                                     type="text"
                                     name="company"
                                     value={formData.company}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter company name"
                                     required
                                 />
                             </div>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>PAN No</label>
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-card-text me-1"></i>
+                                    PAN Number
+                                </label>
                                 <input
                                     type="text"
                                     name="pan"
                                     value={formData.pan}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter PAN number"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Address</label>
+                        <div className="add-supplier-form-row">
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-geo-alt me-1"></i>
+                                    Address
+                                </label>
                                 <input
                                     type="text"
                                     name="address"
                                     value={formData.address}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter address"
                                     required
                                 />
                             </div>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>City</label>
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-geo me-1"></i>
+                                    City
+                                </label>
                                 <input
                                     type="text"
                                     name="city"
                                     value={formData.city}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter city"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div style={styles.formRow}>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Email ID</label>
+                        <div className="add-supplier-form-row">
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-envelope me-1"></i>
+                                    Email Address
+                                </label>
                                 <input
                                     type="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter email address"
                                     required
                                 />
                             </div>
-                            <div style={styles.formGroup}>
-                                <label style={styles.label}>Contact Person</label>
+                            <div className="add-supplier-form-group">
+                                <label className="add-supplier-label">
+                                    <i className="bi bi-person-badge me-1"></i>
+                                    Contact Person
+                                </label>
                                 <input
                                     type="text"
                                     name="contactPerson"
                                     value={formData.contactPerson}
                                     onChange={handleChange}
-                                    style={styles.input}
+                                    className="add-supplier-input"
+                                    placeholder="Enter contact person name"
                                     required
                                 />
                             </div>
                         </div>
 
-                        <div style={styles.buttonContainer}>
+                        <div className="add-supplier-button-container">
                             <button 
                                 type="submit" 
-                                style={styles.submitButton}
+                                className="add-supplier-submit-button"
                                 disabled={isSubmitting}
                             >
-                                {isSubmitting ? 'Adding...' : 'Add Supplier'}
+                                {isSubmitting ? (
+                                    <div className="add-supplier-loading">
+                                        <div className="add-supplier-spinner"></div>
+                                        Adding Supplier...
+                                    </div>
+                                ) : (
+                                    <>
+                                        <i className="bi bi-plus-circle"></i>
+                                        Add Supplier
+                                    </>
+                                )}
                             </button>
                             <button 
                                 type="button" 
-                                style={styles.cancelButton}
+                                className="add-supplier-cancel-button"
                                 onClick={handleCancel}
                             >
+                                <i className="bi bi-x-circle"></i>
                                 Cancel
                             </button>
                         </div>

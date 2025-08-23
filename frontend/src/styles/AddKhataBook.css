@@ -1,0 +1,337 @@
+/* AddKhataBook.css - Modern Bootstrap-like styles */
+
+.add-khatabook-page-wrapper {
+  display: flex;
+}
+
+.add-khatabook-page-main {
+  flex: 1;
+  margin-left: 100px;
+  overflow-x: hidden;
+}
+
+.add-khata-book-container {
+  width: calc(100% - 4rem);
+  padding: 2rem;
+  margin-top: 100px;
+  /* margin-right:100px; */
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f8f9fa 100%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+.add-khata-book-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.add-khata-book-image-placeholder {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+  background-size: cover;
+  background-position: center;
+  border: 3px solid #e9ecef;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.add-khata-book-image-placeholder:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
+}
+
+.add-khata-book-image-placeholder.has-image {
+  border-color: #667eea;
+}
+
+.add-khata-book-add-photo-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-khata-book-add-photo-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+}
+
+.add-khata-book-add-photo-button:active {
+  transform: translateY(0);
+}
+
+.add-khata-book-hidden-file-input {
+  display: none;
+}
+
+.add-khata-book-section {
+  margin-bottom: 3rem;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.add-khata-book-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.add-khata-book-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.add-khata-book-section-title::before {
+  content: '📋';
+  font-size: 1.5rem;
+  -webkit-text-fill-color: initial;
+}
+
+.add-khata-book-hr {
+  border: none;
+  border-top: 2px solid #e9ecef;
+  margin: 1.5rem 0;
+}
+
+.add-khata-book-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.add-khata-book-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.add-khata-book-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-khata-book-label::before {
+  content: '📝';
+  font-size: 1rem;
+}
+
+.add-khata-book-label.required::after {
+  content: ' *';
+  color: #dc3545;
+  font-weight: 700;
+}
+
+.add-khata-book-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.add-khata-book-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: white;
+  transform: translateY(-1px);
+}
+
+.add-khata-book-input::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.add-khata-book-select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  outline: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.add-khata-book-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.add-khata-book-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.add-khata-book-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  font-weight: 500;
+}
+
+.add-khata-book-checkbox-label:hover {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-color: #667eea;
+  transform: translateX(5px);
+}
+
+.add-khata-book-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.add-khata-book-save-button {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  float: right;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-khata-book-save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+}
+
+.add-khata-book-save-button:active {
+  transform: translateY(0);
+}
+
+.add-khata-book-save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .add-khata-book-container {
+    width: calc(100% - 2rem);
+    padding: 1.5rem;
+  }
+  
+  .add-khata-book-section {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .add-khata-book-form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .add-khata-book-save-button {
+    width: 100%;
+    float: none;
+    justify-content: center;
+  }
+  
+  .add-khata-book-container {
+    width: 100%;
+    padding: 1rem;
+  }
+  
+  .add-khata-book-section {
+    padding: 1.5rem;
+  }
+  
+  .add-khata-book-section-title {
+    font-size: 1.25rem;
+  }
+  
+  .add-khata-book-image-placeholder {
+    width: 120px;
+    height: 120px;
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-khata-book-section {
+    padding: 1rem;
+  }
+  
+  .add-khata-book-input,
+  .add-khata-book-select {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+  
+  .add-khata-book-image-placeholder {
+    width: 100px;
+    height: 100px;
+    font-size: 2rem;
+  }
+  
+  .add-khata-book-add-photo-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+} 

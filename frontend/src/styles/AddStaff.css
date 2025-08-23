@@ -1,0 +1,382 @@
+.add-staff-container {
+  flex: 1;
+  padding-top: 40px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.add-staff-card {
+  padding: 2rem;
+  max-width: calc(100% - 500px);
+  margin-right: 500px;
+  width: 100%;
+}
+
+.add-staff-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.add-staff-sections {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.add-staff-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.add-staff-image-placeholder {
+  width: 150px;
+  height: 150px;
+  background: #e9ecef;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6c757d;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.add-staff-image-placeholder:hover {
+  background: #dee2e6;
+  transform: scale(1.05);
+}
+
+.add-staff-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-staff-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-staff-label i {
+  color: #dc4c39;
+}
+
+.add-staff-input,
+.add-staff-textarea,
+.add-staff-select {
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 2px solid #e9ecef;
+  background: white;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.add-staff-input:focus,
+.add-staff-textarea:focus,
+.add-staff-select:focus {
+  outline: none;
+  border-color: #dc4c39;
+  box-shadow: 0 0 0 3px rgba(220, 76, 57, 0.1);
+}
+
+.add-staff-textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.add-staff-salary-management-section {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.add-staff-salary-heading {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #212529;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-staff-salary-heading i {
+  color: #dc4c39;
+}
+
+.add-staff-salary-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 1.5rem;
+}
+
+.add-staff-salary-sections {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+.add-staff-salary-section {
+  flex: 1;
+  max-width: 300px;
+}
+
+.add-staff-section-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+.add-staff-calendar-container {
+  background: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  max-width: 300px;
+}
+
+.add-staff-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.add-staff-calendar-title {
+  font-size: 1rem;
+  font-weight: bold;
+  color: #212529;
+}
+
+.add-staff-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+}
+
+.add-staff-calendar-day {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: bold;
+}
+
+.add-staff-calendar-date {
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.add-staff-calendar-date:hover {
+  background: #f8f9fa;
+  border-color: #dc4c39;
+}
+
+.add-staff-calendar-date.selected {
+  background: #dc4c39;
+  color: white;
+}
+
+.add-staff-calendar-date.selected:hover {
+  background: #c73e2d;
+}
+
+.add-staff-slide-section {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.add-staff-slide-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.add-staff-slide-button {
+  width: 60px;
+  height: 30px;
+  background: #6c757d;
+  border-radius: 15px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.add-staff-slide-button.active {
+  background: #28a745;
+}
+
+.add-staff-slide-circle {
+  width: 26px;
+  height: 26px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.add-staff-slide-button.active .add-staff-slide-circle {
+  transform: translateX(30px);
+}
+
+.add-staff-salary-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.add-staff-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-staff-field-label {
+  font-size: 0.875rem;
+  color: #6c757d;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-staff-field-label i {
+  color: #dc4c39;
+}
+
+.add-staff-field-input {
+  padding: 0.75rem;
+  border-radius: 4px;
+  border: 2px solid #e9ecef;
+  background: white;
+  width: 100%;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+}
+
+.add-staff-field-input:focus {
+  outline: none;
+  border-color: #dc4c39;
+  box-shadow: 0 0 0 3px rgba(220, 76, 57, 0.1);
+}
+
+.add-staff-calendar-controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.add-staff-calendar-select {
+  padding: 0.5rem;
+  border-radius: 4px;
+  border: 2px solid #e9ecef;
+  background: white;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.add-staff-calendar-select:focus {
+  outline: none;
+  border-color: #dc4c39;
+  box-shadow: 0 0 0 3px rgba(220, 76, 57, 0.1);
+}
+
+.add-staff-save-button {
+  padding: 0.75rem 1.5rem;
+  background: #dc4c39;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: bold;
+  margin-top: 1.5rem;
+  align-self: flex-end;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-staff-save-button:hover {
+  background: #c73e2d;
+  transform: translateY(-1px);
+}
+
+.add-staff-save-button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.add-staff-error {
+  color: #dc3545;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.add-staff-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .add-staff-card {
+    padding: 1rem;
+    margin-right: 0;
+    max-width: 100%;
+  }
+  
+  .add-staff-sections {
+    flex-direction: column;
+  }
+  
+  .add-staff-salary-sections {
+    flex-direction: column;
+  }
+  
+  .add-staff-salary-fields {
+    grid-template-columns: 1fr;
+  }
+  
+  .add-staff-calendar-controls {
+    flex-direction: column;
+  }
+} 

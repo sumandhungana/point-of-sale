@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCustomers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
-import './Customers.css';
+import '../styles/Customers.css';
 
 interface CustomerWithBalance extends Customer {
     balance: number;
@@ -170,14 +170,14 @@ export const Customers = () => {
             paddingTop: '40px',
         },
         mainContent: {
-            padding: '1rem',
-            maxWidth: 'calc(100% - 500px)',
-            marginRight: '500px',
+            padding: '2rem',
+            maxWidth: '1200px',
+            margin: '0 auto',
             width: '100%',
             '@media (max-width: 768px)': {
-                padding: '0.5rem',
+                padding: '1rem',
                 maxWidth: '100%',
-                marginRight: '0',
+                margin: '0',
             },
         },
         searchContainer: {
@@ -504,138 +504,120 @@ export const Customers = () => {
         <div style={styles.container}>
             <Sidebar />
             <main style={styles.mainContent} className="customers-main-content">
-                <div style={styles.searchContainer} className="customers-search-container">
-                    <div style={styles.searchBar} className="customers-search-bar">
-                        <input
-                            type="text"
-                            placeholder="Search customers..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            style={styles.searchInput}
-                            className="customers-search-input"
-                        />
-                        {/* <div style={styles.filterGroup}>
-                            <label style={styles.label}>Filter:</label>
-                            <select
-                                value={filterBy}
-                                onChange={(e) => setFilterBy(e.target.value)}
-                                style={styles.select}
-                            >
-                                <option value="all">All Customers</option>
-                                <option value="toReceive">To Receive</option>
-                                <option value="toGive">To Give</option>
-                                <option value="settled">Settled</option>
-                            </select>
-                        </div> */}
-                        <div style={styles.filterGroup} className="customers-filter-group">
-                            <label style={styles.label}>Sort:</label>
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                style={styles.select}
-                                className="customers-select"
-                            >
-                                <option value="mostRecent">Most Recent</option>
-                                <option value="highestAmount">Highest Amount</option>
-                                <option value="leastAmount">Least Amount</option>
-                                <option value="byName">By Name</option>
-                                <option value="oldest">Oldest</option>
-                            </select>
-                        </div>
-                        <div style={styles.actionButtons} className="customers-action-buttons">
-                            <button 
-                                style={{ ...styles.button, ...styles.primaryButton }}
-                                className="customers-button"
-                                onClick={handleBulkReminder}
-                            >
-                                Bulk Reminder
-                            </button>
-                            <button 
-                                style={{ ...styles.button, ...styles.secondaryButton }}
-                                className="customers-button"
-                                onClick={handleListReportPdf}
-                            >
-                                PDF
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div style={styles.cardsContainer} className="customers-cards-container">
-                    <div style={styles.card} className="customers-card">
-                        <div style={styles.cardHeader}>You Give</div>
-                        <div style={{
-                            ...styles.cardAmount,
-                            color: (overallTotals.given - overallTotals.received) === 0 ? '#212529' : 
-                                  (overallTotals.given - overallTotals.received) > 0 ? '#28a745' : '#dc3545'
-                        }} className="customers-card-amount">
-                            रु{overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received}
-                        </div>
-                    </div>
-                    <div style={styles.card} className="customers-card">
-                        <div style={styles.cardHeader}>You Receive</div>
-                        <div style={{
-                            ...styles.cardAmount,
-                            color: (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) === 0 ? '#212529' : 
-                                  (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) > 0 ? '#28a745' : '#dc3545'
-                        }} className="customers-card-amount">
-                            रु{overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given}
-                        </div>
-                    </div>
-                    <div style={styles.card} className="customers-card">
-                          <div style={styles.cardHeader}>
-                        <div style={styles.checkboxGroup}>
+                <div className="customers-search-container">
+                    <div className="customers-search-row">
+                        <div className="customers-search-group">
+                            <i className="bi bi-search customers-search-icon"></i>
                             <input
-                                type="checkbox"
-                                id="openReport"
-                                checked={openReport}
-                                onChange={(e) => setOpenReport(e.target.checked)}
-                                style={styles.checkbox}
-                                className="customers-checkbox"
+                                type="text"
+                                placeholder="Search customers..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="customers-search-input"
                             />
-                            <label htmlFor="openReport" style={styles.checkboxLabel} className="customers-checkbox-label">
-                                Open Report
-                            </label>
                         </div>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="customers-filter-select"
+                        >
+                            <option value="mostRecent">Sort by Most Recent</option>
+                            <option value="highestAmount">Sort by Highest Amount</option>
+                            <option value="leastAmount">Sort by Least Amount</option>
+                            <option value="byName">Sort by Name</option>
+                            <option value="oldest">Sort by Oldest</option>
+                        </select>
                     </div>
+                    <div className="customers-action-buttons">
+                        <button 
+                            className="customers-action-button customers-primary-button"
+                            onClick={handleBulkReminder}
+                        >
+                            <i className="bi bi-bell"></i>
+                            Bulk Reminder
+                        </button>
+                        <button 
+                            className="customers-action-button customers-secondary-button"
+                            onClick={handleListReportPdf}
+                        >
+                            <i className="bi bi-file-earmark-text"></i>
+                            PDF Report
+                        </button>
                     </div>
                 </div>
 
-                <div style={styles.checkboxCard} className="customers-checkbox-card">
-                    <div style={styles.checkboxCardItem} className="customers-checkbox-card-item">
-                        <div style={styles.checkboxGroup}>
+                <div className="customers-cards-container">
+                    <div className="customers-card">
+                        <div className="customers-card-icon customers-card-give-icon">
+                            <i className="bi bi-arrow-up-circle"></i>
+                        </div>
+                        <div className="customers-card-header">You Give</div>
+                        <div className="customers-card-amount">
+                            रु{(overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received).toLocaleString()}
+                        </div>
+                    </div>
+                    <div className="customers-card">
+                        <div className="customers-card-icon customers-card-receive-icon">
+                            <i className="bi bi-arrow-down-circle"></i>
+                        </div>
+                        <div className="customers-card-header">You Receive</div>
+                        <div className="customers-card-amount">
+                            रु{(overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given).toLocaleString()}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="customers-checkbox-container">
+                    <div className="customers-checkbox-item">
+                        <div className="customers-checkbox-group">
                             <input
                                 type="checkbox"
                                 id="viewReport"
                                 checked={viewReport}
                                 onChange={(e) => setViewReport(e.target.checked)}
-                                style={styles.checkbox}
                                 className="customers-checkbox"
                             />
-                            <label htmlFor="viewReport" style={styles.checkboxLabel} className="customers-checkbox-label">
+                            <label htmlFor="viewReport" className="customers-checkbox-label">
+                                <i className="bi bi-eye me-1"></i>
                                 View Report
                             </label>
                         </div>
                     </div>
-                    <div style={styles.checkboxCardItem} className="customers-checkbox-card-item">
-                        <div style={styles.checkboxGroup}>
+                    <div className="customers-checkbox-item">
+                        <div className="customers-checkbox-group">
                             <input
                                 type="checkbox"
                                 id="openCashbook"
                                 checked={openCashbook}
                                 onChange={(e) => setOpenCashbook(e.target.checked)}
-                                style={styles.checkbox}
                                 className="customers-checkbox"
                             />
-                            <label htmlFor="openCashbook" style={styles.checkboxLabel} className="customers-checkbox-label">
+                            <label htmlFor="openCashbook" className="customers-checkbox-label">
+                                <i className="bi bi-cash-stack me-1"></i>
                                 Open Cashbook
+                            </label>
+                        </div>
+                    </div>
+                    <div className="customers-checkbox-item">
+                        <div className="customers-checkbox-group">
+                            <input
+                                type="checkbox"
+                                id="openReport"
+                                checked={openReport}
+                                onChange={(e) => setOpenReport(e.target.checked)}
+                                className="customers-checkbox"
+                            />
+                            <label htmlFor="openReport" className="customers-checkbox-label">
+                                <i className="bi bi-file-earmark-text me-1"></i>
+                                Open Report
                             </label>
                         </div>
                     </div>
                 </div>
 
                 {error && (
-                    <div style={{ textAlign: 'center', padding: '1rem', color: 'red', background: '#fff3cd', borderRadius: '4px', marginBottom: '1rem' }}>
+                    <div className="customers-error">
+                        <i className="bi bi-exclamation-triangle me-2"></i>
                         {error}
                     </div>
                 )}
@@ -661,28 +643,31 @@ export const Customers = () => {
                                             }
                                         }}
                                     />
-                                ) : null}
-                                <div 
-                                    style={{
-                                        ...styles.profileImage,
-                                        display: customer.profileImage ? 'none' : 'flex',
-                                        backgroundColor: '#e9ecef',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '1.5rem',
-                                        color: '#6c757d'
-                                    }}
-                                    className="customers-profile-image"
-                                >
-                                    {customer.name.charAt(0).toUpperCase()}
-                                </div>
+                                ) : (
+                                    <div 
+                                        style={{
+                                            ...styles.profileImage,
+                                            backgroundColor: '#e9ecef',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '1.5rem',
+                                            color: '#6c757d'
+                                        }}
+                                        className="customers-profile-image"
+                                    >
+                                        {customer.name.charAt(0).toUpperCase()}
+                                    </div>
+                                )}
                                 <div style={styles.customerDetails} className="customers-customer-details">
                                     <h3 style={styles.customerName} className="customers-customer-name">{customer.name}</h3>
-                                    <p style={styles.workingHours}>Working Hours: 0</p>
+                                    <p className="customers-working-hours">
+                                        <i className="bi bi-clock me-1"></i>
+                                        Working Hours: 0
+                                    </p>
                                 </div>
                                 <div style={{
                                     ...styles.customerAmount,
-                                    color: customer.balance === 0 ? '#212529' : customer.balance > 0 ? '#28a745' : '#dc3545'
+                                    color: customer.balance === 0 ? '#212529' : customer.balance > 0 ? '#28a745' : '#6c757d'
                                 }} className="customers-customer-amount">
                                     रु{Math.abs(customer.balance).toLocaleString()}
                                 </div>
@@ -695,7 +680,8 @@ export const Customers = () => {
                     className="customers-add-button"
                     onClick={handleAddCustomer}
                 >
-                    + Add Customer
+                    <i className="bi bi-plus-circle"></i>
+                    Add Customer
                 </button>
             </main>
         </div>

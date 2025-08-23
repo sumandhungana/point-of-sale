@@ -1,0 +1,324 @@
+/* Modern Add Supplier Page Styles */
+.add-supplier-page-wrapper {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.add-supplier-main-content {
+  overflow: visible !important;
+  padding-bottom: 2rem !important;
+  padding-top: 3rem !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+/* Form Container */
+.add-supplier-form-container {
+  background: white !important;
+  padding: 3rem !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.add-supplier-form-container::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  transform: scaleX(0) !important;
+  transition: transform 0.3s ease !important;
+}
+
+.add-supplier-form-container:hover::before {
+  transform: scaleX(1) !important;
+}
+
+.add-supplier-form-container:hover {
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Form Title */
+.add-supplier-form-title {
+  font-size: 2rem !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 2rem !important;
+  text-align: center !important;
+  position: relative !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+
+.add-supplier-form-title::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -0.5rem !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 60px !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  border-radius: 2px !important;
+}
+
+/* Form Row */
+.add-supplier-form-row {
+  display: flex !important;
+  gap: 2rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Form Group */
+.add-supplier-form-group {
+  flex: 1 !important;
+  position: relative !important;
+}
+
+/* Label */
+.add-supplier-label {
+  display: block !important;
+  margin-bottom: 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: #495057 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Input */
+.add-supplier-input {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  background: white !important;
+  color: #495057 !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+}
+
+.add-supplier-input:focus {
+  outline: none !important;
+  border-color: #3498db !important;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.add-supplier-input:hover {
+  border-color: #3498db !important;
+  transform: translateY(-1px) !important;
+}
+
+.add-supplier-input::placeholder {
+  color: #adb5bd !important;
+  font-style: italic !important;
+}
+
+/* Button Container */
+.add-supplier-button-container {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-top: 2.5rem !important;
+  gap: 1rem !important;
+}
+
+/* Submit Button */
+.add-supplier-submit-button {
+  padding: 0.75rem 2rem !important;
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.add-supplier-submit-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.add-supplier-submit-button:hover::before {
+  left: 100% !important;
+}
+
+.add-supplier-submit-button:hover {
+  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
+}
+
+.add-supplier-submit-button:disabled {
+  background: linear-gradient(135deg, #6c757d, #495057) !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: 0 2px 8px rgba(108, 117, 125, 0.2) !important;
+}
+
+/* Cancel Button */
+.add-supplier-cancel-button {
+  padding: 0.75rem 2rem !important;
+  background: linear-gradient(135deg, #6c757d, #495057) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.add-supplier-cancel-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.add-supplier-cancel-button:hover::before {
+  left: 100% !important;
+}
+
+.add-supplier-cancel-button:hover {
+  background: linear-gradient(135deg, #495057, #6c757d) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4) !important;
+}
+
+/* Loading State */
+.add-supplier-loading {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.add-supplier-spinner {
+  width: 16px !important;
+  height: 16px !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-top: 2px solid white !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Alert Styles */
+.add-supplier-alert {
+  padding: 1rem 1.5rem !important;
+  border-radius: 12px !important;
+  margin-bottom: 2rem !important;
+  font-weight: 500 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.add-supplier-alert-success {
+  background: rgba(39, 174, 96, 0.1) !important;
+  color: #27ae60 !important;
+  border: 2px solid #27ae60 !important;
+}
+
+.add-supplier-alert-error {
+  background: rgba(108, 117, 125, 0.1) !important;
+  color: #6c757d !important;
+  border: 2px solid #6c757d !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .add-supplier-main-content {
+    padding: 1rem !important;
+    padding-top: 2rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .add-supplier-form-container {
+    padding: 1.5rem !important;
+  }
+
+  .add-supplier-form-row {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .add-supplier-button-container {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .add-supplier-submit-button,
+  .add-supplier-cancel-button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 480px) {
+  .add-supplier-main-content {
+    padding: 0.5rem !important;
+    padding-top: 1rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .add-supplier-form-container {
+    padding: 1rem !important;
+  }
+
+  .add-supplier-form-title {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Smooth transitions for all elements */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+} 

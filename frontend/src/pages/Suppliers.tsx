@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getSuppliers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
-import './Suppliers.css';
+import '../styles/Suppliers.css';
 
 interface SupplierWithBalance extends Customer {
     balance: number;
@@ -90,7 +90,7 @@ export const Suppliers = () => {
     };
 
     const handleSupplierClick = (supplierId: string) => {
-        navigate(`/parties/customers/statements/${supplierId}`);
+        navigate(`/parties/supplier/statements/${supplierId}`);
     };
 
     const styles = {
@@ -313,141 +313,116 @@ export const Suppliers = () => {
     };
 
     return (
-        <div style={styles.container}>
+        <div className="suppliers-page-wrapper">
             <Sidebar />
-            <main style={styles.mainContent} className="suppliers-main-content">
-                <div style={styles.searchContainer}>
-                    <div style={styles.searchBar}>
-                        <input
-                            type="text"
-                            placeholder="Search suppliers..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            style={styles.searchInput}
-                        />
-                            <div style={styles.filterGroup}>
-                            <label style={styles.label}>Filter:</label>
-                                <select
-                                    value={filterBy}
-                                    onChange={(e) => setFilterBy(e.target.value)}
-                                    style={styles.select}
-                                >
-                                <option value="all">All Suppliers</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                    <option value="pending">Pending</option>
-                                </select>
-                            </div>
-                            <div style={styles.filterGroup}>
-                            <label style={styles.label}>Sort:</label>
-                                <select
-                                    value={sortBy}
-                                    onChange={(e) => setSortBy(e.target.value)}
-                                    style={styles.select}
-                                >
-                                <option value="name">By Name</option>
-                                    <option value="date">Date Added</option>
-                                    <option value="balance">Balance</option>
-                                </select>
+            <main className="suppliers-main-content">
+                <div className="suppliers-search-container">
+                    <div className="suppliers-search-row">
+                        <div className="suppliers-search-group">
+                            <i className="bi bi-search suppliers-search-icon"></i>
+                            <input
+                                type="text"
+                                placeholder="Search suppliers..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="suppliers-search-input"
+                            />
                         </div>
-                        <div style={styles.actionButtons}>
-                            <button 
-                                style={{ ...styles.button, ...styles.primaryButton }}
-                                onClick={handleBulkReminder}
-                            >
-                                Bulk Reminder
-                            </button>
-                            <button 
-                                style={{ ...styles.button, ...styles.secondaryButton }}
-                                onClick={handleListReportPdf}
-                            >
-                                PDF
-                            </button>
-                        </div>
+                        <select
+                            value={filterBy}
+                            onChange={(e) => setFilterBy(e.target.value)}
+                            className="suppliers-filter-select"
+                        >
+                            <option value="all">All Suppliers</option>
+                            <option value="positive">Positive Balance</option>
+                            <option value="negative">Negative Balance</option>
+                            <option value="zero">Zero Balance</option>
+                        </select>
+                        <select
+                            value={sortBy}
+                            onChange={(e) => setSortBy(e.target.value)}
+                            className="suppliers-filter-select"
+                        >
+                            <option value="name">Sort by Name</option>
+                            <option value="balance">Sort by Balance</option>
+                            <option value="recent">Sort by Recent</option>
+                        </select>
+                    </div>
+                    <div className="suppliers-action-buttons">
+                        <button onClick={handleBulkReminder} className="suppliers-action-button suppliers-reminder-button">
+                            <i className="bi bi-bell"></i>
+                            Bulk Reminder
+                        </button>
+                        <button onClick={handleListReportPdf} className="suppliers-action-button suppliers-report-button">
+                            <i className="bi bi-file-earmark-text"></i>
+                            List Report
+                        </button>
                     </div>
                 </div>
 
-                <div style={styles.cardsContainer}>
-                    <div style={styles.card}>
-                        <div style={styles.cardHeader}>You Give</div>
-                        <div style={{
-                            ...styles.cardAmount,
-                            color: (overallTotals.given - overallTotals.received) === 0 ? '#212529' : 
-                                  (overallTotals.given - overallTotals.received) > 0 ? '#28a745' : '#dc3545'
-                        }}>
-                            रु{overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received}
+                <div className="suppliers-stats-container">
+                    <div className="suppliers-stat-card">
+                        <div className="suppliers-stat-icon suppliers-stat-given-icon">
+                            <i className="bi bi-arrow-up-circle"></i>
                         </div>
-                    </div>
-                    <div style={styles.card}>
-                        <div style={styles.cardHeader}>You Receive</div>
-                        <div style={{
-                            ...styles.cardAmount,
-                            color: (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) === 0 ? '#212529' : 
-                                  (overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given) > 0 ? '#28a745' : '#dc3545'
-                        }}>
-                            रु{overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given}
+                        <div className="suppliers-stat-value">
+                            रु{(overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received).toLocaleString()}
                         </div>
+                        <div className="suppliers-stat-label">You Give</div>
                     </div>
-                    <div style={styles.card}>
-                        <div style={styles.cardHeader}>Online Collection</div>
-                        <div style={{
-                            ...styles.cardAmount,
-                            color: overallTotals.online === 0 ? '#212529' : 
-                                  overallTotals.online > 0 ? '#28a745' : '#dc3545'
-                        }}>
+                    <div className="suppliers-stat-card">
+                        <div className="suppliers-stat-icon suppliers-stat-received-icon">
+                            <i className="bi bi-arrow-down-circle"></i>
+                        </div>
+                        <div className="suppliers-stat-value">
+                            रु{(overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given).toLocaleString()}
+                        </div>
+                        <div className="suppliers-stat-label">You Receive</div>
+                    </div>
+                    <div className="suppliers-stat-card">
+                        <div className="suppliers-stat-icon suppliers-stat-online-icon">
+                            <i className="bi bi-globe"></i>
+                        </div>
+                        <div className="suppliers-stat-value">
                             रु{overallTotals.online.toLocaleString()}
                         </div>
+                        <div className="suppliers-stat-label">Online Collection</div>
                     </div>
                 </div>
 
-                <div style={styles.checkboxCard}>
-                    <div style={styles.checkboxCardItem}>
-                        <div style={styles.checkboxGroup}>
-                            <input
-                                type="checkbox"
-                                id="viewReport"
-                                checked={viewReport}
-                                onChange={(e) => setViewReport(e.target.checked)}
-                                style={styles.checkbox}
-                            />
-                            <label htmlFor="viewReport" style={styles.checkboxLabel}>
-                                View Report
-                            </label>
-                        </div>
-                    </div>
-                    <div style={styles.checkboxCardItem}>
-                        <div style={styles.checkboxGroup}>
-                            <input
-                                type="checkbox"
-                                id="openCashbook"
-                                checked={openCashbook}
-                                onChange={(e) => setOpenCashbook(e.target.checked)}
-                                style={styles.checkbox}
-                            />
-                            <label htmlFor="openCashbook" style={styles.checkboxLabel}>
-                                Open Cashbook
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                <div className="suppliers-list-container">
+                    <h3 className="suppliers-list-title">
+                        <i className="bi bi-people"></i>
+                        Suppliers List
+                    </h3>
 
-                {loading ? (
-                    <div style={{ textAlign: 'center', padding: '2rem' }}>Loading suppliers...</div>
-                ) : error ? (
-                    <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>{error}</div>
-                ) : (
-                    suppliers.map((supplier) => (
-                        <div 
-                            key={supplier.id}
-                            style={styles.supplierCard}
-                            onClick={() => handleSupplierClick(supplier.id.toString())}
-                        >
-                            <div style={styles.supplierInfo}>
+                    {loading ? (
+                        <div className="suppliers-loading">
+                            <i className="bi bi-hourglass-split me-2"></i>
+                            Loading suppliers...
+                        </div>
+                    ) : error ? (
+                        <div className="suppliers-error">
+                            <i className="bi bi-exclamation-triangle me-2"></i>
+                            {error}
+                        </div>
+                    ) : suppliers.length === 0 ? (
+                        <div className="suppliers-no-suppliers">
+                            <i className="bi bi-inbox me-2"></i>
+                            No suppliers found
+                        </div>
+                    ) : (
+                        suppliers.map((supplier) => (
+                            <div 
+                                key={supplier.id}
+                                className="suppliers-card"
+                                onClick={() => handleSupplierClick(supplier.id.toString())}
+                            >
                                 {supplier.profileImage ? (
                                     <img 
                                         src={`http://localhost:5000${supplier.profileImage}`} 
                                         alt={supplier.name}
-                                        style={styles.profileImage}
+                                        className="suppliers-profile-image"
                                         onError={(e) => {
                                             e.currentTarget.style.display = 'none';
                                             const nextSibling = e.currentTarget.nextSibling as HTMLElement;
@@ -456,42 +431,37 @@ export const Suppliers = () => {
                                             }
                                         }}
                                     />
-                                ) : null}
-                                <div 
-                                    style={{
-                                        ...styles.profileImage,
-                                        display: supplier.profileImage ? 'none' : 'flex',
-                                        backgroundColor: '#e9ecef',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '1.5rem',
-                                        color: '#6c757d'
-                                    }}
-                                >
-                                    {supplier.name.charAt(0).toUpperCase()}
+                                ) : (
+                                    <div className="suppliers-profile-placeholder">
+                                        <i className="bi bi-person"></i>
+                                    </div>
+                                )}
+                                <div className="suppliers-info">
+                                    <div className="suppliers-name">{supplier.name}</div>
+                                    <div className="suppliers-details">
+                                        <i className="bi bi-person-badge me-1"></i>
+                                        Contact: {supplier.ContactPerson || 'N/A'}
+                                    </div>
                                 </div>
-                                <div style={styles.supplierDetails}>
-                                    <h3 style={styles.supplierName}>{supplier.name}</h3>
-                                                                         <p style={styles.workingHours}>Contact: {supplier.ContactPerson || 'N/A'}</p>
-                                </div>
-                                <div style={{
-                                    ...styles.supplierAmount,
-                                    color: supplier.balance === 0 ? '#212529' : supplier.balance > 0 ? '#28a745' : '#dc3545'
-                                }}>
+                                <div className={`suppliers-balance ${
+                                    supplier.balance === 0 ? 'suppliers-balance-zero' : 
+                                    supplier.balance > 0 ? 'suppliers-balance-positive' : 'suppliers-balance-negative'
+                                }`}>
                                     रु{Math.abs(supplier.balance).toLocaleString()}
                                 </div>
                             </div>
-                        </div>
-                    ))
-                )}
-
-                <button 
-                    style={styles.addSupplierButton}
-                    className="suppliers-add-button"
-                    onClick={handleAddSupplier}
-                >
-                    + Add Supplier
-                </button>
+                        ))
+                    )}
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
+                    <button 
+                        className="suppliers-action-button suppliers-add-button"
+                        onClick={handleAddSupplier}
+                    >
+                        <i className="bi bi-plus-circle"></i>
+                        Add Supplier
+                    </button>
+                </div>
             </main>
         </div>
     );

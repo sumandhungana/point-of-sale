@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchSalesBills as fetchSalesBillsService } from '../services/salesBillService';
+import '../styles/Sales.css';
 
 interface SalesBill {
   id: number;
@@ -82,375 +83,170 @@ export const Sales = () => {
     navigate('/bills/sales/add', { state: { bill } });
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      padding: '1.5rem',
-    },
-    searchContainer: {
-      background: 'white',
-      padding: '1.5rem',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      marginBottom: '1rem',
-    },
-    searchBar: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-      marginBottom: '1rem',
-      flexWrap: 'wrap' as const,
-    },
-    searchInput: {
-      flex: 2,
-      padding: '0.75rem 1rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      minWidth: '200px',
-      transition: 'border-color 0.2s, box-shadow 0.2s',
-      '&:focus': {
-        outline: 'none',
-        borderColor: '#dc4c39',
-        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-      },
-    },
-    filterGroup: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      flex: 1,
-      minWidth: '200px',
-    },
-    select: {
-      padding: '0.75rem 1rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      flex: 1,
-      backgroundColor: 'white',
-      cursor: 'pointer',
-      transition: 'border-color 0.2s, box-shadow 0.2s',
-      '&:focus': {
-        outline: 'none',
-        borderColor: '#dc4c39',
-        boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-      },
-    },
-    label: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      whiteSpace: 'nowrap',
-    },
-    actionButtons: {
-      display: 'flex',
-      gap: '0.75rem',
-      marginLeft: 'auto',
-    },
-    button: {
-      padding: '0.5rem 1rem',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    primaryButton: {
-      background: '#dc4c39',
-      color: 'white',
-    },
-    secondaryButton: {
-      background: '#f8f9fa',
-      color: '#212529',
-      border: '1px solid #dee2e6',
-    },
-    infoCard: {
-      display: 'flex',
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    infoSection: {
-      flex: 1,
-      padding: '1rem',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      textAlign: 'center' as const,
-    },
-    infoTitle: {
-      fontSize: '0.875rem',
-      color: '#6c757d',
-      marginBottom: '0.5rem',
-    },
-    infoValue: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    viewReportButton: {
-      width: '100%',
-      padding: '0.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      marginTop: '0.5rem',
-    },
-    salesList: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1rem',
-      marginTop: '1rem',
-    },
-    salesCard: {
-      display: 'flex',
-      gap: '1rem',
-      padding: '1rem',
-      background: 'white',
-      borderRadius: '8px',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      transition: 'transform 0.2s, box-shadow 0.2s',
-      cursor: 'pointer',
-      ':hover': {
-        transform: 'translateY(-2px)',
-        boxShadow: '0 4px 8px rgba(0,0,0,0.15)',
-      },
-    },
-    imageContainer: {
-      flex: '0 0 100px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: '#f8f9fa',
-      borderRadius: '4px',
-      overflow: 'hidden',
-    },
-    image: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover' as const,
-    },
-    placeholderImage: {
-      width: '80px',
-      height: '80px',
-      background: '#e9ecef',
-      borderRadius: '4px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: '#6c757d',
-      fontSize: '0.875rem',
-    },
-    detailsContainer: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    billNumber: {
-      fontSize: '1.1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    detailsRow: {
-      display: 'flex',
-      flexWrap: 'wrap' as const,
-      gap: '0.5rem',
-    },
-    detailPill: {
-      padding: '0.25rem 0.75rem',
-      background: '#f8f9fa',
-      borderRadius: '20px',
-      fontSize: '0.875rem',
-      color: '#495057',
-    },
-    amountContainer: {
-      flex: '0 0 120px',
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'flex-end',
-      justifyContent: 'center',
-    },
-    amount: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#28a745',
-      background: '#f0fff0',
-      padding: '0.5rem 1rem',
-      borderRadius: '4px',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
-    },
-    addButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-    },
-  };
+  const totalSales = salesBills.reduce((sum, bill) => sum + bill.amount, 0);
+  const pendingAmount = 0; // This would be calculated based on business logic
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="sales-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <div style={styles.searchContainer}>
-              <div style={styles.searchBar}>
+        <div className="sales-card">
+          <div className="sales-search-container">
+            <div className="sales-search-bar">
+              <div style={{ position: 'relative', flex: 2 }}>
+                <i className="bi bi-search sales-search-icon"></i>
                 <input
                   type="text"
-                  placeholder="Search sales bills..."
-                  style={styles.searchInput}
+                  placeholder="Search by bill number, customer name, or payment mode..."
                   value={searchQuery}
                   onChange={handleSearchChange}
+                  className="sales-search-input"
                 />
-                <div style={styles.filterGroup}>
-                  <label style={styles.label}>Filter:</label>
-                  <select 
-                    style={styles.select}
-                    value={statusFilter}
-                    onChange={handleStatusFilterChange}
-                  >
-                    <option value="">All Status</option>
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="partial">Partial</option>
-                  </select>
-                </div>
-                <div style={styles.filterGroup}>
-                  <label style={styles.label}>Sort:</label>
-                  <select 
-                    style={styles.select}
-                    value={dateSort}
-                    onChange={handleDateSortChange}
-                  >
-                    <option value="">Date Added</option>
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
-                  </select>
-                </div>
-                <div style={styles.actionButtons}>
-                  <button 
-                    style={{ ...styles.button, ...styles.primaryButton }}
-                  >
-                    <span>📝</span> Bulk Reminder
-                  </button>
-                  <button 
-                    style={{ ...styles.button, ...styles.secondaryButton }}
-                  >
-                    PDF
-                  </button>
-                </div>
               </div>
-            </div>
-            <div style={styles.infoCard}>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Sales</div>
-                <div style={styles.infoValue}>
-                  रु{salesBills.reduce((sum, bill) => sum + bill.amount, 0).toLocaleString()}
-                </div>
-                <button style={styles.viewReportButton}>View Report</button>
+              <div className="sales-filter-group">
+                <label className="sales-label">Filter:</label>
+                <select
+                  value={statusFilter}
+                  onChange={handleStatusFilterChange}
+                  className="sales-select"
+                >
+                  <option value="">All Payment Modes</option>
+                  <option value="Cash">Cash</option>
+                  <option value="Card">Card</option>
+                  <option value="Bank Transfer">Bank Transfer</option>
+                  <option value="UPI">UPI</option>
+                </select>
               </div>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Pending Amount</div>
-                <div style={styles.infoValue}>रु0</div>
-                <button style={styles.viewReportButton}>View Details</button>
+              <div className="sales-filter-group">
+                <label className="sales-label">Sort:</label>
+                <select
+                  value={dateSort}
+                  onChange={handleDateSortChange}
+                  className="sales-select"
+                >
+                  <option value="">Default</option>
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                </select>
               </div>
-              <div style={styles.infoSection}>
-                <div style={styles.infoTitle}>Total Bills</div>
-                <div style={styles.infoValue}>{salesBills.length}</div>
-                <button style={styles.viewReportButton}>View All</button>
-              </div>
-            </div>
-            
-          </div>
-            <div style={styles.salesList}>
-              {loading ? (
-                <div style={styles.loadingMessage}>Loading sales bills...</div>
-              ) : error ? (
-                <div style={styles.errorMessage}>{error}</div>
-              ) : (
-                filteredSalesBills.map((bill) => (
-                  <div 
-                    key={bill.id} 
-                    style={styles.salesCard}
-                    onClick={() => handleBillClick(bill)}
-                  >
-                    <div style={styles.imageContainer}>
-                      {bill.photoPath ? (
-                        <img 
-                          src={bill.photoPath} 
-                          alt={bill.billNumber}
-                          style={styles.image}
-                        />
-                      ) : (
-                        <div style={styles.placeholderImage}>
-                          No Photo
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.detailsContainer}>
-                      <div style={styles.billNumber}>{bill.billNumber}</div>
-                      <div style={styles.detailsRow}>
-                        <span style={styles.detailPill}>
-                          Customer: {bill.customer.name}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Payment: {bill.paymentMode}
-                        </span>
-                        <span style={styles.detailPill}>
-                          Date: {new Date(bill.billDate).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {bill.remarks && (
-                        <div style={styles.detailPill}>
-                          Remarks: {bill.remarks}
-                        </div>
-                      )}
-                    </div>
-                    <div style={styles.amountContainer}>
-                      <div style={styles.amount}>
-                        रु{bill.amount.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-              <div style={styles.actionButtons}>
-                <button style={styles.addButton} onClick={handleAddBill}>
-                  Add New Bill
+              <div className="sales-action-buttons">
+                <button 
+                  className="sales-button sales-primary-button"
+                  onClick={handleAddBill}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  Add Sales Bill
+                </button>
+                <button className="sales-button sales-secondary-button">
+                  <i className="bi bi-download"></i>
+                  Export
                 </button>
               </div>
             </div>
+            <div className="sales-info-card">
+              <div className="sales-info-section">
+                <div className="sales-info-title">Total Sales</div>
+                <div className="sales-info-value">₹{totalSales.toLocaleString()}</div>
+                <button className="sales-view-report-button">
+                  <i className="bi bi-graph-up me-1"></i>
+                  View Report
+                </button>
+              </div>
+              <div className="sales-info-section">
+                <div className="sales-info-title">Pending Amount</div>
+                <div className="sales-info-value">₹{pendingAmount.toLocaleString()}</div>
+                <button className="sales-view-report-button">
+                  <i className="bi bi-clock me-1"></i>
+                  View Details
+                </button>
+              </div>
+              <div className="sales-info-section">
+                <div className="sales-info-title">Total Bills</div>
+                <div className="sales-info-value">{salesBills.length}</div>
+                <button className="sales-view-report-button">
+                  <i className="bi bi-list-ul me-1"></i>
+                  View All
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div className="sales-list">
+            {loading ? (
+              <div className="sales-loading-message">
+                <i className="bi bi-arrow-clockwise me-2"></i>
+                Loading sales bills...
+              </div>
+            ) : error ? (
+              <div className="sales-error-message">
+                <i className="bi bi-exclamation-triangle me-2"></i>
+                {error}
+              </div>
+            ) : filteredSalesBills.length === 0 ? (
+              <div className="sales-loading-message">
+                <i className="bi bi-inbox me-2"></i>
+                No sales bills found
+              </div>
+            ) : (
+              filteredSalesBills.map(bill => (
+                <div
+                  key={bill.id}
+                  className="sales-item"
+                  onClick={() => handleBillClick(bill)}
+                >
+                  <div className="sales-image-container">
+                    {bill.photoPath ? (
+                      <img
+                        src={bill.photoPath}
+                        alt={bill.customer.name}
+                        className="sales-image"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling!.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="sales-placeholder-image">
+                      <i className="bi bi-image"></i>
+                    </div>
+                  </div>
+                  <div className="sales-details-container">
+                    <div className="sales-number">{bill.billNumber}</div>
+                    <div className="sales-details-row">
+                      <span className="sales-detail-pill">
+                        <i className="bi bi-person me-1"></i>
+                        {bill.customer.name}
+                      </span>
+                      <span className="sales-detail-pill">
+                        <i className="bi bi-credit-card me-1"></i>
+                        {bill.paymentMode}
+                      </span>
+                      {bill.customer.phone && (
+                        <span className="sales-detail-pill">
+                          <i className="bi bi-telephone me-1"></i>
+                          {bill.customer.phone}
+                        </span>
+                      )}
+                    </div>
+                    <div className="sales-date">
+                      <i className="bi bi-calendar me-1"></i>
+                      {new Date(bill.billDate).toLocaleDateString()}
+                    </div>
+                    {bill.remarks && (
+                      <div className="sales-remarks">
+                        <i className="bi bi-chat-text me-1"></i>
+                        {bill.remarks}
+                      </div>
+                    )}
+                  </div>
+                  <div className="sales-amount">
+                    ₹{bill.amount.toLocaleString()}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
       </div>
     </div>

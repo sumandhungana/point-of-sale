@@ -1,0 +1,529 @@
+/* Modern Customer Profile Page Styles */
+.customer-profile-main-content {
+  overflow: visible !important;
+  padding-bottom: 2rem !important;
+  padding-top: 3rem !important;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  min-height: 100vh;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
+/* Back Button */
+.customer-profile-back-button {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  background: linear-gradient(135deg, #6c757d, #495057) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  position: absolute !important;
+  top: 2rem !important;
+  left: 2rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
+  z-index: 10 !important;
+}
+
+.customer-profile-back-button:hover {
+  background: linear-gradient(135deg, #495057, #343a40) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4) !important;
+}
+
+/* Profile Container */
+.customer-profile-container {
+  background: white !important;
+  padding: 3rem !important;
+  border-radius: 20px !important;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  max-width: 900px !important;
+  margin: 0 auto !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.customer-profile-container::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  height: 4px !important;
+  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  transform: scaleX(0) !important;
+  transition: transform 0.3s ease !important;
+}
+
+.customer-profile-container:hover::before {
+  transform: scaleX(1) !important;
+}
+
+.customer-profile-container:hover {
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Image Container */
+.customer-profile-image-container {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin-bottom: 2.5rem !important;
+  position: relative !important;
+}
+
+.customer-profile-image {
+  width: 180px !important;
+  height: 180px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
+  margin-bottom: 1.5rem !important;
+  border: 4px solid #3498db !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.customer-profile-image:hover {
+  transform: scale(1.05) rotate(5deg) !important;
+  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+}
+
+.customer-profile-image-placeholder {
+  width: 180px !important;
+  height: 180px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
+  margin-bottom: 1.5rem !important;
+  border: 4px solid #3498db !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 4rem !important;
+  color: white !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
+}
+
+.customer-profile-image-placeholder:hover {
+  transform: scale(1.05) rotate(5deg) !important;
+  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+}
+
+/* Add Photo Button */
+.customer-profile-add-photo-button {
+  padding: 0.75rem 1.5rem !important;
+  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  margin-bottom: 1rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.customer-profile-add-photo-button:hover {
+  background: linear-gradient(135deg, #2ecc71, #3498db) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+}
+
+.customer-profile-file-input {
+  display: none !important;
+}
+
+/* Party Type Container */
+.customer-profile-party-type-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-top: 1rem !important;
+  margin-bottom: 2.5rem !important;
+  gap: 1rem !important;
+  padding: 1.5rem !important;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  border-radius: 16px !important;
+  border: 2px solid #e9ecef !important;
+  transition: all 0.3s ease !important;
+}
+
+.customer-profile-party-type-container:hover {
+  border-color: #3498db !important;
+  transform: translateY(-1px) !important;
+}
+
+.customer-profile-party-type-label {
+  font-size: 1rem !important;
+  color: #495057 !important;
+  font-weight: 600 !important;
+}
+
+.customer-profile-party-type-buttons {
+  display: flex !important;
+  gap: 1rem !important;
+}
+
+.customer-profile-party-type-button {
+  padding: 0.75rem 1.5rem !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  background: white !important;
+  color: #495057 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.customer-profile-party-type-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.customer-profile-party-type-button:hover::before {
+  left: 100% !important;
+}
+
+.customer-profile-party-type-button:hover {
+  border-color: #3498db !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2) !important;
+}
+
+.customer-profile-active-party-type-button {
+  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
+  color: white !important;
+  border: 2px solid #3498db !important;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+}
+
+.customer-profile-active-party-type-button:hover {
+  background: linear-gradient(135deg, #2ecc71, #3498db) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+}
+
+/* Section Divider */
+.customer-profile-section-divider {
+  border-top: 2px solid #e9ecef !important;
+  margin: 2.5rem 0 !important;
+  position: relative !important;
+}
+
+.customer-profile-section-divider::after {
+  content: '' !important;
+  position: absolute !important;
+  top: -1px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 60px !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  border-radius: 1px !important;
+}
+
+/* Section Title */
+.customer-profile-section-title {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  color: #2c3e50 !important;
+  margin-bottom: 2rem !important;
+  text-align: center !important;
+  padding-bottom: 1rem !important;
+  border-bottom: 2px solid #e9ecef !important;
+  line-height: 1.5 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  position: relative !important;
+}
+
+.customer-profile-section-title::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: -2px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: 60px !important;
+  height: 2px !important;
+  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  border-radius: 1px !important;
+}
+
+/* Form Row */
+.customer-profile-form-row {
+  display: flex !important;
+  gap: 2rem !important;
+  margin-bottom: 1.5rem !important;
+}
+
+/* Form Group */
+.customer-profile-form-group {
+  flex: 1 !important;
+  position: relative !important;
+}
+
+/* Label */
+.customer-profile-label {
+  display: block !important;
+  margin-bottom: 0.75rem !important;
+  font-size: 0.875rem !important;
+  color: #495057 !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Input */
+.customer-profile-input {
+  width: 100% !important;
+  padding: 0.75rem 1rem !important;
+  border: 2px solid #e9ecef !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  background: white !important;
+  color: #495057 !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+}
+
+.customer-profile-input:focus {
+  outline: none !important;
+  border-color: #3498db !important;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+  transform: translateY(-1px) !important;
+}
+
+.customer-profile-input:hover {
+  border-color: #3498db !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Checkbox Container */
+.customer-profile-checkbox-container {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 1rem !important;
+  padding: 1rem !important;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  border-radius: 12px !important;
+  border: 2px solid #e9ecef !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+.customer-profile-checkbox-container:hover {
+  border-color: #3498db !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1) !important;
+}
+
+.customer-profile-checkbox {
+  margin-right: 0.75rem !important;
+  width: 18px !important;
+  height: 18px !important;
+  accent-color: #3498db !important;
+  cursor: pointer !important;
+}
+
+.customer-profile-checkbox-label {
+  font-size: 0.875rem !important;
+  color: #495057 !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  flex: 1 !important;
+}
+
+/* Button Container */
+.customer-profile-button-container {
+  display: flex !important;
+  justify-content: space-between !important;
+  margin-top: 2.5rem !important;
+  gap: 1rem !important;
+}
+
+/* Save Button */
+.customer-profile-save-button {
+  padding: 0.75rem 2rem !important;
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.customer-profile-save-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.customer-profile-save-button:hover::before {
+  left: 100% !important;
+}
+
+.customer-profile-save-button:hover {
+  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
+}
+
+/* Delete Button */
+.customer-profile-delete-button {
+  padding: 0.75rem 2rem !important;
+  background: linear-gradient(135deg, #6e3b3b, #ff0101) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(255, 1, 1, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.customer-profile-delete-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.customer-profile-delete-button:hover::before {
+  left: 100% !important;
+}
+
+.customer-profile-delete-button:hover {
+  background: linear-gradient(135deg, #ff0101, #6e3b3b) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(255, 1, 1, 0.4) !important;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .customer-profile-main-content {
+    padding: 1rem !important;
+    padding-top: 2rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .customer-profile-back-button {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    margin-bottom: 1rem !important;
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .customer-profile-container {
+    padding: 1.5rem !important;
+  }
+
+  .customer-profile-form-row {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .customer-profile-party-type-container {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .customer-profile-party-type-buttons {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .customer-profile-button-container {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .customer-profile-save-button,
+  .customer-profile-delete-button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+}
+
+/* Additional mobile optimizations */
+@media (max-width: 480px) {
+  .customer-profile-main-content {
+    padding: 0.5rem !important;
+    padding-top: 1rem !important;
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+
+  .customer-profile-container {
+    padding: 1rem !important;
+  }
+
+  .customer-profile-image,
+  .customer-profile-image-placeholder {
+    width: 120px !important;
+    height: 120px !important;
+  }
+
+  .customer-profile-section-title {
+    font-size: 1.25rem !important;
+  }
+}
+
+/* Smooth transitions for all elements */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+} 

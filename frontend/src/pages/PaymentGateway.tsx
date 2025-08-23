@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { fetchPaymentGateways } from '../services/paymentGatewayService';
+import '../styles/PaymentGateway.css';
 
 interface PaymentGateway {
   id: number;
@@ -44,110 +45,16 @@ export const PaymentGateway = () => {
     gateway.paymentMode.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    header: {
-      display: 'flex',
-      justifyContent: 'flex-start',
-      marginBottom: '2rem',
-    },
-    searchBar: {
-      padding: '0.5rem 1rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      width: '300px',
-      fontSize: '1rem',
-    },
-    sectionHeader: {
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '1rem',
-    },
-    table: {
-      width: '100%',
-      borderCollapse: 'collapse' as const,
-      marginBottom: '2rem',
-    },
-    th: {
-      textAlign: 'left' as const,
-      padding: '1rem',
-      borderBottom: '2px solid #dee2e6',
-      color: '#495057',
-      fontWeight: '600',
-    },
-    td: {
-      padding: '1rem',
-      borderBottom: '1px solid #dee2e6',
-      color: '#6c757d',
-    },
-    buttonContainer: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      width: '100%',
-      marginTop: '1rem',
-    },
-    addButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: '500',
-      cursor: 'pointer',
-    },
-    loadingMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#6c757d',
-    },
-    errorMessage: {
-      textAlign: 'center' as const,
-      padding: '2rem',
-      color: '#dc3545',
-    },
-    statusBadge: {
-      display: 'inline-block',
-      padding: '0.25rem 0.5rem',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      fontWeight: '500',
-    },
-    activeBadge: {
-      background: '#d4edda',
-      color: '#155724',
-    },
-    inactiveBadge: {
-      background: '#f8d7da',
-      color: '#721c24',
-    },
-  };
-
   if (loading) {
     return (
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <Sidebar />
-        <div style={{ 
-          flex: 1, 
-          marginLeft: '50px',
-          
-          minHeight: '100vh',
-          background: '#f8f9fa',
-        }}>
+        <div className="payment-gateway-container">
           <Navbar />
-          <div style={styles.loadingMessage}>Loading payment gateways...</div>
+          <div className="payment-gateway-loading-message">
+            <i className="bi bi-arrow-clockwise"></i>
+            Loading payment gateways...
+          </div>
         </div>
       </div>
     );
@@ -157,81 +64,89 @@ export const PaymentGateway = () => {
     return (
       <div style={{ display: 'flex', minHeight: '100vh' }}>
         <Sidebar />
-        <div style={{ 
-          flex: 1, 
-          marginLeft: '50px',
-          
-          minHeight: '100vh',
-          background: '#f8f9fa',
-        }}>
+        <div className="payment-gateway-container">
           <Navbar />
-          <div style={styles.errorMessage}>{error}</div>
+          <div className="payment-gateway-error-message">
+            <i className="bi bi-exclamation-triangle"></i>
+            {error}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="payment-gateway-page-wrapper">
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="payment-gateway-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <div style={styles.header}>
+        <div className="payment-gateway-card">
+          <div className="payment-gateway-form-card">
+            <div className="payment-gateway-header">
               <input
                 type="text"
                 placeholder="Search by name or payment mode..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={styles.searchBar}
+                className="payment-gateway-search-bar"
               />
             </div>
 
-            <h2 style={styles.sectionHeader}>Payment Gateway List</h2>
+            <h2 className="payment-gateway-section-header">
+              <i className="bi bi-credit-card"></i>
+              Payment Gateway List
+            </h2>
             
-            <table style={styles.table}>
-              <thead>
-                <tr>
-                  <th style={styles.th}>ID</th>
-                  <th style={styles.th}>Name</th>
-                  <th style={styles.th}>Payment Mode</th>
-                  <th style={styles.th}>Description</th>
-                  <th style={styles.th}>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredGateways.map((gateway) => (
-                  <tr key={gateway.id}>
-                    <td style={styles.td}>{gateway.id}</td>
-                    <td style={styles.td}>{gateway.name}</td>
-                    <td style={styles.td}>{gateway.paymentMode}</td>
-                    <td style={styles.td}>{gateway.description}</td>
-                    <td style={styles.td}>
-                      <span style={{
-                        ...styles.statusBadge,
-                        ...(gateway.isActive ? styles.activeBadge : styles.inactiveBadge)
-                      }}>
-                        {gateway.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
+            <div className="payment-gateway-table-container">
+              <table className="payment-gateway-table">
+                <thead>
+                  <tr>
+                    <th className="payment-gateway-table-header">
+                      <i className="bi bi-hash"></i>
+                      ID
+                    </th>
+                    <th className="payment-gateway-table-header">
+                      <i className="bi bi-building"></i>
+                      Name
+                    </th>
+                    <th className="payment-gateway-table-header">
+                      <i className="bi bi-credit-card-2-front"></i>
+                      Payment Mode
+                    </th>
+                    <th className="payment-gateway-table-header">
+                      <i className="bi bi-chat-text"></i>
+                      Description
+                    </th>
+                    <th className="payment-gateway-table-header">
+                      <i className="bi bi-circle-fill"></i>
+                      Status
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredGateways.map((gateway) => (
+                    <tr key={gateway.id} className="payment-gateway-table-row">
+                      <td className="payment-gateway-table-cell">{gateway.id}</td>
+                      <td className="payment-gateway-table-cell">{gateway.name}</td>
+                      <td className="payment-gateway-table-cell">{gateway.paymentMode}</td>
+                      <td className="payment-gateway-table-cell">{gateway.description}</td>
+                      <td className="payment-gateway-table-cell">
+                        <span className={`payment-gateway-status-badge ${gateway.isActive ? 'payment-gateway-status-active' : 'payment-gateway-status-inactive'}`}>
+                          {gateway.isActive ? 'Active' : 'Inactive'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
 
-            <div style={styles.buttonContainer}>
+            <div className="payment-gateway-button-container">
               <button 
-                style={styles.addButton}
+                className="payment-gateway-add-button"
                 onClick={() => navigate('/add-payment-gateway')}
               >
+                <i className="bi bi-plus-circle"></i>
                 Add Gateway
               </button>
             </div>

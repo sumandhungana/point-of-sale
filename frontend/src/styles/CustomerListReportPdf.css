@@ -1,0 +1,350 @@
+/* CustomerListReportPdf Page Styles */
+.customer-report-container {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.customer-report-main-content {
+  padding: 2rem;
+  margin-top: 64px;
+  max-width: calc(100% - 500px);
+  margin-right: 500px;
+  width: 100%;
+}
+
+.customer-report-content-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.customer-report-back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #6c757d, #5a6268);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.customer-report-back-button:hover {
+  background: linear-gradient(135deg, #5a6268, #495057);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.customer-report-generate-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #dc4c39, #c82333);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.customer-report-generate-button:hover {
+  background: linear-gradient(135deg, #c82333, #bd2130);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.customer-report-button-container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+.customer-report-logo-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.customer-report-logo-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.customer-report-logo-image {
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #dc4c39, #c82333);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  color: white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.customer-report-company-name {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #dc4c39;
+}
+
+.customer-report-print-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.customer-report-print-option input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #dc4c39;
+}
+
+.customer-report-print-option label {
+  font-weight: 500;
+  color: #495057;
+}
+
+.customer-report-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #212529;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid #dc4c39;
+  padding-bottom: 0.5rem;
+}
+
+.customer-report-date {
+  color: #6c757d;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.customer-report-summary-section {
+  display: flex;
+  justify-content: space-around;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.customer-report-summary-item {
+  text-align: center;
+  flex: 1;
+}
+
+.customer-report-summary-item-title {
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.customer-report-summary-item-value {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.customer-report-gave-value {
+  color: #dc3545;
+}
+
+.customer-report-received-value {
+  color: #28a745;
+}
+
+.customer-report-net-value {
+  color: #17a2b8;
+}
+
+.customer-report-summary-divider {
+  width: 1px;
+  background: #dee2e6;
+  margin: 0 1rem;
+}
+
+.customer-report-customer-count {
+  color: #6c757d;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 500;
+  border-left: 4px solid #dc4c39;
+}
+
+.customer-report-table-container {
+  overflow-x: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.customer-report-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+.customer-report-table-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 1rem 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  color: #212529;
+  font-weight: bold;
+  font-size: 0.9rem;
+}
+
+.customer-report-table-cell {
+  padding: 0.75rem;
+  border-bottom: 1px solid #dee2e6;
+  font-size: 0.9rem;
+}
+
+.customer-report-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.customer-report-gave-cell {
+  color: #dc3545;
+  font-weight: 500;
+}
+
+.customer-report-received-cell {
+  color: #28a745;
+  font-weight: 500;
+}
+
+.customer-report-footer {
+  text-align: center;
+  color: #6c757d;
+  margin-top: 2rem;
+  padding: 1rem;
+  border-top: 1px solid #dee2e6;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.customer-report-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.customer-report-error {
+  color: #dc3545;
+  padding: 1rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .customer-report-main-content {
+    max-width: 100%;
+    margin-right: 0;
+  }
+  
+  .customer-report-summary-section {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .customer-report-summary-divider {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .customer-report-main-content {
+    padding: 1rem;
+    margin-top: 20px;
+  }
+  
+  .customer-report-content-container {
+    padding: 1rem;
+  }
+  
+  .customer-report-button-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .customer-report-logo-section {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .customer-report-title {
+    font-size: 1.25rem;
+  }
+  
+  .customer-report-summary-item-value {
+    font-size: 1.1rem;
+  }
+  
+  .customer-report-table-container {
+    font-size: 0.8rem;
+  }
+  
+  .customer-report-table-header,
+  .customer-report-table-cell {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .customer-report-main-content {
+    padding: 0.5rem;
+  }
+  
+  .customer-report-content-container {
+    padding: 0.75rem;
+  }
+  
+  .customer-report-title {
+    font-size: 1.1rem;
+  }
+  
+  .customer-report-summary-section {
+    padding: 1rem;
+  }
+  
+  .customer-report-summary-item-value {
+    font-size: 1rem;
+  }
+  
+  .customer-report-table-header,
+  .customer-report-table-cell {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+  }
+} 

@@ -5,6 +5,7 @@ import { pdf } from '@react-pdf/renderer';
 import StatementPDFTemplate from '../components/StatementPDFTemplate';
 import { deletePaymentGiven, deletePaymentReceived } from '../services/paymentService';
 import { toast } from 'react-toastify';
+import '../styles/CustomerStatement.css';
 
 interface TransactionData {
     customerId: number;
@@ -113,268 +114,165 @@ export const CustomerStatement = () => {
         console.log('Share clicked');
     };
 
-    const styles = {
-        container: {
-            minHeight: '100vh',
-            background: '#f8f9fa',
-        },
-        backButton: {
-            position: 'absolute' as const,
-            top: '80px',
-            padding: '8px 16px',
-            marginLeft: '30px',
-            background: '#f8f9fa',
-            border: '1px solid #dee2e6',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            fontSize: '14px',
-            color: '#495057',
-            '&:hover': {
-                background: '#e9ecef',
-            },
-        },
-        formContainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        },
-       mainContent: {
-            padding: '2rem',
-            marginTop: '64px',
-            maxWidth: 'calc(100% - 500px)',
-            marginRight: '500px',
-            width: '100%',
-        },
-        formTitle: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '2rem',
-        },
-        formRow: {
-            display: 'flex',
-            gap: '2rem',
-            marginBottom: '1.5rem',
-        },
-        formGroup: {
-            flex: 1,
-        },
-        label: {
-            display: 'block',
-            marginBottom: '0.5rem',
-            fontSize: '0.875rem',
-            color: '#495057',
-            fontWeight: '500',
-        },
-        input: {
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            '&:focus': {
-                outline: 'none',
-                borderColor: '#80bdff',
-                boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-            },
-        },
-        textarea: {
-            width: '100%',
-            padding: '0.5rem 0.75rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            minHeight: '100px',
-            resize: 'vertical' as const,
-            '&:focus': {
-                outline: 'none',
-                borderColor: '#80bdff',
-                boxShadow: '0 0 0 0.2rem rgba(0,123,255,.25)',
-            },
-        },
-        buttonContainer: {
-            display: 'flex',
-            gap: '1rem',
-            marginTop: '2rem',
-        },
-        button: {
-            padding: '0.75rem 1.5rem',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            flex: 1,
-            textAlign: 'center' as const,
-        },
-        deleteButton: {
-            background: '#dc3545',
-            color: 'white',
-            '&:hover': {
-                background: '#c82333',
-            },
-        },
-        editButton: {
-            background: '#ffc107',
-            color: '#212529',
-            '&:hover': {
-                background: '#e0a800',
-            },
-        },
-        printButton: {
-            background: '#17a2b8',
-            color: 'white',
-            '&:hover': {
-                background: '#138496',
-            },
-        },
-        downloadButton: {
-            background: '#28a745',
-            color: 'white',
-            '&:hover': {
-                background: '#218838',
-            },
-        },
-        shareButton: {
-            background: '#6f42c1',
-            color: 'white',
-            '&:hover': {
-                background: '#5a32a3',
-            },
-        },
-    };
-
     return (
-        <div style={styles.container}>
+        <div className="customer-statement-container">
             <Sidebar />
             <button 
-                style={styles.backButton} 
+                className="customer-statement-back-button" 
                 onClick={() => navigate(-1)}
             >
-                ← Back
+                <i className="bi bi-arrow-left"></i>
+                Back
             </button>
-            <main style={styles.mainContent}>
-                <div style={styles.formContainer}>
-                    <div style={styles.formRow}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Customer Name</label>
+            <main className="customer-statement-main-content">
+                <div className="customer-statement-form-container">
+                    <h2 className="customer-statement-form-title">
+                        <i className="bi bi-file-text"></i>
+                        Customer Statement Details
+                    </h2>
+                    
+                    <div className="customer-statement-form-row">
+                        <div className="customer-statement-form-group">
+                            <label className="customer-statement-label">
+                                <i className="bi bi-person me-1"></i>
+                                Customer Name
+                            </label>
                             <input
                                 type="text"
                                 name="customerName"
                                 disabled
                                 value={formData.customerName}
-                                style={styles.input}
+                                className="customer-statement-input"
                             />
                         </div>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Rs Total</label>
+                        <div className="customer-statement-form-group">
+                            <label className="customer-statement-label">
+                                <i className="bi bi-currency-rupee me-1"></i>
+                                Rs Total
+                            </label>
                             <input
                                 type="number"
                                 name="totalAmount"
                                 disabled
                                 value={formData.totalAmount}
-                                style={styles.input}
+                                className="customer-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.formRow}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Phone Number</label>
+                    <div className="customer-statement-form-row">
+                        <div className="customer-statement-form-group">
+                            <label className="customer-statement-label">
+                                <i className="bi bi-telephone me-1"></i>
+                                Phone Number
+                            </label>
                             <input
                                 disabled
                                 type="tel"
                                 name="phoneNumber"
                                 value={formData.phoneNumber}
-                                style={styles.input}
+                                className="customer-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.formRow}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Details</label>
+                    <div className="customer-statement-form-row">
+                        <div className="customer-statement-form-group">
+                            <label className="customer-statement-label">
+                                <i className="bi bi-info-circle me-1"></i>
+                                Details
+                            </label>
                             <input
                                 type="text"
                                 disabled
                                 name="details"
                                 value={formData.details}
-                                style={styles.input}
+                                className="customer-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.formRow}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Date</label>
+                    <div className="customer-statement-form-row">
+                        <div className="customer-statement-form-group">
+                            <label className="customer-statement-label">
+                                <i className="bi bi-calendar-event me-1"></i>
+                                Date
+                            </label>
                             <input
                                 type="date"
                                 name="date"
                                 disabled
                                 value={formData.date}
-                                style={styles.input}
+                                className="customer-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.formRow}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>Remarks</label>
+                    <div className="customer-statement-form-row">
+                        <div className="customer-statement-form-group">
+                            <label className="customer-statement-label">
+                                <i className="bi bi-chat-text me-1"></i>
+                                Remarks
+                            </label>
                             <input
                                 type="text"
                                 name="remarks"
                                 disabled
                                 value={formData.remarks}
-                                style={styles.input}
+                                className="customer-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.formRow}>
-                        <div style={styles.formGroup}>
-                            <label style={styles.label}>SMS</label>
+                    <div className="customer-statement-form-row">
+                        <div className="customer-statement-form-group">
+                            <label className="customer-statement-label">
+                                <i className="bi bi-envelope me-1"></i>
+                                SMS
+                            </label>
                             <textarea
                                 disabled
                                 name="sms"
                                 value={formData.sms}
-                                style={styles.textarea}
+                                className="customer-statement-textarea"
                             />
                         </div>
                     </div>
 
-                    <div style={styles.buttonContainer}>
+                    <div className="customer-statement-button-container">
                         <button 
-                            style={{...styles.button, ...styles.deleteButton}}
+                            className="customer-statement-button customer-statement-delete-button"
                             onClick={handleDelete}
                         >
+                            <i className="bi bi-trash"></i>
                             Delete
                         </button>
                         <button 
-                            style={{...styles.button, ...styles.editButton}}
+                            className="customer-statement-button customer-statement-edit-button"
                             onClick={handleEdit}
                         >
+                            <i className="bi bi-pencil"></i>
                             Edit
                         </button>
                         <button 
-                            style={{...styles.button, ...styles.printButton}}
+                            className="customer-statement-button customer-statement-print-button"
                             onClick={handlePrintPDF}
                         >
+                            <i className="bi bi-printer"></i>
                             Print PDF
                         </button>
                         <button 
-                            style={{...styles.button, ...styles.downloadButton}}
+                            className="customer-statement-button customer-statement-download-button"
                             onClick={handleDownloadPDF}
                         >
+                            <i className="bi bi-download"></i>
                             Download PDF
                         </button>
                         <button 
-                            style={{...styles.button, ...styles.shareButton}}
+                            className="customer-statement-button customer-statement-share-button"
                             onClick={handleShare}
                         >
+                            <i className="bi bi-share"></i>
                             Share
                         </button>
                     </div>

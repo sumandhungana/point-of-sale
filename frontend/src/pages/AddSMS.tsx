@@ -3,6 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { createSmsGateway } from '../services/smsService';
+import '../styles/AddSMS.css';
 
 export const AddSMS = () => {
   const navigate = useNavigate();
@@ -45,212 +46,153 @@ export const AddSMS = () => {
     }
   };
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    card: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    heading: {
-      fontSize: '1.5rem',
-      fontWeight: 'bold',
-      color: '#495057',
-      marginBottom: '2rem',
-    },
-    form: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '1.5rem',
-    },
-    row: {
-      display: 'flex',
-      gap: '2rem',
-    },
-    inputGroup: {
-      flex: 1,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    label: {
-      fontSize: '0.9rem',
-      color: '#495057',
-      fontWeight: '500',
-    },
-    input: {
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    checkboxGroup: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-    },
-    buttonGroup: {
-      display: 'flex',
-      gap: '1rem',
-      justifyContent: 'flex-end',
-      marginTop: '1rem',
-    },
-    testButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#6c757d',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '1rem',
-    },
-    testRow: {
-      display: 'flex',
-      gap: '1rem',
-      alignItems: 'flex-end',
-    },
-    testInputGroup: {
-      flex: 2,
-      display: 'flex',
-      flexDirection: 'column' as const,
-      gap: '0.5rem',
-    },
-    testButtonContainer: {
-      flex: 1,
-    },
-  };
-
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div className="add-sms-page-wrapper">
       <Sidebar />
-      <div style={{ 
-        flex: 1, 
-        paddingTop: '40px', 
-        marginLeft: '50px',
-        
-        minHeight: '100vh',
-        background: '#f8f9fa',
-      }}>
+      <div className="add-sms-container">
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.card}>
-            <h1 style={styles.heading}>Add SMS Gateway</h1>
-            <form style={styles.form} onSubmit={handleSubmit}>
-              <div style={styles.row}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>SMS Partner Name</label>
+        <div className="add-sms-card">
+          <div className="add-sms-form-card">
+            <h1 className="add-sms-heading">
+              <i className="bi bi-chat-dots"></i>
+              Add SMS Gateway
+            </h1>
+            <form className="add-sms-form" onSubmit={handleSubmit}>
+              <div className="add-sms-row">
+                <div className="add-sms-input-group">
+                  <label className="add-sms-label">
+                    <i className="bi bi-building"></i>
+                    SMS Partner Name
+                  </label>
                   <input
                     type="text"
                     name="partnerName"
                     value={formData.partnerName}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-sms-input"
+                    placeholder="Enter partner name"
                     required
                   />
                 </div>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>&nbsp;</label>
-                  <div style={styles.checkboxGroup}>
+                <div className="add-sms-input-group">
+                  <label className="add-sms-label">&nbsp;</label>
+                  <div className="add-sms-checkbox-group">
                     <input
                       type="checkbox"
                       name="active"
                       checked={formData.active}
                       onChange={handleInputChange}
                       id="active"
+                      className="add-sms-checkbox"
                     />
-                    <label htmlFor="active" style={styles.label}>Active</label>
+                    <label htmlFor="active" className="add-sms-label">
+                      <i className="bi bi-toggle-on"></i>
+                      Active
+                    </label>
                   </div>
                 </div>
               </div>
 
-              <div style={styles.row}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Form</label>
+              <div className="add-sms-row">
+                <div className="add-sms-input-group">
+                  <label className="add-sms-label">
+                    <i className="bi bi-file-text"></i>
+                    Form
+                  </label>
                   <input
                     type="text"
                     name="form"
                     value={formData.form}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-sms-input"
+                    placeholder="Enter form"
                     required
                   />
                 </div>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Token</label>
+                <div className="add-sms-input-group">
+                  <label className="add-sms-label">
+                    <i className="bi bi-key"></i>
+                    Token
+                  </label>
                   <input
                     type="text"
                     name="token"
                     value={formData.token}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-sms-input"
+                    placeholder="Enter token"
                     required
                   />
                 </div>
               </div>
 
-              <div style={styles.inputGroup}>
-                <label style={styles.label}>SMS API URL</label>
+              <div className="add-sms-input-group">
+                <label className="add-sms-label">
+                  <i className="bi bi-link-45deg"></i>
+                  SMS API URL
+                </label>
                 <input
                   type="url"
                   name="apiUrl"
                   value={formData.apiUrl}
                   onChange={handleInputChange}
-                  style={styles.input}
+                  className="add-sms-input"
+                  placeholder="Enter API URL"
                   required
                 />
               </div>
 
-              <div style={styles.testRow}>
-                <div style={styles.testInputGroup}>
-                  <label style={styles.label}>Test SMS</label>
+              <div className="add-sms-test-row">
+                <div className="add-sms-test-input-group">
+                  <label className="add-sms-label">
+                    <i className="bi bi-chat"></i>
+                    Test SMS
+                  </label>
                   <input
                     type="text"
                     name="testSms"
                     value={formData.testSms}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-sms-input"
                     placeholder="Enter test message"
                   />
                 </div>
-                <div style={styles.testButtonContainer}>
+                <div className="add-sms-test-button-container">
                   <button 
                     type="button" 
-                    style={styles.testButton}
+                    className="add-sms-test-button"
                     onClick={handleTest}
                   >
+                    <i className="bi bi-play-circle"></i>
                     Test
                   </button>
                 </div>
               </div>
 
               {error && (
-                <div style={{ color: 'red', marginBottom: '1rem' }}>
+                <div className="add-sms-error">
+                  <i className="bi bi-exclamation-triangle"></i>
                   {error}
                 </div>
               )}
 
-              <div style={styles.buttonGroup}>
+              <div className="add-sms-button-group">
                 <button 
                   type="submit" 
-                  style={styles.saveButton}
+                  className="add-sms-save-button"
                   disabled={loading}
                 >
-                  {loading ? 'Saving...' : 'Save'}
+                  {loading ? (
+                    <>
+                      <div className="add-sms-spinner"></div>
+                      Saving...
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle"></i>
+                      Save SMS Gateway
+                    </>
+                  )}
                 </button>
               </div>
             </form>

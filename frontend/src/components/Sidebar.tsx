@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getKhataBooks, switchKhataBook, getSelectedKhataBook, KhataBook } from '../services/khataBookService';
 import logo from '../assets/logo.png';
+import '../styles/Sidebar.css';
 
 interface NavItem {
   title: string;
@@ -16,34 +17,6 @@ const navItems: NavItem[] = [
   { title: 'Suppliers', path: '/parties/suppliers', icon: '🏢' },
   { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '💵' },
   { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '🏦' },
-  // {
-  //   title: 'PARTIES',
-  //   path: '/parties',
-  //   icon: '👥',
-  //   children: [
-  //     { title: 'Customer', path: '/parties/customers', icon: '👤' },
-  //     { title: 'Suppliers', path: '/parties/suppliers', icon: '🏢' },
-  //     { title: 'Branch', path: '/parties/branch', icon: '🏪' },
-  //     {
-  //       title: 'Deposit Amount',
-  //       path: '/parties/deposit-amount',
-  //       icon: '💰',
-  //       children: [
-  //         { title: 'Customer Deposit', path: '/parties/deposit-amount/customer', icon: '💳' },
-  //         { title: 'Suppliers Deposit', path: '/parties/deposit-amount/suppliers', icon: '💳' },
-  //       ],
-  //     },
-  //     {
-  //       title: 'Cash & Bank',
-  //       path: '/parties/cash-bank',
-  //       icon: '💵',
-  //       children: [
-  //         { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '💵' },
-  //         { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '🏦' },
-  //       ],
-  //     },
-  //   ],
-  // },
   {
     title: 'MANAGE INVENTORY',
     path: '/inventory',
@@ -56,27 +29,6 @@ const navItems: NavItem[] = [
       { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
       { title: 'Income', path: '/bills/income', icon: '💸' },
       { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
-      // {
-      //   title: 'Items',
-      //   path: '/',
-      //   icon: '📦',
-      //   children: [
-      //     { title: 'PRODUCTS', path: '/inventory/items', icon: '📦' },
-      //     { title: 'SERVICES', path: '/service', icon: '🔧' },
-      //   ],
-      // },
-      // {
-      //   title: 'Bills',
-      //   path: '/',
-      //   icon: '📄',
-      //   children: [
-      //     { title: 'Sales', path: '/bills/sales', icon: '💰' },
-      //     { title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
-      //     { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
-      //     { title: 'Income', path: '/bills/income', icon: '💸' },
-      //     { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
-      //   ],
-      // },
     ],
   },
   {
@@ -85,7 +37,6 @@ const navItems: NavItem[] = [
     icon: '📦',
     children: [
       { title: 'Staff MGMT', path: '/staff', icon: '👨‍💼' },
-      // { title: 'Rental Items', path: '/others/rental', icon: '📦' },
       { title: 'Rental Items', path: '/rental-items', icon: '📦' },
       { title: 'Note', path: '/others/note', icon: '📝' },
     ],
@@ -243,6 +194,7 @@ export const Sidebar = () => {
         setError(null);
         try {
           const data = await getKhataBooks();
+          console.log('Fetched KhataBooks:', data);
           setKhataBooks(data);
         } catch (err) {
           setError('Failed to load KhataBooks');
@@ -261,257 +213,17 @@ export const Sidebar = () => {
     const fetchCurrentKhataBook = async () => {
       try {
         const selectedKhataBook = await getSelectedKhataBook();
+        console.log('Current selected KhataBook:', selectedKhataBook);
         setCurrentKhataBook(selectedKhataBook);
       } catch (err) {
         console.error('Failed to fetch current KhataBook:', err);
+        // If no KhataBook is selected, we should show a message or handle it gracefully
+        setCurrentKhataBook(null);
       }
     };
 
     fetchCurrentKhataBook();
   }, []);
-
-  const styles = {
-    sidebar: {
-      zIndex: 1001,
-      width: '280px',
-      height: '100vh',
-      background: 'white',
-      borderRight: '1px solid #dee2e6',
-      position: 'fixed' as const,
-      left: 0,
-      top: 0,
-      overflowY: 'auto' as const,
-      padding: '1rem 0',
-    },
-    logoContainer: {
-      padding: '1rem',
-      borderBottom: '1px solid #dee2e6',
-      marginBottom: '1rem',
-      display: 'flex',
-      justifyContent: 'flex-start',
-      alignItems: 'center',
-    },
-    logo: {
-      maxWidth: '60%',
-      height: 'auto',
-      paddingLeft:'3rem'
-    },
-    userSection: {
-      padding: '1rem',
-      borderBottom: '1px solid #dee2e6',
-      marginBottom: '1rem',
-      cursor: 'pointer',
-    },
-    userProfile: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    avatar: {
-      width: '48px',
-      height: '48px',
-      borderRadius: '50%',
-      background: '#e9ecef',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '1.5rem',
-      color: '#6c757d',
-    },
-    userInfo: {
-      flex: 1,
-    },
-    userName: {
-      margin: 0,
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    userRole: {
-      margin: 0,
-      fontSize: '0.875rem',
-      color: '#6c757d',
-    },
-    popupContainer: {
-      position: 'fixed' as const,
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      background: 'rgba(0, 0, 0, 0.5)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000,
-    },
-    popupContent: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '1.5rem',
-      width: '80%',
-      maxWidth: '600px',
-      maxHeight: '80vh',
-      overflowY: 'auto' as const,
-    },
-    popupHeader: {
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: '1.5rem',
-    },
-    popupTitle: {
-      margin: 0,
-      fontSize: '1.25rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    closeButton: {
-      background: 'none',
-      border: 'none',
-      fontSize: '1.5rem',
-      cursor: 'pointer',
-      color: '#6c757d',
-    },
-    userCardsContainer: {
-      display: 'grid',
-      gridTemplateColumns: '1fr',
-      gap: '1rem',
-    },
-    userCard: {
-      background: 'white',
-      border: '1px solid #dee2e6',
-      borderRadius: '8px',
-      padding: '1rem',
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1rem',
-    },
-    userImage: {
-      width: '60px',
-      height: '60px',
-      borderRadius: '50%',
-      background: '#e9ecef',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontSize: '1.5rem',
-      color: '#6c757d',
-      overflow: 'hidden',
-    },
-    userImageImg: {
-      width: '100%',
-      height: '100%',
-      objectFit: 'cover' as const,
-    },
-    userDetails: {
-      flex: 1,
-    },
-    companyName: {
-      margin: 0,
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      color: '#212529',
-    },
-    userInfoText: {
-      margin: '0.25rem 0',
-      fontSize: '0.875rem',
-      color: '#6c757d',
-    },
-    addButton: {
-      width: '100%',
-      padding: '0.75rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      fontSize: '0.875rem',
-      fontWeight: 'bold',
-      marginTop: '1rem',
-    },
-    navSection: {
-      padding: '0 1rem',
-    },
-    navGroup: {
-      marginBottom: '1.5rem',
-    },
-    navGroupTitle: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      padding: '0.5rem 0',
-      color: '#6c757d',
-      fontSize: '0.875rem',
-      fontWeight: 'bold',
-    },
-    navItems: {
-      listStyle: 'none',
-      padding: 0,
-      margin: 0,
-    },
-    navItem: {
-      marginBottom: '0.25rem',
-    },
-    navLink: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      padding: '0.5rem 0.75rem',
-      color: '#212529',
-      textDecoration: 'none',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      transition: 'background-color 0.2s',
-      '&:hover': {
-        background: '#f8f9fa',
-      },
-    },
-    activeNavLink: {
-      background: '#e9ecef',
-      color: '#dc4c39',
-    },
-    nestedNavItems: {
-      listStyle: 'none',
-      padding: '0 0 0 1.5rem',
-      margin: '0.25rem 0',
-    },
-    nestedNavItem: {
-      marginBottom: '0.25rem',
-    },
-    navIcon: {
-      marginRight: '0.5rem',
-    },
-    navText: {
-      margin: 0,
-    },
-    link: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '0.5rem',
-      padding: '0.5rem 0.75rem',
-      color: '#212529',
-      textDecoration: 'none',
-      borderRadius: '4px',
-      fontSize: '0.875rem',
-      transition: 'background-color 0.2s',
-      '&:hover': {
-        background: '#f8f9fa',
-      },
-    },
-    icon: {
-      marginRight: '0.5rem',
-    },
-    loadingText: {
-      textAlign: 'center' as const,
-      padding: '1rem',
-      color: '#6c757d',
-    },
-    errorText: {
-      textAlign: 'center' as const,
-      padding: '1rem',
-      color: '#dc3545',
-    },
-  };
 
   const isActive = (path: string, item: NavItem) => {
     // Special handling for root paths
@@ -555,23 +267,19 @@ export const Sidebar = () => {
       const active = isActive(item.path, item);
 
       return (
-        <li key={item.path} style={level > 0 ? styles.nestedNavItem : styles.navItem}>
+        <li key={item.path} className={`${level > 0 ? 'nested-nav-item' : 'nav-item'} mb-2`}>
           <div
             onClick={() => hasChildren ? toggleItem(item.path) : navigate(item.path)}
-            style={{
-              ...styles.navLink,
-              ...(active ? styles.activeNavLink : {}),
-              cursor: 'pointer',
-              paddingLeft: `${0.75 + (level * 0.5)}rem`,
-            }}
+            className={`${level > 0 ? 'nested-nav-link' : 'nav-link'} ${active ? 'active' : ''} d-flex align-items-center py-2 px-3 rounded`}
+            style={{ paddingLeft: `${0.75 + (level * 0.5)}rem` }}
           >
-            <span style={styles.navIcon}>{item.icon}</span>
-            <span style={styles.navText}>{item.title}</span>
-            {hasChildren && <span style={{ marginLeft: 'auto' }}>{isExpanded ? '▾' : '▸'}</span>}
+            <span className={`${level > 0 ? 'nested-nav-icon' : 'nav-icon'} me-2`}>{item.icon}</span>
+            <span className={`${level > 0 ? 'nested-nav-text' : 'nav-text'} flex-grow-1`}>{item.title}</span>
+            {hasChildren && <span className="expand-icon ms-auto">{isExpanded ? '▾' : '▸'}</span>}
           </div>
 
           {hasChildren && isExpanded && (
-            <ul style={styles.nestedNavItems}>
+            <ul className="nested-nav-items list-unstyled ms-3 mt-2">
               {renderNavItems(item.children!, level + 1)}
             </ul>
           )}
@@ -587,9 +295,12 @@ export const Sidebar = () => {
 
   const handleKhataBookClick = async (khataBook: KhataBook) => {
     try {
+      console.log('Switching to KhataBook:', khataBook);
       await switchKhataBook(khataBook.id);
       setCurrentKhataBook(khataBook);
       localStorage.setItem('companyName', khataBook.companyName);
+      localStorage.setItem('selectedKhataBookId', khataBook.id.toString());
+      
       // Refresh the page to load new KhataBook data
       window.location.reload();
     } catch (error) {
@@ -600,78 +311,84 @@ export const Sidebar = () => {
   };
 
   return (
-    <div style={styles.sidebar}>
-      <div style={styles.logoContainer}>
+    <div className="sidebar">
+      <div className="logo-container">
         <img 
           src={logo} 
           alt="Logo" 
-          style={{...styles.logo, cursor: 'pointer'}}
+          className="logo"
           onClick={() => navigate('/')}
         />
       </div>
+      
       <div 
-        style={styles.userSection}
+        className="user-section"
         onClick={() => setIsPopupOpen(true)}
       >
-        <div style={styles.userProfile}>
-          <div style={styles.avatar}>
+        <div className="user-profile">
+          <div className="avatar">
             {'👤'}
           </div>
-          <div style={styles.userInfo}>
-            <h3 style={styles.userName}>{user?.username || 'User'}</h3>
-            <p style={styles.userRole}>{currentKhataBook?.companyName || 'Select KhataBook'}</p>
+          <div className="user-info">
+            <h3 className="user-name">{user?.username || 'User'}</h3>
+            <p className="user-role">
+              {currentKhataBook?.companyName || 'No KhataBook Selected'}
+            </p>
           </div>
         </div>
       </div>
 
       {isPopupOpen && (
-        <div style={styles.popupContainer}>
-          <div style={styles.popupContent} ref={popupRef}>
-            <div style={styles.popupHeader}>
-              <h2 style={styles.popupTitle}>KhataBooks</h2>
+        <div className="popup-container">
+          <div className="popup-content" ref={popupRef}>
+            <div className="popup-header">
+              <h2 className="popup-title">
+                <i className="bi bi-building"></i>
+                KhataBooks
+              </h2>
               <button 
-                style={styles.closeButton}
+                className="close-button"
                 onClick={() => setIsPopupOpen(false)}
               >
                 ×
               </button>
             </div>
-            <div style={styles.userCardsContainer}>
+            <div className="user-cards-container">
               {loading ? (
-                <p style={styles.loadingText}>Loading KhataBooks...</p>
+                <p className="loading-text">Loading KhataBooks...</p>
               ) : error ? (
-                <p style={styles.errorText}>{error}</p>
+                <p className="error-text">{error}</p>
               ) : khataBooks.length === 0 ? (
-                <p style={styles.loadingText}>No KhataBooks found</p>
+                <p className="loading-text">No KhataBooks found</p>
               ) : (
                 khataBooks.map((khataBook) => (
                   <div 
                     key={khataBook.id} 
-                    style={styles.userCard}
+                    className="user-card"
                     onClick={() => handleKhataBookClick(khataBook)}
                   >
-                  <div style={styles.userImage}>
+                    <div className="user-image">
                       {khataBook.imagePath ? (
                         <img 
                           src={khataBook.imagePath} 
                           alt={khataBook.name} 
-                          style={styles.userImageImg}
+                          className="user-image-img"
                         />
                       ) : (
                         '👤'
                       )}
-                  </div>
-                  <div style={styles.userDetails}>
-                      <h3 style={styles.companyName}>{khataBook.companyName}</h3>
-                      <p style={styles.userInfoText}>{khataBook.companyNumber}</p>
-                      <p style={styles.userInfoText}>{khataBook.name}</p>
+                    </div>
+                    <div className="user-details">
+                      <h3 className="company-name">{khataBook.companyName}</h3>
+                      <p className="user-info-text">{khataBook.companyNumber}</p>
+                      <p className="user-info-text">{khataBook.name}</p>
                     </div>
                   </div>
                 ))
               )}
             </div>
             <button 
-              style={styles.addButton}
+              className="add-button"
               onClick={handleAddKhatabook}
             >
               Add New Khatabook
@@ -680,8 +397,8 @@ export const Sidebar = () => {
         </div>
       )}
 
-      <div style={styles.navSection}>
-        <ul style={styles.navItems}>
+      <div className="nav-section">
+        <ul className="nav-items list-unstyled">
           {renderNavItems(navItems)}
         </ul>
       </div>

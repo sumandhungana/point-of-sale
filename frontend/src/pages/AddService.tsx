@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { createService, updateService } from '../services/serviceService';
+import '../styles/AddService.css';
 
 interface LocationState {
   isEdit: boolean;
@@ -98,123 +99,6 @@ export const AddService = () => {
     };
   }, [imagePreview]);
 
-  const styles = {
-    container: {
-      padding: '2rem',
-      maxWidth: 'calc(100% - 500px)',
-      marginRight: '500px',
-      width: '100%',
-    },
-    formCard: {
-      background: 'white',
-      borderRadius: '8px',
-      padding: '2rem',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    },
-    imageSection: {
-      display: 'flex',
-      flexDirection: 'column' as const,
-      alignItems: 'center',
-      marginBottom: '2rem',
-    },
-    imagePlaceholder: {
-      width: '200px',
-      height: '200px',
-      background: imagePreview ? `url(${imagePreview})` : '#f8f9fa',
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      borderRadius: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      cursor: 'pointer',
-      marginBottom: '1rem',
-      position: 'relative' as const,
-      overflow: 'hidden',
-    },
-    imageIcon: {
-      fontSize: '3rem',
-      color: imagePreview ? 'white' : '#6c757d',
-      zIndex: 1,
-      background: imagePreview ? 'rgba(0, 0, 0, 0.5)' : 'transparent',
-      padding: '1rem',
-      borderRadius: '4px',
-    },
-    imageLabel: {
-      fontSize: '1rem',
-      color: '#495057',
-      marginBottom: '0.5rem',
-    },
-    formGroup: {
-      marginBottom: '1.5rem',
-    },
-    row: {
-      display: 'flex',
-      gap: '1rem',
-      marginBottom: '1.5rem',
-    },
-    inputGroup: {
-      flex: 1,
-    },
-    label: {
-      display: 'block',
-      marginBottom: '0.5rem',
-      color: '#495057',
-      fontSize: '0.9rem',
-    },
-    input: {
-      width: '100%',
-      padding: '0.75rem',
-      border: '1px solid #dee2e6',
-      borderRadius: '4px',
-      fontSize: '1rem',
-    },
-    taxIncludedContainer: {
-      display: 'flex',
-      alignItems: 'center',
-      gap: '1rem',
-    },
-    taxIncludedLabel: {
-      fontSize: '0.9rem',
-      color: '#495057',
-    },
-    slideButton: {
-      width: '50px',
-      height: '24px',
-      background: formData.taxIncluded ? '#28a745' : '#6c757d',
-      borderRadius: '12px',
-      position: 'relative' as const,
-      cursor: 'pointer',
-      transition: 'background-color 0.3s',
-      flexShrink: 0,
-    },
-    slideCircle: {
-      width: '20px',
-      height: '20px',
-      background: 'white',
-      borderRadius: '50%',
-      position: 'absolute' as const,
-      top: '2px',
-      left: formData.taxIncluded ? '28px' : '2px',
-      transition: 'left 0.3s',
-    },
-    buttonGroup: {
-      display: 'flex',
-      justifyContent: 'flex-end',
-      marginTop: '2rem',
-    },
-    saveButton: {
-      padding: '0.75rem 1.5rem',
-      background: '#28a745',
-      color: 'white',
-      border: 'none',
-      borderRadius: '4px',
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      cursor: 'pointer',
-    },
-  };
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
@@ -222,14 +106,13 @@ export const AddService = () => {
         flex: 1, 
         paddingTop: '40px', 
         marginLeft: '50px',
-        
         minHeight: '100vh',
         background: '#f8f9fa',
       }}>
         <Navbar />
-        <div style={styles.container}>
-          <div style={styles.formCard}>
-            <div style={styles.imageSection}>
+        <div className="add-service-container">
+          <div className="add-service-form-card">
+            <div className="add-service-image-section">
               <input
                 type="file"
                 ref={fileInputRef}
@@ -237,89 +120,115 @@ export const AddService = () => {
                 onChange={handleFileChange}
                 accept="image/*"
               />
-              <div style={styles.imagePlaceholder} onClick={handleImageClick}>
-                <span style={styles.imageIcon}>📷</span>
+              <div 
+                className={`add-service-image-placeholder ${imagePreview ? 'has-image' : ''}`}
+                onClick={handleImageClick}
+                style={imagePreview ? { backgroundImage: `url(${imagePreview})` } : {}}
+              >
+                <span className="add-service-image-icon">
+                  <i className="bi bi-camera"></i>
+                </span>
               </div>
-              <div style={styles.imageLabel}>Service Photo</div>
+              <div className="add-service-image-label">
+                <i className="bi bi-image me-1"></i>
+                Service Photo
+              </div>
             </div>
 
             <form onSubmit={handleSubmit}>
-              <div style={styles.row}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Service Name</label>
+              <div className="add-service-row">
+                <div className="add-service-input-group">
+                  <label className="add-service-label">
+                    <i className="bi bi-tag me-1"></i>
+                    Service Name
+                  </label>
                   <input
                     type="text"
                     name="serviceName"
                     value={formData.serviceName}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-service-input"
                     placeholder="Enter service name"
                     required
                   />
                 </div>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Price</label>
+                <div className="add-service-input-group">
+                  <label className="add-service-label">
+                    <i className="bi bi-currency-dollar me-1"></i>
+                    Price
+                  </label>
                   <input
                     type="number"
                     name="price"
                     value={formData.price}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-service-input"
                     placeholder="Enter price"
                     required
                   />
                 </div>
               </div>
 
-              <div style={styles.row}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Tax Included in Price</label>
-                  <div style={styles.taxIncludedContainer}>
+              <div className="add-service-row">
+                <div className="add-service-input-group">
+                  <label className="add-service-tax-included-label">
+                    <i className="bi bi-calculator me-1"></i>
+                    Tax Included Amount
+                  </label>
+                  <div className="add-service-tax-included-container">
                     <input
                       type="number"
                       name="taxIncludedAmount"
                       value={formData.taxIncludedAmount}
                       onChange={handleInputChange}
-                      style={{ ...styles.input, flex: 1 }}
+                      className="add-service-input"
                       placeholder="Enter amount"
                     />
-                    <div 
-                      style={styles.slideButton}
+                    <button 
+                      type="button"
+                      className={`add-service-slide-button ${formData.taxIncluded ? 'active' : ''}`}
                       onClick={() => setFormData(prev => ({ ...prev, taxIncluded: !prev.taxIncluded }))}
                     >
-                      <div style={styles.slideCircle} />
-                    </div>
+                      <div className="add-service-slide-circle" />
+                    </button>
                   </div>
                 </div>
               </div>
 
-              <div style={styles.row}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>Tax (%)</label>
+              <div className="add-service-row">
+                <div className="add-service-input-group">
+                  <label className="add-service-label">
+                    <i className="bi bi-percent me-1"></i>
+                    Tax (%)
+                  </label>
                   <input
                     type="number"
                     name="tax"
                     value={formData.tax}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-service-input"
                     placeholder="Enter tax percentage"
                   />
                 </div>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>VAT (%)</label>
+                <div className="add-service-input-group">
+                  <label className="add-service-label">
+                    <i className="bi bi-percent me-1"></i>
+                    VAT (%)
+                  </label>
                   <input
                     type="number"
                     name="vat"
                     value={formData.vat}
                     onChange={handleInputChange}
-                    style={styles.input}
+                    className="add-service-input"
                     placeholder="Enter VAT percentage"
                   />
                 </div>
               </div>
 
-              <div style={styles.buttonGroup}>
-                <button type="submit" style={styles.saveButton}>
+              <div className="add-service-button-group">
+                <button type="submit" className="add-service-save-button">
+                  <i className="bi bi-check-circle me-2"></i>
                   {isEdit ? 'Update Service' : 'Save Service'}
                 </button>
               </div>

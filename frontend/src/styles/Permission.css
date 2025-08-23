@@ -1,0 +1,182 @@
+/* Permission Page Styles */
+.permission-container {
+  flex: 1;
+  padding-top: 40px;
+  margin-left: 300px;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.permission-card {
+  padding: 2rem;
+  max-width: calc(100% - 500px);
+  margin-right: 500px;
+  width: 100%;
+}
+
+.permission-select-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.permission-select {
+  padding: 0.75rem;
+  width: 300px;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.permission-select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.permission-section-header {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.permission-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.permission-module-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.permission-module-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.permission-card-header {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #495057;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.permission-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.permission-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #495057;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  transition: color 0.3s ease;
+}
+
+.permission-checkbox-label:hover {
+  color: #007bff;
+}
+
+.permission-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: #007bff;
+}
+
+.permission-error-message {
+  color: #dc3545;
+  text-align: center;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.permission-loading-message {
+  text-align: center;
+  margin-bottom: 1rem;
+  color: #495057;
+  padding: 2rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .permission-card {
+    max-width: calc(100% - 300px);
+    margin-right: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .permission-container {
+    margin-left: 0;
+  }
+  
+  .permission-card {
+    max-width: 100%;
+    margin-right: 0;
+    padding: 1rem;
+  }
+  
+  .permission-select {
+    width: 100%;
+  }
+  
+  .permission-card-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .permission-module-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .permission-card {
+    padding: 0.5rem;
+  }
+  
+  .permission-module-card {
+    padding: 0.75rem;
+  }
+  
+  .permission-section-header {
+    font-size: 1.1rem;
+  }
+} 
