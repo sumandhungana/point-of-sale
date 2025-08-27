@@ -95,7 +95,6 @@ export const AddCustomer = () => {
                                     onChange={handleChange}
                                     className="add-customer-input"
                                     placeholder="Enter phone number"
-                                    required
                                 />
                             </div>
                         </div>
@@ -113,7 +112,6 @@ export const AddCustomer = () => {
                                     onChange={handleChange}
                                     className="add-customer-input"
                                     placeholder="Enter company name"
-                                    required
                                 />
                             </div>
                             <div className="add-customer-form-group">
@@ -128,7 +126,6 @@ export const AddCustomer = () => {
                                     onChange={handleChange}
                                     className="add-customer-input"
                                     placeholder="Enter PAN number"
-                                    required
                                 />
                             </div>
                         </div>
@@ -146,7 +143,6 @@ export const AddCustomer = () => {
                                     onChange={handleChange}
                                     className="add-customer-input"
                                     placeholder="Enter customer address"
-                                    required
                                 />
                             </div>
                             <div className="add-customer-form-group">
@@ -161,7 +157,6 @@ export const AddCustomer = () => {
                                     onChange={handleChange}
                                     className="add-customer-input"
                                     placeholder="Enter email address"
-                                    required
                                 />
                             </div>
                         </div>

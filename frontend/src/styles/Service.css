@@ -131,7 +131,7 @@
   align-items: center;
   gap: 0.5rem;
 }
-
+service-add-button
 .service-section-title::before {
   content: '🔧';
   font-size: 1.5rem;
@@ -235,7 +235,7 @@
 
 .service-add-button-container {
   display: flex;
-  justify-content: center;
+  justify-content: right;
   margin-top: 2rem;
 }
 
@@ -257,8 +257,8 @@
 
 .service-add-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+  box-shadow:0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #00c12b 0%, #1ea085 100%);
 }
 
 .service-add-button:active {

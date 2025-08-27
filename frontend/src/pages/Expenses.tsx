@@ -29,7 +29,7 @@ export const Expenses = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [dateSort, setDateSort] = useState(''); 
+  const [dateSort, setDateSort] = useState('');
 
   useEffect(() => {
     fetchExpensesList();
@@ -81,6 +81,8 @@ export const Expenses = () => {
     navigate('/bills/expenses/add', { state: { expense } });
   };
 
+
+
   const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
   const pendingAmount = 0; // This would be calculated based on business logic
 
@@ -96,7 +98,7 @@ export const Expenses = () => {
                 <i className="bi bi-search expenses-search-icon"></i>
                 <input
                   type="text"
-                  placeholder="Search by expense number, category, item, or payment mode..."
+                  placeholder="Search expenses..."
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="expenses-search-input"
@@ -109,11 +111,10 @@ export const Expenses = () => {
                   onChange={handleStatusFilterChange}
                   className="expenses-select"
                 >
-                  <option value="">All Payment Modes</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="UPI">UPI</option>
+                  <option value="">All Status</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Overdue">Overdue</option>
                 </select>
               </div>
               <div className="expenses-filter-group">
@@ -123,53 +124,56 @@ export const Expenses = () => {
                   onChange={handleDateSortChange}
                   className="expenses-select"
                 >
-                  <option value="">Default</option>
+                  <option value="">Date Added</option>
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
                 </select>
               </div>
-              <div className="expenses-action-buttons">
-                <button 
-                  className="expenses-button expenses-primary-button"
-                  onClick={() => navigate('/bills/expenses/add')}
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  Add Expense
-                </button>
-                <button className="expenses-button expenses-secondary-button">
-                  <i className="bi bi-download"></i>
-                  Export
-                </button>
-              </div>
+
             </div>
             <div className="expenses-info-card">
               <div className="expenses-info-section">
-                <div className="expenses-info-title">Total Expenses</div>
+                <div className="expenses-info-icon">
+                  <i className="bi bi-graph-up"></i>
+                </div>
+                <div className="expenses-info-header">
+                  <div className="expenses-info-title">Total Expenses</div>
+                </div>
                 <div className="expenses-info-value">₹{totalExpenses.toLocaleString()}</div>
-                <button className="expenses-view-report-button">
-                  <i className="bi bi-graph-up me-1"></i>
+                <button className="expenses-view-more-button">
+                  <i className="bi bi-graph-up"></i>
                   View Report
                 </button>
               </div>
               <div className="expenses-info-section">
-                <div className="expenses-info-title">Pending Amount</div>
+                <div className="expenses-info-icon">
+                  <i className="bi bi-clock"></i>
+                </div>
+                <div className="expenses-info-header">
+                  <div className="expenses-info-title">Pending Amount</div>
+                </div>
                 <div className="expenses-info-value">₹{pendingAmount.toLocaleString()}</div>
-                <button className="expenses-view-report-button">
-                  <i className="bi bi-clock me-1"></i>
+                <button className="expenses-view-more-button">
+                  <i className="bi bi-clock"></i>
                   View Details
                 </button>
               </div>
               <div className="expenses-info-section">
-                <div className="expenses-info-title">Total Entries</div>
+                <div className="expenses-info-icon">
+                  <i className="bi bi-list-ul"></i>
+                </div>
+                <div className="expenses-info-header">
+                  <div className="expenses-info-title">Total Bills</div>
+                </div>
                 <div className="expenses-info-value">{expenses.length}</div>
-                <button className="expenses-view-report-button">
-                  <i className="bi bi-list-ul me-1"></i>
+                <button className="expenses-view-more-button">
+                  <i className="bi bi-list-ul"></i>
                   View All
                 </button>
               </div>
             </div>
           </div>
-          
+
           <div className="expenses-list">
             {loading ? (
               <div className="expenses-loading-message">
@@ -187,21 +191,22 @@ export const Expenses = () => {
                 No expenses found
               </div>
             ) : (
-              filteredExpenses.map(expense => (
-                <div
-                  key={expense.id}
+              filteredExpenses.map((expense) => (
+                <div 
+                  key={expense.id} 
                   className="expenses-item"
                   onClick={() => handleExpenseClick(expense)}
                 >
                   <div className="expenses-image-container">
                     {expense.photoPath ? (
-                      <img
-                        src={expense.photoPath}
+                      <img 
+                        src={expense.photoPath} 
                         alt={expense.item.name}
                         className="expenses-image"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling!.style.display = 'flex';
+                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (next) next.style.display = 'flex';
                         }}
                       />
                     ) : null}
@@ -245,6 +250,8 @@ export const Expenses = () => {
           </div>
         </div>
       </div>
+      
+
     </div>
   );
-}; 
+};

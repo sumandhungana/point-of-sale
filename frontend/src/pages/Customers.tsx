@@ -527,22 +527,22 @@ export const Customers = () => {
                             <option value="byName">Sort by Name</option>
                             <option value="oldest">Sort by Oldest</option>
                         </select>
-                    </div>
-                    <div className="customers-action-buttons">
-                        <button 
-                            className="customers-action-button customers-primary-button"
-                            onClick={handleBulkReminder}
-                        >
-                            <i className="bi bi-bell"></i>
-                            Bulk Reminder
-                        </button>
-                        <button 
-                            className="customers-action-button customers-secondary-button"
-                            onClick={handleListReportPdf}
-                        >
-                            <i className="bi bi-file-earmark-text"></i>
-                            PDF Report
-                        </button>
+                        <div className="customers-action-buttons">
+                            <button 
+                                className="customers-action-button customers-primary-button"
+                                onClick={handleBulkReminder}
+                            >
+                                <i className="bi bi-bell"></i>
+                                Bulk Reminder
+                            </button>
+                            <button 
+                                className="customers-action-button customers-secondary-button"
+                                onClick={handleListReportPdf}
+                            >
+                                <i className="bi bi-file-earmark-text"></i>
+                                PDF Report
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -552,7 +552,7 @@ export const Customers = () => {
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
                         <div className="customers-card-header">You Give</div>
-                        <div className="customers-card-amount">
+                        <div className="customers-card-amount" style={{ color: '#dc3545' }}>
                             रु{(overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received).toLocaleString()}
                         </div>
                     </div>
@@ -561,7 +561,7 @@ export const Customers = () => {
                             <i className="bi bi-arrow-down-circle"></i>
                         </div>
                         <div className="customers-card-header">You Receive</div>
-                        <div className="customers-card-amount">
+                        <div className="customers-card-amount" style={{ color: '#28a745' }}>
                             रु{(overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given).toLocaleString()}
                         </div>
                     </div>
@@ -676,7 +676,6 @@ export const Customers = () => {
                     ))}
 
                 <button 
-                    style={styles.addCustomerButton}
                     className="customers-add-button"
                     onClick={handleAddCustomer}
                 >

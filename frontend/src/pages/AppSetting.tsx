@@ -3,10 +3,12 @@ import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { fetchAppSettings, saveAppSettings } from '../services/appSettingService';
+import { useAppSettings } from '../context/AppSettingsContext';
 import '../styles/AppSetting.css';
 
 export const AppSetting = () => {
   const navigate = useNavigate();
+  const { settings, refreshSettings } = useAppSettings();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [settingsId, setSettingsId] = useState<number | null>(null);
@@ -36,23 +38,15 @@ export const AppSetting = () => {
   });
 
   useEffect(() => {
-    const fetchSettingsData = async () => {
-      try {
-        const data = await fetchAppSettings();
-        if (data && data.length > 0) {
-          const firstSetting = data[0];
-          setSettingsId(firstSetting.id);
-          setFormData(prev => ({
-            ...prev,
-            ...firstSetting
-          }));
-        }
-      } catch (err) {
-        console.error('Error fetching settings:', err);
-      }
-    };
-    fetchSettingsData();
-  }, []);
+    // Initialize form data with current settings
+    setFormData(prev => ({
+      ...prev,
+      ...settings
+    }));
+    if (settings.id) {
+      setSettingsId(settings.id);
+    }
+  }, [settings]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -68,7 +62,13 @@ export const AppSetting = () => {
     setError(null);
 
     try {
+      console.log('Saving app settings...', { settingsId, formData });
       await saveAppSettings(settingsId, formData);
+      console.log('Settings saved successfully!');
+      
+      // Refresh settings in context to apply changes immediately
+      await refreshSettings();
+      
       alert('Settings saved successfully!');
       if (!settingsId) {
         const data = await fetchAppSettings();
@@ -77,6 +77,7 @@ export const AppSetting = () => {
         }
       }
     } catch (err) {
+      console.error('Error saving settings:', err);
       setError(err instanceof Error ? err.message : 'An error occurred while saving settings');
     } finally {
       setLoading(false);
@@ -89,6 +90,21 @@ export const AppSetting = () => {
       <div className="app-setting-container">
         <Sidebar />
         <div className="app-setting-main">
+          {error && (
+            <div className="app-setting-error" style={{ 
+              background: '#f8d7da', 
+              color: '#721c24', 
+              padding: '1rem', 
+              borderRadius: '8px', 
+              marginBottom: '1rem',
+              border: '1px solid #f5c6cb'
+            }}>
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              {error}
+            </div>
+          )}
+          
+
           <form onSubmit={handleSubmit}>
             {/* Section 1: Side Menu Style */}
             <div className="app-setting-section">
@@ -518,6 +534,71 @@ export const AppSetting = () => {
                     <option value="German">German</option>
                     <option value="Chinese">Chinese</option>
                   </select>
+                </div>
+              </div>
+            </div>
+
+            {/* Preview Section */}
+            <div className="app-setting-section">
+              <h2 className="app-setting-section-title">
+                <i className="bi bi-eye me-2"></i>
+                Live Preview
+              </h2>
+              <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                {/* Sidebar Preview */}
+                <div style={{
+                  width: '200px',
+                  height: '150px',
+                  background: `linear-gradient(180deg, ${formData.sideMenuBgColor} 0%, ${formData.sideMenuBgEndColor} 100%)`,
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  color: formData.sideMenuFontColor,
+                  border: '2px solid #e9ecef',
+                  position: 'relative'
+                }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Sidebar Preview</div>
+                  <div style={{
+                    padding: '0.5rem',
+                    margin: '0.25rem 0',
+                    borderRadius: '4px',
+                    background: formData.sideMenuHoverBgColor,
+                    color: formData.sideMenuHoverFontColor,
+                    fontSize: '0.7rem'
+                  }}>
+                    Menu Item (Hover)
+                  </div>
+                  <div style={{
+                    padding: '0.5rem',
+                    margin: '0.25rem 0',
+                    borderRadius: '4px',
+                    fontSize: '0.7rem'
+                  }}>
+                    Menu Item (Normal)
+                  </div>
+                </div>
+                
+                {/* Top Menu Preview */}
+                <div style={{
+                  width: '200px',
+                  height: '150px',
+                  background: formData.topMenuBgColor,
+                  borderRadius: '8px',
+                  padding: '1rem',
+                  color: formData.topMenuFontColor,
+                  border: '2px solid #e9ecef',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between'
+                }}>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 'bold' }}>Top Menu Preview</div>
+                  <div style={{
+                    padding: '0.5rem',
+                    borderRadius: '4px',
+                    fontSize: '0.7rem',
+                    background: 'rgba(0,0,0,0.05)'
+                  }}>
+                    Menu Content
+                  </div>
                 </div>
               </div>
             </div>

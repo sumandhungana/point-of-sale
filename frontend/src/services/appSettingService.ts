@@ -9,7 +9,11 @@ export async function fetchAppSettings() {
   const response = await fetch('/api/AppSettings', {
     headers: getAuthHeaders(),
   });
-  if (!response.ok) throw new Error('Failed to fetch app settings');
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('API Error:', response.status, errorText);
+    throw new Error(`Failed to fetch app settings: ${response.status} ${errorText}`);
+  }
   return response.json();
 }
 
@@ -21,7 +25,11 @@ export async function saveAppSettings(settingsId: number | null, formData: any) 
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
     body: JSON.stringify(formData),
   });
-  if (!response.ok) throw new Error('Failed to save settings');
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('API Error:', response.status, errorText);
+    throw new Error(`Failed to save settings: ${response.status} ${errorText}`);
+  }
   return response.json();
 }
 

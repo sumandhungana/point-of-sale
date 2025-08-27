@@ -86,39 +86,25 @@ export const Purchase = () => {
   };
 
   const totalPurchases = purchases.reduce((sum, purchase) => sum + purchase.amount, 0);
-  const pendingAmount = purchases.reduce((sum, purchase) => {
-    // Calculate pending amount based on payment mode (simplified logic)
-    if (purchase.paymentMode === 'Pending' || purchase.paymentMode === 'Credit') {
-      return sum + purchase.amount;
-    }
-    return sum;
-  }, 0);
+  const pendingAmount = 0; // This would be calculated based on business logic
 
   return (
-    <div className="purchase-page-wrapper">
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
       <div className="purchase-container">
         <Navbar />
         <div className="purchase-card">
           <div className="purchase-search-container">
             <div className="purchase-search-bar">
-              <div className="purchase-search-input-container">
+              <div style={{ position: 'relative', flex: 2 }}>
                 <i className="bi bi-search purchase-search-icon"></i>
                 <input
                   type="text"
-                  placeholder="Search by purchase number, category, item, or payment mode..."
+                  placeholder="Search purchases..."
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="purchase-search-input"
                 />
-                {searchQuery && (
-                  <button 
-                    className="purchase-clear-search"
-                    onClick={() => setSearchQuery('')}
-                  >
-                    <i className="bi bi-x"></i>
-                  </button>
-                )}
               </div>
               <div className="purchase-filter-group">
                 <label className="purchase-label">Filter:</label>
@@ -127,11 +113,10 @@ export const Purchase = () => {
                   onChange={handleStatusFilterChange}
                   className="purchase-select"
                 >
-                  <option value="">All Payment Modes</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="UPI">UPI</option>
+                  <option value="">All Status</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Overdue">Overdue</option>
                 </select>
               </div>
               <div className="purchase-filter-group">
@@ -141,48 +126,60 @@ export const Purchase = () => {
                   onChange={handleDateSortChange}
                   className="purchase-select"
                 >
-                  <option value="">Default</option>
+                  <option value="">Date Added</option>
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
                 </select>
               </div>
               <div className="purchase-action-buttons">
-                <button
-                  className="purchase-button purchase-primary-button"
-                  onClick={handleAddBill}
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  Add Purchase
+                <button className="purchase-button purchase-primary-button">
+                  <i className="bi bi-file-earmark-text"></i>
+                  Bulk Reminder
                 </button>
                 <button className="purchase-button purchase-secondary-button">
-                  <i className="bi bi-download"></i>
-                  Export
+                  <i className="bi bi-file-pdf"></i>
+                  PDF
                 </button>
               </div>
             </div>
             <div className="purchase-info-card">
               <div className="purchase-info-section">
-                <div className="purchase-info-title">Total Purchases</div>
+                <div className="purchase-info-icon">
+                  <i className="bi bi-graph-up"></i>
+                </div>
+                <div className="purchase-info-header">
+                  <div className="purchase-info-title">Total Purchases</div>
+                </div>
                 <div className="purchase-info-value">₹{totalPurchases.toLocaleString()}</div>
-                <button className="purchase-view-report-button">
-                  <i className="bi bi-graph-up me-1"></i>
-                  View Report
+                <button className="purchase-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
               <div className="purchase-info-section">
-                <div className="purchase-info-title">Pending Amount</div>
+                <div className="purchase-info-icon">
+                  <i className="bi bi-clock"></i>
+                </div>
+                <div className="purchase-info-header">
+                  <div className="purchase-info-title">Pending Amount</div>
+                </div>
                 <div className="purchase-info-value">₹{pendingAmount.toLocaleString()}</div>
-                <button className="purchase-view-report-button">
-                  <i className="bi bi-clock me-1"></i>
-                  View Details
+                <button className="purchase-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
               <div className="purchase-info-section">
-                <div className="purchase-info-title">Total Bills</div>
+                <div className="purchase-info-icon">
+                  <i className="bi bi-list-ul"></i>
+                </div>
+                <div className="purchase-info-header">
+                  <div className="purchase-info-title">Total Bills</div>
+                </div>
                 <div className="purchase-info-value">{purchases.length}</div>
-                <button className="purchase-view-report-button">
-                  <i className="bi bi-list-ul me-1"></i>
-                  View All
+                <button className="purchase-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
             </div>
@@ -219,7 +216,8 @@ export const Purchase = () => {
                         className="purchase-image"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling!.style.display = 'flex';
+                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (next) next.style.display = 'flex';
                         }}
                       />
                     ) : null}
@@ -260,19 +258,18 @@ export const Purchase = () => {
                 </div>
               ))
             )}
-            <div className="purchase-bottom-actions">
-              <button className="purchase-return-button">
-                <i className="bi bi-arrow-return-left me-1"></i>
-                Return Item
-              </button>
-              <button className="purchase-add-button" onClick={handleAddBill}>
-                <i className="bi bi-plus-circle me-1"></i>
-                Add New Purchase
-              </button>
-            </div>
           </div>
         </div>
       </div>
+      
+      {/* Floating Add New Bill Button */}
+      <button 
+        className="purchase-add-button"
+        onClick={handleAddBill}
+      >
+        <i className="bi bi-plus-circle"></i>
+        Add New Bill
+      </button>
     </div>
   );
 }; 

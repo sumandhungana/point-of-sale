@@ -447,9 +447,9 @@
 }
 
 .customer-statements-current-amount-red {
-  color: #6c757d !important;
-  border-color: #6c757d !important;
-  background: rgba(108, 117, 125, 0.1) !important;
+  color: #e74c3c !important;
+  border-color: #e74c3c !important;
+  background: rgba(231, 76, 60, 0.1) !important;
 }
 
 .customer-statements-payment-in {
@@ -457,7 +457,7 @@
 }
 
 .customer-statements-payment-out {
-  color: #6c757d !important;
+  color: #e74c3c !important;
 }
 
 /* No Transactions */

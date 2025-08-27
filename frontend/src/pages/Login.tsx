@@ -7,6 +7,7 @@ import '../styles/Login.css';
 type FieldType = {
   username: string;
   password: string;
+  rememberMe: boolean;
 };
 
 export const Login = () => {
@@ -14,7 +15,8 @@ export const Login = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState<FieldType>({
     username: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,6 +32,14 @@ export const Login = () => {
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: checked
     }));
   };
 
@@ -51,83 +61,72 @@ export const Login = () => {
 
   return (
     <div className="login-container">
-      <div className="login-card">
-        <div className="login-left-panel">
-          <div className="login-top-section"></div>
-          <div className="login-bottom-section"></div>
-          <div className="login-curve">
-            <svg className="login-curve-svg" viewBox="0 0 320 20" preserveAspectRatio="none">
-              <path d="M0,0 Q160,20 320,0" fill="rgba(102, 126, 234, 0.2)" />
-            </svg>
+      <div className="login-card login-centered">
+        <img 
+          src={logo} 
+          alt="Logo" 
+          className="login-logo-image"
+        />
+        <h2 className="login-title">Admin Login</h2>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="login-input-group">
+            <i className="bi bi-person login-input-icon"></i>
+            <input
+              type="text"
+              name="username"
+              placeholder="UserName"
+              required
+              value={formData.username}
+              onChange={handleInputChange}
+              className="login-input"
+            />
           </div>
-          <img 
-            src={logo} 
-            alt="Logo" 
-            className="login-logo-image"
-          />
-          <div className="login-content">
-            <p className="login-tagline">"Simple, Smart & Secure POS System!"</p>
-            <p className="login-copyright">© 2024 POS System<br/>All rights reserved.</p>
-            <div className="login-social-links">
-            </div>
+          <div className="login-input-group">
+            <i className="bi bi-lock login-input-icon"></i>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              required
+              value={formData.password}
+              onChange={handleInputChange}
+              className="login-input"
+            />
           </div>
-        </div>
-        
-        <div className="login-right-panel">
-          <h2 className="login-heading">
-            <i className="bi bi-person-circle me-2"></i>
-            Account Login
-          </h2>
-          <form onSubmit={handleSubmit} className="login-form">
-            <div className="login-input-group">
-              <i className="bi bi-person login-input-icon"></i>
-              <input
-                type="text"
-                name="username"
-                placeholder="Enter your username"
-                required
-                value={formData.username}
-                onChange={handleInputChange}
-                className="login-input"
-              />
+          {error && (
+            <div className="login-error">
+              <i className="bi bi-exclamation-triangle me-2"></i>
+              {error}
             </div>
-            <div className="login-input-group">
-              <i className="bi bi-lock login-input-icon"></i>
-              <input
-                type="password"
-                name="password"
-                placeholder="Enter your password"
-                required
-                value={formData.password}
-                onChange={handleInputChange}
-                className="login-input"
-              />
-            </div>
-            {error && (
-              <div className="login-error">
-                <i className="bi bi-exclamation-triangle me-2"></i>
-                {error}
-              </div>
+          )}
+          <label className="login-remember">
+            <input
+              type="checkbox"
+              name="rememberMe"
+              checked={formData.rememberMe}
+              onChange={handleCheckboxChange}
+            />
+            <span>Remember me</span>
+          </label>
+          <button 
+            type="submit" 
+            disabled={isLoading}
+            className="login-button"
+          >
+            {isLoading ? (
+              <>
+                <div className="login-button-spinner"></div>
+                Logging in...
+              </>
+            ) : (
+              <>Login</>
             )}
-            <button 
-              type="submit" 
-              disabled={isLoading}
-              className="login-button"
-            >
-              {isLoading ? (
-                <>
-                  <div className="login-button-spinner"></div>
-                  Logging in...
-                </>
-              ) : (
-                <>
-                  <i className="bi bi-box-arrow-in-right me-2"></i>
-                  Login
-                </>
-              )}
-            </button>
-          </form>
-        </div>
+          </button>
+        </form>
+      </div>
+      <div className="login-footer">
+        <p className="login-tagline">"Simple, Smart & Secure POS System!"</p>
+        <p className="login-copyright">© 2024 POS System · All rights reserved.</p>
       </div>
     </div>
   );

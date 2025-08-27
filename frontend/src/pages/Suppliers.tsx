@@ -24,6 +24,7 @@ export const Suppliers = () => {
     const [sortBy, setSortBy] = useState('name');
     const [viewReport, setViewReport] = useState(false);
     const [openCashbook, setOpenCashbook] = useState(false);
+    const [openReport, setOpenReport] = useState(false);
     const [suppliers, setSuppliers] = useState<SupplierWithBalance[]>([]);
     const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
     const [loading, setLoading] = useState(true);
@@ -347,16 +348,16 @@ export const Suppliers = () => {
                             <option value="balance">Sort by Balance</option>
                             <option value="recent">Sort by Recent</option>
                         </select>
-                    </div>
-                    <div className="suppliers-action-buttons">
-                        <button onClick={handleBulkReminder} className="suppliers-action-button suppliers-reminder-button">
-                            <i className="bi bi-bell"></i>
-                            Bulk Reminder
-                        </button>
-                        <button onClick={handleListReportPdf} className="suppliers-action-button suppliers-report-button">
-                            <i className="bi bi-file-earmark-text"></i>
-                            List Report
-                        </button>
+                        <div className="suppliers-action-buttons">
+                            <button onClick={handleBulkReminder} className="suppliers-action-button suppliers-reminder-button">
+                                <i className="bi bi-bell"></i>
+                                Bulk Reminder
+                            </button>
+                            <button onClick={handleListReportPdf} className="suppliers-action-button suppliers-report-button">
+                                <i className="bi bi-file-earmark-text"></i>
+                                List Report
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -365,103 +366,127 @@ export const Suppliers = () => {
                         <div className="suppliers-stat-icon suppliers-stat-given-icon">
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
+                        <div className="suppliers-stat-label">You Give</div>
                         <div className="suppliers-stat-value">
                             रु{(overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received).toLocaleString()}
                         </div>
-                        <div className="suppliers-stat-label">You Give</div>
                     </div>
                     <div className="suppliers-stat-card">
                         <div className="suppliers-stat-icon suppliers-stat-received-icon">
                             <i className="bi bi-arrow-down-circle"></i>
                         </div>
+                        <div className="suppliers-stat-label">You Receive</div>
                         <div className="suppliers-stat-value">
                             रु{(overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given).toLocaleString()}
                         </div>
-                        <div className="suppliers-stat-label">You Receive</div>
                     </div>
                     <div className="suppliers-stat-card">
                         <div className="suppliers-stat-icon suppliers-stat-online-icon">
                             <i className="bi bi-globe"></i>
                         </div>
+                        <div className="suppliers-stat-label">Online Collection</div>
                         <div className="suppliers-stat-value">
                             रु{overallTotals.online.toLocaleString()}
                         </div>
-                        <div className="suppliers-stat-label">Online Collection</div>
                     </div>
                 </div>
 
-                <div className="suppliers-list-container">
-                    <h3 className="suppliers-list-title">
-                        <i className="bi bi-people"></i>
-                        Suppliers List
-                    </h3>
+                <div className="suppliers-checkbox-container">
+                    <div className="suppliers-checkbox-item">
+                        <div className="suppliers-checkbox-group">
+                            <input
+                                type="checkbox"
+                                id="viewReport"
+                                checked={viewReport}
+                                onChange={(e) => setViewReport(e.target.checked)}
+                                className="suppliers-checkbox"
+                            />
+                            <label htmlFor="viewReport" className="suppliers-checkbox-label">
+                                <i className="bi bi-eye me-1"></i>
+                                View Report
+                            </label>
+                        </div>
+                    </div>
 
-                    {loading ? (
-                        <div className="suppliers-loading">
-                            <i className="bi bi-hourglass-split me-2"></i>
-                            Loading suppliers...
+                    <div className="suppliers-checkbox-item">
+                        <div className="suppliers-checkbox-group">
+                            <input
+                                type="checkbox"
+                                id="openReport"
+                                checked={openReport}
+                                onChange={(e) => setOpenReport(e.target.checked)}
+                                className="suppliers-checkbox"
+                            />
+                            <label htmlFor="openReport" className="suppliers-checkbox-label">
+                                <i className="bi bi-file-earmark-text me-1"></i>
+                                Open Report
+                            </label>
                         </div>
-                    ) : error ? (
-                        <div className="suppliers-error">
-                            <i className="bi bi-exclamation-triangle me-2"></i>
-                            {error}
-                        </div>
-                    ) : suppliers.length === 0 ? (
-                        <div className="suppliers-no-suppliers">
-                            <i className="bi bi-inbox me-2"></i>
-                            No suppliers found
-                        </div>
-                    ) : (
-                        suppliers.map((supplier) => (
-                            <div 
-                                key={supplier.id}
-                                className="suppliers-card"
-                                onClick={() => handleSupplierClick(supplier.id.toString())}
-                            >
-                                {supplier.profileImage ? (
-                                    <img 
-                                        src={`http://localhost:5000${supplier.profileImage}`} 
-                                        alt={supplier.name}
-                                        className="suppliers-profile-image"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            const nextSibling = e.currentTarget.nextSibling as HTMLElement;
-                                            if (nextSibling) {
-                                                nextSibling.style.display = 'flex';
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="suppliers-profile-placeholder">
-                                        <i className="bi bi-person"></i>
-                                    </div>
-                                )}
-                                <div className="suppliers-info">
-                                    <div className="suppliers-name">{supplier.name}</div>
-                                    <div className="suppliers-details">
-                                        <i className="bi bi-person-badge me-1"></i>
-                                        Contact: {supplier.ContactPerson || 'N/A'}
-                                    </div>
-                                </div>
-                                <div className={`suppliers-balance ${
-                                    supplier.balance === 0 ? 'suppliers-balance-zero' : 
-                                    supplier.balance > 0 ? 'suppliers-balance-positive' : 'suppliers-balance-negative'
-                                }`}>
-                                    रु{Math.abs(supplier.balance).toLocaleString()}
-                                </div>
-                            </div>
-                        ))
-                    )}
+                    </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1.5rem' }}>
-                    <button 
-                        className="suppliers-action-button suppliers-add-button"
-                        onClick={handleAddSupplier}
+
+                {error && (
+                    <div className="suppliers-error">
+                        <i className="bi bi-exclamation-triangle me-2"></i>
+                        {error}
+                    </div>
+                )}
+                {suppliers.map((supplier) => (
+                    <div 
+                        key={supplier.id}
+                        className="suppliers-customer-card"
+                        onClick={() => handleSupplierClick(supplier.id.toString())}
                     >
-                        <i className="bi bi-plus-circle"></i>
-                        Add Supplier
-                    </button>
-                </div>
+                        <div className="suppliers-customer-info">
+                            {supplier.profileImage ? (
+                                <img 
+                                    src={supplier.profileImage} 
+                                    alt={supplier.name}
+                                    className="suppliers-profile-image"
+                                    onError={(e) => {
+                                        e.currentTarget.style.display = 'none';
+                                        const nextSibling = e.currentTarget.nextSibling as HTMLElement;
+                                        if (nextSibling) {
+                                            nextSibling.style.display = 'flex';
+                                        }
+                                    }}
+                                />
+                            ) : (
+                                <div 
+                                    className="suppliers-profile-image"
+                                    style={{
+                                        backgroundColor: '#e9ecef',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: '1.5rem',
+                                        color: '#6c757d'
+                                    }}
+                                >
+                                    {supplier.name.charAt(0).toUpperCase()}
+                                </div>
+                            )}
+                            <div className="suppliers-customer-details">
+                                <h3 className="suppliers-customer-name">{supplier.name}</h3>
+                                <p className="suppliers-working-hours">
+                                    <i className="bi bi-telephone me-1"></i>
+                                    Contact: {supplier.phone || supplier.phoneNumber || 'N/A'}
+                                </p>
+                            </div>
+                            <div className="suppliers-customer-amount" style={{
+                                color: supplier.balance === 0 ? '#212529' : supplier.balance > 0 ? '#28a745' : '#6c757d'
+                            }}>
+                                रु{Math.abs(supplier.balance).toLocaleString()}
+                            </div>
+                        </div>
+                    </div>
+                ))}
+                <button 
+                    className="suppliers-add-button"
+                    onClick={handleAddSupplier}
+                >
+                    <i className="bi bi-plus-circle"></i>
+                    Add Supplier
+                </button>
             </main>
         </div>
     );

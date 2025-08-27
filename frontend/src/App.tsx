@@ -13,6 +13,7 @@ import { EditCustomerStatement } from './pages/EditCustomerStatement';
 import { CustomerProfile } from './pages/CustomerProfile';
 import { CustomerStatements } from './pages/CustomerStatements';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { AppSettingsProvider } from './context/AppSettingsContext';
 import { Suppliers } from './pages/Suppliers';
 import { CustomerListReportPdf } from './pages/CustomerListReportPdf';
 import { CustomerStatementsReport } from './pages/CustomerStatementsReport';
@@ -56,10 +57,8 @@ import { AddCategory } from './pages/AddCategory';
 import { YouGave } from './pages/YouGave';
 import { YouReceived } from './pages/YouReceived';
 import { SupplierStatements } from './pages/SupplierStatements';
-
-// Placeholder components for routes
-const Branch = () => <div>Branch Page</div>;
-const Bills = () => <div>Bills Page</div>;
+import { Branch } from './pages/Branch';
+import { Bills } from './pages/Bills';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -82,9 +81,10 @@ const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 const App: React.FC = () => {
   return (
     <AuthProvider>
-      <Router>
-        <ToastContainer position="top-right" autoClose={3000} />
-        <Routes>
+      <AppSettingsProvider>
+        <Router>
+          <ToastContainer position="top-right" autoClose={3000} />
+          <Routes>
           <Route path="/login" element={<Login />} />
           <Route
             path="/dashboard"
@@ -465,6 +465,14 @@ const App: React.FC = () => {
             }
           />
           <Route
+            path="/staff/payment/:id"
+            element={
+              <PrivateRoute>
+                <StaffPayment />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/add-khatabook"
             element={
               <PrivateRoute>
@@ -776,6 +784,7 @@ const App: React.FC = () => {
           <Route path="/parties/suppliers/:id" element={<PrivateRoute><SupplierStatements /></PrivateRoute>} />
         </Routes>
       </Router>
+      </AppSettingsProvider>
     </AuthProvider>
   );
 };

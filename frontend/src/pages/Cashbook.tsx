@@ -36,6 +36,8 @@ export const Cashbook = () => {
   }, []);
 
   const fetchCashbooks = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const data = await fetchCashbooksApi();
       setCashbooks(data);
@@ -45,6 +47,23 @@ export const Cashbook = () => {
       setLoading(false);
     }
   };
+
+  const filteredCashbooks = cashbooks.filter(cashbook => {
+    const matchesSearch = 
+      cashbook.cashbookNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cashbook.category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cashbook.item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      cashbook.paymentMode.toLowerCase().includes(searchQuery.toLowerCase());
+
+    return matchesSearch;
+  }).sort((a, b) => {
+    if (dateSort === 'newest') {
+      return new Date(b.date).getTime() - new Date(a.date).getTime();
+    } else if (dateSort === 'oldest') {
+      return new Date(a.date).getTime() - new Date(b.date).getTime();
+    }
+    return 0;
+  });
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
@@ -58,67 +77,32 @@ export const Cashbook = () => {
     setDateSort(e.target.value);
   };
 
-  const handleAddCashbook = () => {
-    navigate('/bills/cashbook/add');
-  };
-
   const handleCashbookClick = (cashbook: Cashbook) => {
     navigate('/bills/cashbook/add', { state: { cashbook } });
   };
 
-  const filteredCashbooks = cashbooks
-    .filter(cashbook => {
-      const matchesSearch = 
-        cashbook.cashbookNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cashbook.category.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        cashbook.item.name.toLowerCase().includes(searchQuery.toLowerCase());
-      
-      const matchesStatus = !statusFilter || cashbook.paymentMode === statusFilter;
-      
-      return matchesSearch && matchesStatus;
-    })
-    .sort((a, b) => {
-      if (dateSort === 'newest') {
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
-      } else if (dateSort === 'oldest') {
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
-      }
-      return 0;
-    });
+
 
   const totalCashbook = cashbooks.reduce((sum, cashbook) => sum + cashbook.amount, 0);
   const pendingAmount = 0; // This would be calculated based on business logic
 
   return (
-    <div className="cashbook-page-wrapper">
+    <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
       <div className="cashbook-container">
         <Navbar />
         <div className="cashbook-card">
-          <div className="cashbook-header">
-            <h1 className="cashbook-title">Cashbook Management</h1>
-            <p className="cashbook-subtitle">Track all your cash transactions and entries</p>
-          </div>
-          
           <div className="cashbook-search-container">
             <div className="cashbook-search-bar">
-              <div className="cashbook-search-input-container">
+              <div style={{ position: 'relative', flex: 2 }}>
                 <i className="bi bi-search cashbook-search-icon"></i>
                 <input
                   type="text"
-                  placeholder="Search by cashbook number, category, or item..."
+                  placeholder="Search cashbooks..."
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="cashbook-search-input"
                 />
-                {searchQuery && (
-                  <button 
-                    className="cashbook-clear-search"
-                    onClick={() => setSearchQuery('')}
-                  >
-                    <i className="bi bi-x"></i>
-                  </button>
-                )}
               </div>
               <div className="cashbook-filter-group">
                 <label className="cashbook-label">Filter:</label>
@@ -127,11 +111,10 @@ export const Cashbook = () => {
                   onChange={handleStatusFilterChange}
                   className="cashbook-select"
                 >
-                  <option value="">All Payment Modes</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="UPI">UPI</option>
+                  <option value="">All Status</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Overdue">Overdue</option>
                 </select>
               </div>
               <div className="cashbook-filter-group">
@@ -141,53 +124,65 @@ export const Cashbook = () => {
                   onChange={handleDateSortChange}
                   className="cashbook-select"
                 >
-                  <option value="">Default</option>
+                  <option value="">Date Added</option>
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
                 </select>
               </div>
               <div className="cashbook-action-buttons">
-                <button 
-                  className="cashbook-button cashbook-primary-button"
-                  onClick={handleAddCashbook}
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  Add Cashbook
+                <button className="cashbook-button cashbook-primary-button">
+                  <i className="bi bi-file-earmark-text"></i>
+                  Bulk Reminder
                 </button>
                 <button className="cashbook-button cashbook-secondary-button">
-                  <i className="bi bi-download"></i>
-                  Export
+                  <i className="bi bi-file-pdf"></i>
+                  PDF
                 </button>
               </div>
             </div>
             <div className="cashbook-info-card">
               <div className="cashbook-info-section">
-                <div className="cashbook-info-title">Total Cashbook</div>
+                <div className="cashbook-info-icon">
+                  <i className="bi bi-graph-up"></i>
+                </div>
+                <div className="cashbook-info-header">
+                  <div className="cashbook-info-title">Total Cashbook</div>
+                </div>
                 <div className="cashbook-info-value">₹{totalCashbook.toLocaleString()}</div>
-                <button className="cashbook-view-report-button">
-                  <i className="bi bi-graph-up me-1"></i>
-                  View Report
+                <button className="cashbook-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
               <div className="cashbook-info-section">
-                <div className="cashbook-info-title">Pending Amount</div>
+                <div className="cashbook-info-icon">
+                  <i className="bi bi-clock"></i>
+                </div>
+                <div className="cashbook-info-header">
+                  <div className="cashbook-info-title">Pending Amount</div>
+                </div>
                 <div className="cashbook-info-value">₹{pendingAmount.toLocaleString()}</div>
-                <button className="cashbook-view-report-button">
-                  <i className="bi bi-clock me-1"></i>
-                  View Details
+                <button className="cashbook-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
               <div className="cashbook-info-section">
-                <div className="cashbook-info-title">Total Entries</div>
+                <div className="cashbook-info-icon">
+                  <i className="bi bi-list-ul"></i>
+                </div>
+                <div className="cashbook-info-header">
+                  <div className="cashbook-info-title">Total Bills</div>
+                </div>
                 <div className="cashbook-info-value">{cashbooks.length}</div>
-                <button className="cashbook-view-report-button">
-                  <i className="bi bi-list-ul me-1"></i>
-                  View All
+                <button className="cashbook-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
             </div>
           </div>
-          
+
           <div className="cashbook-list">
             {loading ? (
               <div className="cashbook-loading-message">
@@ -205,21 +200,22 @@ export const Cashbook = () => {
                 No cashbooks found
               </div>
             ) : (
-              filteredCashbooks.map(cashbook => (
-                <div
-                  key={cashbook.id}
+              filteredCashbooks.map((cashbook) => (
+                <div 
+                  key={cashbook.id} 
                   className="cashbook-item"
                   onClick={() => handleCashbookClick(cashbook)}
                 >
                   <div className="cashbook-image-container">
                     {cashbook.photoPath ? (
-                      <img
-                        src={cashbook.photoPath}
+                      <img 
+                        src={cashbook.photoPath} 
                         alt={cashbook.item.name}
                         className="cashbook-image"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          (e.currentTarget.nextElementSibling as HTMLElement).style.display = 'flex';
+                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (next) next.style.display = 'flex';
                         }}
                       />
                     ) : null}
@@ -263,6 +259,8 @@ export const Cashbook = () => {
           </div>
         </div>
       </div>
+      
+
     </div>
   );
-}; 
+};

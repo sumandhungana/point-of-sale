@@ -2,7 +2,7 @@
 
 .staff-payment-container {
   display: flex;
-  max-width: calc(100% - 500px);
+  max-width: calc(100%);
   margin-right: 500px;
   width: 100%;
 }
@@ -94,7 +94,7 @@
   background: white;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
+  padding: 4rem;
   margin-top: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);

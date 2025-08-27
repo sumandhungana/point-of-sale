@@ -1,11 +1,11 @@
 /* Modern Sidebar Styles */
 .sidebar {
   width: 280px;
-  height: 100vh;
-  background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+  height: calc(100vh - 54px);
+  background: linear-gradient(180deg, var(--side-menu-bg-color, #2c3e50) 0%, var(--side-menu-bg-end-color, #34495e) 100%);
   position: fixed;
   left: 0;
-  top: 0;
+  top: 54px;
   overflow-y: auto;
   z-index: 1001;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
@@ -123,7 +123,7 @@
   margin: 0;
   font-size: 1rem;
   font-weight: 600;
-  color: white;
+  color: var(--side-menu-font-color, #ffffff);
   transition: color 0.3s ease;
 }
 
@@ -135,7 +135,7 @@
 }
 
 .user-section:hover .user-name {
-  color: #3498db;
+  color: var(--side-menu-hover-font-color, #ffffff);
 }
 
 .user-section:hover .user-role {
@@ -154,7 +154,7 @@
 
 .nav-items .nav-link,
 .nav-items .nested-nav-link {
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: var(--side-menu-font-color, rgba(255, 255, 255, 0.8)) !important;
   background: transparent !important;
   border: none !important;
   text-decoration: none !important;
@@ -162,8 +162,8 @@
 
 .nav-items .nav-link:hover,
 .nav-items .nested-nav-link:hover {
-  color: white !important;
-  background: rgba(255, 255, 255, 0.1) !important;
+  color: var(--side-menu-hover-font-color, #ffffff) !important;
+  background: var(--side-menu-hover-bg-color, rgba(255, 255, 255, 0.1)) !important;
   text-decoration: none !important;
 }
 
@@ -189,7 +189,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.75rem 1rem;
-  color: rgba(255, 255, 255, 0.8) !important;
+  color: var(--side-menu-font-color, rgba(255, 255, 255, 0.8)) !important;
   text-decoration: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -218,8 +218,8 @@
 }
 
 .nav-link:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
+  background: var(--side-menu-hover-bg-color, rgba(255, 255, 255, 0.1));
+  color: var(--side-menu-hover-font-color, #ffffff);
   transform: translateX(8px);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
@@ -286,7 +286,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 0.5rem 1rem;
-  color: rgba(255, 255, 255, 0.7) !important;
+  color: var(--side-menu-font-color, rgba(255, 255, 255, 0.7)) !important;
   text-decoration: none;
   border-radius: 6px;
   font-size: 0.8rem;
@@ -316,8 +316,8 @@
 }
 
 .nested-nav-link:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: white;
+  background: var(--side-menu-hover-bg-color, rgba(255, 255, 255, 0.05));
+  color: var(--side-menu-hover-font-color, #ffffff);
   transform: translateX(5px);
   border-left-color: #3498db;
 }

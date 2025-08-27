@@ -3,20 +3,21 @@
   padding-top: 40px;
   min-height: 100vh;
   background: #f8f9fa;
+  padding-left: 2rem;
 }
 
 .add-item-card {
   padding: 2rem;
-  max-width: calc(100% - 500px);
+  max-width: calc(100% );
   margin-right: 500px;
   width: 100%;
 }
 
 .add-item-main-card {
   background: white;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 2rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
   display: flex;
   gap: 2rem;
   align-items: flex-start;
@@ -49,7 +50,7 @@
   width: 200px;
   height: 200px;
   border: 2px dashed #dee2e6;
-  border-radius: 8px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -69,11 +70,11 @@
 
 .add-item-photo-placeholder {
   text-align: center;
-  color: #6c757d;
+  color: #ffffff;
   z-index: 1;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.35);
   padding: 1rem;
-  border-radius: 4px;
+  border-radius: 6px;
   transition: all 0.3s ease;
 }
 
@@ -111,7 +112,7 @@
   width: 100%;
   padding: 0.75rem;
   border: 2px solid #e9ecef;
-  border-radius: 8px;
+  border-radius: 10px;
   font-size: 1rem;
   transition: all 0.3s ease;
   background: white;

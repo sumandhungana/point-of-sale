@@ -1,10 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
+import logo from '../assets/logo.png';
 
 const Navbar: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { logout, user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -36,15 +39,20 @@ const Navbar: React.FC = () => {
       top: 0,
       right: 0,
       left: 0,
-      height: '60px',
-      backgroundColor: 'white',
-      borderBottom: '1px solid #dee2e6',
+      height: '54px',
+      backgroundColor: 'var(--top-menu-bg-color, white)',
+      color: 'var(--top-menu-font-color, #212529)',
+      borderBottom: '3px solid #dc3545',
       display: 'flex',
       alignItems: 'center',
-      justifyContent: 'flex-end',
-      padding: '0 2rem',
+      justifyContent: 'space-between',
+      padding: '0 1rem',
       zIndex: 1000,
     }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }} onClick={() => navigate('/') }>
+        <img src={logo} alt="Khatabook" style={{ height: '185px', width: 'auto', marginLeft: '54px',marginBottom: '6px' }} />
+        {/* <span style={{ fontWeight: 700, fontSize: '0.95rem', color: '#2c3e50', letterSpacing: '0.5px' }}>KHATABOOK</span> */}
+      </div>
       <div style={{ position: 'relative' }} ref={dropdownRef}>
         <div style={{
           display: 'flex',
@@ -71,7 +79,7 @@ const Navbar: React.FC = () => {
             color: '#666',
             fontWeight: 500,
           }}>
-            {user?.name || 'User'}
+            {user?.username || 'User'}
           </span>
         </div>
         

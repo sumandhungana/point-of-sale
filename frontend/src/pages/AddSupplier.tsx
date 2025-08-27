@@ -179,7 +179,6 @@ export const AddSupplier = () => {
                                     onChange={handleChange}
                                     className="add-supplier-input"
                                     placeholder="Enter phone number"
-                                    required
                                 />
                             </div>
                         </div>
@@ -197,7 +196,6 @@ export const AddSupplier = () => {
                                     onChange={handleChange}
                                     className="add-supplier-input"
                                     placeholder="Enter company name"
-                                    required
                                 />
                             </div>
                             <div className="add-supplier-form-group">
@@ -212,7 +210,6 @@ export const AddSupplier = () => {
                                     onChange={handleChange}
                                     className="add-supplier-input"
                                     placeholder="Enter PAN number"
-                                    required
                                 />
                             </div>
                         </div>
@@ -230,7 +227,6 @@ export const AddSupplier = () => {
                                     onChange={handleChange}
                                     className="add-supplier-input"
                                     placeholder="Enter address"
-                                    required
                                 />
                             </div>
                             <div className="add-supplier-form-group">
@@ -245,7 +241,6 @@ export const AddSupplier = () => {
                                     onChange={handleChange}
                                     className="add-supplier-input"
                                     placeholder="Enter city"
-                                    required
                                 />
                             </div>
                         </div>
@@ -263,7 +258,6 @@ export const AddSupplier = () => {
                                     onChange={handleChange}
                                     className="add-supplier-input"
                                     placeholder="Enter email address"
-                                    required
                                 />
                             </div>
                             <div className="add-supplier-form-group">
@@ -278,7 +272,6 @@ export const AddSupplier = () => {
                                     onChange={handleChange}
                                     className="add-supplier-input"
                                     placeholder="Enter contact person name"
-                                    required
                                 />
                             </div>
                         </div>

@@ -55,7 +55,11 @@ export const Items = () => {
   const filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          item.category.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesSearch;
+    if (!matchesSearch) return false;
+    if (filterBy === 'inStock') return item.openingStock > 0;
+    if (filterBy === 'outOfStock') return item.openingStock <= 0;
+    if (filterBy === 'lowStock') return item.openingStock > 0 && item.openingStock <= 5;
+    return true;
   }).sort((a, b) => {
     switch (sortBy) {
       case 'name':
@@ -82,11 +86,11 @@ export const Items = () => {
   };
 
   const handleItemClick = (item: Item) => {
-    navigate('/items/add', { state: { item } });
+    navigate('/inventory/items/add', { state: { isEdit: true, initialValues: item } });
   };
 
   const handleAddItem = () => {
-    navigate('/items/add');
+    navigate('/inventory/items/add');
   };
 
   return (
@@ -129,21 +133,16 @@ export const Items = () => {
                   <option value="all">All Items</option>
                   <option value="inStock">In Stock</option>
                   <option value="outOfStock">Out of Stock</option>
+                  <option value="lowStock">Low Stock</option>
                 </select>
               </div>
-              <div className="items-action-buttons">
-                <button 
-                  className="items-button items-primary-button"
-                  onClick={handleAddItem}
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  Add Item
-                </button>
-                <button className="items-button items-secondary-button">
-                  <i className="bi bi-download"></i>
-                  Export
-                </button>
-              </div>
+              <button
+                className="items-button items-warning-button"
+                onClick={() => setFilterBy('lowStock')}
+              >
+                Low Stock Items
+              </button>
+              {/* top Add Item button removed as requested */}
             </div>
             <div className="items-info-card">
               <div className="items-info-section" onClick={() => navigate('/items/report')}>
@@ -168,6 +167,20 @@ export const Items = () => {
                 <div className="items-info-value">Click to View</div>
               </div>
             </div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.5rem' }}>
+            <button
+              style={{ background: 'transparent', border: 'none', color: '#0d6efd', cursor: 'pointer' }}
+              onClick={() => navigate('/items/my')}
+            >
+              My Items
+            </button>
+            <button
+              style={{ background: 'transparent', border: 'none', color: '#0d6efd', cursor: 'pointer' }}
+              onClick={() => navigate('/items/count')}
+            >
+              Count Items
+            </button>
           </div>
           
           <div className="items-list">
@@ -201,7 +214,8 @@ export const Items = () => {
                         className="items-image"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling!.style.display = 'flex';
+                          const next = e.currentTarget.nextElementSibling as HTMLElement | null;
+                          if (next) next.style.display = 'flex';
                         }}
                       />
                     ) : null}
@@ -243,7 +257,18 @@ export const Items = () => {
             )}
           </div>
         </div>
+        {/* Add Item button placed just below items-card */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '0.75rem' }}>
+          <button 
+            onClick={handleAddItem}
+            className="items-add-button"
+          >
+            <i className="bi bi-plus-circle"></i>
+            Add Item
+          </button>
+        </div>
       </div>
+      {/* Floating Add Item Button removed as requested; keeping only the top blue button */}
     </div>
   );
 }; 

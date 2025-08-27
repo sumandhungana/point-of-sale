@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { getKhataBooks, switchKhataBook, getSelectedKhataBook, KhataBook } from '../services/khataBookService';
-import logo from '../assets/logo.png';
+import dashboardIcon from '../assets/dashboard.png';
 import '../styles/Sidebar.css';
 
 interface NavItem {
@@ -13,10 +13,18 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { title: 'Customer', path: '/parties/customers', icon: '👤' },
-  { title: 'Suppliers', path: '/parties/suppliers', icon: '🏢' },
-  { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '💵' },
-  { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '🏦' },
+  { title: 'Dashboard', path: '/dashboard', icon: '📊' },
+  {
+    title: 'Parties',
+    path: '/parties',
+    icon: '👥',
+    children: [
+      { title: 'Customer', path: '/parties/customers', icon: '👤' },
+      { title: 'Suppliers', path: '/parties/suppliers', icon: '🏢' },
+      { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '💵' },
+      { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '🏦' },
+    ],
+  },
   {
     title: 'MANAGE INVENTORY',
     path: '/inventory',
@@ -135,7 +143,9 @@ export const Sidebar = () => {
   const { user } = useAuth();
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const popupRef = useRef<HTMLDivElement>(null);
-  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({});
+  const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
+    '/parties': true // Always keep Parties menu expanded
+  });
   const [khataBooks, setKhataBooks] = useState<KhataBook[]>([]);
   const [currentKhataBook, setCurrentKhataBook] = useState<KhataBook | null>(null);
   const [loading, setLoading] = useState(false);
@@ -172,6 +182,8 @@ export const Sidebar = () => {
       parentPaths.forEach(path => {
         newExpanded[path] = true;
       });
+      // Always keep Parties menu expanded
+      newExpanded['/parties'] = true;
       return newExpanded;
     });
   }, [location.pathname]);
@@ -254,6 +266,10 @@ export const Sidebar = () => {
   };
 
   const toggleItem = (path: string) => {
+    // Prevent Parties menu from being collapsed
+    if (path === '/parties') {
+      return;
+    }
     setExpandedItems(prev => ({
       ...prev,
       [path]: !prev[path]
@@ -273,9 +289,15 @@ export const Sidebar = () => {
             className={`${level > 0 ? 'nested-nav-link' : 'nav-link'} ${active ? 'active' : ''} d-flex align-items-center py-2 px-3 rounded`}
             style={{ paddingLeft: `${0.75 + (level * 0.5)}rem` }}
           >
-            <span className={`${level > 0 ? 'nested-nav-icon' : 'nav-icon'} me-2`}>{item.icon}</span>
+            <span className={`${level > 0 ? 'nested-nav-icon' : 'nav-icon'} me-2`}>
+              {item.title === 'Dashboard' ? (
+                <img src={dashboardIcon} alt="Dashboard" style={{ width: '28px', height: '28px' }} />
+              ) : (
+                item.icon
+              )}
+            </span>
             <span className={`${level > 0 ? 'nested-nav-text' : 'nav-text'} flex-grow-1`}>{item.title}</span>
-            {hasChildren && <span className="expand-icon ms-auto">{isExpanded ? '▾' : '▸'}</span>}
+            {hasChildren && item.path !== '/parties' && <span className="expand-icon ms-auto">{isExpanded ? '▾' : '▸'}</span>}
           </div>
 
           {hasChildren && isExpanded && (
@@ -312,14 +334,7 @@ export const Sidebar = () => {
 
   return (
     <div className="sidebar">
-      <div className="logo-container">
-        <img 
-          src={logo} 
-          alt="Logo" 
-          className="logo"
-          onClick={() => navigate('/')}
-        />
-      </div>
+      {/* Logo moved to Navbar */}
       
       <div 
         className="user-section"

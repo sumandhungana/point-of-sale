@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { getCustomers, getSuppliers } from '../services/customerService';
+import { SystemMonitor } from '../components/SystemMonitor';
+import { getPaymentHistory } from '../services/paymentService';
 import { fetchStaff } from '../services/staffService';
 import { fetchSalesBills } from '../services/salesBillService';
 import { fetchPurchases } from '../services/purchaseListService';
@@ -84,10 +86,48 @@ const Dashboard: React.FC = () => {
         const items = await fetchItems();
         setTotalItem(items.length || 0);
 
-        // Placeholder financial aggregates
-        setTotalDue(0);
-        setTotalPaid(0);
-        setTotalDeposit(0);
+        // Calculate payment totals from customers (same logic as Customers page)
+        let givenTotal = 0;
+        let receivedTotal = 0;
+
+        console.log('Starting payment calculation for', customers.length, 'customers');
+
+        for (const customer of customers) {
+          try {
+            const paymentHistory = await getPaymentHistory(customer.id);
+            console.log(`Customer ${customer.name} (ID: ${customer.id}) has ${paymentHistory.length} payments`);
+            
+            paymentHistory.forEach(payment => {
+              console.log(`Payment: type=${payment.type}, amount=${payment.amount}, oldBalance=${payment.oldBalance}, newBalance=${payment.newBalance}`);
+              
+              if (payment.type === 'Given') {
+                const amount = Math.abs(payment.oldBalance - payment.newBalance);
+                givenTotal += amount;
+                console.log(`Added ${amount} to givenTotal (now ${givenTotal})`);
+              } else if (payment.type === 'Received') {
+                const amount = Math.abs(payment.oldBalance - payment.newBalance);
+                receivedTotal += amount;
+                console.log(`Added ${amount} to receivedTotal (now ${receivedTotal})`);
+              } else {
+                console.log(`Unknown payment type: ${payment.type}`);
+              }
+            });
+          } catch (err) {
+            console.error(`Failed to fetch payment history for customer ${customer.id}:`, err);
+          }
+        }
+
+        console.log('Final totals - Given:', givenTotal, 'Received:', receivedTotal);
+
+        // Use the same calculation logic as Customers page
+        const totalDue = givenTotal - receivedTotal > 0 ? givenTotal - receivedTotal : 0;
+        const totalPaid = receivedTotal - givenTotal > 0 ? receivedTotal - givenTotal : 0;
+
+        console.log('Calculated - Total Due:', totalDue, 'Total Paid:', totalPaid);
+
+        setTotalDue(totalDue);
+        setTotalPaid(totalPaid);
+        setTotalDeposit(0); // Placeholder for now
 
 
       } catch (error) {
@@ -111,11 +151,28 @@ const Dashboard: React.FC = () => {
     e.currentTarget.style.setProperty('--mouse-y', '0%');
   };
 
+  const formatCount = (count: number): string => {
+    const safe = Number.isFinite(count) ? Math.trunc(count) : 0;
+    if (safe === 0) {
+      return '0';
+    }
+    if (safe > 0 && safe < 10) {
+      return `0${safe}`;
+    }
+    return safe.toLocaleString();
+  };
+
+  const formatCurrency = (amount: number): string => {
+    const safe = Number.isFinite(amount) ? amount : 0;
+    return `₹${safe.toLocaleString('en-IN')}`;
+  };
+
   const metrics: Array<{
     title: string;
     value: number;
     icon: string;
     iconColor: string;
+    isCurrency?: boolean;
   }> = [
     { title: 'Total Customers', value: totalCustomers, icon: 'bi-people-fill', iconColor: '#4CAF50' },
     { title: 'Total Suppliers', value: totalSuppliers, icon: 'bi-shop', iconColor: '#2196F3' },
@@ -129,21 +186,19 @@ const Dashboard: React.FC = () => {
     { title: 'Total Branch', value: totalBranch, icon: 'bi-building', iconColor: '#9C27B0' },
     { title: 'Total App User', value: totalAppUser, icon: 'bi-person-badge', iconColor: '#2196F3' },
     { title: 'Total Item', value: totalItem, icon: 'bi-bag-check', iconColor: '#FF9800' },
-    { title: 'Total Due', value: totalDue, icon: 'bi-credit-card-2-back', iconColor: '#F44336' },
-    { title: 'Total Paid', value: totalPaid, icon: 'bi-currency-exchange', iconColor: '#4CAF50' },
-    { title: 'Total Deposit', value: totalDeposit, icon: 'bi-bank', iconColor: '#4CAF50' },
+    { title: 'Total Due', value: totalDue, icon: 'bi-credit-card-2-back', iconColor: '#F44336', isCurrency: true },
+    { title: 'Total Paid', value: totalPaid, icon: 'bi-currency-exchange', iconColor: '#4CAF50', isCurrency: true },
+    { title: 'Total Deposit', value: totalDeposit, icon: 'bi-bank', iconColor: '#4CAF50', isCurrency: true },
   ];
 
   return (
     <div className="dashboard-page-wrapper">
       <Sidebar />
       <main className="dashboard-container">
-        <div className="dashboard-header">
-          <h1 className="dashboard-title">
-            <i className="bi bi-speedometer2"></i>
-            Dashboard Overview
+        <div className="dashboard-header" style={{ textAlign: 'center', marginBottom: '1rem' }}>
+          <h1 className="dashboard-title" style={{ fontSize: '2rem', fontWeight: 700 }}>
+            {localStorage.getItem('companyName') || 'Company name'}
           </h1>
-          <p className="dashboard-subtitle">Welcome back! Here's what's happening with your business today.</p>
         </div>
 
         <div className="dashboard-grid">
@@ -164,12 +219,24 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="dashboard-card-title">{m.title}</div>
                 </div>
-                <div className="dashboard-card-value">{(m.value || 0).toLocaleString()}</div>
+                <div className="dashboard-card-value">
+                  {m.isCurrency ? formatCurrency(m.value || 0) : formatCount(m.value || 0)}
+                </div>
               </div>
             </div>
           ))}
         </div>
-
+        {/* System Monitor Section */}
+        <div className="system-monitor-section">
+          <div className="system-monitor-header">
+            <h2 className="system-monitor-title">
+              <i className="bi bi-pc-display-horizontal"></i>
+              System Performance Monitor
+            </h2>
+            <p className="system-monitor-subtitle">Real-time server metrics and system health</p>
+          </div>
+          <SystemMonitor />
+        </div>
 
       </main>
     </div>

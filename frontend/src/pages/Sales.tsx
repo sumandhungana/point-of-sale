@@ -75,12 +75,12 @@ export const Sales = () => {
     setDateSort(e.target.value);
   };
 
-  const handleAddBill = () => {
-    navigate('/bills/sales/add');
-  };
-
   const handleBillClick = (bill: SalesBill) => {
     navigate('/bills/sales/add', { state: { bill } });
+  };
+
+  const handleAddBill = () => {
+    navigate('/bills/sales/add');
   };
 
   const totalSales = salesBills.reduce((sum, bill) => sum + bill.amount, 0);
@@ -98,7 +98,7 @@ export const Sales = () => {
                 <i className="bi bi-search sales-search-icon"></i>
                 <input
                   type="text"
-                  placeholder="Search by bill number, customer name, or payment mode..."
+                  placeholder="Search sales bills..."
                   value={searchQuery}
                   onChange={handleSearchChange}
                   className="sales-search-input"
@@ -111,11 +111,10 @@ export const Sales = () => {
                   onChange={handleStatusFilterChange}
                   className="sales-select"
                 >
-                  <option value="">All Payment Modes</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Card">Card</option>
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="UPI">UPI</option>
+                  <option value="">All Status</option>
+                  <option value="Paid">Paid</option>
+                  <option value="Pending">Pending</option>
+                  <option value="Overdue">Overdue</option>
                 </select>
               </div>
               <div className="sales-filter-group">
@@ -125,53 +124,65 @@ export const Sales = () => {
                   onChange={handleDateSortChange}
                   className="sales-select"
                 >
-                  <option value="">Default</option>
+                  <option value="">Date Added</option>
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
                 </select>
               </div>
               <div className="sales-action-buttons">
-                <button 
-                  className="sales-button sales-primary-button"
-                  onClick={handleAddBill}
-                >
-                  <i className="bi bi-plus-circle"></i>
-                  Add Sales Bill
+                <button className="sales-button sales-primary-button">
+                  <i className="bi bi-file-earmark-text"></i>
+                  Bulk Reminder
                 </button>
                 <button className="sales-button sales-secondary-button">
-                  <i className="bi bi-download"></i>
-                  Export
+                  <i className="bi bi-file-pdf"></i>
+                  PDF
                 </button>
               </div>
             </div>
             <div className="sales-info-card">
               <div className="sales-info-section">
-                <div className="sales-info-title">Total Sales</div>
+                <div className="sales-info-icon">
+                  <i className="bi bi-graph-up"></i>
+                </div>
+                <div className="sales-info-header">
+                  <div className="sales-info-title">Total Sales</div>
+                </div>
                 <div className="sales-info-value">₹{totalSales.toLocaleString()}</div>
-                <button className="sales-view-report-button">
-                  <i className="bi bi-graph-up me-1"></i>
-                  View Report
+                <button className="sales-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
               <div className="sales-info-section">
-                <div className="sales-info-title">Pending Amount</div>
+                <div className="sales-info-icon">
+                  <i className="bi bi-clock"></i>
+                </div>
+                <div className="sales-info-header">
+                  <div className="sales-info-title">Pending Amount</div>
+                </div>
                 <div className="sales-info-value">₹{pendingAmount.toLocaleString()}</div>
-                <button className="sales-view-report-button">
-                  <i className="bi bi-clock me-1"></i>
-                  View Details
+                <button className="sales-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
               <div className="sales-info-section">
-                <div className="sales-info-title">Total Bills</div>
+                <div className="sales-info-icon">
+                  <i className="bi bi-list-ul"></i>
+                </div>
+                <div className="sales-info-header">
+                  <div className="sales-info-title">Total Bills</div>
+                </div>
                 <div className="sales-info-value">{salesBills.length}</div>
-                <button className="sales-view-report-button">
-                  <i className="bi bi-list-ul me-1"></i>
-                  View All
+                <button className="sales-view-more-button">
+                  <i className="bi bi-eye"></i>
+                  View More
                 </button>
               </div>
             </div>
           </div>
-          
+
           <div className="sales-list">
             {loading ? (
               <div className="sales-loading-message">
@@ -189,21 +200,22 @@ export const Sales = () => {
                 No sales bills found
               </div>
             ) : (
-              filteredSalesBills.map(bill => (
-                <div
-                  key={bill.id}
+              filteredSalesBills.map((bill) => (
+                <div 
+                  key={bill.id} 
                   className="sales-item"
                   onClick={() => handleBillClick(bill)}
                 >
                   <div className="sales-image-container">
                     {bill.photoPath ? (
-                      <img
-                        src={bill.photoPath}
+                      <img 
+                        src={bill.photoPath} 
                         alt={bill.customer.name}
                         className="sales-image"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none';
-                          e.currentTarget.nextElementSibling!.style.display = 'flex';
+                          const next = e.currentTarget.nextElementSibling as HTMLElement;
+                          if (next) next.style.display = 'flex';
                         }}
                       />
                     ) : null}
@@ -222,12 +234,6 @@ export const Sales = () => {
                         <i className="bi bi-credit-card me-1"></i>
                         {bill.paymentMode}
                       </span>
-                      {bill.customer.phone && (
-                        <span className="sales-detail-pill">
-                          <i className="bi bi-telephone me-1"></i>
-                          {bill.customer.phone}
-                        </span>
-                      )}
                     </div>
                     <div className="sales-date">
                       <i className="bi bi-calendar me-1"></i>
@@ -249,6 +255,15 @@ export const Sales = () => {
           </div>
         </div>
       </div>
+      
+      {/* Floating Add New Bill Button */}
+      <button 
+        className="sales-add-button"
+        onClick={handleAddBill}
+      >
+        <i className="bi bi-plus-circle"></i>
+        Add New Bill
+      </button>
     </div>
   );
 }; 
