@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
+import { BackButton } from '../components/BackButton';
 import { useNavigate } from 'react-router-dom';
 import '../styles/StaffPayment.css';
 
@@ -36,6 +37,13 @@ export const StaffPayment: React.FC = () => {
     <div className="staff-payment-container">
       <Sidebar />
       <div className="staff-payment-main">
+        <div className="staff-payment-header" style={{ position: 'relative', marginBottom: '1rem', minHeight: '120px' }}>
+          <BackButton 
+            to="/staff" 
+            label="Back to Staff" 
+            className="below-navbar"
+          />
+        </div>
       
         <div className="staff-payment-summary-cards">
           <div className="staff-payment-summary-card">

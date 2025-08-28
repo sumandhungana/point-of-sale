@@ -65,6 +65,9 @@ export const SupplierStatements: React.FC = () => {
         return { given, received, net };
     }, [paymentHistory]);
 
+    const gaveDelta = Math.max(totals.given - totals.received, 0);
+    const receiveDelta = Math.max(totals.received - totals.given, 0);
+
     const handleBack = () => navigate('/parties/suppliers');
     const handleCall = () => {
         if (!supplierPhone) return;
@@ -83,10 +86,10 @@ export const SupplierStatements: React.FC = () => {
                 <div className="supplier-statements-profile-container">
                     <div className="supplier-statements-profile-header-grid">
                         <div className="supplier-statements-header-left">
-                            <button className="supplier-statements-back-button" onClick={handleBack}>
-                                <i className="bi bi-arrow-left"></i>
-                                Back
-                            </button>
+                                                       <button className="supplier-statements-back-button" onClick={handleBack}>
+                               <i className="bi bi-arrow-left"></i>
+                               Back
+                           </button>
                         </div>
                         <div className="supplier-statements-header-center" onClick={handleProfileClick} title="Open profile" style={{ cursor: 'pointer' }}>
                             {supplierProfileImage ? (
@@ -103,7 +106,7 @@ export const SupplierStatements: React.FC = () => {
                             )}
                         </div>
                         <div className="supplier-statements-header-right">
-                            <button className="supplier-statements-action-button supplier-statements-call-button" onClick={handleCall}>
+                            <button className="btn-base btn-primary" onClick={handleCall}>
                                 <i className="bi bi-telephone"></i>
                                 Call
                             </button>
@@ -122,20 +125,28 @@ export const SupplierStatements: React.FC = () => {
 
                 <div className="supplier-statements-amount-card">
                     <div className="supplier-statements-amount-row">
-                        <div className="supplier-statements-amount-item">
-                            <div className="supplier-statements-amount-label">
-                                <i className="bi bi-arrow-down-circle me-2"></i>
-                                You Received Amount
-                            </div>
-                            <div className="supplier-statements-amount-value">रु{totals.received.toLocaleString()}</div>
-                        </div>
-                        <div className="supplier-statements-amount-item">
-                            <div className="supplier-statements-amount-label">
-                                <i className="bi bi-wallet2 me-2"></i>
-                                The Amount
-                            </div>
-                            <div className="supplier-statements-amount-value">रु{totals.net.toLocaleString()}</div>
-                        </div>
+                        {(() => {
+                            const youGave = Math.max(totals.given - totals.received, 0);
+                            const youReceive = Math.max(totals.received - totals.given, 0);
+                            return (
+                                <>
+                                    <div className="supplier-statements-amount-item">
+                                        <div className="supplier-statements-amount-label">
+                                            <i className="bi bi-arrow-up-circle me-2"></i>
+                                            You Gave
+                                        </div>
+                                        <div className="supplier-statements-amount-value">रु{youGave.toLocaleString()}</div>
+                                    </div>
+                                    <div className="supplier-statements-amount-item">
+                                        <div className="supplier-statements-amount-label">
+                                            <i className="bi bi-arrow-down-circle me-2"></i>
+                                            You Receive
+                                        </div>
+                                        <div className="supplier-statements-amount-value">रु{youReceive.toLocaleString()}</div>
+                                    </div>
+                                </>
+                            );
+                        })()}
                     </div>
                     <div className="supplier-statements-reminder-row">
                         <div className="supplier-statements-reminder-label">Set Date Reminder</div>
@@ -148,7 +159,7 @@ export const SupplierStatements: React.FC = () => {
                         />
                         <button
                             type="button"
-                            className="supplier-statements-action-button supplier-statements-date-button"
+                            className="btn-base btn-secondary"
                             onClick={() => {
                                 const el = dateInputRef.current;
                                 // @ts-ignore - showPicker not in all TS lib versions
@@ -167,19 +178,19 @@ export const SupplierStatements: React.FC = () => {
                 {/* Quick Actions: Report (left), Reminder (center), SMS (right) */}
                 <div className="supplier-statements-actions-row">
                     <div className="supplier-statements-action-slot-left">
-                        <button className="supplier-statements-action-button supplier-statements-report-button" onClick={() => navigate(`/parties/suppliers/statements/report/${id}`)}>
+                        <button className="btn-base btn-info" onClick={() => navigate(`/parties/suppliers/statements/report/${id}`)}>
                             <i className="bi bi-bar-chart"></i>
                             Report
                         </button>
                     </div>
                     <div className="supplier-statements-action-slot-center">
-                        <button className="supplier-statements-action-button supplier-statements-reminder-button" onClick={() => (dateInputRef.current ? (dateInputRef.current.click()) : null)}>
+                        <button className="btn-base btn-warning" onClick={() => (dateInputRef.current ? (dateInputRef.current.click()) : null)}>
                             <i className="bi bi-alarm"></i>
                             Reminder
                         </button>
                     </div>
                     <div className="supplier-statements-action-slot-right">
-                        <button className="supplier-statements-action-button supplier-statements-sms-button">
+                        <button className="btn-base btn-purple">
                             <i className="bi bi-chat-dots"></i>
                             SMS
                         </button>
@@ -201,7 +212,31 @@ export const SupplierStatements: React.FC = () => {
                             .slice()
                             .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                             .map((t) => (
-                                <div key={t.id} className="supplier-statements-transaction-card">
+                                <div
+                                    key={t.id}
+                                    className="supplier-statements-transaction-card"
+                                    onClick={() => {
+                                        const isReceived = (t.type || '').toLowerCase() === 'received';
+                                        const amountAbs = Math.abs(t.amount);
+                                        navigate(`/parties/supplier/statement/${t.id}`, {
+                                            state: {
+                                                transaction: {
+                                                    customerName: supplierName || 'Supplier',
+                                                    date: new Date(t.date).toISOString().split('T')[0],
+                                                    totalAmount: amountAbs,
+                                                    phoneNumber: supplierPhone || '',
+                                                    type: isReceived ? 'payment_in' : 'payment_out',
+                                                    customerId: parseInt(id || '0'),
+                                                    details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${new Date(t.date).toLocaleDateString()}`,
+                                                    remarks: t.remarks || '',
+                                                    sms: `Dear ${supplierName || 'Supplier'}, your payment of रु${amountAbs} has been ${isReceived ? 'received' : 'processed'}. Current balance: रु${t.newBalance}. Thank you.`,
+                                                },
+                                            },
+                                        });
+                                    }}
+                                    role="button"
+                                    tabIndex={0}
+                                >
                                     <div className="supplier-statements-transaction-info">
                                         <div className="supplier-statements-transaction-row">
                                             <div className="supplier-statements-transaction-label">Payment Type:</div>
@@ -241,14 +276,14 @@ export const SupplierStatements: React.FC = () => {
 
                 <div className="supplier-statements-bottom-row">
                     <button
-                        className="supplier-statements-action-button supplier-statements-give-button"
+                        className="btn-base btn-red"
                         onClick={() => navigate(`/parties/supplier/statements/you-gave/${id}`)}
                     >
                         <i className="bi bi-arrow-up-circle"></i>
                         You Gave
                     </button>
                     <button
-                        className="supplier-statements-action-button supplier-statements-receive-button"
+                        className="btn-base btn-green"
                         onClick={() => navigate(`/parties/supplier/statements/you-received/${id}`)}
                     >
                         <i className="bi bi-arrow-down-circle"></i>

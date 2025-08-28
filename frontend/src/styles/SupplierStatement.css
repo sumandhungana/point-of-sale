@@ -1,10 +1,10 @@
-/* CustomerStatement Page Styles */
-.customer-statement-container {
+/* SupplierStatement Page Styles */
+.supplier-statement-container {
   min-height: 100vh;
   background: #f8f9fa;
 }
 
-.customer-statement-back-button {
+.supplier-statement-back-button {
   position: absolute;
   top: 80px;
   margin-left: 30px;
@@ -25,7 +25,7 @@
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
 }
 
-.customer-statement-back-button::before {
+.supplier-statement-back-button::before {
   content: '' !important;
   position: absolute !important;
   top: 0 !important;
@@ -36,17 +36,17 @@
   transition: left 0.5s !important;
 }
 
-.customer-statement-back-button:hover::before {
+.supplier-statement-back-button:hover::before {
   left: 100% !important;
 }
 
-.customer-statement-back-button:hover {
+.supplier-statement-back-button:hover {
   background: linear-gradient(135deg, #495057, #6c757d) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
 }
 
-.customer-statement-main-content {
+.supplier-statement-main-content {
   padding: 2rem;
   margin-top: 64px;
   max-width: calc(100% - 500px);
@@ -55,14 +55,14 @@
   margin-left: 16rem;
 }
 
-.customer-statement-form-container {
+.supplier-statement-form-container {
   background: white;
   padding: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.customer-statement-form-title {
+.supplier-statement-form-title {
   font-size: 1.5rem;
   font-weight: bold;
   color: #212529;
@@ -72,17 +72,17 @@
   gap: 0.5rem;
 }
 
-.customer-statement-form-row {
+.supplier-statement-form-row {
   display: flex;
   gap: 2rem;
   margin-bottom: 1.5rem;
 }
 
-.customer-statement-form-group {
+.supplier-statement-form-group {
   flex: 1;
 }
 
-.customer-statement-label {
+.supplier-statement-label {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
@@ -90,7 +90,7 @@
   font-weight: 500;
 }
 
-.customer-statement-input {
+.supplier-statement-input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ced4da;
@@ -101,13 +101,13 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.customer-statement-input:focus {
+.supplier-statement-input:focus {
   outline: none;
   border-color: #dc4c39;
   box-shadow: 0 0 0 0.2rem rgba(220, 76, 57, 0.25);
 }
 
-.customer-statement-textarea {
+.supplier-statement-textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ced4da;
@@ -120,19 +120,19 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.customer-statement-textarea:focus {
+.supplier-statement-textarea:focus {
   outline: none;
   border-color: #dc4c39;
   box-shadow: 0 0 0 0.2rem rgba(220, 76, 57, 0.25);
 }
 
-.customer-statement-button-container {
+.supplier-statement-button-container {
   display: flex;
   gap: 1rem;
   margin-top: 2rem;
 }
 
-.customer-statement-button {
+.supplier-statement-button {
   padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 6px;
@@ -149,53 +149,53 @@
   gap: 0.5rem;
 }
 
-.customer-statement-button:hover {
+.supplier-statement-button:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-.customer-statement-delete-button {
+.supplier-statement-delete-button {
   background: linear-gradient(135deg, #dc3545, #c82333);
   color: white;
 }
 
-.customer-statement-delete-button:hover {
+.supplier-statement-delete-button:hover {
   background: linear-gradient(135deg, #c82333, #bd2130);
 }
 
-.customer-statement-edit-button {
+.supplier-statement-edit-button {
   background: linear-gradient(135deg, #ffc107, #e0a800);
   color: #212529;
 }
 
-.customer-statement-edit-button:hover {
+.supplier-statement-edit-button:hover {
   background: linear-gradient(135deg, #e0a800, #d39e00);
 }
 
-.customer-statement-print-button {
+.supplier-statement-print-button {
   background: linear-gradient(135deg, #17a2b8, #138496);
   color: white;
 }
 
-.customer-statement-print-button:hover {
+.supplier-statement-print-button:hover {
   background: linear-gradient(135deg, #138496, #117a8b);
 }
 
-.customer-statement-download-button {
+.supplier-statement-download-button {
   background: linear-gradient(135deg, #28a745, #218838);
   color: white;
 }
 
-.customer-statement-download-button:hover {
+.supplier-statement-download-button:hover {
   background: linear-gradient(135deg, #218838, #1e7e34);
 }
 
-.customer-statement-share-button {
+.supplier-statement-share-button {
   background: linear-gradient(135deg, #6f42c1, #5a32a3);
   color: white;
 }
 
-.customer-statement-share-button:hover {
+.supplier-statement-share-button:hover {
   background: linear-gradient(135deg, #5a32a3, #4c2a85);
 }
 
@@ -242,7 +242,7 @@
 .confirm-modal-actions {
   display: flex;
   gap: 10px;
-  justify-content: space-between; /* keep button on left, delete on right */
+  justify-content: space-between;
   padding: 12px 16px 16px;
   background: #202a33;
 }
@@ -258,7 +258,7 @@
 }
 
 .confirm-btn.cancel {
-  background: #324150; /* bluish grey */
+  background: #324150;
   color: #eaf2f7;
 }
 
@@ -273,60 +273,60 @@
 
 /* Responsive Design */
 @media (max-width: 1200px) {
-  .customer-statement-main-content {
+  .supplier-statement-main-content {
     max-width: 100%;
     margin-right: 0;
   }
   
-  .customer-statement-form-row {
+  .supplier-statement-form-row {
     flex-direction: column;
     gap: 1rem;
   }
 }
 
 @media (max-width: 768px) {
-  .customer-statement-main-content {
+  .supplier-statement-main-content {
     padding: 1rem;
     margin-top: 20px;
   }
   
-  .customer-statement-form-container {
+  .supplier-statement-form-container {
     padding: 1rem;
   }
   
-  .customer-statement-form-title {
+  .supplier-statement-form-title {
     font-size: 1.25rem;
   }
   
-  .customer-statement-button-container {
+  .supplier-statement-button-container {
     flex-direction: column;
   }
   
-  .customer-statement-button {
+  .supplier-statement-button {
     width: 100%;
   }
 }
 
 @media (max-width: 480px) {
-  .customer-statement-main-content {
+  .supplier-statement-main-content {
     padding: 0.5rem;
   }
   
-  .customer-statement-form-container {
+  .supplier-statement-form-container {
     padding: 0.75rem;
   }
   
-  .customer-statement-form-title {
+  .supplier-statement-form-title {
     font-size: 1.1rem;
   }
   
-  .customer-statement-input,
-  .customer-statement-textarea {
+  .supplier-statement-input,
+  .supplier-statement-textarea {
     padding: 0.5rem;
     font-size: 0.8rem;
   }
   
-  .customer-statement-button {
+  .supplier-statement-button {
     padding: 0.5rem 1rem;
     font-size: 0.8rem;
   }

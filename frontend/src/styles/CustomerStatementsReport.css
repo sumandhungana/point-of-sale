@@ -69,12 +69,19 @@
 .customer-statements-report-table-container { margin-top: 2rem; overflow-x: auto; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,.05); }
 .customer-statements-report-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; }
 .customer-statements-report-table-header {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef); padding: 1rem; text-align: left; border-bottom: 2px solid #dee2e6;
-  color: #2c3e50; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #dee2e6;
+  color: #2c3e50;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 .customer-statements-report-table-row { transition: .2s; }
 .customer-statements-report-table-row:hover { background: rgba(52,152,219,.05); }
-.customer-statements-report-table-cell { padding: 1rem; border-bottom: 1px solid #e9ecef; color: #495057; font-size: 0.9rem; }
+.customer-statements-report-table-cell { padding: 0.5rem 0.75rem; border-bottom: 1px solid #e9ecef; color: #495057; font-size: 0.85rem; }
 
 .customer-statements-report-transaction-type {
   padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;

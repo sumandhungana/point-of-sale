@@ -2,23 +2,24 @@
 .customer-statements-main-content {
   overflow: visible !important;
   padding-bottom: 100px !important;
-  padding-top: 3rem !important;
+  padding-top: 1rem !important;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   min-height: 100vh;
   max-width: 1200px !important;
   margin: 0 auto !important;
   padding-left: 2rem !important;
   padding-right: 2rem !important;
+  position: relative !important;
 }
 
 /* Profile Container */
 .customer-statements-profile-container {
   background: white !important;
-  padding: 2.5rem !important;
+  padding: 7px!important;
   border-radius: 20px !important;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
@@ -47,38 +48,69 @@
 }
 
 /* Profile Header */
-.customer-statements-profile-header {
-  display: flex !important;
+.customer-statements-profile-header-grid {
+  display: grid !important;
+  grid-template-columns: 1fr auto 1fr !important;
   align-items: center !important;
-  justify-content: center !important;
-  width: 100% !important;
-  margin-bottom: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
   position: relative !important;
+  width: 100% !important;
 }
 
-/* Back Button */
+.customer-statements-header-left { 
+  display: flex !important; 
+  justify-content: flex-start !important; 
+}
+
+.customer-statements-header-center { 
+  display: flex !important; 
+  justify-content: center !important; 
+}
+
+.customer-statements-header-right { 
+  display: flex !important; 
+  justify-content: flex-end !important; 
+  gap: 0.75rem !important; 
+}
+
+/* Back Button - Styled to match supplier back button */
 .customer-statements-back-button {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0.75rem 1.5rem !important;
+  padding: 1rem 2rem !important;
   background: linear-gradient(135deg, #6c757d, #495057) !important;
-  color: white !important;
+  color: #fff !important;
   border: none !important;
   border-radius: 12px !important;
   font-size: 0.875rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  position: absolute !important;
-  left: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.customer-statements-back-button::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.customer-statements-back-button:hover::before {
+  left: 100% !important;
 }
 
 .customer-statements-back-button:hover {
-  background: linear-gradient(135deg, #495057, #343a40) !important;
+  background: linear-gradient(135deg, #495057, #6c757d) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Profile Image Container */
@@ -95,7 +127,7 @@
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
-  margin-bottom: 1rem !important;
+  margin-top: 1rem !important;
 }
 
 .customer-statements-profile-image-container:hover {
@@ -125,59 +157,17 @@
   transform: scale(1.05) !important;
 }
 
-/* Action Buttons */
-.customer-statements-call-button {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0.75rem 1.5rem !important;
-  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3) !important;
-}
-
-.customer-statements-call-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
-}
-
-.customer-statements-deposit-button {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0.75rem 1.5rem !important;
-  background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
-  color: white !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3) !important;
-}
-
-.customer-statements-deposit-button:hover {
-  background: linear-gradient(135deg, #8e44ad, #9b59b6) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(155, 89, 182, 0.4) !important;
-}
+/* Action Buttons - Using global CSS */
 
 /* Amount Cards */
 .customer-statements-amount-card {
   background: white !important;
-  padding: 2.5rem !important;
+  /* padding: 2.5rem !important; */
+padding:12px;
   border-radius: 20px !important;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
@@ -219,11 +209,48 @@
   letter-spacing: 0.5px !important;
 }
 
+/* Circular colored backgrounds for arrows */
+.customer-statements-amount-row .customer-statements-amount-item:first-child .customer-statements-amount-label i {
+  background: #dc3545 !important; /* red for You Gave */
+  color: #ffffff !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+}
+
+.customer-statements-amount-row .customer-statements-amount-item:last-child .customer-statements-amount-label i {
+  background: #28a745 !important; /* green for You Receive */
+  color: #ffffff !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+}
+
 .customer-statements-amount-value {
   font-size: 1.75rem !important;
   font-weight: 700 !important;
   color: #2c3e50 !important;
   transition: all 0.3s ease !important;
+}
+
+/* Match Customers page: first card red (You Gave), second green (You Receive) */
+.customer-statements-amount-row .customer-statements-amount-item:first-child .customer-statements-amount-value {
+  color: #dc3545 !important;
+}
+.customer-statements-amount-row .customer-statements-amount-item:last-child .customer-statements-amount-value {
+  color: #28a745 !important;
 }
 
 /* Transactions Container */
@@ -263,67 +290,21 @@
   border-radius: 1px !important;
 }
 
-/* Action Buttons Container */
+/* Action Buttons Container - Using global CSS */
 .customer-statements-action-buttons-container {
   display: flex !important;
   justify-content: space-between !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
   gap: 1rem !important;
 }
 
-.customer-statements-action-button {
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
+/* Bottom Row for You Gave/You Received buttons */
+.customer-statements-bottom-row {
   display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.customer-statements-action-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-  transition: left 0.5s !important;
-}
-
-.customer-statements-action-button:hover::before {
-  left: 100% !important;
-}
-
-.customer-statements-action-button:hover {
-  transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-}
-
-/* Give Button */
-.customer-statements-give-button {
-  background: linear-gradient(135deg, #6e3b3b, #ff0101) !important;
-  color: white !important;
-}
-
-.customer-statements-give-button:hover {
-  background: linear-gradient(135deg, #ff0101, #6e3b3b) !important;
-}
-
-/* Receive Button */
-.customer-statements-receive-button {
-  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
-  color: white !important;
-}
-
-.customer-statements-receive-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  justify-content: space-between !important;
+  gap: 1rem !important;
+  margin-top: 2rem !important;
+  margin-bottom: 2rem !important;
 }
 
 /* Date Group */
@@ -333,14 +314,14 @@
 
 .customer-statements-date-label {
   text-align: center !important;
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
   font-weight: 600 !important;
   color: #495057 !important;
-  margin-bottom: 1rem !important;
-  padding: 1rem !important;
+  margin-bottom: 0.5rem !important;
+  padding: 0.5rem 0.75rem !important;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-  border-radius: 12px !important;
-  border: 2px solid #e9ecef !important;
+  border-radius: 10px !important;
+  border: 1px solid #e9ecef !important;
   transition: all 0.3s ease !important;
 }
 
@@ -353,11 +334,11 @@
 .customer-statements-transaction-card {
   display: flex !important;
   justify-content: space-between !important;
-  padding: 1.5rem !important;
-  border: 2px solid #e9ecef !important;
-  border-radius: 16px !important;
-  margin-bottom: 1rem !important;
-  background: white !important;
+  padding: 0.75rem 1rem !important;
+  border: 1px solid #e9ecef !important;
+  border-radius: 12px !important;
+  margin-bottom: 0.5rem !important;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important; /* match supplier */
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
@@ -395,7 +376,7 @@
 
 .customer-statements-transaction-row {
   display: flex !important;
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
 }
 
 .customer-statements-transaction-label {
@@ -413,11 +394,11 @@
 
 .customer-statements-transaction-amounts {
   display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
+  flex-direction: row !important; /* match supplier */
+  gap: 1rem !important;
   align-items: center !important;
-  padding: 0 1.5rem !important;
-  border-left: 3px solid #e9ecef !important;
+  padding: 0 !important;
+  border-left: none !important; /* match supplier */
   position: relative !important;
   z-index: 2 !important;
 }
@@ -427,22 +408,22 @@
 }
 
 .customer-statements-old-amount {
-  font-size: 0.875rem !important;
+  font-size: 0.8rem !important;
   color: #6c757d !important;
-  margin-bottom: 0.5rem !important;
-  padding: 0.5rem 1rem !important;
-  border: 2px dashed #ced4da !important;
-  border-radius: 8px !important;
+  margin-bottom: 0.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+  border: 1px dashed #ced4da !important;
+  border-radius: 6px !important;
   background: #f8f9fa !important;
 }
 
 .customer-statements-current-amount {
-  font-size: 1.1rem !important;
+  font-size: 1rem !important;
   font-weight: 700 !important;
   color: #27ae60 !important;
-  padding: 0.5rem 1rem !important;
-  border: 2px solid #27ae60 !important;
-  border-radius: 8px !important;
+  padding: 0.25rem 0.5rem !important;
+  border: 1px solid #27ae60 !important;
+  border-radius: 6px !important;
   background: rgba(39, 174, 96, 0.1) !important;
 }
 
@@ -453,11 +434,25 @@
 }
 
 .customer-statements-payment-in {
-  color: #27ae60 !important;
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+  color: #ffffff !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
 }
 
 .customer-statements-payment-out {
-  color: #e74c3c !important;
+  background: linear-gradient(135deg, #6e3b3b, #ff0101) !important;
+  color: #ffffff !important;
+  padding: 0.25rem 0.75rem !important;
+  border-radius: 8px !important;
+  font-size: 0.75rem !important;
+  font-weight: 600 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
 }
 
 /* No Transactions */
@@ -524,12 +519,7 @@
     gap: 1rem !important;
   }
 
-  .customer-statements-back-button {
-    position: relative !important;
-    left: auto !important;
-    width: 100% !important;
-    justify-content: center !important;
-  }
+
 
   .customer-statements-amount-row {
     flex-direction: column !important;

@@ -661,6 +661,10 @@ export const Customers = () => {
                                 <div style={styles.customerDetails} className="customers-customer-details">
                                     <h3 style={styles.customerName} className="customers-customer-name">{customer.name}</h3>
                                     <p className="customers-working-hours">
+                                        <i className="bi bi-telephone me-1"></i>
+                                        Contact: {customer.phone || customer.phoneNumber || 'N/A'}
+                                    </p>
+                                    <p className="customers-working-hours">
                                         <i className="bi bi-clock me-1"></i>
                                         Working Hours: 0
                                     </p>

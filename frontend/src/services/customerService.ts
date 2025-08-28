@@ -79,4 +79,26 @@ export async function updateCustomer(customerId: string | number, data: any) {
     throw new Error(errorData.message || 'Failed to update customer');
   }
   return response.json();
+}
+
+export async function deleteCustomer(customerId: string | number) {
+  try {
+    const response = await fetch(`/api/Customer/${customerId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        ...getAuthHeaders(),
+      }
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete customer');
+    }
+    // DELETE endpoint returns NoContent (204), so no need to parse JSON
+    return { success: true };
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error.message;
+    }
+    throw 'An unknown error occurred';
+  }
 } 

@@ -1,0 +1,36 @@
+/* Global button size harmonization */
+
+/* Back buttons - any class ending with back-button */
+[class$="back-button"],
+.back-button {
+	padding: 0.75rem 1.5rem !important;
+	border-radius: 12px !important;
+	font-size: 0.95rem !important;
+	font-weight: 700 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 0.5rem !important;
+	line-height: 1 !important;
+}
+
+/* Add buttons - any class ending with add-button */
+[class$="add-button"],
+.add-button {
+	padding: 0.9rem 1.6rem !important;
+	border-radius: 12px !important;
+	font-size: 1rem !important;
+	font-weight: 700 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 0.5rem !important;
+	line-height: 1 !important;
+}
+
+/* Ensure icons scale consistently inside buttons */
+[class$="back-button"] i,
+[class$="add-button"] i,
+.back-button i,
+.add-button i {
+	font-size: 1rem !important;
+}
+

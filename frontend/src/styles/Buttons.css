@@ -1,0 +1,493 @@
+/* Global Button Styles - Centralized for consistency */
+
+/* Base Button Styles */
+.btn-base {
+  padding: 0.75rem 1.5rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-base::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  transition: left 0.5s !important;
+}
+
+.btn-base:hover::before {
+  left: 100% !important;
+}
+
+.btn-base:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.btn-base:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Primary Buttons */
+button.btn-primary,
+.btn-primary,
+button.btn.btn-primary,
+.btn.btn-primary {
+  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+button.btn-primary:hover,
+.btn-primary:hover,
+button.btn.btn-primary:hover,
+.btn.btn-primary:hover {
+  background: linear-gradient(135deg, #2980b9, #3498db) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Success Buttons */
+button.btn-success,
+.btn-success,
+button.btn.btn-success,
+.btn.btn-success {
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+button.btn-success:hover,
+.btn-success:hover,
+button.btn.btn-success:hover,
+.btn.btn-success:hover {
+  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Danger Buttons */
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  color: white !important;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #c82333, #bd2130) !important;
+}
+
+/* Warning Buttons */
+.btn-warning {
+  background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+  color: #212529 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+.btn-warning:hover {
+  background: linear-gradient(135deg, #e0a800, #d39e00) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Info Buttons */
+button.btn-info,
+.btn-info,
+button.btn.btn-info,
+.btn.btn-info {
+  background: linear-gradient(135deg, #17a2b8, #138496) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+button.btn-info:hover,
+.btn-info:hover,
+button.btn.btn-info:hover,
+.btn.btn-info:hover {
+  background: linear-gradient(135deg, #138496, #117a8b) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Secondary Buttons */
+.btn-secondary {
+  background: linear-gradient(135deg, #6c757d, #495057) !important;
+  color: white !important;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #495057, #343a40) !important;
+}
+
+/* Purple Buttons */
+button.btn-purple,
+.btn-purple,
+button.btn.btn-purple,
+.btn.btn-purple {
+  background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+button.btn-purple:hover,
+.btn-purple:hover,
+button.btn.btn-purple:hover,
+.btn.btn-purple:hover {
+  background: linear-gradient(135deg, #8e44ad, #9b59b6) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Dark Buttons */
+.btn-dark {
+  background: linear-gradient(135deg, #343a40, #212529) !important;
+  color: white !important;
+}
+
+.btn-dark:hover {
+  background: linear-gradient(135deg, #212529, #343a40) !important;
+}
+
+/* Light Buttons */
+.btn-light {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #495057 !important;
+  border: 1px solid #dee2e6 !important;
+}
+
+.btn-light:hover {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6) !important;
+}
+
+/* Red Buttons (for "You Gave" type) */
+button.btn-red,
+.btn-red,
+button.btn.btn-red,
+.btn.btn-red {
+  background: linear-gradient(135deg, #6e3b3b, #ff0101) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+button.btn-red:hover,
+.btn-red:hover,
+button.btn.btn-red:hover,
+.btn.btn-red:hover {
+  background: linear-gradient(135deg, #ff0101, #6e3b3b) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Green Buttons (for "You Receive" type) */
+button.btn-green,
+.btn-green,
+button.btn.btn-green,
+.btn.btn-green {
+  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  text-decoration: none !important;
+  position: relative !important;
+  overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+button.btn-green:hover,
+.btn-green:hover,
+button.btn.btn-green:hover,
+.btn.btn-green:hover {
+  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Back Button Style */
+.btn-back {
+  padding: 8px 16px !important;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  color: #495057 !important;
+  border: 1px solid #dee2e6 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.btn-back:hover {
+  background: linear-gradient(135deg, #e9ecef, #dee2e6) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* Add Button Style */
+.btn-add {
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+}
+
+.btn-add:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
+  background: linear-gradient(135deg, #00c12b, #1ea085) !important;
+}
+
+/* Floating Action Button */
+.btn-floating {
+  position: fixed !important;
+  bottom: 2rem !important;
+  right: 2rem !important;
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  color: white !important;
+  border: none !important;
+  font-size: 1.5rem !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+  transition: all 0.3s ease !important;
+  z-index: 1000 !important;
+}
+
+.btn-floating:hover {
+  transform: translateY(-2px) scale(1.1) !important;
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
+  background: linear-gradient(135deg, #00c12b, #1ea085) !important;
+}
+
+/* Small Buttons */
+.btn-sm {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.8rem !important;
+}
+
+/* Large Buttons */
+.btn-lg {
+  padding: 1rem 2rem !important;
+  font-size: 1rem !important;
+}
+
+/* Full Width Buttons */
+.btn-block {
+  width: 100% !important;
+}
+
+/* Disabled State */
+.btn-base:disabled,
+.btn-base.disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.btn-base:disabled:hover,
+.btn-base.disabled:hover {
+  transform: none !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Icon Only Buttons */
+.btn-icon {
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Button Groups */
+.btn-group {
+  display: flex !important;
+  gap: 0.5rem !important;
+}
+
+.btn-group .btn-base {
+  border-radius: 0 !important;
+}
+
+.btn-group .btn-base:first-child {
+  border-top-left-radius: 8px !important;
+  border-bottom-left-radius: 8px !important;
+}
+
+.btn-group .btn-base:last-child {
+  border-top-right-radius: 8px !important;
+  border-bottom-right-radius: 8px !important;
+}
+
+/* Responsive Buttons */
+@media (max-width: 768px) {
+  .btn-base {
+    padding: 0.5rem 1rem !important;
+    font-size: 0.8rem !important;
+  }
+  
+  .btn-add {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .btn-floating {
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 1.2rem !important;
+    bottom: 1rem !important;
+    right: 1rem !important;
+  }
+}
+
+/* Loading State */
+.btn-loading {
+  position: relative !important;
+  color: transparent !important;
+}
+
+.btn-loading::after {
+  content: '' !important;
+  position: absolute !important;
+  width: 16px !important;
+  height: 16px !important;
+  top: 50% !important;
+  left: 50% !important;
+  margin-left: -8px !important;
+  margin-top: -8px !important;
+  border: 2px solid transparent !important;
+  border-top: 2px solid currentColor !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+} 

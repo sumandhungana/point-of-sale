@@ -7,52 +7,92 @@ interface SystemMetrics {
   timestamp: string;
 }
 
-interface CircularProgressProps {
+interface SemiCircularGaugeProps {
   percentage: number;
-  size: number;
-  strokeWidth: number;
-  color: string;
+  title: string;
+  icon: string;
+  dangerStart?: number; // percentage where red zone starts, default 90
 }
 
-const CircularProgress: React.FC<CircularProgressProps> = ({
+const clamp = (v: number, min = 0, max = 100) => Math.min(max, Math.max(min, v));
+
+const SemiCircularGauge: React.FC<SemiCircularGaugeProps> = ({
   percentage,
-  size,
-  strokeWidth,
-  color
+  title,
+  icon,
+  dangerStart = 100
 }) => {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-  const offset = circumference - (percentage / 100) * circumference;
+  const pct = clamp(percentage);
+  const radius = 80;
+  const strokeWidth = 18; // thicker, like the screenshot
+  const circumference = Math.PI * radius;
+
+  const arcPath = `M 20 120 A ${radius} ${radius} 0 0 1 ${200 - 20} 120`;
+
+  // green progress length
+  const progressLength = (pct / 100) * circumference;
+
+  // red zone slice (e.g., 90–100%)
+  const redZoneStart = clamp(dangerStart);
+  const redZoneLength = ((100 - redZoneStart) / 100) * circumference;
+  const redZoneOffset = circumference - redZoneLength;
+
+  // display one decimal
+  const display = Number.isFinite(pct) ? pct.toFixed(1) : '0.0';
 
   return (
-    <div className="circular-progress">
-      <svg width={size} height={size} className="circular-progress-svg">
-        {/* Background circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="#dcdcdc"
-          strokeWidth={strokeWidth}
-        />
-        {/* Progress circle */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth={strokeWidth}
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-          className="progress-circle"
-        />
-      </svg>
-      <div className="percentage-text">
-        <span className="percentage-value">{percentage}%</span>
+    <div className="system-monitor-panel">
+      <div className="panel-header">
+        <h3 className="panel-title">{title}</h3>
+        <div className="panel-icon" aria-hidden="true">
+          <i className={icon}></i>
+        </div>
+      </div>
+
+      <div className="gauge-container">
+        <svg
+          width="200"
+          height="120"
+          className="semi-circular-gauge"
+          viewBox="0 0 200 120"
+          role="img"
+          aria-label={`${title} ${display}%`}
+        >
+          {/* Dark track */}
+          <path
+            d={arcPath}
+            fill="none"
+            className="gauge-track"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+          />
+
+          {/* Red alert slice on the far right */}
+          <path
+            d={arcPath}
+            fill="none"
+            className="gauge-redzone"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={`${redZoneLength} ${circumference}`}
+            strokeDashoffset={redZoneOffset}
+          />
+
+          {/* Green progress */}
+          <path
+            d={arcPath}
+            fill="none"
+            className="gauge-progress"
+            strokeWidth={strokeWidth}
+            strokeLinecap="round"
+            strokeDasharray={`${progressLength} ${circumference}`}
+            strokeDashoffset={0}
+          />
+        </svg>
+
+        <div className="gauge-value">
+          <span className="percentage-display">{display}%</span>
+        </div>
       </div>
     </div>
   );
@@ -89,15 +129,9 @@ export const SystemMonitor: React.FC = () => {
 
   useEffect(() => {
     fetchMetrics();
-    const interval = setInterval(fetchMetrics, 5000); // Update every 5 seconds
+    const interval = setInterval(fetchMetrics, 5000);
     return () => clearInterval(interval);
   }, []);
-
-  const getColorByPercentage = (percentage: number): string => {
-    if (percentage < 30) return '#10B981'; // Green
-    if (percentage < 70) return '#F59E0B'; // Yellow
-    return '#EF4444'; // Red
-  };
 
   if (loading) {
     return (
@@ -124,62 +158,22 @@ export const SystemMonitor: React.FC = () => {
   return (
     <div className="system-monitor-container">
       <div className="monitor-grid">
-        <div className="monitor-card">
-          <div className="monitor-header">
-            <h3 className="monitor-title">CPU LOAD</h3>
-            <div className="monitor-icon">
-              <i className="bi bi-cpu"></i>
-            </div>
-          </div>
-          <div className="monitor-content">
-            <CircularProgress
-              percentage={metrics.cpuUsage}
-              size={120}
-              strokeWidth={8}
-              color={getColorByPercentage(metrics.cpuUsage)}
-            />
-          </div>
-        </div>
-
-        <div className="monitor-card">
-          <div className="monitor-header">
-            <h3 className="monitor-title">MEMORY USAGE</h3>
-            <div className="monitor-icon">
-              <i className="bi bi-memory"></i>
-            </div>
-          </div>
-          <div className="monitor-content">
-            <CircularProgress
-              percentage={metrics.memoryUsage}
-              size={120}
-              strokeWidth={8}
-              color={getColorByPercentage(metrics.memoryUsage)}
-            />
-          </div>
-        </div>
-
-        <div className="monitor-card">
-          <div className="monitor-header">
-            <h3 className="monitor-title">DISK USAGE</h3>
-            <div className="monitor-icon">
-              <i className="bi bi-hdd"></i>
-            </div>
-          </div>
-          <div className="monitor-content">
-            <CircularProgress
-              percentage={metrics.diskUsage}
-              size={120}
-              strokeWidth={8}
-              color={getColorByPercentage(metrics.diskUsage)}
-            />
-          </div>
-        </div>
-      </div>
-      
-      <div className="last-updated">
-        Last updated: {new Date(metrics.timestamp).toLocaleString()}
+        <SemiCircularGauge
+          percentage={metrics.cpuUsage}
+          title="CPU LOAD"
+          icon="bi bi-robot"
+        />
+        <SemiCircularGauge
+          percentage={metrics.memoryUsage}
+          title="MEMORY USAGE"
+          icon="bi bi-cpu"
+        />
+        <SemiCircularGauge
+          percentage={metrics.diskUsage}
+          title="DISK USAGE"
+          icon="bi bi-hdd-rack"
+        />
       </div>
     </div>
   );
 };
-

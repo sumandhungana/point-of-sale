@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { BackButton } from '../components/BackButton';
 import '../styles/POS.css';
 
 interface Item {
@@ -49,7 +50,14 @@ export const POS = () => {
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <div className="pos-container">
+    <div className="pos-container" style={{ position: 'relative' }}>
+      <div className="pos-header">
+        <BackButton 
+          to="/dashboard" 
+          label="Back to Dashboard" 
+          className="below-navbar"
+        />
+      </div>
       <div className="pos-left-panel">
         <div className="pos-menu-grid">
           {items.map(item => (

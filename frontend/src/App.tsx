@@ -9,6 +9,7 @@ import { Customers } from './pages/Customers';
 import { AddCustomer } from './pages/AddCustomer';
 import { AddSupplier } from './pages/AddSupplier';
 import { CustomerStatement } from './pages/CustomerStatement';
+import { SupplierStatement } from './pages/SupplierStatement';
 import { EditCustomerStatement } from './pages/EditCustomerStatement';
 import { CustomerProfile } from './pages/CustomerProfile';
 import { CustomerStatements } from './pages/CustomerStatements';
@@ -58,6 +59,14 @@ import { YouGave } from './pages/YouGave';
 import { YouReceived } from './pages/YouReceived';
 import { SupplierStatements } from './pages/SupplierStatements';
 import { Branch } from './pages/Branch';
+import './styles/Common.css';
+import './styles/Buttons.css';
+import './styles/ConfirmationModal.css';
+import './styles/BackButton.css';
+import './styles/FormLayout.css';
+import './styles/Button.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Bills } from './pages/Bills';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -252,6 +261,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <CustomerStatement />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/parties/supplier/statement/:id"
+            element={
+              <PrivateRoute>
+                <SupplierStatement />
               </PrivateRoute>
             }
           />

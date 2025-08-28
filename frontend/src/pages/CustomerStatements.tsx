@@ -5,6 +5,7 @@ import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
 import '../styles/CustomerStatements.css';
 
+
 interface CustomerData {
     id: number;
     name: string;
@@ -610,35 +611,39 @@ export const CustomerStatements = () => {
          
             <main className="customer-statements-main-content">
                 <div className="customer-statements-profile-container">
-                    <div className="customer-statements-profile-header">
-                        <button 
-                            className="customer-statements-back-button"
-                            onClick={handleBack}
-                            aria-label="Go back to customers"
-                        >
-                            <i className="bi bi-arrow-left"></i>
-                            Back
-                        </button>
-                        <div 
-                            className="customer-statements-profile-image-container"
-                            onClick={handleProfileClick}
-                            title="View customer profile"
-                        >
-                            {customerData.profileImage ? (
-                                <img 
-                                    src={customerData.profileImage} 
-                                    alt={customerData.name || 'Customer'} 
-                                    className="customer-statements-profile-image"
-                                />
-                            ) : (
-                                <div style={{ fontSize: '2.5rem', color: 'white' }}>
-                                    <i className="bi bi-person"></i>
-                                </div>
-                            )}
+                    <div className="customer-statements-profile-header-grid">
+                        <div className="customer-statements-header-left">
+                                                       <button
+                               className="customer-statements-back-button"
+                               onClick={handleBack}
+                               aria-label="Go back to customers"
+                           >
+                               <i className="bi bi-arrow-left"></i>
+                               Back
+                           </button>
                         </div>
-                        <div style={{position: 'absolute', right: 0, display: 'flex', gap: '0.5rem'}}>
+                        <div className="customer-statements-header-center">
+                            <div 
+                                className="customer-statements-profile-image-container"
+                                onClick={handleProfileClick}
+                                title="View customer profile"
+                            >
+                                {customerData.profileImage ? (
+                                    <img 
+                                        src={customerData.profileImage} 
+                                        alt={customerData.name || 'Customer'} 
+                                        className="customer-statements-profile-image"
+                                    />
+                                ) : (
+                                    <div style={{ fontSize: '2.5rem', color: 'white' }}>
+                                        <i className="bi bi-person"></i>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className="customer-statements-header-right">
                             <button 
-                                className="customer-statements-deposit-button"
+                                className="btn-base btn-primary"
                                 onClick={() => navigate(`/parties/customers/deposit/${id}`)}
                                 aria-label="Make a deposit"
                                 title="Make a deposit"
@@ -647,7 +652,7 @@ export const CustomerStatements = () => {
                                 Deposit
                             </button>
                             <button 
-                                className="customer-statements-call-button"
+                                className="btn-base btn-primary"
                                 onClick={handleCall}
                                 aria-label={`Call ${customerData.name || 'Customer'}`}
                                 title={customerData.phone || 'No phone number available'}
@@ -670,25 +675,20 @@ export const CustomerStatements = () => {
                     <div className="customer-statements-amount-row">
                         <div className="customer-statements-amount-item">
                             <div className="customer-statements-amount-label">
-                                <i className="bi bi-arrow-down-circle me-2"></i>
-                                You Received Amount
+                                <i className="bi bi-arrow-up-circle me-2"></i>
+                                You Gave
                             </div>
-                            <div className="customer-statements-amount-value" style={{
-                                color: (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) === 0 ? '#2c3e50' : 
-                                      (totals.received - totals.given < 0 ? 0 : totals.received - totals.given) > 0 ? '#27ae60' : '#2c3e50'
-                            }}>
-                                रु{(totals.received - totals.given < 0 ? 0 : totals.received - totals.given).toLocaleString()}
+                            <div className="customer-statements-amount-value">
+                                रु{(totals.given - totals.received < 0 ? 0 : totals.given - totals.received).toLocaleString()}
                             </div>
                         </div>
                         <div className="customer-statements-amount-item">
                             <div className="customer-statements-amount-label">
-                                <i className="bi bi-arrow-up-circle me-2"></i>
-                                You Gave Amount
+                                <i className="bi bi-arrow-down-circle me-2"></i>
+                                You Receive
                             </div>
-                            <div className="customer-statements-amount-value" style={{
-                                color: '#2c3e50'
-                            }}>
-                                रु{(totals.given - totals.received < 0 ? 0 : totals.given - totals.received).toLocaleString()}
+                            <div className="customer-statements-amount-value">
+                                रु{(totals.received - totals.given < 0 ? 0 : totals.received - totals.given).toLocaleString()}
                             </div>
                         </div>
                     </div>
@@ -707,15 +707,15 @@ export const CustomerStatements = () => {
                 </div>
 
                 <div className="customer-statements-action-buttons-container">
-                    <button className="customer-statements-action-button" style={{background: 'linear-gradient(135deg, #17a2b8, #138496)', color: 'white'}} onClick={handleReport}>
+                    <button className="btn-base btn-info" onClick={handleReport}>
                         <i className="bi bi-graph-up"></i>
                         Report
                     </button>
-                    <button className="customer-statements-action-button" style={{background: 'linear-gradient(135deg, #ffc107, #e0a800)', color: '#212529'}}>
+                    <button className="btn-base btn-warning">
                         <i className="bi bi-alarm"></i>
                         Reminder
                     </button>
-                    <button className="customer-statements-action-button" style={{background: 'linear-gradient(135deg, #9b59b6, #8e44ad)', color: 'white'}}>
+                    <button className="btn-base btn-purple">
                         <i className="bi bi-chat-dots"></i>
                         SMS
                     </button>
@@ -743,15 +743,6 @@ export const CustomerStatements = () => {
                                 .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
                                 .map(([date, dateTransactions]) => (
                                 <div key={date} className="customer-statements-date-group">
-                                    <div className="customer-statements-date-label">
-                                        <i className="bi bi-calendar-date me-2"></i>
-                                        {new Date(date).toLocaleDateString('en-US', { 
-                                            weekday: 'long', 
-                                            year: 'numeric', 
-                                            month: 'long', 
-                                            day: 'numeric' 
-                                        })}
-                                    </div>
                                     {dateTransactions
                                         .sort((a, b) => b.timestamp - a.timestamp)
                                         .map(transaction => (
@@ -763,9 +754,12 @@ export const CustomerStatements = () => {
                                             <div className="customer-statements-transaction-info">
                                                 <div className="customer-statements-transaction-row">
                                                     <div className="customer-statements-transaction-label">Payment Type:</div>
-                                                    <div className={`customer-statements-transaction-value ${transaction.type === 'payment_in' ? 'customer-statements-payment-in' : 'customer-statements-payment-out'}`}>
-                                                        <i className={`bi ${transaction.type === 'payment_in' ? 'bi-arrow-down-circle' : 'bi-arrow-up-circle'} me-1`}></i>
-                                                        {transaction.type === 'payment_in' ? 'Payment In' : 'Payment Out'}
+                                                    <div className="customer-statements-transaction-value">
+                                                        {transaction.type === 'payment_in' ? (
+                                                            <span className="customer-statements-payment-in">Payment In</span>
+                                                        ) : (
+                                                            <span className="customer-statements-payment-out">Payment Out</span>
+                                                        )}
                                                     </div>
                                                 </div>
                                                 <div className="customer-statements-transaction-row">
@@ -803,21 +797,23 @@ export const CustomerStatements = () => {
                     )}
                 </div>
 
-                <div className="customer-statements-action-buttons-container">
-                        <button 
-                            className="customer-statements-action-button customer-statements-give-button"
-                            onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}
-                        >
-                            <i className="bi bi-arrow-up-circle"></i>
-                            You Gave
-                        </button>
-                        <button 
-                            className="customer-statements-action-button customer-statements-receive-button"
-                            onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}
-                        >
-                            <i className="bi bi-arrow-down-circle"></i>
-                            You Received
-                        </button>
+                <div className="customer-statements-bottom-row">
+                    <button
+                        className="btn-base btn-red"
+                        onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}
+                        style={{backgroundColor: 'red', color: 'white', padding: '12px 24px', border: 'none', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px'}}
+                    >
+                        <i className="bi bi-arrow-up-circle"></i>
+                        You Gave
+                    </button>
+                    <button
+                        className="btn-base btn-green"
+                        onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}
+                        style={{backgroundColor: 'green', color: 'white', padding: '12px 24px', border: 'none', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px'}}
+                    >
+                        <i className="bi bi-arrow-down-circle"></i>
+                        You Received
+                    </button>
                 </div>
 
              

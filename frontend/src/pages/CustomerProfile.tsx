@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { fetchCustomerData, updateCustomer } from '../services/customerService';
+import { fetchCustomerData, updateCustomer, deleteCustomer } from '../services/customerService';
+import ConfirmationModal from '../components/ConfirmationModal';
 import '../styles/CustomerProfile.css';
 
 interface CustomerData {
@@ -95,6 +96,7 @@ export const CustomerProfile = () => {
         smsLanguage: customerData.smsLanguage,
         transactionHistoryCheck: customerData.transactionHistoryCheck,
     });
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -157,8 +159,26 @@ export const CustomerProfile = () => {
     };
 
     const handleDelete = () => {
-        // Handle delete action here
-        console.log('Delete customer profile');
+        setShowDeleteModal(true);
+    };
+
+    const performDelete = async () => {
+        if (!id) return;
+        
+        try {
+            await deleteCustomer(id);
+            toast.success(`${customerData.isSupplier ? 'Supplier' : 'Customer'} deleted successfully`);
+            
+            // Navigate back to the appropriate list page
+            if (customerData.isSupplier) {
+                navigate('/parties/suppliers');
+            } else {
+                navigate('/parties/customers');
+            }
+        } catch (error) {
+            console.error('Error deleting customer:', error);
+            toast.error(`Failed to delete ${customerData.isSupplier ? 'supplier' : 'customer'}`);
+        }
     };
 
 
@@ -392,6 +412,17 @@ export const CustomerProfile = () => {
                     </form>
                 </div>
             </main>
+            
+            <ConfirmationModal
+                isOpen={showDeleteModal}
+                onClose={() => setShowDeleteModal(false)}
+                onConfirm={performDelete}
+                title="Confirm Deletion"
+                message={`Are you sure you want to delete this ${customerData.isSupplier ? 'supplier' : 'customer'}? This action cannot be undone.`}
+                confirmText="Yes, Delete"
+                cancelText="No, Keep it"
+                type="danger"
+            />
         </div>
     );
 }; 

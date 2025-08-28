@@ -657,7 +657,7 @@
 /* System Monitor Section Styles */
 .system-monitor-section {
   margin-top: 3rem;
-  background: white;
+  background: #f1f2f4;
   border-radius: 20px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   padding: 2rem;
@@ -710,8 +710,8 @@
   font-weight: 400;
 }
 
-/* Override System Monitor Container to match dashboard styling */
-.system-monitor-section .system-monitor-container {
+/* New System Monitor Panel Styles */
+.system-monitor-container {
   padding: 0;
   background: transparent;
   border-radius: 0;
@@ -719,54 +719,78 @@
   margin: 0;
 }
 
-.system-monitor-section .monitor-grid {
+.monitor-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
   margin-bottom: 1rem;
 }
 
-.system-monitor-section .monitor-card {
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-  border: 1px solid #dcdcdc;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.system-monitor-panel {
+  background: #2c3e50;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid #34495e;
+  position: relative;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
 }
 
-.system-monitor-section .monitor-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
-.system-monitor-section .monitor-title {
-  color: #2c3e50;
+.panel-title {
+  color: white;
   font-size: 1rem;
   font-weight: 600;
-  letter-spacing: 0.05em;
   margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
-.system-monitor-section .monitor-icon {
-  color: #667eea;
-  font-size: 1.5rem;
-  opacity: 0.8;
+.panel-icon {
+  color: white;
+  font-size: 1.25rem;
+  opacity: 0.9;
 }
 
-.system-monitor-section .percentage-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #2c3e50;
+.gauge-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  margin-top: 1rem;
 }
 
-.system-monitor-section .last-updated {
+.semi-circular-gauge {
+  position: relative;
+}
+
+.gauge-label {
+  fill: #808080;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.gauge-value {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   text-align: center;
-  color: #6c757d;
-  font-size: 0.875rem;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 1px solid #e9ecef;
+}
+
+.percentage-display {
+  color: #00bcd4;
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .system-monitor-section .loading-message,
@@ -799,13 +823,14 @@
     gap: 0.5rem;
   }
   
-  .system-monitor-section .monitor-grid {
+  .monitor-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
   }
   
-  .system-monitor-section .monitor-card {
+  .system-monitor-panel {
     padding: 1.5rem;
+    min-height: 220px;
   }
 }
 
@@ -818,9 +843,137 @@
     font-size: 1.25rem;
   }
   
-  .system-monitor-section .monitor-card {
+  .system-monitor-panel {
     padding: 1rem;
+    min-height: 200px;
   }
+  
+  .panel-title {
+    font-size: 0.875rem;
+  }
+  
+  .percentage-display {
+    font-size: 1.25rem;
+  }
+}
+
+/* === System Monitor gauge overrides (append this at the end of your file) === */
+
+/* Dark card to match the screenshot */
+.system-monitor-panel {
+  background: #052026 !important; /* darker than #2c3e50 */
+  border: 1px solid #2a2f35 !important;
+  border-radius: 12px;
+  padding: 16px 12px 10px;
+  color: #e6e6e6;
+  position: relative;
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.02) inset, 0 10px 24px rgba(0,0,0,0.4);
+}
+
+/* Centered title like the screenshot, normal casing */
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.panel-title {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #cfd8dc;
+  margin: 0;
+  text-transform: none !important; /* override uppercase */
+}
+
+.panel-icon {
+  position: absolute;
+  right: 8px;
+  top: 0;
+  color: #73808c;
+  font-size: 36px;
+}
+
+/* Gauge layout/positioning */
+.gauge-container {
+  position: relative;
+  height: 140px; /* space for value */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.semi-circular-gauge {
+  display: block;
+}
+
+/* Arc colors: dark track, neon green progress, red alert slice */
+.gauge-track {
+  stroke: #828c95;
+}
+
+.gauge-progress {
+  stroke: #00e676; /* neon green */
+}
+
+.gauge-redzone {
+  stroke: #ff3b30; /* red */
+}
+
+/* Smooth animation for updates */
+.gauge-progress,
+.gauge-redzone {
+  transition: stroke-dasharray 600ms ease, stroke-dashoffset 600ms ease;
+}
+
+/* Big centered percentage near bottom of gauge */
+.gauge-value {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  margin-top:14%;
+  transform: translateX(-50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.percentage-display {
+  font-size: 28px;
+  font-weight: 700;
+  color: #eaf7ed;
+  letter-spacing: 0.5px;
+  text-shadow: none;
+}
+
+/* Optional: de-emphasize 0/100 labels if you still render them */
+.gauge-label {
+  fill: #6b7781;
+  font-size: 12px;
+}
+
+/* Loading / error in the monitor area */
+.system-monitor-container .loading-message,
+.system-monitor-container .error-message {
+  display: grid;
+  place-items: center;
+  min-height: 160px;
+  color: #cfd8dc;
+  gap: 8px;
+  background: #1b1f24;
+  border: 1px solid #2a2f35;
+  border-radius: 12px;
+}
+
+.system-monitor-container .error-message {
+  color: #ff6b6b;
+  background: #201a1a;
+  border-color: #3b2626;
 }
 /* Dashboard.css - Modern Bootstrap-like styles */
 

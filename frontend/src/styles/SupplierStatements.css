@@ -1,8 +1,8 @@
 /* Modern Supplier Statements Page Styles */
 .supplier-statements-main-content {
   overflow: visible !important;
-  padding-bottom: 2rem !important;
-  padding-top: 3rem !important;
+  padding-bottom: 100px !important;
+  padding-top: 1rem !important;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   min-height: 100vh;
   max-width: 1200px !important;
@@ -18,11 +18,12 @@
   border-radius: 20px !important;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
   margin-top: 2rem;
+  /* margin-left: 16rem; */
 }
 
 .supplier-statements-profile-container::before {
@@ -42,6 +43,7 @@
 }
 
 .supplier-statements-profile-container:hover {
+  transform: translateY(-4px) !important;
   box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
 }
 
@@ -52,28 +54,30 @@
   grid-template-columns: 1fr auto 1fr !important;
   align-items: center !important;
   margin-bottom: 0.5rem !important;
+  position: relative !important; /* match customer header behavior */
+  width: 100% !important;
 }
 .supplier-statements-header-left { display: flex !important; justify-content: flex-start !important; }
 .supplier-statements-header-center { display: flex !important; justify-content: center !important; }
 .supplier-statements-header-right { display: flex !important; justify-content: flex-end !important; gap: 0.75rem !important; }
 
-/* Back Button */
+/* Back Button - Styled to match customer back button */
 .supplier-statements-back-button {
   padding: 1rem 2rem !important;
   background: linear-gradient(135deg, #6c757d, #495057) !important;
-  color: white !important;
+  color: #fff !important;
   border: none !important;
   border-radius: 12px !important;
   font-size: 0.875rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
-  display: flex !important;
+  display: inline-flex !important;
   align-items: center !important;
   gap: 0.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
 }
 
 .supplier-statements-back-button::before {
@@ -94,7 +98,7 @@
 .supplier-statements-back-button:hover {
   background: linear-gradient(135deg, #495057, #6c757d) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* Profile Image Container */
@@ -142,10 +146,13 @@
 
 /* Customer Name */
 .supplier-statements-customer-name {
-  font-size: 1.5rem !important;
+  font-size: 2rem !important; /* match customer */
   font-weight: 700 !important;
   color: #2c3e50 !important;
   margin-bottom: 0.5rem !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
 }
 
 .supplier-statements-customer-name:hover {
@@ -153,7 +160,7 @@
   transform: scale(1.05) !important;
 }
 
-/* Action Buttons */
+/* Action Buttons - Using global CSS */
 .supplier-statements-action-buttons {
   display: flex !important;
   gap: 1rem !important;
@@ -177,116 +184,17 @@
   display: flex !important;
   justify-content: space-between !important;
   align-items: center !important;
-  margin-top: 1.5rem !important;
-}
-
-.supplier-statements-action-button {
-  padding: 1rem 2rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.supplier-statements-action-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-  transition: left 0.5s !important;
-}
-
-.supplier-statements-action-button:hover::before {
-  left: 100% !important;
-}
-
-.supplier-statements-action-button:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
-}
-
-.supplier-statements-deposit-button {
-  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
-  color: white !important;
-}
-
-.supplier-statements-deposit-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
-}
-
-.supplier-statements-call-button {
-  background: linear-gradient(135deg, #3498db, #2980b9) !important;
-  color: white !important;
-}
-
-.supplier-statements-call-button:hover {
-  background: linear-gradient(135deg, #2980b9, #3498db) !important;
-}
-
-/* Top deposit button styling */
-.supplier-statements-deposit-top-button {
-  background: linear-gradient(135deg, #9b59b6, #8e44ad) !important;
-  color: white !important;
-}
-.supplier-statements-deposit-top-button:hover {
-  background: linear-gradient(135deg, #8e44ad, #9b59b6) !important;
-}
-
-/* Extra quick action buttons */
-.supplier-statements-report-button {
-  background: linear-gradient(135deg, #17a2b8, #138496) !important;
-  color: white !important;
-}
-
-.supplier-statements-report-button:hover {
-  background: linear-gradient(135deg, #138496, #17a2b8) !important;
-}
-
-.supplier-statements-reminder-button {
-  background: linear-gradient(135deg, #ffc107, #e0a800) !important;
-  color: #212529 !important;
-}
-
-.supplier-statements-reminder-button:hover {
-  background: linear-gradient(135deg, #e0a800, #ffc107) !important;
-}
-
-.supplier-statements-sms-button {
-  background: linear-gradient(135deg, #6f42c1, #5a32a3) !important;
-  color: white !important;
-}
-
-.supplier-statements-sms-button:hover {
-  background: linear-gradient(135deg, #5a32a3, #6f42c1) !important;
-}
-
-.supplier-statements-date-button {
-  background: linear-gradient(135deg, #6c757d, #495057) !important;
-  color: white !important;
-}
-
-.supplier-statements-date-button:hover {
-  background: linear-gradient(135deg, #495057, #6c757d) !important;
+  margin-top: 1rem !important;
 }
 
 /* Amount Card */
 .supplier-statements-amount-card {
   background: white !important;
-  padding: 2rem !important;
+  padding: 12px !important;
   border-radius: 20px !important;
   box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
@@ -317,7 +225,7 @@
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 2rem !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 1rem !important;
 }
 
 /* Amount Item */
@@ -349,12 +257,84 @@
   justify-content: center !important;
   gap: 0.5rem !important;
 }
+/* Circular colored backgrounds for arrows to match Customers */
+.supplier-statements-amount-row .supplier-statements-amount-item:first-child .supplier-statements-amount-label i {
+  background: #dc3545 !important; /* red for You Gave */
+  color: #ffffff !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+}
+
+.supplier-statements-amount-row .supplier-statements-amount-item:last-child .supplier-statements-amount-label i {
+  background: #28a745 !important; /* green for You Receive */
+  color: #ffffff !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+}
 
 /* Amount Value */
 .supplier-statements-amount-value {
   font-size: 1.5rem !important;
   font-weight: 700 !important;
   color: #2c3e50 !important;
+}
+
+/* Match Customers page: first card red (You Gave), second green (You Receive) */
+.supplier-statements-amount-row .supplier-statements-amount-item:first-child .supplier-statements-amount-value {
+  color: #dc3545 !important;
+}
+.supplier-statements-amount-row .supplier-statements-amount-item:last-child .supplier-statements-amount-value {
+  color: #28a745 !important;
+}
+
+/* Circular colored backgrounds for arrows */
+.supplier-statements-amount-row .supplier-statements-amount-item:first-child .supplier-statements-amount-label i {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+}
+
+.supplier-statements-amount-row .supplier-statements-amount-item:last-child .supplier-statements-amount-label i {
+  background: #28a745 !important;
+  color: #ffffff !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
+}
+/* Match Customers page: first card red (You Gave), second green (You Receive) */
+.supplier-statements-amount-row .supplier-statements-amount-item:first-child .supplier-statements-amount-value {
+  color: #dc3545 !important;
+}
+.supplier-statements-amount-row .supplier-statements-amount-item:last-child .supplier-statements-amount-value {
+  color: #28a745 !important;
 }
 
 /* Reminder Row */
@@ -449,11 +429,13 @@
 
 /* Transaction Card */
 .supplier-statements-transaction-card {
+  display: flex !important;
+  justify-content: space-between !important;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-  padding: 1.5rem !important;
-  border-radius: 16px !important;
-  margin-bottom: 1rem !important;
-  border: 2px solid #e9ecef !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 12px !important;
+  margin-bottom: 0.5rem !important;
+  border: 1px solid #e9ecef !important;
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
@@ -485,6 +467,7 @@
 
 /* Transaction Info */
 .supplier-statements-transaction-info {
+  flex: 1 !important;
   position: relative !important;
   z-index: 2 !important;
 }
@@ -492,9 +475,7 @@
 /* Transaction Row */
 .supplier-statements-transaction-row {
   display: flex !important;
-  justify-content: space-between !important;
-  align-items: center !important;
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 0.25rem !important;
 }
 
 .supplier-statements-transaction-row:last-child {
@@ -503,33 +484,40 @@
 
 /* Transaction Label */
 .supplier-statements-transaction-label {
+  width: 120px !important;
   font-size: 0.875rem !important;
   color: #6c757d !important;
   font-weight: 600 !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
 }
 
 /* Transaction Value */
 .supplier-statements-transaction-value {
   font-size: 0.875rem !important;
   color: #2c3e50 !important;
-  font-weight: 600 !important;
+  font-weight: 500 !important;
 }
 
 /* Transaction Amounts */
 .supplier-statements-transaction-amounts {
   display: flex !important;
+  flex-direction: row !important;
   gap: 1rem !important;
   align-items: center !important;
+  padding: 0 !important;
+  border-left: none !important;
+  position: relative !important;
+  z-index: 2 !important;
 }
 
 /* Old Amount */
 .supplier-statements-old-amount {
-  font-size: 0.875rem !important;
+  font-size: 0.8rem !important;
   color: #6c757d !important;
-  text-decoration: line-through !important;
+  margin-bottom: 0.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+  border: 1px dashed #ced4da !important;
+  border-radius: 6px !important;
+  background: #f8f9fa !important;
 }
 
 /* Current Amount */
@@ -537,12 +525,20 @@
   font-size: 1rem !important;
   font-weight: 700 !important;
   color: #27ae60 !important;
+  padding: 0.25rem 0.5rem !important;
+  border: 1px solid #27ae60 !important;
+  border-radius: 6px !important;
+  background: rgba(39, 174, 96, 0.1) !important;
 }
 
 .supplier-statements-current-amount-red {
   font-size: 1rem !important;
   font-weight: 700 !important;
-  color: #6c757d !important;
+  color: #e74c3c !important;
+  padding: 0.25rem 0.5rem !important;
+  border: 1px solid #e74c3c !important;
+  border-radius: 6px !important;
+  background: rgba(231, 76, 60, 0.1) !important;
 }
 
 /* Payment In/Out */
@@ -558,7 +554,7 @@
 }
 
 .supplier-statements-payment-out {
-  background: linear-gradient(135deg, #6c757d, #495057) !important;
+  background: linear-gradient(135deg, #6e3b3b, #ff0101) !important;
   color: white !important;
   padding: 0.25rem 0.75rem !important;
   border-radius: 8px !important;
@@ -568,21 +564,7 @@
   letter-spacing: 0.5px !important;
 }
 
-/* Bottom buttons - red for give, green for receive */
-.supplier-statements-give-button {
-  background: linear-gradient(135deg, #6e3b3b, #ff0101) !important;
-  color: white !important;
-}
-.supplier-statements-give-button:hover {
-  background: linear-gradient(135deg, #ff0101, #6e3b3b) !important;
-}
-.supplier-statements-receive-button {
-  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
-  color: white !important;
-}
-.supplier-statements-receive-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
-}
+/* Bottom buttons - Using global CSS */
 
 /* No Transactions */
 .supplier-statements-no-transactions {

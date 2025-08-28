@@ -6,7 +6,7 @@ import StatementPDFTemplate from '../components/StatementPDFTemplate';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { deletePaymentGiven, deletePaymentReceived } from '../services/paymentService';
 import { toast } from 'react-toastify';
-import '../styles/CustomerStatement.css';
+import '../styles/SupplierStatement.css';
 
 interface TransactionData {
     customerId: number;
@@ -20,7 +20,7 @@ interface TransactionData {
     date: string;
 }
 
-export const CustomerStatement = () => {
+export const SupplierStatement = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
@@ -49,11 +49,11 @@ export const CustomerStatement = () => {
         };
 
         if (transactionData.type === 'payment_in') {
-            navigate(`/parties/customers/statements/you-received/${id}`, {
+            navigate(`/parties/supplier/statements/you-received/${id}`, {
                 state: { initialData: editData }
             });
         } else {
-            navigate(`/parties/customers/statements/you-gave/${id}`, {
+            navigate(`/parties/supplier/statements/you-gave/${id}`, {
                 state: { initialData: editData }
             });
         }
@@ -106,7 +106,7 @@ export const CustomerStatement = () => {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `statement_${formData.customerName}_${formData.date}.pdf`;
+            link.download = `supplier_statement_${formData.customerName}_${formData.date}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -122,38 +122,38 @@ export const CustomerStatement = () => {
     };
 
     return (
-        <div className="customer-statement-container">
+        <div className="supplier-statement-container">
             <Sidebar />
             <button 
-                className="customer-statement-back-button" 
+                className="supplier-statement-back-button" 
                 onClick={() => navigate(-1)}
             >
                 <i className="bi bi-arrow-left"></i>
                 Back
             </button>
-            <main className="customer-statement-main-content">
-                <div className="customer-statement-form-container">
-                    <h2 className="customer-statement-form-title">
+            <main className="supplier-statement-main-content">
+                <div className="supplier-statement-form-container">
+                    <h2 className="supplier-statement-form-title">
                         <i className="bi bi-file-text"></i>
-                        Customer Statement Details
+                        Supplier Statement Details
                     </h2>
                     
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
+                    <div className="supplier-statement-form-row">
+                        <div className="supplier-statement-form-group">
+                            <label className="supplier-statement-label">
                                 <i className="bi bi-person me-1"></i>
-                                Customer Name
+                                Supplier Name
                             </label>
                             <input
                                 type="text"
                                 name="customerName"
                                 disabled
                                 value={formData.customerName}
-                                className="customer-statement-input"
+                                className="supplier-statement-input"
                             />
                         </div>
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
+                        <div className="supplier-statement-form-group">
+                            <label className="supplier-statement-label">
                                 <i className="bi bi-currency-rupee me-1"></i>
                                 Rs Total
                             </label>
@@ -162,14 +162,14 @@ export const CustomerStatement = () => {
                                 name="totalAmount"
                                 disabled
                                 value={formData.totalAmount}
-                                className="customer-statement-input"
+                                className="supplier-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
+                    <div className="supplier-statement-form-row">
+                        <div className="supplier-statement-form-group">
+                            <label className="supplier-statement-label">
                                 <i className="bi bi-telephone me-1"></i>
                                 Phone Number
                             </label>
@@ -178,14 +178,14 @@ export const CustomerStatement = () => {
                                 type="tel"
                                 name="phoneNumber"
                                 value={formData.phoneNumber}
-                                className="customer-statement-input"
+                                className="supplier-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
+                    <div className="supplier-statement-form-row">
+                        <div className="supplier-statement-form-group">
+                            <label className="supplier-statement-label">
                                 <i className="bi bi-info-circle me-1"></i>
                                 Details
                             </label>
@@ -194,14 +194,14 @@ export const CustomerStatement = () => {
                                 disabled
                                 name="details"
                                 value={formData.details}
-                                className="customer-statement-input"
+                                className="supplier-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
+                    <div className="supplier-statement-form-row">
+                        <div className="supplier-statement-form-group">
+                            <label className="supplier-statement-label">
                                 <i className="bi bi-calendar-event me-1"></i>
                                 Date
                             </label>
@@ -210,14 +210,14 @@ export const CustomerStatement = () => {
                                 name="date"
                                 disabled
                                 value={formData.date}
-                                className="customer-statement-input"
+                                className="supplier-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
+                    <div className="supplier-statement-form-row">
+                        <div className="supplier-statement-form-group">
+                            <label className="supplier-statement-label">
                                 <i className="bi bi-chat-text me-1"></i>
                                 Remarks
                             </label>
@@ -226,14 +226,14 @@ export const CustomerStatement = () => {
                                 name="remarks"
                                 disabled
                                 value={formData.remarks}
-                                className="customer-statement-input"
+                                className="supplier-statement-input"
                             />
                         </div>
                     </div>
 
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
+                    <div className="supplier-statement-form-row">
+                        <div className="supplier-statement-form-group">
+                            <label className="supplier-statement-label">
                                 <i className="bi bi-envelope me-1"></i>
                                 SMS
                             </label>
@@ -241,42 +241,42 @@ export const CustomerStatement = () => {
                                 disabled
                                 name="sms"
                                 value={formData.sms}
-                                className="customer-statement-textarea"
+                                className="supplier-statement-textarea"
                             />
                         </div>
                     </div>
 
-                    <div className="customer-statement-button-container">
+                    <div className="supplier-statement-button-container">
                         <button 
-                            className="customer-statement-button customer-statement-delete-button"
+                            className="supplier-statement-button supplier-statement-delete-button"
                             onClick={handleDelete}
                         >
                             <i className="bi bi-trash"></i>
                             Delete
                         </button>
                         <button 
-                            className="customer-statement-button customer-statement-edit-button"
+                            className="supplier-statement-button supplier-statement-edit-button"
                             onClick={handleEdit}
                         >
                             <i className="bi bi-pencil"></i>
                             Edit
                         </button>
                         <button 
-                            className="customer-statement-button customer-statement-print-button"
+                            className="supplier-statement-button supplier-statement-print-button"
                             onClick={handlePrintPDF}
                         >
                             <i className="bi bi-printer"></i>
                             Print PDF
                         </button>
                         <button 
-                            className="customer-statement-button customer-statement-download-button"
+                            className="supplier-statement-button supplier-statement-download-button"
                             onClick={handleDownloadPDF}
                         >
                             <i className="bi bi-download"></i>
                             Download PDF
                         </button>
                         <button 
-                            className="customer-statement-button customer-statement-share-button"
+                            className="supplier-statement-button supplier-statement-share-button"
                             onClick={handleShare}
                         >
                             <i className="bi bi-share"></i>

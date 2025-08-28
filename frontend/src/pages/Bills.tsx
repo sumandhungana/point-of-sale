@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { BackButton } from '../components/BackButton';
 import '../styles/Bills.css';
 
 export const Bills: React.FC = () => {
@@ -10,7 +11,12 @@ export const Bills: React.FC = () => {
       <div className="bills-container">
         <Navbar />
         <div className="bills-content">
-          <div className="bills-header">
+          <div className="bills-header" style={{ position: 'relative', minHeight: '120px' }}>
+            <BackButton 
+              to="/dashboard" 
+              label="Back to Dashboard" 
+              className="below-navbar"
+            />
             <h1>Bills Management</h1>
             <p>Manage and track all your bills and invoices</p>
           </div>

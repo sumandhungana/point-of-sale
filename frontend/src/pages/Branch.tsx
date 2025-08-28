@@ -1,6 +1,7 @@
 import React from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { BackButton } from '../components/BackButton';
 import '../styles/Branch.css';
 
 export const Branch: React.FC = () => {
@@ -10,7 +11,12 @@ export const Branch: React.FC = () => {
       <div className="branch-container">
         <Navbar />
         <div className="branch-content">
-          <div className="branch-header">
+          <div className="branch-header" style={{ position: 'relative', minHeight: '120px' }}>
+            <BackButton 
+              to="/dashboard" 
+              label="Back to Dashboard" 
+              className="below-navbar"
+            />
             <h1>Branch Management</h1>
             <p>Manage your business branches and locations</p>
           </div>

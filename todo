@@ -1,7 +1,14 @@
-1.Customer vanda mathi DASHBOARD vanne ra PARTIES vanne Name rakhdinuss ani Customer, Supplier, Cash in Hand ra Bank Deposit ko table lai vitra halne but nalukne banayara
-2.Customer ma click garda vitrako tabale haru Length thick xa sir hight le main senter ko space khayo tyo sabai tabale ko hight lai matra kam gardinuss hai kina ki customer ko list badhi dekhiyoss
-3.Amount pani give ra received ma Red ra Green ra settle xa vane defult Color le dekhine banaidinus
-4.Add Customer vanne botton senter ma vayo right  side ko xeuma rakhdinuss
-5.Test vanne Customer vitra ko table pani hight ma matra sano banaidinuss ani amount haru ma color symbol gardinuss ra statement ko table lai in xa vane halka green le xaya pardinuss ra out xa vane Red le, ra give ra received vanne botton scrool nahune gardinuss
-6.Customer add garda name matra halera add garda pani add hune gardinuss
-7.customer vitra ko give ra received amount lai Dashboard ko Due amount ra Paid Amount ma dekhine gardinuss
+Customer vitra ko table haru ta thick vayo sir
+Aru vitra vitra ko section ma chai pahile ko jatrai raixa aru ma pani hight ma sano banaidinuss hai
+Yo add Customer ko botton lai Amount ko muni rakhdinuss hai ali bich ma aayaxa
+Working hour vaneko thau ma time pani aaune banaidinuss ani tyo mathi patti sangai customer ko contact number pani haldinuss hai sir maile asti vanna bhule xu
+Yaslai half circle nai banaidinuss hai sir ali namile jasto vayo
+Left menu ko parties lai capital later banaidinuss
+Ali patalo aayo font haru sabai
+Sir ani yo Back botton haru xuteko xa dherai page haru ma same botton haru milayara rakhau na hai
+Ani sir Customer ra statement direct delete hune vayaxa tyo pani milaunuss hai
+Delete garne ki nagarne vanera sodhne pop-up aaune banauna paryo
+Ani Manage Inventory name lai long vayara 2 line ma aayo
+Teslai MGMT INVENTORY gardina patyo sir teso garda ali milne dekhiyo
+capitalize the Parties and remove all the icon from the submenu of the Parties
+Also make all the mont of the side bar much clearler and little bigger 

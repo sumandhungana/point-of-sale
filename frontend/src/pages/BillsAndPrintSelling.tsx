@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
+import { BackButton } from '../components/BackButton';
 import { fetchInvoiceSettings, saveInvoiceSettings } from '../services/appSettingService';
 import '../styles/BillsAndPrintSelling.css';
 
@@ -198,7 +199,12 @@ export const BillsAndPrintSelling = () => {
       <Sidebar />
       <div className="bills-main-content">
         <Navbar />
-        <div className="bills-form-container">
+        <div className="bills-form-container" style={{ position: 'relative', minHeight: '120px' }}>
+          <BackButton 
+            to="/app-settings" 
+            label="Back to Settings" 
+            className="below-navbar"
+          />
           <form onSubmit={handleSubmit}>
             {/* Invoice Setting Section */}
             <div className="bills-section">

@@ -10,6 +10,7 @@
   z-index: 1001;
   box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: "Inter", "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 .sidebar::-webkit-scrollbar {
@@ -121,7 +122,7 @@
 
 .user-name {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.05rem; /* slight bump */
   font-weight: 600;
   color: var(--side-menu-font-color, #ffffff);
   transition: color 0.3s ease;
@@ -129,7 +130,7 @@
 
 .user-role {
   margin: 0;
-  font-size: 0.875rem;
+  font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.7);
   transition: color 0.3s ease;
 }
@@ -192,8 +193,8 @@
   color: var(--side-menu-font-color, rgba(255, 255, 255, 0.8)) !important;
   text-decoration: none;
   border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
+  font-size: 1rem; /* increase for readability */
+  font-weight: 700; /* make bold */
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
@@ -252,8 +253,15 @@
   transition: all 0.3s ease;
 }
 
+.nav-text {
+  margin: 0;
+  flex: 1;
+  transition: all 0.3s ease;
+  font-weight: 700; /* make bold by default */
+}
+
 .nav-link:hover .nav-text {
-  font-weight: 600;
+  font-weight: 700; /* keep bold on hover */
 }
 
 .expand-icon {
@@ -289,7 +297,7 @@
   color: var(--side-menu-font-color, rgba(255, 255, 255, 0.7)) !important;
   text-decoration: none;
   border-radius: 6px;
-  font-size: 0.8rem;
+  font-size: 0.95rem; /* bump nested size */
   font-weight: 400;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
@@ -348,10 +356,11 @@
   margin: 0;
   flex: 1;
   transition: all 0.3s ease;
+  font-weight: 500; /* keep nested items medium weight */
 }
 
 .nested-nav-link:hover .nested-nav-text {
-  font-weight: 500;
+  font-weight: 600; /* slightly bolder on hover for nested */
 }
 
 /* Popup Styles */

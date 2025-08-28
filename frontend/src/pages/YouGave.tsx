@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
+import { BackButton } from '../components/BackButton';
 import { createPaymentGiven, updatePaymentGiven, PaymentGiven } from '../services/paymentService';
 import { toast, Bounce } from 'react-toastify';
 import '../styles/YouGave.css';
@@ -106,12 +107,13 @@ export const YouGave = () => {
     };
 
     return (
-        <div className="you-gave-page">
+        <div className="you-gave-page" style={{ position: 'relative' }}>
             <Sidebar />
-            <button className="you-gave-back-button" onClick={() => navigate(-1)}>
-                <i className="bi bi-arrow-left"></i>
-                Back
-            </button>
+            <BackButton 
+                to={`/parties/customers/statements/${id}`}
+                label="Back to Statements"
+                className="below-navbar"
+            />
             <main className="you-gave-main-content">
                 <div className="you-gave-form-container">
                     <h2 className="you-gave-form-title">
