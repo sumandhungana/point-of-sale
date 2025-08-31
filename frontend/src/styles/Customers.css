@@ -549,7 +549,7 @@
 .customers-add-button {
   position: fixed !important;
   bottom: 30px !important;
-  right: 240px !important;
+  right: 30px !important;
   z-index: 1000 !important;
   padding: 1rem 2rem !important;
   font-size: 1rem !important;

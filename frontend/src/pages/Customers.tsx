@@ -664,10 +664,10 @@ export const Customers = () => {
                                         <i className="bi bi-telephone me-1"></i>
                                         Contact: {customer.phone || customer.phoneNumber || 'N/A'}
                                     </p>
-                                    <p className="customers-working-hours">
+                                    {/* <p className="customers-working-hours">
                                         <i className="bi bi-clock me-1"></i>
                                         Working Hours: 0
-                                    </p>
+                                    </p> */}
                                 </div>
                                 <div style={{
                                     ...styles.customerAmount,

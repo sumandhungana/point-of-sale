@@ -1,6 +1,6 @@
 /* Modern Sidebar Styles */
 .sidebar {
-  width: 280px;
+  width: 300px;
   height: calc(100vh - 54px);
   background: linear-gradient(180deg, var(--side-menu-bg-color, #2c3e50) 0%, var(--side-menu-bg-end-color, #34495e) 100%);
   position: fixed;
@@ -258,6 +258,9 @@
   flex: 1;
   transition: all 0.3s ease;
   font-weight: 700; /* make bold by default */
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .nav-link:hover .nav-text {
@@ -357,6 +360,9 @@
   flex: 1;
   transition: all 0.3s ease;
   font-weight: 500; /* keep nested items medium weight */
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 .nested-nav-link:hover .nested-nav-text {
