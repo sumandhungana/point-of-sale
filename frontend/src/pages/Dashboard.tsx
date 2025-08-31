@@ -87,8 +87,8 @@ const Dashboard: React.FC = () => {
         setTotalItem(items.length || 0);
 
         // Calculate payment totals from customers (same logic as Customers page)
-        let givenTotal = 0;
-        let receivedTotal = 0;
+        let customerGivenTotal = 0;
+        let customerReceivedTotal = 0;
 
         console.log('Starting payment calculation for', customers.length, 'customers');
 
@@ -98,16 +98,14 @@ const Dashboard: React.FC = () => {
             console.log(`Customer ${customer.name} (ID: ${customer.id}) has ${paymentHistory.length} payments`);
             
             paymentHistory.forEach(payment => {
-              console.log(`Payment: type=${payment.type}, amount=${payment.amount}, oldBalance=${payment.oldBalance}, newBalance=${payment.newBalance}`);
+              console.log(`Payment: type=${payment.type}, amount=${payment.amount}`);
               
               if (payment.type === 'Given') {
-                const amount = Math.abs(payment.oldBalance - payment.newBalance);
-                givenTotal += amount;
-                console.log(`Added ${amount} to givenTotal (now ${givenTotal})`);
+                customerGivenTotal += payment.amount;
+                console.log(`Added ${payment.amount} to customerGivenTotal (now ${customerGivenTotal})`);
               } else if (payment.type === 'Received') {
-                const amount = Math.abs(payment.oldBalance - payment.newBalance);
-                receivedTotal += amount;
-                console.log(`Added ${amount} to receivedTotal (now ${receivedTotal})`);
+                customerReceivedTotal += payment.amount;
+                console.log(`Added ${payment.amount} to customerReceivedTotal (now ${customerReceivedTotal})`);
               } else {
                 console.log(`Unknown payment type: ${payment.type}`);
               }
@@ -117,16 +115,44 @@ const Dashboard: React.FC = () => {
           }
         }
 
-        console.log('Final totals - Given:', givenTotal, 'Received:', receivedTotal);
+        // Calculate payment totals from suppliers
+        let supplierGivenTotal = 0;
+        let supplierReceivedTotal = 0;
 
-        // Use the same calculation logic as Customers page
-        const totalDue = givenTotal - receivedTotal > 0 ? givenTotal - receivedTotal : 0;
-        const totalPaid = receivedTotal - givenTotal > 0 ? receivedTotal - givenTotal : 0;
+        console.log('Starting payment calculation for', suppliers.length, 'suppliers');
 
-        console.log('Calculated - Total Due:', totalDue, 'Total Paid:', totalPaid);
+        for (const supplier of suppliers) {
+          try {
+            const paymentHistory = await getPaymentHistory(supplier.id);
+            console.log(`Supplier ${supplier.name} (ID: ${supplier.id}) has ${paymentHistory.length} payments`);
+            
+            paymentHistory.forEach(payment => {
+              console.log(`Payment: type=${payment.type}, amount=${payment.amount}`);
+              
+              if (payment.type === 'Given') {
+                supplierGivenTotal += payment.amount;
+                console.log(`Added ${payment.amount} to supplierGivenTotal (now ${supplierGivenTotal})`);
+              } else if (payment.type === 'Received') {
+                supplierReceivedTotal += payment.amount;
+                console.log(`Added ${payment.amount} to supplierReceivedTotal (now ${supplierReceivedTotal})`);
+              } else {
+                console.log(`Unknown payment type: ${payment.type}`);
+              }
+            });
+          } catch (err) {
+            console.error(`Failed to fetch payment history for supplier ${supplier.id}:`, err);
+          }
+        }
 
-        setTotalDue(totalDue);
-        setTotalPaid(totalPaid);
+        // Combine customer and supplier totals
+        const totalGiven = customerGivenTotal + supplierGivenTotal;
+        const totalReceived = customerReceivedTotal + supplierReceivedTotal;
+
+        console.log('Final totals - Given:', totalGiven, 'Received:', totalReceived);
+
+        // Set the totals (Due = Given, Paid = Received)
+        setTotalDue(totalGiven);
+        setTotalPaid(totalReceived);
         setTotalDeposit(0); // Placeholder for now
 
 
@@ -186,8 +212,8 @@ const Dashboard: React.FC = () => {
     { title: 'Total Branch', value: totalBranch, icon: 'bi-building', iconColor: '#9C27B0' },
     { title: 'Total App User', value: totalAppUser, icon: 'bi-person-badge', iconColor: '#2196F3' },
     { title: 'Total Item', value: totalItem, icon: 'bi-bag-check', iconColor: '#FF9800' },
-    { title: 'Total Due', value: totalDue, icon: 'bi-credit-card-2-back', iconColor: '#F44336', isCurrency: true },
-    { title: 'Total Paid', value: totalPaid, icon: 'bi-currency-exchange', iconColor: '#4CAF50', isCurrency: true },
+    { title: 'Total Due', value: totalDue, icon: 'bi-arrow-up-circle', iconColor: '#F44336', isCurrency: true },
+    { title: 'Total Paid', value: totalPaid, icon: 'bi-arrow-down-circle', iconColor: '#4CAF50', isCurrency: true },
     { title: 'Total Deposit', value: totalDeposit, icon: 'bi-bank', iconColor: '#4CAF50', isCurrency: true },
   ];
 

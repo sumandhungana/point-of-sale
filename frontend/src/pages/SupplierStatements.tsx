@@ -125,28 +125,24 @@ export const SupplierStatements: React.FC = () => {
 
                 <div className="supplier-statements-amount-card">
                     <div className="supplier-statements-amount-row">
-                        {(() => {
-                            const youGave = Math.max(totals.given - totals.received, 0);
-                            const youReceive = Math.max(totals.received - totals.given, 0);
-                            return (
-                                <>
-                                    <div className="supplier-statements-amount-item">
-                                        <div className="supplier-statements-amount-label">
-                                            <i className="bi bi-arrow-up-circle me-2"></i>
-                                            You Gave
-                                        </div>
-                                        <div className="supplier-statements-amount-value">रु{youGave.toLocaleString()}</div>
-                                    </div>
-                                    <div className="supplier-statements-amount-item">
-                                        <div className="supplier-statements-amount-label">
-                                            <i className="bi bi-arrow-down-circle me-2"></i>
-                                            You Receive
-                                        </div>
-                                        <div className="supplier-statements-amount-value">रु{youReceive.toLocaleString()}</div>
-                                    </div>
-                                </>
-                            );
-                        })()}
+                        <div className="supplier-statements-amount-item">
+                            <div className="supplier-statements-amount-label">
+                                <i className="bi bi-arrow-up-circle me-2"></i>
+                                You Gave
+                            </div>
+                            <div className="supplier-statements-amount-value supplier-statements-amount-red">
+                                रु{totals.given.toLocaleString()}
+                            </div>
+                        </div>
+                        <div className="supplier-statements-amount-item">
+                            <div className="supplier-statements-amount-label">
+                                <i className="bi bi-arrow-down-circle me-2"></i>
+                                You Received
+                            </div>
+                            <div className="supplier-statements-amount-value supplier-statements-amount-green">
+                                रु{totals.received.toLocaleString()}
+                            </div>
+                        </div>
                     </div>
                     <div className="supplier-statements-reminder-row">
                         <div className="supplier-statements-reminder-label">Set Date Reminder</div>

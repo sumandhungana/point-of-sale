@@ -366,18 +366,18 @@ export const Suppliers = () => {
                         <div className="suppliers-stat-icon suppliers-stat-given-icon">
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
-                        <div className="suppliers-stat-label">You Give</div>
+                        <div className="suppliers-stat-label">You Gave</div>
                         <div className="suppliers-stat-value">
-                            रु{(overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received).toLocaleString()}
+                            रु{overallTotals.given.toLocaleString()}
                         </div>
                     </div>
                     <div className="suppliers-stat-card">
                         <div className="suppliers-stat-icon suppliers-stat-received-icon">
                             <i className="bi bi-arrow-down-circle"></i>
                         </div>
-                        <div className="suppliers-stat-label">You Receive</div>
+                        <div className="suppliers-stat-label">You Received</div>
                         <div className="suppliers-stat-value">
-                            रु{(overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given).toLocaleString()}
+                            रु{overallTotals.received.toLocaleString()}
                         </div>
                     </div>
                     <div className="suppliers-stat-card">
@@ -472,11 +472,12 @@ export const Suppliers = () => {
                                     Contact: {supplier.phone || supplier.phoneNumber || 'N/A'}
                                 </p>
                             </div>
-                            <div className="suppliers-customer-amount" style={{
-                                color: supplier.balance === 0 ? '#212529' : supplier.balance > 0 ? '#28a745' : '#6c757d'
-                            }}>
-                                रु{Math.abs(supplier.balance).toLocaleString()}
-                            </div>
+                                                         <div className={`suppliers-customer-amount ${
+                                 supplier.balance === 0 ? 'balance-zero' : 
+                                 supplier.balance > 0 ? 'balance-positive' : 'balance-negative'
+                             }`}>
+                                 रु{Math.abs(supplier.balance).toLocaleString()}
+                             </div>
                         </div>
                     </div>
                 ))}

@@ -261,6 +261,9 @@
   white-space: nowrap !important;
   overflow: hidden !important;
   text-overflow: ellipsis !important;
+  min-width: 0 !important;
+  word-break: keep-all !important;
+  hyphens: none !important;
 }
 
 .nav-link:hover .nav-text {
@@ -734,6 +737,27 @@
   .popup-content {
     width: 95%;
     padding: 1.5rem;
+  }
+}
+
+/* Ensure text stays on one line for all screen sizes */
+@media (max-width: 1200px) {
+  .nav-text {
+    font-size: 0.9rem !important;
+  }
+  
+  .nav-link {
+    padding: 0.75rem 0.75rem !important;
+  }
+}
+
+@media (max-width: 1000px) {
+  .nav-text {
+    font-size: 0.85rem !important;
+  }
+  
+  .nav-link {
+    padding: 0.75rem 0.5rem !important;
   }
 }
 

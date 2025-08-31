@@ -38,7 +38,9 @@ export const Customers = () => {
                 const customersWithBalance = await Promise.all(
                     data.map(async (customer) => {
                         try {
+                            console.log('Fetching payment history for customer:', customer.id, customer.name);
                             const paymentHistory = await getPaymentHistory(customer.id);
+                            console.log('Received payment history for', customer.name, ':', paymentHistory);
                             const balance = paymentHistory.reduce((acc, payment) => {
                                 if (payment.type === 'Received') {
                                     return acc + payment.amount;
@@ -46,6 +48,7 @@ export const Customers = () => {
                                     return acc - payment.amount;
                                 }
                             }, 0);
+                            console.log('Calculated balance for', customer.name, ':', balance);
                             return { ...customer, balance, paymentHistory };
                         } catch (err) {
                             console.error(`Failed to fetch payment history for customer ${customer.id}:`, err);
@@ -55,18 +58,24 @@ export const Customers = () => {
                 );
                 setCustomers(customersWithBalance);
 
-                // Calculate overall totals using the same logic as CustomerStatements
+                // Calculate overall totals using simple amount sums
+                console.log('Calculating overall totals from customers:', customersWithBalance);
                 const totals = customersWithBalance.reduce((acc, customer) => {
+                    console.log('Processing customer:', customer.name, 'Payment history:', customer.paymentHistory);
                     customer.paymentHistory.forEach(payment => {
+                        console.log('Processing payment for', customer.name, ':', payment);
                         if (payment.type === 'Given') {
-                            acc.given += Math.abs(payment.oldBalance - payment.newBalance);
+                            acc.given += payment.amount;
+                            console.log('Added to given:', payment.amount, 'Total given now:', acc.given);
                         } else if (payment.type === 'Received') {
-                            acc.received += Math.abs(payment.oldBalance - payment.newBalance);
+                            acc.received += payment.amount;
+                            console.log('Added to received:', payment.amount, 'Total received now:', acc.received);
                         }
                     });
                     return acc;
                 }, { given: 0, received: 0, online: 0 });
 
+                console.log('Final overall totals:', totals);
                 setOverallTotals(totals);
             } catch (err) {
                 setError('Failed to load customers');
@@ -551,18 +560,18 @@ export const Customers = () => {
                         <div className="customers-card-icon customers-card-give-icon">
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
-                        <div className="customers-card-header">You Give</div>
+                        <div className="customers-card-header">You Gave</div>
                         <div className="customers-card-amount" style={{ color: '#dc3545' }}>
-                            रु{(overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received).toLocaleString()}
+                            रु{overallTotals.given.toLocaleString()}
                         </div>
                     </div>
                     <div className="customers-card">
                         <div className="customers-card-icon customers-card-receive-icon">
                             <i className="bi bi-arrow-down-circle"></i>
                         </div>
-                        <div className="customers-card-header">You Receive</div>
+                        <div className="customers-card-header">You Received</div>
                         <div className="customers-card-amount" style={{ color: '#28a745' }}>
-                            रु{(overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given).toLocaleString()}
+                            रु{overallTotals.received.toLocaleString()}
                         </div>
                     </div>
                 </div>
@@ -669,12 +678,12 @@ export const Customers = () => {
                                         Working Hours: 0
                                     </p> */}
                                 </div>
-                                <div style={{
-                                    ...styles.customerAmount,
-                                    color: customer.balance === 0 ? '#212529' : customer.balance > 0 ? '#28a745' : '#6c757d'
-                                }} className="customers-customer-amount">
-                                    रु{Math.abs(customer.balance).toLocaleString()}
-                                </div>
+                                                                 <div className={`customers-customer-amount ${
+                                     customer.balance === 0 ? 'balance-zero' : 
+                                     customer.balance > 0 ? 'balance-positive' : 'balance-negative'
+                                 }`}>
+                                     रु{Math.abs(customer.balance).toLocaleString()}
+                                 </div>
                             </div>
                         </div>
                     ))}

@@ -485,6 +485,18 @@
   transition: all 0.3s ease !important;
 }
 
+.suppliers-customer-amount.balance-positive {
+  color: #28a745 !important;
+}
+
+.suppliers-customer-amount.balance-negative {
+  color: #dc3545 !important;
+}
+
+.suppliers-customer-amount.balance-zero {
+  color: #212529 !important;
+}
+
 .suppliers-customer-card:hover .suppliers-customer-amount {
   border-left-color: #3498db !important;
 }
@@ -776,6 +788,19 @@
   border: 2px dashed #dee2e6 !important;
 }
 
+/* Responsive Button Positioning */
+@media (min-width: 1500px) and (max-width: 1669px) {
+  .suppliers-add-button {
+    right: 125px !important;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1499px) {
+  .suppliers-add-button {
+    right: 36px !important;
+  }
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .suppliers-main-content {
@@ -864,6 +889,18 @@
     margin-top: 0.5rem !important;
     justify-content: center !important;
     width: 100% !important;
+  }
+
+  .suppliers-customer-amount.balance-positive {
+    color: #28a745 !important;
+  }
+
+  .suppliers-customer-amount.balance-negative {
+    color: #dc3545 !important;
+  }
+
+  .suppliers-customer-amount.balance-zero {
+    color: #212529 !important;
   }
 
   .suppliers-add-button {

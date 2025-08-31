@@ -115,16 +115,22 @@ export const CustomerStatements = () => {
 
     // Calculate totals from payment history
     const calculateTotals = (history: PaymentHistory[]) => {
-        return paymentHistory.reduce((acc, payment) => {
+        console.log('Calculating totals from history:', history);
+        const result = history.reduce((acc, payment) => {
+            console.log('Processing payment:', payment);
             if (payment.type === 'Given') {
-                acc.given += Math.abs(payment.oldBalance - payment.newBalance);
+                acc.given += payment.amount;
+                console.log('Added to given:', payment.amount, 'Total given now:', acc.given);
             } else if (payment.type === 'Received') {
-                acc.received += Math.abs(payment.oldBalance - payment.newBalance);
+                acc.received += payment.amount;
+                console.log('Added to received:', payment.amount, 'Total received now:', acc.received);
             }
             return acc;
         }, { given: 0, received: 0 });
+        console.log('Final totals:', result);
+        return result;
     };
-    const totals = calculateTotals(customerData.paymentHistory);
+    const totals = calculateTotals(paymentHistory);
 
     useEffect(() => {
         const fetchPaymentHistory = async () => {
@@ -135,7 +141,9 @@ export const CustomerStatements = () => {
                     return;
                 }
                 
+                console.log('Fetching payment history for customer ID:', id);
                 const history = await getPaymentHistory(parseInt(id));
+                console.log('Received payment history:', history);
                 setPaymentHistory(history);
                 setIsLoading(false);
             } catch (error) {
@@ -678,17 +686,17 @@ export const CustomerStatements = () => {
                                 <i className="bi bi-arrow-up-circle me-2"></i>
                                 You Gave
                             </div>
-                            <div className="customer-statements-amount-value">
-                                रु{(totals.given - totals.received < 0 ? 0 : totals.given - totals.received).toLocaleString()}
+                            <div className="customer-statements-amount-value customer-statements-amount-red">
+                                रु{totals.given.toLocaleString()}
                             </div>
                         </div>
                         <div className="customer-statements-amount-item">
                             <div className="customer-statements-amount-label">
                                 <i className="bi bi-arrow-down-circle me-2"></i>
-                                You Receive
+                                You Received
                             </div>
-                            <div className="customer-statements-amount-value">
-                                रु{(totals.received - totals.given < 0 ? 0 : totals.received - totals.given).toLocaleString()}
+                            <div className="customer-statements-amount-value customer-statements-amount-green">
+                                रु{totals.received.toLocaleString()}
                             </div>
                         </div>
                     </div>

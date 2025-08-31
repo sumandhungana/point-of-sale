@@ -177,10 +177,10 @@ padding:12px;
 }
 
 .customer-statements-amount-row {
-  display: flex !important;
-  justify-content: space-between !important;
-  margin-bottom: 1.5rem !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
   gap: 1rem !important;
+  margin-bottom: 1.5rem !important;
 }
 
 .customer-statements-amount-item {
@@ -251,6 +251,38 @@ padding:12px;
 }
 .customer-statements-amount-row .customer-statements-amount-item:last-child .customer-statements-amount-value {
   color: #28a745 !important;
+}
+
+/* Separate totals styling */
+.customer-statements-amount-red {
+  color: #dc3545 !important;
+}
+
+.customer-statements-amount-green {
+  color: #28a745 !important;
+}
+
+/* Balance indicator styling */
+.customer-statements-balance-indicator {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  margin-left: 0.5rem !important;
+  opacity: 0.8 !important;
+}
+
+/* Third item (Net Balance) styling */
+.customer-statements-amount-row .customer-statements-amount-item:nth-child(3) .customer-statements-amount-label i {
+  background: #6c757d !important; /* gray for calculator */
+  color: #ffffff !important;
+  width: 28px !important;
+  height: 28px !important;
+  line-height: 28px !important;
+  text-align: center !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 14px !important;
 }
 
 /* Transactions Container */

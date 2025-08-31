@@ -541,6 +541,18 @@
   transition: all 0.3s ease !important;
 }
 
+.customers-customer-amount.balance-positive {
+  color: #28a745 !important;
+}
+
+.customers-customer-amount.balance-negative {
+  color: #dc3545 !important;
+}
+
+.customers-customer-amount.balance-zero {
+  color: #212529 !important;
+}
+
 .customers-customer-card:hover .customers-customer-amount {
   border-left-color: #3498db !important;
 }
@@ -549,7 +561,7 @@
 .customers-add-button {
   position: fixed !important;
   bottom: 30px !important;
-  right: 30px !important;
+  right: 240px !important;
   z-index: 1000 !important;
   padding: 1rem 2rem !important;
   font-size: 1rem !important;
@@ -607,6 +619,19 @@
   margin-bottom: 1rem !important;
   border: 1px solid #dee2e6 !important;
   font-weight: 500 !important;
+}
+
+/* Responsive Button Positioning */
+@media (min-width: 1500px) and (max-width: 1669px) {
+  .customers-add-button {
+    right: 125px !important;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1499px) {
+  .customers-add-button {
+    right: 36px !important;
+  }
 }
 
 /* Mobile Responsive */
@@ -749,6 +774,18 @@
     margin-top: 0.5rem !important;
     justify-content: center !important;
     width: 100% !important;
+  }
+
+  .customers-customer-amount.balance-positive {
+    color: #28a745 !important;
+  }
+
+  .customers-customer-amount.balance-negative {
+    color: #dc3545 !important;
+  }
+
+  .customers-customer-amount.balance-zero {
+    color: #212529 !important;
   }
 
   .customers-add-button {
