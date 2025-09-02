@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { getCustomers, getSuppliers } from '../services/customerService';
 import { SystemMonitor } from '../components/SystemMonitor';
-import { getPaymentHistory } from '../services/paymentService';
+import { getDashboardPaymentTotals } from '../services/paymentService';
 import { fetchStaff } from '../services/staffService';
 import { fetchSalesBills } from '../services/salesBillService';
 import { fetchPurchases } from '../services/purchaseListService';
@@ -86,73 +86,19 @@ const Dashboard: React.FC = () => {
         const items = await fetchItems();
         setTotalItem(items.length || 0);
 
-        // Calculate payment totals from customers (same logic as Customers page)
-        let customerGivenTotal = 0;
-        let customerReceivedTotal = 0;
-
-        console.log('Starting payment calculation for', customers.length, 'customers');
-
-        for (const customer of customers) {
-          try {
-            const paymentHistory = await getPaymentHistory(customer.id);
-            console.log(`Customer ${customer.name} (ID: ${customer.id}) has ${paymentHistory.length} payments`);
-            
-            paymentHistory.forEach(payment => {
-              console.log(`Payment: type=${payment.type}, amount=${payment.amount}`);
-              
-              if (payment.type === 'Given') {
-                customerGivenTotal += payment.amount;
-                console.log(`Added ${payment.amount} to customerGivenTotal (now ${customerGivenTotal})`);
-              } else if (payment.type === 'Received') {
-                customerReceivedTotal += payment.amount;
-                console.log(`Added ${payment.amount} to customerReceivedTotal (now ${customerReceivedTotal})`);
-              } else {
-                console.log(`Unknown payment type: ${payment.type}`);
-              }
-            });
-          } catch (err) {
-            console.error(`Failed to fetch payment history for customer ${customer.id}:`, err);
-          }
+        // Get payment totals from the new dashboard endpoint
+        try {
+          const paymentTotals = await getDashboardPaymentTotals();
+          console.log('Dashboard payment totals:', paymentTotals);
+          
+          setTotalDue(paymentTotals.totalGiven);
+          setTotalPaid(paymentTotals.totalReceived);
+        } catch (err) {
+          console.error('Failed to fetch dashboard payment totals:', err);
+          setTotalDue(0);
+          setTotalPaid(0);
         }
 
-        // Calculate payment totals from suppliers
-        let supplierGivenTotal = 0;
-        let supplierReceivedTotal = 0;
-
-        console.log('Starting payment calculation for', suppliers.length, 'suppliers');
-
-        for (const supplier of suppliers) {
-          try {
-            const paymentHistory = await getPaymentHistory(supplier.id);
-            console.log(`Supplier ${supplier.name} (ID: ${supplier.id}) has ${paymentHistory.length} payments`);
-            
-            paymentHistory.forEach(payment => {
-              console.log(`Payment: type=${payment.type}, amount=${payment.amount}`);
-              
-              if (payment.type === 'Given') {
-                supplierGivenTotal += payment.amount;
-                console.log(`Added ${payment.amount} to supplierGivenTotal (now ${supplierGivenTotal})`);
-              } else if (payment.type === 'Received') {
-                supplierReceivedTotal += payment.amount;
-                console.log(`Added ${payment.amount} to supplierReceivedTotal (now ${supplierReceivedTotal})`);
-              } else {
-                console.log(`Unknown payment type: ${payment.type}`);
-              }
-            });
-          } catch (err) {
-            console.error(`Failed to fetch payment history for supplier ${supplier.id}:`, err);
-          }
-        }
-
-        // Combine customer and supplier totals
-        const totalGiven = customerGivenTotal + supplierGivenTotal;
-        const totalReceived = customerReceivedTotal + supplierReceivedTotal;
-
-        console.log('Final totals - Given:', totalGiven, 'Received:', totalReceived);
-
-        // Set the totals (Due = Given, Paid = Received)
-        setTotalDue(totalGiven);
-        setTotalPaid(totalReceived);
         setTotalDeposit(0); // Placeholder for now
 
 
@@ -212,7 +158,7 @@ const Dashboard: React.FC = () => {
     { title: 'Total Branch', value: totalBranch, icon: 'bi-building', iconColor: '#9C27B0' },
     { title: 'Total App User', value: totalAppUser, icon: 'bi-person-badge', iconColor: '#2196F3' },
     { title: 'Total Item', value: totalItem, icon: 'bi-bag-check', iconColor: '#FF9800' },
-    { title: 'Total Due', value: totalDue, icon: 'bi-arrow-up-circle', iconColor: '#F44336', isCurrency: true },
+    { title: 'Total Due',value: totalDue, icon: 'bi-arrow-up-circle', iconColor: '#F44336', isCurrency: true },
     { title: 'Total Paid', value: totalPaid, icon: 'bi-arrow-down-circle', iconColor: '#4CAF50', isCurrency: true },
     { title: 'Total Deposit', value: totalDeposit, icon: 'bi-bank', iconColor: '#4CAF50', isCurrency: true },
   ];

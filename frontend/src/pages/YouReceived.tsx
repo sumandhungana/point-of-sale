@@ -52,7 +52,8 @@ export const YouReceived = () => {
                 await createPaymentReceived(paymentData);
                 toast.success('Payment recorded successfully!');
             }
-            navigate(`/parties/customers/statements/${id}`);
+            const cameFromSuppliers = document.referrer.includes('/suppliers/') || location.pathname.includes('/supplier/');
+            navigate(cameFromSuppliers ? `/parties/suppliers/statements/${id}` : `/parties/customers/statements/${id}`);
         } catch (err: any) {
             setError(err.message || 'Failed to save payment. Please try again.');
             toast.error(err.message || 'Failed to save payment. Please try again.');
@@ -82,7 +83,7 @@ export const YouReceived = () => {
         <div className="you-received-page" style={{ position: 'relative' }}>
             <Sidebar />
             <BackButton 
-                to={`/parties/customers/statements/${id}`}
+                to={location.pathname.includes('/supplier/') ? `/parties/suppliers/statements/${id}` : `/parties/customers/statements/${id}`}
                 label="Back to Statements"
                 className="below-navbar"
             />

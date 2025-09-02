@@ -101,7 +101,7 @@ public class PurchaseController : ControllerBase
                 return BadRequest($"Category with ID {purchaseDto.CategoryId} does not exist");
             }
 
-            string photoPath = null;
+            string? photoPath = null;
             if (purchaseDto.Photo != null)
             {
                 photoPath = await FileUploadHelper.UploadFileAsync(purchaseDto.Photo, _logger);

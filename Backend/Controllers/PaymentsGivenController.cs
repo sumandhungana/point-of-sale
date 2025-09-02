@@ -76,7 +76,7 @@ namespace Backend.Controllers
                 {
                     Id = p.Id,
                     PartyId = p.PartyId,
-                    PartyName = p.Party.Name,
+                    PartyName = p.Party != null ? p.Party.Name : string.Empty,
                     Amount = p.Amount,
                     Remarks = p.Remarks,
                     Date = p.Date,
@@ -93,7 +93,7 @@ namespace Backend.Controllers
                 {
                     Id = p.Id,
                     PartyId = p.PartyId,
-                    PartyName = p.Party.Name,
+                    PartyName = p.Party != null ? p.Party.Name : string.Empty,
                     Amount = p.Amount,
                     Remarks = p.Remarks,
                     Date = p.Date,
@@ -125,6 +125,29 @@ namespace Backend.Controllers
             }
 
             return allPayments;
+        }
+
+        // GET: api/PaymentsGiven/dashboard/totals
+        [HttpGet("dashboard/totals")]
+        public async Task<ActionResult<object>> GetDashboardPaymentTotals()
+        {
+            var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
+            
+            // Get total of all payments given
+            var totalGiven = await _context.PaymentsGiven
+                .Where(p => p.KhataBookId == currentKhataBookId)
+                .SumAsync(p => p.Amount);
+            
+            // Get total of all payments received
+            var totalReceived = await _context.PaymentsReceived
+                .Where(p => p.KhataBookId == currentKhataBookId)
+                .SumAsync(p => p.Amount);
+            
+            return Ok(new
+            {
+                totalGiven = totalGiven,
+                totalReceived = totalReceived
+            });
         }
 
         // POST: api/PaymentsGiven

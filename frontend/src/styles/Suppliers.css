@@ -165,7 +165,7 @@
 .suppliers-add-button {
   position: fixed !important;
   bottom: 30px !important;
-  right: 240px !important;
+  right: 2rem !important;
   z-index: 1000 !important;
   padding: 1rem 2rem !important;
   font-size: 1rem !important;
@@ -788,16 +788,55 @@
   border: 2px dashed #dee2e6 !important;
 }
 
-/* Responsive Button Positioning */
-@media (min-width: 1500px) and (max-width: 1669px) {
+/* Responsive Button Positioning - 50px Intervals */
+@media (min-width: 1500px) and (max-width: 1549px) {
   .suppliers-add-button {
-    right: 125px !important;
+    right: 3rem !important;
   }
 }
-
+@media (min-width: 1550px) and (max-width: 1599px) {
+  .suppliers-add-button {
+    right: 4rem !important;
+  }
+}
+@media (min-width: 1600px) and (max-width: 1649px) {
+  .suppliers-add-button {
+    right: 7rem !important;
+  }
+}
+@media (min-width: 1650px) and (max-width: 1699px) {
+  .suppliers-add-button {
+    right: 8.5rem !important;
+  }
+}
+@media (min-width: 1700px) and (max-width: 1749px) {
+  .suppliers-add-button {
+    right: 9rem !important;
+  }
+}
+@media (min-width: 1750px) and (max-width: 1799px) {
+  .suppliers-add-button {
+    right: 10.5rem !important;
+  }
+}
+@media (min-width: 1800px) and (max-width: 1849px) {
+  .suppliers-add-button {
+    right: 12.5rem !important;
+  }
+}
+@media (min-width: 1850px) and (max-width: 1899px) {
+  .suppliers-add-button {
+    right: 13.5rem !important;
+  }
+}
+@media (min-width: 1900px) and (max-width: 1949px) {
+  .suppliers-add-button {
+    right: 16rem !important;
+  }
+}
 @media (min-width: 1200px) and (max-width: 1499px) {
   .suppliers-add-button {
-    right: 36px !important;
+    right: 3rem !important;
   }
 }
 
@@ -941,3 +980,21 @@
 * {
   transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 } 
+
+/* Actions row inside main container to right-align add button */
+.suppliers-actions {
+  display: flex !important;
+  justify-content: flex-end !important;
+  margin-top: 1rem !important;
+}
+
+/* Fixed alignment to container edge for desktop */
+.suppliers-add-button {
+  right: calc((100vw - 1200px) / 3 + 1rem) !important;
+}
+
+@media (max-width: 1200px) {
+  .suppliers-add-button {
+    right: 20px !important;
+  }
+}

@@ -20,14 +20,13 @@ namespace Backend.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal Amount { get; set; }
 
-        [Required]
-        public string Remarks { get; set; }
+        // Remarks may be absent
+        public string? Remarks { get; set; }
 
         [Required]
         public DateTime Date { get; set; }
 
-        [Required]
-        public string BillPath { get; set; }
+        public string? BillPath { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

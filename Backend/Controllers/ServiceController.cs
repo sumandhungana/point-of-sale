@@ -58,7 +58,7 @@ public class ServiceController : ControllerBase
     {
         try
         {
-            string ImagePath = null;
+            string? ImagePath = null;
             if (serviceDto.Image != null)
             {
                 ImagePath = await FileUploadHelper.UploadFileAsync(serviceDto.Image, _logger);

@@ -20,8 +20,8 @@ namespace Backend.Models
         [Column(TypeName = "decimal(10,2)")]
         public decimal Amount { get; set; }
 
-        [Required]
-        public string Remarks { get; set; }
+        // Remarks can be optional in real-world usage
+        public string? Remarks { get; set; }
 
         [Required]
         public DateTime Date { get; set; }

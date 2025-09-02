@@ -59,8 +59,14 @@ export const SupplierStatements: React.FC = () => {
     }, []);
 
     const totals = useMemo(() => {
-        const given = paymentHistory.filter(p => (p.type || '').toLowerCase() === 'given').reduce((s, p) => s + p.amount, 0);
-        const received = paymentHistory.filter(p => (p.type || '').toLowerCase() === 'received').reduce((s, p) => s + p.amount, 0);
+        const given = paymentHistory.filter(p => {
+            const t = (p.type || '').toLowerCase();
+            return t === 'given' || t === 'payment_out' || t === 'you_gave';
+        }).reduce((s, p) => s + p.amount, 0);
+        const received = paymentHistory.filter(p => {
+            const t = (p.type || '').toLowerCase();
+            return t === 'received' || t === 'payment_in' || t === 'you_received';
+        }).reduce((s, p) => s + p.amount, 0);
         const net = received - given;
         return { given, received, net };
     }, [paymentHistory]);
@@ -206,7 +212,11 @@ export const SupplierStatements: React.FC = () => {
                     ) : (
                         paymentHistory
                             .slice()
-                            .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                            .sort((a, b) => {
+                                const ta = new Date(a.createdAt || a.date).getTime();
+                                const tb = new Date(b.createdAt || b.date).getTime();
+                                return tb - ta;
+                            })
                             .map((t) => (
                                 <div
                                     key={t.id}
@@ -237,7 +247,7 @@ export const SupplierStatements: React.FC = () => {
                                         <div className="supplier-statements-transaction-row">
                                             <div className="supplier-statements-transaction-label">Payment Type:</div>
                                             <div className="supplier-statements-transaction-value">
-                                                {(t.type || '').toLowerCase() === 'received' ? (
+                                                {(t.type || '').toLowerCase() === 'received' || (t.type || '').toLowerCase() === 'payment_in' || (t.type || '').toLowerCase() === 'you_received' ? (
                                                     <span className="supplier-statements-payment-in">Payment In</span>
                                                 ) : (
                                                     <span className="supplier-statements-payment-out">Payment Out</span>
@@ -252,7 +262,7 @@ export const SupplierStatements: React.FC = () => {
                                         </div>
                                         <div className="supplier-statements-transaction-row">
                                             <div className="supplier-statements-transaction-label">Balance:</div>
-                                            <div className="supplier-statements-transaction-value">रु{t.oldBalance.toLocaleString()}</div>
+                                            <div className="supplier-statements-transaction-value">रु{Math.abs(t.amount).toLocaleString()}</div>
                                         </div>
                                         <div className="supplier-statements-transaction-row">
                                             <div className="supplier-statements-transaction-label">Remarks:</div>
@@ -260,9 +270,8 @@ export const SupplierStatements: React.FC = () => {
                                         </div>
                                     </div>
                                     <div className="supplier-statements-transaction-amounts">
-                                        <div className="supplier-statements-old-amount">रु{t.oldBalance.toLocaleString()}</div>
                                         <div className={(t.type || '').toLowerCase() === 'received' ? 'supplier-statements-current-amount' : 'supplier-statements-current-amount-red'}>
-                                            रु{t.newBalance.toLocaleString()}
+                                            रु{Math.abs(t.amount).toLocaleString()}
                                         </div>
                                     </div>
                                 </div>

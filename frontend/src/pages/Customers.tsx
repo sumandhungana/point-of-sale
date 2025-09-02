@@ -671,12 +671,12 @@ export const Customers = () => {
                                     <h3 style={styles.customerName} className="customers-customer-name">{customer.name}</h3>
                                     <p className="customers-working-hours">
                                         <i className="bi bi-telephone me-1"></i>
-                                        Contact: {customer.phone || customer.phoneNumber || 'N/A'}
+                                        {customer.phone || customer.phoneNumber || 'N/A'}
                                     </p>
-                                    {/* <p className="customers-working-hours">
+                                    <p className="customers-working-hours">
                                         <i className="bi bi-clock me-1"></i>
-                                        Working Hours: 0
-                                    </p> */}
+                                        0
+                                    </p>
                                 </div>
                                                                  <div className={`customers-customer-amount ${
                                      customer.balance === 0 ? 'balance-zero' : 
@@ -688,13 +688,15 @@ export const Customers = () => {
                         </div>
                     ))}
 
-                <button 
-                    className="customers-add-button"
-                    onClick={handleAddCustomer}
-                >
-                    <i className="bi bi-plus-circle"></i>
-                    Add Customer
-                </button>
+                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                    <button 
+                        className="customers-add-button"
+                        onClick={handleAddCustomer}
+                    >
+                        <i className="bi bi-plus-circle"></i>
+                        Add Customer
+                    </button>
+                </div>
             </main>
         </div>
     );

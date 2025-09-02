@@ -101,7 +101,7 @@ public class IncomeController : ControllerBase
                 return BadRequest($"Category with ID {incomeDto.CategoryId} does not exist");
             }
 
-            string photoPath = null;
+            string? photoPath = null;
             if (incomeDto.Photo != null)
             {
                 photoPath = await FileUploadHelper.UploadFileAsync(incomeDto.Photo, _logger);

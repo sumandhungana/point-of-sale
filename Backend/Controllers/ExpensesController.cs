@@ -87,7 +87,7 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            string photoPath = null;
+            string? photoPath = null;
             if (expenseDto.Photo != null)
             {
                 photoPath = await FileUploadHelper.UploadFileAsync(expenseDto.Photo, _logger);

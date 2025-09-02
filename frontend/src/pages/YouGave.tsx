@@ -81,7 +81,8 @@ export const YouGave = () => {
                     } as React.CSSProperties
                 });
             }
-            navigate(`/parties/customers/statements/${id}`);
+            const cameFromSuppliers = document.referrer.includes('/suppliers/') || location.pathname.includes('/supplier/');
+            navigate(cameFromSuppliers ? `/parties/suppliers/statements/${id}` : `/parties/customers/statements/${id}`);
         } catch (error) {
             toast.error(error instanceof Error ? error.message : 'Failed to record payment');
         } finally {
@@ -110,7 +111,7 @@ export const YouGave = () => {
         <div className="you-gave-page" style={{ position: 'relative' }}>
             <Sidebar />
             <BackButton 
-                to={`/parties/customers/statements/${id}`}
+                to={location.pathname.includes('/supplier/') ? `/parties/suppliers/statements/${id}` : `/parties/customers/statements/${id}`}
                 label="Back to Statements"
                 className="below-navbar"
             />

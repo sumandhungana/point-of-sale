@@ -118,10 +118,11 @@ export const CustomerStatements = () => {
         console.log('Calculating totals from history:', history);
         const result = history.reduce((acc, payment) => {
             console.log('Processing payment:', payment);
-            if (payment.type === 'Given') {
+            const t = (payment.type || '').toLowerCase();
+            if (t === 'given' || t === 'payment_out' || t === 'you_gave') {
                 acc.given += payment.amount;
                 console.log('Added to given:', payment.amount, 'Total given now:', acc.given);
-            } else if (payment.type === 'Received') {
+            } else if (t === 'received' || t === 'payment_in' || t === 'you_received') {
                 acc.received += payment.amount;
                 console.log('Added to received:', payment.amount, 'Total received now:', acc.received);
             }
@@ -159,14 +160,13 @@ export const CustomerStatements = () => {
     // Group transactions by type and date
     const groupedTransactions = paymentHistory.reduce((groups, transaction) => {
         const date = new Date(transaction.date).toISOString().split('T')[0];
-        const type = transaction.type === 'Given' ? 'payment_out' : 'payment_in';
-        if (!groups[date]) {
-            groups[date] = [];
-        }
+        const rawType = (transaction.type || '').toLowerCase();
+        const type = rawType === 'given' || rawType === 'payment_out' || rawType === 'you_gave' ? 'payment_out' : 'payment_in';
+        if (!groups[date]) groups[date] = [];
         groups[date].push({
             id: transaction.id,
-            date: date,
             type: type,
+            date: transaction.date,
             amount: transaction.amount,
             oldBalance: transaction.oldBalance,
             currentBalance: transaction.newBalance,
@@ -752,7 +752,11 @@ export const CustomerStatements = () => {
                                 .map(([date, dateTransactions]) => (
                                 <div key={date} className="customer-statements-date-group">
                                     {dateTransactions
-                                        .sort((a, b) => b.timestamp - a.timestamp)
+                                        .sort((a, b) => {
+                                            const tb = new Date(b.createdAt || b.date).getTime();
+                                            const ta = new Date(a.createdAt || a.date).getTime();
+                                            return tb - ta;
+                                        })
                                         .map(transaction => (
                                         <div 
                                             key={transaction.id} 
@@ -781,7 +785,7 @@ export const CustomerStatements = () => {
                                                     <div className="customer-statements-transaction-label">Balance:</div>
                                                     <div className="customer-statements-transaction-value">
                                                         <i className="bi bi-wallet2 me-1"></i>
-                                                        रु{transaction.oldBalance.toLocaleString()}
+                                                        रु{Math.abs(transaction.amount).toLocaleString()}
                                                     </div>
                                                 </div>
                                                 <div className="customer-statements-transaction-row">

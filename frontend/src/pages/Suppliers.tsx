@@ -469,7 +469,7 @@ export const Suppliers = () => {
                                 <h3 className="suppliers-customer-name">{supplier.name}</h3>
                                 <p className="suppliers-working-hours">
                                     <i className="bi bi-telephone me-1"></i>
-                                    Contact: {supplier.phone || supplier.phoneNumber || 'N/A'}
+                                    {supplier.phone || supplier.phoneNumber || 'N/A'}
                                 </p>
                             </div>
                                                          <div className={`suppliers-customer-amount ${
@@ -481,13 +481,15 @@ export const Suppliers = () => {
                         </div>
                     </div>
                 ))}
-                <button 
-                    className="suppliers-add-button"
-                    onClick={handleAddSupplier}
-                >
-                    <i className="bi bi-plus-circle"></i>
-                    Add Supplier
-                </button>
+                <div className="suppliers-actions">
+                    <button 
+                        className="suppliers-add-button"
+                        onClick={handleAddSupplier}
+                    >
+                        <i className="bi bi-plus-circle"></i>
+                        Add Supplier
+                    </button>
+                </div>
             </main>
         </div>
     );

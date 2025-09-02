@@ -72,7 +72,7 @@ public class SalesBillController : ControllerBase
                 return BadRequest("Customer not found");
             }
 
-            string photoPath = null;
+            string? photoPath = null;
             if (!string.IsNullOrEmpty(request.Base64Image))
             {
                 try
@@ -210,7 +210,7 @@ public class SalesBillController : ControllerBase
         return NoContent();
     }
 
-    private async Task<IFormFile> ConvertBase64ToFormFile(string base64String)
+    private Task<IFormFile> ConvertBase64ToFormFile(string base64String)
     {
         try
         {
@@ -234,7 +234,7 @@ public class SalesBillController : ControllerBase
                 $"image_{Guid.NewGuid()}.jpg"
             );
 
-            return formFile;
+            return Task.FromResult<IFormFile>(formFile);
         }
         catch (Exception ex)
         {

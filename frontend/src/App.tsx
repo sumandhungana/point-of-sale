@@ -797,6 +797,15 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+          {/* Plural suppliers statements path for compatibility */}
+          <Route
+            path="/parties/suppliers/statements/:id"
+            element={
+              <PrivateRoute>
+                <SupplierStatements />
+              </PrivateRoute>
+            }
+          />
           {/* Backward-compatible route */}
           <Route path="/parties/suppliers/:id" element={<PrivateRoute><SupplierStatements /></PrivateRoute>} />
         </Routes>

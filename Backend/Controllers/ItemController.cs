@@ -74,7 +74,7 @@ public class ItemController : ControllerBase
                 return BadRequest("Category not found");
             }
 
-            string imageUrl = null;
+            string? imageUrl = null;
             if (itemDto.Image != null)
             {
                 imageUrl = await FileUploadHelper.UploadFileAsync(itemDto.Image, _logger);
