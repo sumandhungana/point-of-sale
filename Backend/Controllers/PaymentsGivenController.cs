@@ -143,10 +143,14 @@ namespace Backend.Controllers
                 .Where(p => p.KhataBookId == currentKhataBookId)
                 .SumAsync(p => p.Amount);
             
+            // Apply combined balance logic: You Received = Total Received - Total Given
+            var combinedReceived = Math.Max(totalReceived - totalGiven, 0);
+            var combinedGiven = Math.Max(totalGiven - totalReceived, 0);
+            
             return Ok(new
             {
-                totalGiven = totalGiven,
-                totalReceived = totalReceived
+                totalGiven = combinedGiven,
+                totalReceived = combinedReceived
             });
         }
 

@@ -67,12 +67,13 @@ export const SupplierStatements: React.FC = () => {
             const t = (p.type || '').toLowerCase();
             return t === 'received' || t === 'payment_in' || t === 'you_received';
         }).reduce((s, p) => s + p.amount, 0);
-        const net = received - given;
-        return { given, received, net };
+        
+        // Apply combined balance logic: You Received = Total Received - Total Given
+        const combinedReceived = Math.max(received - given, 0);
+        const combinedGiven = Math.max(given - received, 0);
+        
+        return { given: combinedGiven, received: combinedReceived };
     }, [paymentHistory]);
-
-    const gaveDelta = Math.max(totals.given - totals.received, 0);
-    const receiveDelta = Math.max(totals.received - totals.given, 0);
 
     const handleBack = () => navigate('/parties/suppliers');
     const handleCall = () => {

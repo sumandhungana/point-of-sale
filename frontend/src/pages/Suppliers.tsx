@@ -54,7 +54,7 @@ export const Suppliers = () => {
                 );
                 setSuppliers(suppliersWithBalance);
 
-                // Calculate overall totals
+                // Calculate overall totals using combined balance logic
                 const totals = suppliersWithBalance.reduce((acc: { given: number; received: number; online: number }, supplier: SupplierWithBalance) => {
                     supplier.paymentHistory.forEach((payment: PaymentHistory) => {
                         if (payment.type === 'Given') {
@@ -66,7 +66,11 @@ export const Suppliers = () => {
                     return acc;
                 }, { given: 0, received: 0, online: 0 });
 
-                setOverallTotals(totals);
+                // Apply combined balance logic: You Received = Total Received - Total Given
+                const combinedReceived = Math.max(totals.received - totals.given, 0);
+                const combinedGiven = Math.max(totals.given - totals.received, 0);
+                
+                setOverallTotals({ given: combinedGiven, received: combinedReceived, online: totals.online });
                 setLoading(false);
             } catch (err) {
                 setError('Failed to load suppliers');

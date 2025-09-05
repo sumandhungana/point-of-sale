@@ -58,7 +58,7 @@ export const Customers = () => {
                 );
                 setCustomers(customersWithBalance);
 
-                // Calculate overall totals using simple amount sums
+                // Calculate overall totals using combined balance logic
                 console.log('Calculating overall totals from customers:', customersWithBalance);
                 const totals = customersWithBalance.reduce((acc, customer) => {
                     console.log('Processing customer:', customer.name, 'Payment history:', customer.paymentHistory);
@@ -75,8 +75,12 @@ export const Customers = () => {
                     return acc;
                 }, { given: 0, received: 0, online: 0 });
 
-                console.log('Final overall totals:', totals);
-                setOverallTotals(totals);
+                // Apply combined balance logic: You Received = Total Received - Total Given
+                const combinedReceived = Math.max(totals.received - totals.given, 0);
+                const combinedGiven = Math.max(totals.given - totals.received, 0);
+                
+                console.log('Final overall totals (combined):', { given: combinedGiven, received: combinedReceived, online: totals.online });
+                setOverallTotals({ given: combinedGiven, received: combinedReceived, online: totals.online });
             } catch (err) {
                 setError('Failed to load customers');
             }

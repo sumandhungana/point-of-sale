@@ -113,7 +113,7 @@ export const CustomerStatements = () => {
         }
     }, [location.state, id]);
 
-    // Calculate totals from payment history
+    // Calculate totals from payment history with combined balance logic
     const calculateTotals = (history: PaymentHistory[]) => {
         console.log('Calculating totals from history:', history);
         const result = history.reduce((acc, payment) => {
@@ -128,8 +128,13 @@ export const CustomerStatements = () => {
             }
             return acc;
         }, { given: 0, received: 0 });
-        console.log('Final totals:', result);
-        return result;
+        
+        // Apply combined balance logic: You Received = Total Received - Total Given
+        const combinedReceived = Math.max(result.received - result.given, 0);
+        const combinedGiven = Math.max(result.given - result.received, 0);
+        
+        console.log('Final totals (combined):', { given: combinedGiven, received: combinedReceived });
+        return { given: combinedGiven, received: combinedReceived };
     };
     const totals = calculateTotals(paymentHistory);
 
