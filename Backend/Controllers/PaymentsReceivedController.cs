@@ -133,17 +133,17 @@ namespace Backend.Controllers
         {
             var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
             
-            // Get total of all payments given
+            // Get total of all payments given (raw sum)
             var totalGiven = await _context.PaymentsGiven
                 .Where(p => p.KhataBookId == currentKhataBookId)
                 .SumAsync(p => p.Amount);
             
-            // Get total of all payments received
+            // Get total of all payments received (raw sum)
             var totalReceived = await _context.PaymentsReceived
                 .Where(p => p.KhataBookId == currentKhataBookId)
                 .SumAsync(p => p.Amount);
             
-            // Apply combined balance logic: You Received = Total Received - Total Given
+            // Apply same combined balance logic as Customers page: You Received = Total Received - Total Given
             var combinedReceived = Math.Max(totalReceived - totalGiven, 0);
             var combinedGiven = Math.Max(totalGiven - totalReceived, 0);
             

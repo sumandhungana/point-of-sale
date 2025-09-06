@@ -86,13 +86,11 @@ const Dashboard: React.FC = () => {
         const items = await fetchItems();
         setTotalItem(items.length || 0);
 
-        // Get payment totals from the new dashboard endpoint
+        // Get raw totals from backend (customers only - no subtraction logic)
         try {
-          const paymentTotals = await getDashboardPaymentTotals();
-          console.log('Dashboard payment totals:', paymentTotals);
-          
-          setTotalDue(paymentTotals.totalGiven);
-          setTotalPaid(paymentTotals.totalReceived);
+          const totals = await getDashboardPaymentTotals();
+          setTotalDue(totals.totalGiven);
+          setTotalPaid(totals.totalReceived);
         } catch (err) {
           console.error('Failed to fetch dashboard payment totals:', err);
           setTotalDue(0);
