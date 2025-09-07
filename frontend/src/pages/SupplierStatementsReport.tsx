@@ -4,13 +4,13 @@ import { useState, useRef, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { PaymentHistory, getPaymentHistory } from '../services/paymentService';
-import { getCustomers } from '../services/customerService';
+import { getSuppliers } from '../services/customerService';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 import CustomerStatementsPDFTemplate from '../components/CustomerStatementsPDFTemplate';
 import '../styles/CustomerStatementsReport.css';
 
-interface CustomerData {
+interface SupplierData {
     name: string;
     phoneNumber: string;
     profileImage: string | null;
@@ -19,7 +19,7 @@ interface CustomerData {
 }
 
 interface ReportData {
-    customer: CustomerData;
+    customer: SupplierData;
     paymentHistory: PaymentHistory[];
     totals: {
         given: number;
@@ -27,12 +27,11 @@ interface ReportData {
     };
 }
 
-export const CustomerStatementsReport = () => {
+export const SupplierStatementsReport = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
     const contentRef = useRef<HTMLDivElement>(null);
-    // Data will be managed by reportData state
 
     const [searchTerm, setSearchTerm] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -50,15 +49,16 @@ export const CustomerStatementsReport = () => {
             paymentHistory: []
         },
         paymentHistory: [],
-        totals: { given: 0, received: 0 }
+        totals: {
+            given: 0,
+            received: 0
+        }
     });
 
-    // Use data from location.state if available, otherwise fetch it
     useEffect(() => {
-        if (location.state && location.state.customer && location.state.paymentHistory) {
+        if (location.state) {
             setReportData(location.state as ReportData);
         } else if (id) {
-            // Fetch data if not available from location.state
             fetchReportData();
         }
     }, [id, location.state]);
@@ -68,16 +68,16 @@ export const CustomerStatementsReport = () => {
         
         setLoading(true);
         try {
-            const customers = await getCustomers();
-            const customer = customers.find(c => c.id === parseInt(id));
+            const suppliers = await getSuppliers();
+            const supplier = suppliers.find(s => s.id === parseInt(id));
             
-            if (!customer) {
-                toast.error('Customer not found');
-                navigate('/parties/customers');
+            if (!supplier) {
+                toast.error('Supplier not found');
+                navigate('/parties/suppliers');
                 return;
             }
 
-            const paymentHistory = await getPaymentHistory(customer.id);
+            const paymentHistory = await getPaymentHistory(supplier.id);
             
             // Calculate totals
             const totals = paymentHistory.reduce((acc, payment) => {
@@ -107,29 +107,29 @@ export const CustomerStatementsReport = () => {
                 return acc;
             }, 0);
 
-            const customerData: CustomerData = {
-                name: customer.name,
-                phoneNumber: customer.phoneNumber,
-                profileImage: customer.profileImage || null,
+            const supplierData: SupplierData = {
+                name: supplier.name,
+                phoneNumber: supplier.phoneNumber,
+                profileImage: supplier.profileImage || null,
                 balance: currentBalance,
                 paymentHistory: paymentHistory
             };
 
             setReportData({
-                customer: customerData,
+                customer: supplierData,
                 paymentHistory: paymentHistory,
                 totals: totals
             });
         } catch (error) {
             console.error('Error fetching report data:', error);
-            toast.error('Failed to load customer data');
+            toast.error('Failed to load supplier data');
         } finally {
             setLoading(false);
         }
     };
 
     const handleBack = () => {
-        navigate(`/parties/customers/statements/${id}`);
+        navigate(`/parties/suppliers/statements/${id}`);
     };
 
     // Calculate totals
@@ -167,7 +167,7 @@ export const CustomerStatementsReport = () => {
         setGeneratingPdf(true);
         try {
             console.log('Starting PDF generation...');
-            console.log('Customer data:', reportData.customer);
+            console.log('Supplier data:', reportData.customer);
             console.log('Filtered transactions:', filteredTransactions);
             console.log('Totals:', { given: totalGave, received: totalReceived });
             
@@ -187,7 +187,7 @@ export const CustomerStatementsReport = () => {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `customer-statement-${reportData.customer.name.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.pdf`;
+            link.download = `supplier-statement-${reportData.customer.name.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -214,7 +214,7 @@ export const CustomerStatementsReport = () => {
                     <div className="customer-statements-report-content-container">
                         <div style={{ textAlign: 'center', padding: '2rem' }}>
                             <i className="bi bi-arrow-clockwise spin" style={{ fontSize: '2rem', marginBottom: '1rem' }}></i>
-                            <p>Loading customer data...</p>
+                            <p>Loading supplier data...</p>
                         </div>
                     </div>
                 </main>
@@ -408,5 +408,4 @@ export const CustomerStatementsReport = () => {
             </main>
         </div>
     );
-}; 
-
+};

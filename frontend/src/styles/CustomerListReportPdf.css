@@ -7,8 +7,8 @@
 .customer-report-main-content {
   padding: 2rem;
   margin-top: 64px;
-  max-width: calc(100% - 500px);
-  margin-right: 500px;
+  margin-left: 50px;
+  max-width: calc(100% - 50px);
   width: 100%;
 }
 
@@ -63,10 +63,38 @@
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
+.customer-report-generate-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.customer-report-generate-button:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
 .customer-report-button-container {
   display: flex;
   justify-content: space-between;
   margin-bottom: 1.5rem;
+}
+
+.customer-report-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-bottom: 1rem;
 }
 
 .customer-report-logo-section {

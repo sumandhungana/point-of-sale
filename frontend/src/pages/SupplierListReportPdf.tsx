@@ -3,13 +3,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { getCustomers, Customer } from '../services/customerService';
+import { getSuppliers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import '../styles/CustomerListReportPdf.css';
 
-interface CustomerWithBalance extends Customer {  
+interface SupplierWithBalance extends Customer {  
     balance: number;
     paymentHistory: PaymentHistory[];
 }
@@ -20,12 +20,12 @@ interface OverallTotals {
     online: number;
 }
 
-export const CustomerListReportPdf = () => {
+export const SupplierListReportPdf = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const reportRef = useRef<HTMLDivElement>(null);
     const [printLogo, setPrintLogo] = useState(false);
-    const [customers, setCustomers] = useState<CustomerWithBalance[]>([]);
+    const [suppliers, setSuppliers] = useState<SupplierWithBalance[]>([]);
     const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -33,13 +33,13 @@ export const CustomerListReportPdf = () => {
     const companyName = localStorage.getItem('companyName') || 'Admin';
 
     useEffect(() => {
-        const fetchCustomers = async () => {
+        const fetchSuppliers = async () => {
             try {
-                const data = await getCustomers();
-                const customersWithBalance = await Promise.all(
-                    data.map(async (customer) => {
+                const data = await getSuppliers();
+                const suppliersWithBalance = await Promise.all(
+                    data.map(async (supplier) => {
                         try {
-                            const paymentHistory = await getPaymentHistory(customer.id);
+                            const paymentHistory = await getPaymentHistory(supplier.id);
                             const balance = paymentHistory.reduce((acc, payment) => {
                                 if (payment.type === 'Received') {
                                     return acc + payment.amount;
@@ -47,48 +47,53 @@ export const CustomerListReportPdf = () => {
                                     return acc - payment.amount;
                                 }
                             }, 0);
-                            return { ...customer, balance, paymentHistory };
-                        } catch (err) {
-                            console.error(`Failed to fetch payment history for customer ${customer.id}:`, err);
-                            return { ...customer, balance: 0, paymentHistory: [] };
+                            return { ...supplier, balance, paymentHistory };
+                        } catch (error) {
+                            console.error(`Error fetching payment history for supplier ${supplier.id}:`, error);
+                            return { ...supplier, balance: 0, paymentHistory: [] };
                         }
                     })
                 );
-                setCustomers(customersWithBalance);
+                setSuppliers(suppliersWithBalance);
 
-                // Calculate overall totals using the same logic as Customers page
-                const totals = customersWithBalance.reduce((acc, customer) => {
-                    customer.paymentHistory.forEach(payment => {
+                // Calculate overall totals
+                const totals = suppliersWithBalance.reduce((acc, supplier) => {
+                    const supplierTotals = supplier.paymentHistory.reduce((supplierAcc, payment) => {
                         if (payment.type === 'Given') {
-                            acc.given += Math.abs(payment.oldBalance - payment.newBalance);
+                            supplierAcc.given += payment.amount;
                         } else if (payment.type === 'Received') {
-                            acc.received += Math.abs(payment.oldBalance - payment.newBalance);
+                            supplierAcc.received += payment.amount;
                         }
-                    });
+                        return supplierAcc;
+                    }, { given: 0, received: 0 });
+
+                    acc.given += supplierTotals.given;
+                    acc.received += supplierTotals.received;
                     return acc;
                 }, { given: 0, received: 0, online: 0 });
 
                 setOverallTotals(totals);
-                setLoading(false);
-            } catch (err) {
-                setError('Failed to load customers');
+            } catch (error) {
+                console.error('Error fetching suppliers:', error);
+                setError('Failed to load suppliers data');
+            } finally {
                 setLoading(false);
             }
         };
 
-        fetchCustomers();
+        fetchSuppliers();
     }, []);
 
     const handleBack = () => {
-        navigate('/parties/customers');
+        navigate('/parties/suppliers');
     };
 
     const handleGeneratePdf = async () => {
         if (!reportRef.current) return;
-        
+
         setGeneratingPdf(true);
         try {
-            // Create canvas from the report content
+            // Convert the report content to canvas
             const canvas = await html2canvas(reportRef.current, {
                 scale: 2,
                 useCORS: true,
@@ -96,6 +101,7 @@ export const CustomerListReportPdf = () => {
                 backgroundColor: '#ffffff'
             });
             
+            // Convert canvas to image data
             const imgData = canvas.toDataURL('image/png');
             
             // Create PDF
@@ -121,7 +127,7 @@ export const CustomerListReportPdf = () => {
             
             // Generate filename with current date
             const currentDate = new Date().toISOString().split('T')[0];
-            const filename = `Customer_Report_${companyName}_${currentDate}.pdf`;
+            const filename = `Supplier_Report_${companyName}_${currentDate}.pdf`;
             
             // Download the PDF
             pdf.save(filename);
@@ -183,7 +189,7 @@ export const CustomerListReportPdf = () => {
                             className="customer-report-back-button"
                         >
                             <i className="bi bi-arrow-left"></i>
-                            Back to Customers
+                            Back to Suppliers
                         </button>
                         <button 
                             onClick={handleGeneratePdf}
@@ -219,7 +225,7 @@ export const CustomerListReportPdf = () => {
                     <div ref={reportRef} className="customer-report-content">
                         <h1 className="customer-report-title">
                             <i className="bi bi-people-fill me-2"></i>
-                            Customer List Report
+                            Supplier List Report
                         </h1>
                     <p className="customer-report-date">
                         <i className="bi bi-calendar-event me-1"></i>
@@ -260,7 +266,7 @@ export const CustomerListReportPdf = () => {
 
                     <div className="customer-report-customer-count">
                         <i className="bi bi-people me-1"></i>
-                        No of Customer: {customers.length} (All)
+                        No of Supplier: {suppliers.length} (All)
                     </div>
 
                     <div className="customer-report-table-container">
@@ -290,18 +296,18 @@ export const CustomerListReportPdf = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {customers.map((customer) => (
-                                    <tr key={customer.id}>
-                                        <td className="customer-report-table-cell">{customer.name}</td>
-                                        <td className="customer-report-table-cell">{customer.phone}</td>
+                                {suppliers.map((supplier) => (
+                                    <tr key={supplier.id}>
+                                        <td className="customer-report-table-cell">{supplier.name}</td>
+                                        <td className="customer-report-table-cell">{supplier.phone}</td>
                                         <td className={`customer-report-table-cell customer-report-gave-cell`}>
-                                            {customer.balance < 0 ? `रू ${Math.abs(customer.balance).toLocaleString()}` : ""}
+                                            {supplier.balance < 0 ? `रू ${Math.abs(supplier.balance).toLocaleString()}` : ""}
                                         </td>
                                         <td className={`customer-report-table-cell customer-report-received-cell`}>
-                                            {customer.balance > 0 ? `रू ${customer.balance.toLocaleString()}` : ""}
+                                            {supplier.balance > 0 ? `रू ${supplier.balance.toLocaleString()}` : ""}
                                         </td>
                                         <td className="customer-report-table-cell">
-                                            {customer.balance !== 0 ? `रू ${Math.abs(customer.balance).toLocaleString()}` : "Settled"}
+                                            {supplier.balance !== 0 ? `रू ${Math.abs(supplier.balance).toLocaleString()}` : "Settled"}
                                         </td>
                                     </tr>
                                 ))}
@@ -319,4 +325,3 @@ export const CustomerListReportPdf = () => {
         </div>
     );
 };
-

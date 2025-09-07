@@ -134,7 +134,8 @@ const Dashboard: React.FC = () => {
 
   const formatCurrency = (amount: number): string => {
     const safe = Number.isFinite(amount) ? amount : 0;
-    return `₹${safe.toLocaleString('en-IN')}`;
+    // Use English digits with Indian grouping, keep Nepali rupee symbol
+    return `रु ${safe.toLocaleString('en-IN')}`;
   };
 
   const metrics: Array<{

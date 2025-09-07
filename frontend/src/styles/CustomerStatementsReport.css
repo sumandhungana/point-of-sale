@@ -99,6 +99,24 @@
   background: linear-gradient(135deg, #dc3545, #c82333); color: #fff; box-shadow: 0 4px 15px rgba(220,53,69,.25);
 }
 .customer-statements-report-download-button:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(220,53,69,.35); }
+.customer-statements-report-download-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+.customer-statements-report-download-button:disabled:hover {
+  transform: none;
+  box-shadow: 0 4px 15px rgba(220,53,69,.25);
+}
+
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 .customer-statements-report-share-button {
   background: linear-gradient(135deg, #28a745, #218838); color: #fff; box-shadow: 0 4px 15px rgba(40,167,69,.25);
 }

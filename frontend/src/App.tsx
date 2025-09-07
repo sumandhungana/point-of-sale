@@ -17,7 +17,9 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { AppSettingsProvider } from './context/AppSettingsContext';
 import { Suppliers } from './pages/Suppliers';
 import { CustomerListReportPdf } from './pages/CustomerListReportPdf';
+import { SupplierListReportPdf } from './pages/SupplierListReportPdf';
 import { CustomerStatementsReport } from './pages/CustomerStatementsReport';
+import { SupplierStatementsReport } from './pages/SupplierStatementsReport';
 import { DownloadCustomerStatementReport } from './pages/DownloadCustomerStatementReport';
 import { Items } from './pages/Items';
 import { AddItem } from './pages/AddItem';
@@ -361,6 +363,14 @@ const App: React.FC = () => {
             }
           />
           <Route
+            path="/parties/suppliers/list-report-pdf"
+            element={
+              <PrivateRoute>
+                <SupplierListReportPdf />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/parties/customers/statements/report/:id/download"
             element={
               <PrivateRoute>
@@ -373,6 +383,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <CustomerStatementsReport />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/parties/suppliers/statements/report/:id"
+            element={
+              <PrivateRoute>
+                <SupplierStatementsReport />
               </PrivateRoute>
             }
           />

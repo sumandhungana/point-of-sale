@@ -75,12 +75,9 @@ export const Customers = () => {
                     return acc;
                 }, { given: 0, received: 0, online: 0 });
 
-                // Apply combined balance logic: You Received = Total Received - Total Given
-                const combinedReceived = Math.max(totals.received - totals.given, 0);
-                const combinedGiven = Math.max(totals.given - totals.received, 0);
-                
-                console.log('Final overall totals (combined):', { given: combinedGiven, received: combinedReceived, online: totals.online });
-                setOverallTotals({ given: combinedGiven, received: combinedReceived, online: totals.online });
+                // Use raw totals (no subtracting) as requested
+                console.log('Final overall totals (raw):', { given: totals.given, received: totals.received, online: totals.online });
+                setOverallTotals({ given: totals.given, received: totals.received, online: totals.online });
             } catch (err) {
                 setError('Failed to load customers');
             }
