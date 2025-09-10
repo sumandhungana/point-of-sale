@@ -54,19 +54,22 @@ export const Suppliers = () => {
                 );
                 setSuppliers(suppliersWithBalance);
 
-                // Calculate overall totals using combined balance logic
-                const totals = suppliersWithBalance.reduce((acc: { given: number; received: number; online: number }, supplier: SupplierWithBalance) => {
-                    supplier.paymentHistory.forEach((payment: PaymentHistory) => {
-                        if (payment.type === 'Given') {
-                            acc.given += payment.amount;
-                        } else if (payment.type === 'Received') {
-                            acc.received += payment.amount;
+                // Calculate overall totals by summing positive/negative balances
+                // - Positive balances contribute to You Received
+                // - Negative balances contribute to You Gave (absolute value)
+                const totals = suppliersWithBalance.reduce(
+                    (acc: { given: number; received: number; online: number }, supplier: SupplierWithBalance) => {
+                        const bal = Number(supplier.balance) || 0;
+                        if (bal > 0) {
+                            acc.received += bal;
+                        } else if (bal < 0) {
+                            acc.given += Math.abs(bal);
                         }
-                    });
-                    return acc;
-                }, { given: 0, received: 0, online: 0 });
+                        return acc;
+                    },
+                    { given: 0, received: 0, online: 0 }
+                );
 
-                // Use raw totals (no subtracting) as requested
                 setOverallTotals({ given: totals.given, received: totals.received, online: totals.online });
                 setLoading(false);
             } catch (err) {

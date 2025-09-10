@@ -58,25 +58,24 @@ export const Customers = () => {
                 );
                 setCustomers(customersWithBalance);
 
-                // Calculate overall totals using combined balance logic
-                console.log('Calculating overall totals from customers:', customersWithBalance);
-                const totals = customersWithBalance.reduce((acc, customer) => {
-                    console.log('Processing customer:', customer.name, 'Payment history:', customer.paymentHistory);
-                    customer.paymentHistory.forEach(payment => {
-                        console.log('Processing payment for', customer.name, ':', payment);
-                        if (payment.type === 'Given') {
-                            acc.given += payment.amount;
-                            console.log('Added to given:', payment.amount, 'Total given now:', acc.given);
-                        } else if (payment.type === 'Received') {
-                            acc.received += payment.amount;
-                            console.log('Added to received:', payment.amount, 'Total received now:', acc.received);
+                // Calculate overall totals by summing positive/negative balances
+                // - Positive balances contribute to You Received
+                // - Negative balances contribute to You Gave (absolute value)
+                console.log('Calculating overall totals from customer balances:', customersWithBalance);
+                const totals = customersWithBalance.reduce(
+                    (acc, customer) => {
+                        const bal = Number(customer.balance) || 0;
+                        if (bal > 0) {
+                            acc.received += bal;
+                        } else if (bal < 0) {
+                            acc.given += Math.abs(bal);
                         }
-                    });
-                    return acc;
-                }, { given: 0, received: 0, online: 0 });
+                        return acc;
+                    },
+                    { given: 0, received: 0, online: 0 }
+                );
 
-                // Use raw totals (no subtracting) as requested
-                console.log('Final overall totals (raw):', { given: totals.given, received: totals.received, online: totals.online });
+                console.log('Final overall totals (by balances):', { given: totals.given, received: totals.received, online: totals.online });
                 setOverallTotals({ given: totals.given, received: totals.received, online: totals.online });
             } catch (err) {
                 setError('Failed to load customers');
