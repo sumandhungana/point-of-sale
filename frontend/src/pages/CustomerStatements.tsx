@@ -25,6 +25,7 @@ interface CustomerData {
     smsLanguage: boolean;
     transactionHistoryCheck: boolean;
     paymentHistory: PaymentHistory[];
+    paymentDateReminder: string | null;
 }
 
 export const CustomerStatements = () => {
@@ -53,7 +54,8 @@ export const CustomerStatements = () => {
         customerSmsSetting: false,
         smsLanguage: false,
         transactionHistoryCheck: false,
-        paymentHistory: []
+        paymentHistory: [],
+        paymentDateReminder: null
     });
     const [customerLoading, setCustomerLoading] = useState(true);
 
@@ -97,7 +99,8 @@ export const CustomerStatements = () => {
                             customerSmsSetting: customer.customerSmsSetting,
                             smsLanguage: customer.smsLanguage,
                             transactionHistoryCheck: customer.transactionHistoryCheck,
-                            paymentHistory: []
+                            paymentHistory: [],
+                            paymentDateReminder:customer.paymentDateReminder  
                         });
                         setCustomerLoading(false);
                         console.log('Customer data fetched from API:', customer);
@@ -112,6 +115,7 @@ export const CustomerStatements = () => {
             setCustomerLoading(false);
         }
     }, [location.state, id]);
+
 
     // Calculate totals from payment history with combined balance logic
     const calculateTotals = (history: PaymentHistory[]) => {
@@ -222,6 +226,7 @@ export const CustomerStatements = () => {
                     customerSmsSetting: customerData.customerSmsSetting,
                     smsLanguage: customerData.smsLanguage,
                     transactionHistoryCheck: customerData.transactionHistoryCheck
+                
                 }
             }
         });
@@ -246,12 +251,57 @@ export const CustomerStatements = () => {
     };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(`xxSetting reminder for date: ${reminderDate}`);
+        console.log(`Id is: ${id} `)
         setReminderDate(e.target.value);
     };
+    useEffect(() => {
+    if (customerData.paymentDateReminder) {
+        const formattedDate = customerData.paymentDateReminder.split("T")[0];
+        setReminderDate(formattedDate);
+    } else {
+        setReminderDate("");
+    }
+}, [customerData.paymentDateReminder]);
 
-    const handleSetReminder = () => {
+   const handleSetReminder = async () => {
         // Handle setting the reminder with the selected date
         console.log(`Setting reminder for date: ${reminderDate}`);
+        if (!id) return;
+
+        if (!reminderDate) {
+            toast.error("Please select a reminder date.");
+            return;
+        }
+         try {
+            const response = await fetch(`/api/Customer/${id}`, {
+                method: "PUT", // or PATCH if your API uses PATCH
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+                },
+                body: JSON.stringify({
+                    PaymentDateReminder: reminderDate
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error("Failed to update reminder");
+            }
+
+            toast.success("Reminder date updated successfully.");
+            setCustomerData(prev => ({
+            ...prev,
+            paymentDateReminder: reminderDate + "T00:00:00"
+        }));
+
+        
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to update reminder.");
+        }
+
+
     };
 
     const handleReport = () => {
@@ -724,8 +774,8 @@ export const CustomerStatements = () => {
                         <i className="bi bi-graph-up"></i>
                         Report
                     </button>
-                    <button className="btn-base btn-warning">
-                        <i className="bi bi-alarm"></i>
+                    <button className="btn-base btn-warning"  onClick={handleSetReminder}>
+                        <i className="bi bi-alarm" ></i>
                         Reminder
                     </button>
                     <button className="btn-base btn-purple">

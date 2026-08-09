@@ -38,265 +38,6 @@
   font-weight: 500;
 }
 
-.staff-management-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 2rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-}
-
-.staff-management-th {
-  padding: 1.5rem;
-  text-align: left;
-  border-bottom: 2px solid #e9ecef;
-  color: #212529;
-  font-weight: 700;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  font-size: 1 rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.staff-management-td {
-  padding: 1.5rem;
-  border-bottom: 1px solid #e9ecef;
-  color: #212529;
-  font-size: 1rem;
-}
-
-.staff-management-amount-cell {
-  font-weight: 700;
-  color: #28a745;
-  font-size: 2.3rem;
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  -webkit-background-clip: text;
-  /* -webkit-text-fill-color: transparent; */
-  background-clip: text;
-}
-
-.staff-management-attendance-cell {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0rem;
-  width: 100%;
-  justify-content: space-around;
-}
-
-.staff-management-attendance-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
-  min-width: 180px;
-}
-
-.staff-management-attendance-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-}
-
-.staff-management-attendance-value {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: #212529;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.staff-management-attendance-icon {
-  font-size: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.staff-management-attendance-icon.present {
-  color: #28a745;
-}
-
-.staff-management-attendance-icon.absent {
-  color: #dc3545;
-}
-
-.staff-management-attendance-icon.halfday {
-  color: #ffc107;
-}
-
-.staff-management-attendance-icon.leave {
-  color: #6f42c1;
-}
-
-.staff-management-attendance-icon.present {
-  color: #28a745;
-}
-
-.staff-management-attendance-icon.absent {
-  color: #dc3545;
-}
-
-.staff-management-attendance-icon.halfday {
-  color: #ffc107;
-}
-
-.staff-management-attendance-icon.leave {
-  color: #6f42c1;
-}
-
-.staff-management-attendance-label {
-  font-size: 0.9rem;
-  color: #6c757d;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 0.25rem;
-}
-
-.staff-management-action-buttons {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.staff-management-search-bar {
-  display: flex;
-  align-items: center;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  padding: 0.75rem;
-  background: rgba(255, 255, 255, 0.8);
-  width: 100%;
-  max-width: 350px;
-  position: relative;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.staff-management-search-bar:focus-within {
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-  background: white;
-  transform: translateY(-1px);
-}
-
-.staff-management-search-input {
-  border: none;
-  outline: none;
-  flex: 1;
-  padding: 0.5rem;
-  padding-left: 2.5rem;
-  background: transparent;
-  font-size: 1rem;
-}
-
-.staff-management-search-icon {
-  position: absolute;
-  left: 1rem;
-  color: #667eea;
-  font-size: 1.1rem;
-}
-
-.staff-management-clear-search {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: #6c757d;
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.staff-management-clear-search:hover {
-  background: rgba(108, 117, 125, 0.1);
-  color: #495057;
-}
-
-.staff-management-dropdown {
-  padding: 1rem 1.25rem;
-  border-radius: 12px;
-  border: 2px solid #e9ecef;
-  background: rgba(255, 255, 255, 0.8);
-  min-width: 180px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-  font-size: 0.95rem;
-  font-weight: 500;
-}
-
-.staff-management-dropdown:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
-  background: white;
-  transform: translateY(-1px);
-}
-
-.staff-management-for-staff-button {
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
-}
-
-.staff-management-for-staff-button:hover {
-  background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-}
-
-.staff-management-reminder-button {
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #ffc107 0%, #ff8f00 100%);
-  color: #212529;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  transition: all 0.3s ease;
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(255, 193, 7, 0.2);
-}
-
-.staff-management-reminder-button:hover {
-  background: linear-gradient(135deg, #ffb300 0%, #ff6f00 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(255, 193, 7, 0.3);
-}
-
 .staff-management-staff-card {
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
   border-radius: 16px;
@@ -346,7 +87,7 @@
 .staff-management-image-placeholder {
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: linear-gradient(135deg, #bdc5ce 0%, #a3b0ba 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -359,7 +100,7 @@
 
 .staff-management-staff-card:hover .staff-management-image-placeholder {
   transform: scale(1.05);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 25px rgba(243, 134, 134, 0.15);
 }
 
 .staff-management-staff-image {
@@ -399,16 +140,6 @@
   background-clip: text;
 }
 
-.staff-management-salary-pattern {
-  color: #6c757d;
-  font-size: 0.95rem;
-  font-weight: 500;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 20px;
-  width: fit-content;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
 
 .staff-management-amount-section {
   display: flex;
@@ -416,30 +147,29 @@
   align-items: flex-end;
   gap: 0.5rem;
 }
-
-.staff-management-amount {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #28a745;
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
-  border-radius: 12px;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
-  border: 1px solid rgba(40, 167, 69, 0.1);
-  transition: all 0.3s ease;
+/* Container for the inline text */
+.staff-management-amount-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
-.staff-management-amount-label {
-  font-size: 0.8rem;
-  color: #6c757d;
+/* Salary Type Text */
+.staff-management-salary-type {
+  font-size: 14px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  text-align: center;
+  color: #287cfc;
+  text-transform: capitalize;
+}
+
+/* Salary Amount Text */
+.staff-management-amount {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .staff-management-staff-card:hover .staff-management-amount {
@@ -447,26 +177,6 @@
   box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
 }
 
-.staff-management-divider {
-  border-bottom: 2px solid #e9ecef;
-  margin: 1.5rem 0;
-  border-radius: 1px;
-}
-
-.staff-management-permission-section {
-  margin-top: 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 2rem;
-}
-
-.staff-management-permission-input {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  flex: 1;
-}
 
 .staff-management-permission-label {
   font-size: 1rem;
@@ -568,6 +278,201 @@
   font-weight: 500;
 }
 
+/* ==========================================================================
+   Staff Management - Main Card Component
+   ========================================================================== */
+
+/* Main Card Container */
+.staff-management-staff-card {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 22px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
+}
+
+.staff-management-staff-card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Header Grid/Flex Structure */
+.staff-management-staff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  width: 100%;
+}
+
+/* Left Section: Info & Profile Image */
+.staff-management-staff-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  flex: 1 1 0%; /* Equal flex distribution for true center */
+  min-width: 0;
+}
+
+.staff-management-image-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  overflow: hidden;
+  flex-shrink: 0;
+  border: 2px solid #e2e8f0;
+}
+
+.staff-management-staff-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.staff-management-staff-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow: hidden;
+}
+
+.staff-management-staff-name {
+  font-size: 16px;
+  font-weight: 700; /* Bolder for key text */
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.staff-management-staff-contact,
+.staff-management-salary-pattern {
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+}
+
+/* Middle Section: Centered Actions */
+.staff-management-middle-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Forces center alignment */
+  gap: 12px;
+  flex: 0 0 auto; /* Keeps middle elements fixed and centered */
+  margin: 0 auto; /* Auto margins center it between Left and Right */
+}
+
+/* Permission Button Tweaks */
+.staff-management-permission-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600; /* Extra bold text */
+  color: #2563eb;
+  background-color: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  white-space: nowrap;
+}
+
+.staff-management-permission-btn:hover {
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+/* Attendance Dropdown Tweaks */
+.staff-management-attendance-dropdown {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600; /* Bolder selection text */
+  color: #1e293b;
+  background-color: #f8fafc;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.staff-management-attendance-dropdown:focus,
+.staff-management-attendance-dropdown:hover {
+  border-color: #2563eb;
+  background-color: #ffffff;
+}
+
+/* Right Section: Amount Section */
+.staff-management-amount-section {
+  text-align: right;
+  cursor: pointer;
+  flex: 1 1 0%; /* Equal flex distribution for true center balance */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.staff-management-amount {
+  font-size: 18px;
+  font-weight: 800; /* Maximum bold for amount */
+  color: #0f172a;
+  letter-spacing: -0.02em;
+}
+
+.staff-management-amount-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4e6079;
+  text-transform: capitalize;
+}
+.staff-management-add-staff-button {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999; /* Keeps it floating above cards and lists */
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  background-color: #2563eb;
+
+  border: none;
+  border-radius: 50px; /* Pill shape */
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.staff-management-add-staff-button:hover {
+  background-color: #1d4ed8;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.45);
+  transform: translateY(-2px);
+}
+
+.staff-management-add-staff-button:active {
+  transform: translateY(0);
+}
 .staff-management-attendance-dropdown:focus {
   outline: none;
   border-color: #667eea;
@@ -576,28 +481,28 @@
   transform: translateY(-1px);
 }
 
-.staff-management-add-staff-button {
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-top: 2rem;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
-}
+/*.staff-management-add-staff-button {*/
+/*  padding: 1rem 2rem;*/
+/*  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);*/
+/*  color: white;*/
+/*  border: none;*/
+/*  border-radius: 12px;*/
+/*  cursor: pointer;*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  gap: 0.75rem;*/
+/*  margin-top: 2rem;*/
+/*  font-size: 1rem;*/
+/*  font-weight: 600;*/
+/*  transition: all 0.3s ease;*/
+/*  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);*/
+/*}*/
 
-.staff-management-add-staff-button:hover {
-  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
-}
+/*.staff-management-add-staff-button:hover {*/
+/*  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);*/
+/*  transform: translateY(-2px);*/
+/*  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);*/
+/*}*/
 
 .staff-management-loading {
   text-align: center;
@@ -622,47 +527,6 @@
   border: 1px solid rgba(255, 255, 255, 0.2);
   margin-top: 2rem;
   border: 2px dashed #dee2e6;
-}
-
-.staff-management-button-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 3rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  padding: 2rem;
-  border-radius: 16px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.staff-management-summary {
-  display: flex;
-  gap: 2rem;
-  flex-wrap: wrap;
-}
-
-.staff-management-summary-item {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-weight: 600;
-  color: #495057;
-  transition: all 0.3s ease;
-}
-
-.staff-management-summary-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.staff-management-summary-item i {
-  font-size: 1.2rem;
-  color: #667eea;
 }
 
 /* Enhanced Animations */
@@ -691,15 +555,245 @@
 .staff-management-staff-card {
   animation: fadeInUp 0.6s ease-out;
 }
-
-.staff-management-attendance-item {
-  animation: slideInRight 0.6s ease-out;
+.staff-summary-container {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 20px;
 }
 
-.staff-management-attendance-item:nth-child(1) { animation-delay: 0.1s; }
-.staff-management-attendance-item:nth-child(2) { animation-delay: 0.2s; }
-.staff-management-attendance-item:nth-child(3) { animation-delay: 0.3s; }
-.staff-management-attendance-item:nth-child(4) { animation-delay: 0.4s; }
+.staff-summary-card {
+  display: flex;
+  gap: 16px;
+  flex: 1;
+}
+
+.summary-box {
+  flex: 1;
+  /*min-height: 80px;*/
+  border-radius: 10px;
+  min-height: 65px;      /* was 90px */
+  padding: 10px 16px;
+  /*padding: 18px;*/
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.summary-box.due {
+  background: rgba(201, 43, 56, 0.87);
+}
+
+.summary-box.advance {
+  background: rgba(56, 116, 206, 0.87);
+}
+
+.summary-title {
+  font-size: 24px;
+  opacity: 0.9;
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.attendance-card {
+  flex: 1.3;
+  background: #fff;
+  border-radius: 10px;
+  /*padding: 18px;*/
+  padding: 12px 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.attendance-header {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.attendance-grid {
+  display: flex;
+  justify-content: space-between;
+  text-align: center;
+}
+
+.attendance-item {
+  flex: 1;
+}
+
+.attendance-icon {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.attendance-item span {
+  display: block;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.attendance-item small {
+  color: #666;
+}
+
+.present { color: #2554fd; }
+.absent { color: #fd1a2f; }
+.halfday { color: #59dc40; }
+.leave { color: #ff2bcb; }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: #ffffff;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 480px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-close-btn {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.permission-input-group {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.permission-add-btn {
+  padding: 6px 14px;
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/*staff section*/
+.staff-toolbar{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  width:100%;
+  min-height:74px;
+  margin:18px 0;
+}
+
+.staff-btn,
+.reminder-btn{
+  height:58px;
+  padding:0 16px;
+  border:none;
+  border-radius:8px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  white-space:nowrap;
+  font-weight:600;
+}
+
+.staff-btn{
+  background:#eef5ff;
+  color:#0d6efd;
+}
+
+.reminder-btn{
+  background:#fff4db;
+  color:#d97706;
+}
+
+.toolbar-search{
+  flex:1;
+  display:flex;
+  align-items:center;
+  background:#fff;
+  border:1px solid #dcdcdc;
+  border-radius:8px;
+  overflow:hidden;
+  height:58px;
+}
+
+.toolbar-search i{
+  padding:0 12px;
+  color:#888;
+}
+
+.toolbar-search input{
+  height:58px;
+  font-size:14px;
+  flex:1;
+  border:none;
+  outline:none;
+  /*height:100%;*/
+  /*font-size:14px;*/
+}
+
+.toolbar-search select{
+  border:none;
+  border-left:1px solid #eee;
+  padding:0 12px;
+  height:100%;
+  background:#fafafa;
+  font-size:13px;
+  outline:none;
+  cursor:pointer;
+}
+
+.clear-btn{
+  width:58px;
+  height:58px;
+  border:none;
+  background:transparent;
+  cursor:pointer;
+}
+
+.toolbar-info{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  white-space:nowrap;
+}
+
+.toolbar-info div{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:#f8f9fa;
+  padding:18px 24px;
+  border-radius:8px;
+  font-size:13px;
+  font-weight:600;
+}
+/* end */
 
 /* Loading Animation */
 @keyframes pulse {
@@ -724,51 +818,44 @@
   .staff-management-title {
     font-size: 2rem;
   }
-  
-  .staff-management-action-buttons {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-  
-  .staff-management-search-bar {
-    max-width: none;
-  }
-  
   .staff-management-staff-header {
     flex-direction: column;
     gap: 1.5rem;
   }
-  
-  .staff-management-permission-section {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1.5rem;
-  }
+
   
   .staff-management-attendance-dropdown {
     margin-left: 0;
   }
-  
-  .staff-management-attendance-cell {
-    justify-content: center;
+
+/*  Staff total due, total advance and attendance card*/
+    .staff-summary-container {
+      flex-direction: column;
+    }
+
+    .staff-summary-card {
+      width: 100%;
+    }
+
+    .attendance-card {
+      width: 100%;
+    }
+  .staff-management-staff-header {
+    flex-wrap: wrap;
   }
-  
-  .staff-management-attendance-item {
-    min-width: 70px;
+
+  .staff-management-staff-info,
+  .staff-management-amount-section {
+    flex: 1 1 auto;
   }
-  
-  .staff-management-button-container {
-    flex-direction: column;
-    gap: 2rem;
+
+  .staff-management-middle-actions {
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #e2e8f0;
   }
-  
-  .staff-management-summary {
-    justify-content: center;
-  }
-  
-  .staff-management-summary-item {
-    flex: 1;
-    min-width: 200px;
-  }
+  /* End of card*/
 } 

@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "/home/xebec/Downloads/point_of_sale/Backend/Backend.csproj": {}
+    "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj": {}
   },
   "projects": {
-    "/home/xebec/Downloads/point_of_sale/Backend/Backend.csproj": {
+    "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/xebec/Downloads/point_of_sale/Backend/Backend.csproj",
+        "projectUniqueName": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "/home/xebec/Downloads/point_of_sale/Backend/Backend.csproj",
-        "packagesPath": "/home/xebec/.nuget/packages/",
-        "outputPath": "/home/xebec/Downloads/point_of_sale/Backend/obj/",
+        "projectPath": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj",
+        "packagesPath": "C:\\Users\\baikuntha\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/xebec/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\baikuntha\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -97,7 +97,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.413/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.409/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

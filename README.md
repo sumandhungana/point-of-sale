@@ -281,7 +281,7 @@ Update connection strings in:
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Database=khatabook;Username=postgres;Password=1234567890;Include Error Detail=true"
+    "DefaultConnection": "Host=localhost;Database=khatabook;Username=root;Password=root;Include Error Detail=true"
   }
 }
 ```

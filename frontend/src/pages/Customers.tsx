@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import { getCustomers, Customer } from '../services/customerService';
@@ -21,7 +21,7 @@ interface OverallTotals {
 export const Customers = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterBy, setFilterBy] = useState('all');
+    const [filterBy] = useState('all');
     const [sortBy, setSortBy] = useState('mostRecent');
     const [viewReport, setViewReport] = useState(false);
     const [openCashbook, setOpenCashbook] = useState(false);
@@ -116,7 +116,8 @@ export const Customers = () => {
                 customerSmsSetting: false, // Not available in Customer interface
                 smsLanguage: false, // Not available in Customer interface
                 transactionHistoryCheck: false, // Not available in Customer interface
-                paymentHistory: customer.paymentHistory || []
+                paymentHistory: customer.paymentHistory || [],
+                paymentDateReminder: customer.paymentDateReminder || null
             };
 
             console.log('Navigating with customer data:', customerData);
@@ -134,6 +135,76 @@ export const Customers = () => {
             console.error('Error navigating to customer statements:', error);
             toast.error('Failed to open customer statements');
         }
+    };
+
+    const getRelativeTime = (date: string) => {
+        const now = new Date();
+        const updated = new Date(date);
+
+        const diffMs = now.getTime() - updated.getTime();
+
+        const seconds = Math.floor(diffMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        const months = Math.floor(days / 30);
+        const years = Math.floor(days / 365);
+
+        if (seconds < 60) {
+            return `${seconds} sec${seconds !== 1 ? 's' : ''} ago`;
+        }
+
+        if (minutes < 60) {
+            return `${minutes} min${minutes !== 1 ? 's' : ''} ago`;
+        }
+
+        if (hours < 24) {
+            return `${hours} hr${hours !== 1 ? 's' : ''} ago`;
+        }
+
+        if (days < 30) {
+            return `${days} day${days !== 1 ? 's' : ''} ago`;
+        }
+
+        if (months < 12) {
+            return `${months} month${months !== 1 ? 's' : ''} ago`;
+        }
+
+        return `${years} year${years !== 1 ? 's' : ''} ago`;
+    };
+
+    const getLatestUpdatedAt = (customer: CustomerWithBalance) => {
+        const dates: Date[] = [];
+
+        if (customer.updatedAt) {
+            dates.push(new Date(customer.updatedAt));
+        }
+
+        customer.paymentHistory.forEach(payment => {
+            if (payment.updatedAt) {
+                dates.push(new Date(payment.updatedAt));
+            }
+        });
+
+        if (dates.length === 0) {
+            return new Date().toISOString();
+        }
+
+        const latest = new Date(
+            Math.max(...dates.map(d => d.getTime()))
+        );
+
+        return latest.toISOString();
+    };
+    const getLatestUpdatedTime = (customer: CustomerWithBalance) => {
+        const times = [
+            new Date(customer.updatedAt).getTime(),
+            ...customer.paymentHistory
+                .filter(payment => payment.updatedAt)
+                .map(payment => new Date(payment.updatedAt).getTime()),
+        ];
+
+        return Math.max(...times);
     };
 
     const filteredAndSortedCustomers = customers
@@ -154,23 +225,24 @@ export const Customers = () => {
                 default:
                     return true;
             }
-        })
-        .sort((a, b) => {
-            switch (sortBy) {
-                case 'mostRecent':
-                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                case 'highestAmount':
-                    return Math.abs(b.balance) - Math.abs(a.balance);
-                case 'leastAmount':
-                    return Math.abs(a.balance) - Math.abs(b.balance);
-                case 'byName':
-                    return a.name.localeCompare(b.name);
-                case 'oldest':
-                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-                default:
-                    return 0;
-            }
-        });
+        }).sort((a, b) => getLatestUpdatedTime(b) - getLatestUpdatedTime(a));
+        // .sort((a, b) => {
+        //     switch (sortBy) {
+        //         case 'mostRecent':
+        //             // return getLatestUpdatedAt(b) - getLatestUpdatedAt(a);
+        //             return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+        //         case 'highestAmount':
+        //             return Math.abs(b.balance) - Math.abs(a.balance);
+        //         case 'leastAmount':
+        //             return Math.abs(a.balance) - Math.abs(b.balance);
+        //         case 'byName':
+        //             return a.name.localeCompare(b.name);
+        //         case 'oldest':
+        //             return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        //         default:
+        //             return 0;
+        //     }
+        // });
 
     const styles = {
         container: {
@@ -675,7 +747,7 @@ export const Customers = () => {
                                     </p>
                                     <p className="customers-working-hours">
                                         <i className="bi bi-clock me-1"></i>
-                                        0
+                                        {getRelativeTime(getLatestUpdatedAt(customer))}
                                     </p>
                                 </div>
                                                                  <div className={`customers-customer-amount ${

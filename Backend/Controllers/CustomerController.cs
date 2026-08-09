@@ -33,8 +33,9 @@ public class CustomerController : ControllerBase
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Customers
             .Where(c => c.KhataBookId == currentKhataBookId && !c.isSupplier)
-            .OrderByDescending(c => c.CreatedAt)
+            .OrderByDescending(c => c.UpdatedAt)
             .ToListAsync();
+        
     }
 
     // GET: api/Customer/suppliers
@@ -55,7 +56,7 @@ public class CustomerController : ControllerBase
         var currentKhataBookId = _khataBookContext.GetCurrentKhataBookId();
         return await _context.Customers
             .Where(c => c.KhataBookId == currentKhataBookId && !c.isSupplier)
-            .OrderByDescending(c => c.CreatedAt)
+            .OrderByDescending(c => c.UpdatedAt)
             .ToListAsync();
     }
 
@@ -158,6 +159,14 @@ public class CustomerController : ControllerBase
             customer.SmsLanguage = updateDto.SmsLanguage.Value;
         if (updateDto.TransactionHistoryCheck.HasValue)
             customer.TransactionHistoryCheck = updateDto.TransactionHistoryCheck.Value;
+        Console.WriteLine($"Customer Id: {updateDto.PaymentDateReminder}");    
+        // Working for payment date timme reminder
+        if (updateDto.PaymentDateReminder != null){
+            customer.PaymentDateReminder = DateTime.SpecifyKind(
+                    updateDto.PaymentDateReminder.Value,
+                DateTimeKind.Utc);
+        }
+            
 
         customer.UpdatedAt = DateTime.UtcNow;
 

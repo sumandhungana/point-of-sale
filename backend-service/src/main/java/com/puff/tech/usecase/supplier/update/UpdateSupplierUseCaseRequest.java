@@ -1,0 +1,19 @@
+package com.puff.tech.usecase.supplier.update;
+
+import com.puff.tech.core.usecases.UseCase;
+import io.micronaut.serde.annotation.Serdeable;
+
+@Serdeable
+public record UpdateSupplierUseCaseRequest(
+        Integer id,
+        String name,
+        String phone,
+        String email,
+        String address,
+        String company,
+        String pan,
+        String contactPerson,
+        String profileImage
+)
+implements UseCase.UseCaseRequest {
+}

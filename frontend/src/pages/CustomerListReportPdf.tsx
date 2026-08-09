@@ -135,9 +135,30 @@ export const CustomerListReportPdf = () => {
     };
 
     // Calculate totals using the same logic as Customers page
-    const totalGave = overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received;
-    const totalReceived = overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given;
-    const netBalance = totalReceived - totalGave;
+    // const totalGave = overallTotals.given
+    // const totalReceived = overallTotals.received
+    
+    // const totalGave = overallTotals.given - overallTotals.received < 0 ? 0 : overallTotals.given - overallTotals.received;
+    // const totalReceived = overallTotals.received - overallTotals.given < 0 ? 0 : overallTotals.received - overallTotals.given;
+    // const netBalance = totalReceived - totalGave;
+
+
+const tableTotals = customers.reduce(
+  (acc, customer) => {
+    if (customer.balance < 0) {
+      acc.given += Math.abs(customer.balance);
+    } else if (customer.balance > 0) {
+      acc.received += customer.balance;
+    }
+    return acc;
+  },
+  { given: 0, received: 0 }
+);
+
+const tableNetBalance = tableTotals.received - tableTotals.given;
+const totalGave = tableTotals.given;
+const totalReceived = tableTotals.received;
+const netBalance = totalReceived - totalGave;
 
     if (loading) {
         return (
@@ -219,18 +240,18 @@ export const CustomerListReportPdf = () => {
                     <div ref={reportRef} className="customer-report-content">
                         <h1 className="customer-report-title">
                             <i className="bi bi-people-fill me-2"></i>
-                            Customer List Report
+                            Customer Ledger Report
                         </h1>
                     <p className="customer-report-date">
                         <i className="bi bi-calendar-event me-1"></i>
-                        (generated: {new Date().toLocaleDateString()})
+                        (Generated On: {new Date().toLocaleDateString()})
                     </p>
 
                     <div className="customer-report-summary-section">
                         <div className="customer-report-summary-item">
-                            <p className="customer-report-summary-item-title">
+                            <p className="customer-report-summary-item-title-gave">
                                 <i className="bi bi-arrow-up-circle me-1"></i>
-                                You Gave
+                                    You Gave
                             </p>
                             <p className={`customer-report-summary-item-value customer-report-gave-value`}>
                                 रू {totalGave.toLocaleString()}
@@ -238,7 +259,7 @@ export const CustomerListReportPdf = () => {
                         </div>
                         <div className="customer-report-summary-divider"></div>
                         <div className="customer-report-summary-item">
-                            <p className="customer-report-summary-item-title">
+                            <p className="customer-report-summary-item-title-received">
                                 <i className="bi bi-arrow-down-circle me-1"></i>
                                 You Received
                             </p>
@@ -260,59 +281,86 @@ export const CustomerListReportPdf = () => {
 
                     <div className="customer-report-customer-count">
                         <i className="bi bi-people me-1"></i>
-                        No of Customer: {customers.length} (All)
+                         Total Customers: {customers.length}
                     </div>
 
+                
                     <div className="customer-report-table-container">
                         <table className="customer-report-table">
                             <thead>
                                 <tr>
-                                    <th className="customer-report-table-header">
+                                    <th className="customer-report-table-header-name">
                                         <i className="bi bi-person me-1"></i>
                                         Name
                                     </th>
-                                    <th className="customer-report-table-header">
+                                    <th className="customer-report-table-header-phone">
                                         <i className="bi bi-telephone me-1"></i>
                                         Phone
                                     </th>
-                                    <th className="customer-report-table-header">
+                                    <th className="customer-report-table-header-gave">
                                         <i className="bi bi-arrow-up-circle me-1"></i>
                                         You Gave
                                     </th>
-                                    <th className="customer-report-table-header">
+                                    <th className="customer-report-table-header-received">
                                         <i className="bi bi-arrow-down-circle me-1"></i>
                                         You Received
                                     </th>
-                                    <th className="customer-report-table-header">
+                                    <th className="customer-report-table-header-collection-date">
                                         <i className="bi bi-calculator me-1"></i>
-                                        Balance
+                                        Collection Date
                                     </th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {customers.map((customer) => (
                                     <tr key={customer.id}>
-                                        <td className="customer-report-table-cell">{customer.name}</td>
-                                        <td className="customer-report-table-cell">{customer.phone}</td>
+                                        <td className="customer-report-table-cell customer-report-name-cell">{customer.name}</td>
+                                        <td className="customer-report-table-cell customer-report-phone-cell">{customer.phone}</td>
                                         <td className={`customer-report-table-cell customer-report-gave-cell`}>
                                             {customer.balance < 0 ? `रू ${Math.abs(customer.balance).toLocaleString()}` : ""}
                                         </td>
                                         <td className={`customer-report-table-cell customer-report-received-cell`}>
                                             {customer.balance > 0 ? `रू ${customer.balance.toLocaleString()}` : ""}
                                         </td>
-                                        <td className="customer-report-table-cell">
-                                            {customer.balance !== 0 ? `रू ${Math.abs(customer.balance).toLocaleString()}` : "Settled"}
+                                        <td className="customer-report-table-cell customer-report-collection-cell">
+                                            {customer.paymentDateReminder
+                                                ? customer.paymentDateReminder.split("T")[0]
+                                            : "-"}
+                                    
                                         </td>
                                     </tr>
+                                    
                                 ))}
+                
                             </tbody>
+                            <tfoot>
+                                <tr className="customer-report-total-row">
+                                    <td colSpan={2}>
+                                        <strong>Grand Total</strong>
+                                    </td>
+
+                                    <td className="customer-report-gave-cell" style={{ paddingLeft: "12px" }}>
+                                        <strong>रू {tableTotals.given.toLocaleString()}</strong>
+                                    </td>
+
+                                    <td className="customer-report-received-cell" style={{ paddingLeft: "12px" }}>
+                                        <strong>रू {tableTotals.received.toLocaleString()}</strong>
+                                    </td>
+
+                                     <td className="customer-report-table-cell customer-report-collection-cell">
+                                        {/* <strong>रू {tableNetBalance.toLocaleString()}</strong> */}
+                                    </td> 
+                                </tr>
+                            </tfoot>    
                         </table>
                     </div>
+                
 
                         <div className="customer-report-footer">
                             <i className="bi bi-info-circle me-1"></i>
                             Company Details and Helpline Number
                         </div>
+                        
                     </div>
                 </div>
             </main>

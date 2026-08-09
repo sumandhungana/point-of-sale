@@ -1,0 +1,23 @@
+micronaut:
+  application:
+    name: backend-service
+  server:
+    port: 8080
+r2dbc:
+  datasources:
+    default:
+      options:
+        driver: pool
+        protocol: postgres
+        initialSize: 5
+        maxSize: 35
+        maxLifetime: PT280S
+        maxIdleTime: PT240S
+        maxAcquireTime: PT6S
+        poolName: webcheckout-r2dbc
+      schema-generate: CREATE
+      dialect: POSTGRES
+      db-type: postgres
+      username: root
+      password: root
+      url: r2dbc:pool:postgresql://localhost:5432/khatabook_test

@@ -157,7 +157,8 @@
 }
 
 .customer-report-date {
-  color: #6c757d;
+  color: #161616;
+  font-weight: 700;
   text-align: center;
   margin-bottom: 1.5rem;
 }
@@ -178,8 +179,14 @@
   flex: 1;
 }
 
-.customer-report-summary-item-title {
-  color: #6c757d;
+.customer-report-summary-item-title-gave {
+  color: #d61727;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.customer-report-summary-item-title-received {
+  color: #12c95e;
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
@@ -208,13 +215,13 @@
 }
 
 .customer-report-customer-count {
-  color: #6c757d;
+  color: #0b85f0;
   margin-bottom: 1rem;
   padding: 0.75rem;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
   border-radius: 6px;
   text-align: center;
-  font-weight: 500;
+  font-weight: 700;
   border-left: 4px solid #dc4c39;
 }
 
@@ -238,12 +245,76 @@
   color: #212529;
   font-weight: bold;
   font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-report-table-header-gave {
+  background: linear-gradient(135deg, #eb7b8a, #e9ecef);
+  padding: 1rem 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  color: #110d0d;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-report-table-header-phone {
+  background: linear-gradient(135deg, #0d6efd, #e9ecef);
+  padding: 1rem 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  color: #110d0d;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+
+.customer-report-table-header-name {
+  background: linear-gradient(135deg, #363c43, #e9ecef);
+  padding: 1rem 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  color: #110d0d;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
+}
+.customer-report-table-header-received {
+  background: linear-gradient(135deg, #74f09d, #e9ecef);
+  padding: 1rem 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  color: #110d0d;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-report-table-header-collection-date {
+  background: linear-gradient(135deg, #e0e41d, #e9ecef);
+  padding: 1rem 0.75rem;
+  text-align: left;
+  border-bottom: 2px solid #dee2e6;
+  color: #110d0d;
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .customer-report-table-cell {
   padding: 0.75rem;
   border-bottom: 1px solid #dee2e6;
   font-size: 0.9rem;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .customer-report-table tbody tr:hover {
@@ -251,13 +322,47 @@
 }
 
 .customer-report-gave-cell {
-  color: #dc3545;
+  background: linear-gradient(135deg, #edd9da, #e9ecef);
+  color: #f50505;
   font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-report-name-cell {
+  background: linear-gradient(135deg, #b1b2b4, #e9ecef);
+  font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-report-phone-cell {
+  background: linear-gradient(135deg, #b2caec, #e9ecef);
+
+  font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
 }
 
 .customer-report-received-cell {
-  color: #28a745;
+  background: linear-gradient(135deg, #e2f4e8, #e9ecef);
+  color:  #218535;
   font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-report-collection-cell {
+  background: linear-gradient(135deg, #faf9cf, #fafaf6);
+  color:  #161212;
+  font-weight: 500;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.customer-report-total-row {
+    text-align: center;
+  vertical-align: middle;
 }
 
 .customer-report-footer {
@@ -375,4 +480,5 @@
     padding: 0.25rem;
     font-size: 0.75rem;
   }
+  /* New */
 } 

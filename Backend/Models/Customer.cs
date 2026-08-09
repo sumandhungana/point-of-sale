@@ -45,6 +45,7 @@ public class Customer
     public bool SmsLanguage { get; set; } = false;
 
     public bool TransactionHistoryCheck { get; set; } = false;
+    public DateTime? PaymentDateReminder { get; set; }
 }
 
 // DTO for creating customers - excludes navigation properties
@@ -110,4 +111,6 @@ public class UpdateCustomerDto
     public bool? SmsLanguage { get; set; }
 
     public bool? TransactionHistoryCheck { get; set; }
+
+    public DateTime? PaymentDateReminder { get; set; }
 } 

@@ -14,6 +14,7 @@ export interface Customer {
   createdAt: string;
   updatedAt: string;
   profileImage?: string;
+  paymentDateReminder?: string;
 }
 
 

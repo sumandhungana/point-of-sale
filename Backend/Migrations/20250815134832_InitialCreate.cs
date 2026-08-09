@@ -84,7 +84,8 @@ namespace Backend.Migrations
                     ProfileImage = table.Column<string>(type: "text", nullable: true),
                     CustomerSmsSetting = table.Column<bool>(type: "boolean", nullable: false),
                     SmsLanguage = table.Column<bool>(type: "boolean", nullable: false),
-                    TransactionHistoryCheck = table.Column<bool>(type: "boolean", nullable: false)
+                    TransactionHistoryCheck = table.Column<bool>(type: "boolean", nullable: false),
+                    PaymentDateReminder =  table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {

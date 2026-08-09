@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { pdf } from '@react-pdf/renderer';
@@ -26,7 +26,7 @@ export const CustomerStatement = () => {
     const location = useLocation();
     const transactionData = location.state?.transaction as TransactionData;
 
-    const [formData, setFormData] = useState({
+    const [formData] = useState({
         type: transactionData?.type || '',
         customerName: transactionData?.customerName || '',
         totalAmount: transactionData?.totalAmount?.toString() || '',

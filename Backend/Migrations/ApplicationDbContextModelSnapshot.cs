@@ -311,6 +311,9 @@ namespace Backend.Migrations
                     b.Property<string>("Pan")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("PaymentDateReminder")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Phone")
                         .HasColumnType("text");
 
@@ -1802,88 +1805,6 @@ namespace Backend.Migrations
                     b.ToTable("Suppliers");
                 });
 
-            modelBuilder.Entity("Backend.Models.SupplierPaymentsGiven", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("BillPath")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("KhataBookId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PartyId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KhataBookId");
-
-                    b.HasIndex("PartyId");
-
-                    b.ToTable("SupplierPaymentsGiven");
-                });
-
-            modelBuilder.Entity("Backend.Models.SupplierPaymentsReceived", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(10,2)");
-
-                    b.Property<string>("BillPath")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("KhataBookId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("PartyId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("KhataBookId");
-
-                    b.HasIndex("PartyId");
-
-                    b.ToTable("SupplierPaymentsReceived");
-                });
-
             modelBuilder.Entity("Backend.Models.Transaction", b =>
                 {
                     b.Property<int>("Id")
@@ -2007,13 +1928,13 @@ namespace Backend.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 9, 6, 5, 1, 12, 964, DateTimeKind.Utc).AddTicks(7688),
+                            CreatedAt = new DateTime(2026, 7, 14, 14, 41, 39, 701, DateTimeKind.Utc).AddTicks(504),
                             Enable = true,
                             Password = "",
                             PasswordHash = "wphRXnzVzKYnlQxYSHWH8zlzV8CIxoPUoRyCv2pwCYs=",
                             PasswordSalt = "static_salt_123",
                             Permission = "admin",
-                            UpdatedAt = new DateTime(2025, 9, 6, 5, 1, 12, 964, DateTimeKind.Utc).AddTicks(7703),
+                            UpdatedAt = new DateTime(2026, 7, 14, 14, 41, 39, 701, DateTimeKind.Utc).AddTicks(505),
                             Username = "admin"
                         });
                 });
@@ -2398,44 +2319,6 @@ namespace Backend.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("KhataBook");
-                });
-
-            modelBuilder.Entity("Backend.Models.SupplierPaymentsGiven", b =>
-                {
-                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
-                        .WithMany()
-                        .HasForeignKey("KhataBookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Backend.Models.Supplier", "Party")
-                        .WithMany()
-                        .HasForeignKey("PartyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("KhataBook");
-
-                    b.Navigation("Party");
-                });
-
-            modelBuilder.Entity("Backend.Models.SupplierPaymentsReceived", b =>
-                {
-                    b.HasOne("Backend.Models.KhataBook", "KhataBook")
-                        .WithMany()
-                        .HasForeignKey("KhataBookId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Backend.Models.Supplier", "Party")
-                        .WithMany()
-                        .HasForeignKey("PartyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("KhataBook");
-
-                    b.Navigation("Party");
                 });
 
             modelBuilder.Entity("Backend.Models.Transaction", b =>

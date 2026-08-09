@@ -65,12 +65,12 @@ export const CustomerStatementsReport = () => {
 
     const fetchReportData = async () => {
         if (!id) return;
-        
+
         setLoading(true);
         try {
             const customers = await getCustomers();
             const customer = customers.find(c => c.id === parseInt(id));
-            
+
             if (!customer) {
                 toast.error('Customer not found');
                 navigate('/parties/customers');
@@ -78,13 +78,13 @@ export const CustomerStatementsReport = () => {
             }
 
             const paymentHistory = await getPaymentHistory(customer.id);
-            
+
             // Calculate totals
             const totals = paymentHistory.reduce((acc, payment) => {
                 // Ensure amount is a proper number
                 const amount = typeof payment.amount === 'string' ? parseFloat(payment.amount) : payment.amount;
                 const cleanAmount = isNaN(amount) ? 0 : amount;
-                
+
                 if (payment.type === 'Given') {
                     acc.given += cleanAmount;
                 } else if (payment.type === 'Received') {
@@ -98,7 +98,7 @@ export const CustomerStatementsReport = () => {
                 // Ensure amount is a proper number
                 const amount = typeof payment.amount === 'string' ? parseFloat(payment.amount) : payment.amount;
                 const cleanAmount = isNaN(amount) ? 0 : amount;
-                
+
                 if (payment.type === 'Received') {
                     return acc + cleanAmount;
                 } else if (payment.type === 'Given') {
@@ -139,25 +139,62 @@ export const CustomerStatementsReport = () => {
 
     // Filter and sort transactions
     const filteredTransactions = reportData.paymentHistory
-        .filter(transaction => {
-            const matchesSearch = !searchTerm || (transaction.remarks && transaction.remarks.toLowerCase().includes(searchTerm.toLowerCase()));
-            const matchesFilter = filterOption === 'all' || 
-                (filterOption === 'gave' && transaction.type === 'Given') ||
-                (filterOption === 'received' && transaction.type === 'Received');
-            const matchesDate = (!startDate || new Date(transaction.createdAt) >= new Date(startDate)) &&
-                (!endDate || new Date(transaction.createdAt) <= new Date(endDate));
-            return matchesSearch && matchesFilter && matchesDate;
+        .filter((transaction) => {
+            const search = searchTerm.trim().toLowerCase();
+
+            const matchesSearch =
+                search === "" ||
+                transaction.remarks?.toLowerCase().includes(search) ||
+                transaction.type.toLowerCase().includes(search) ||
+                transaction.date?.toLowerCase().includes(search) ||
+                transaction.amount.toString().includes(search) ||
+                transaction.newBalance.toString().includes(search) ||
+                reportData.customer.name.toLowerCase().includes(search);
+
+            const matchesFilter =
+                filterOption === "all" ||
+                (filterOption === "gave" && transaction.type === "Given") ||
+                (filterOption === "received" &&
+                    transaction.type === "Received");
+
+            const transactionDate = new Date(transaction.createdAt);
+
+            const matchesStartDate =
+                !startDate || transactionDate >= new Date(startDate);
+
+            const matchesEndDate =
+                !endDate ||
+                transactionDate <= new Date(
+                    `${endDate}T23:59:59`
+                );
+
+            return (
+                matchesSearch &&
+                matchesFilter &&
+                matchesStartDate &&
+                matchesEndDate
+            );
         })
         .sort((a, b) => {
             switch (sortOption) {
-                case 'date-desc':
-                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                case 'date-asc':
-                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-                case 'amount-desc':
-                    return Math.abs(b.amount) - Math.abs(a.amount);
-                case 'amount-asc':
-                    return Math.abs(a.amount) - Math.abs(b.amount);
+                case "date-desc":
+                    return (
+                        new Date(b.createdAt).getTime() -
+                        new Date(a.createdAt).getTime()
+                    );
+
+                case "date-asc":
+                    return (
+                        new Date(a.createdAt).getTime() -
+                        new Date(b.createdAt).getTime()
+                    );
+
+                case "amount-desc":
+                    return Number(b.newBalance) - Number(a.newBalance);
+
+                case "amount-asc":
+                    return Number(a.newBalance) - Number(b.newBalance);
+
                 default:
                     return 0;
             }
@@ -170,7 +207,7 @@ export const CustomerStatementsReport = () => {
             console.log('Customer data:', reportData.customer);
             console.log('Filtered transactions:', filteredTransactions);
             console.log('Totals:', { given: totalGave, received: totalReceived });
-            
+
             const blob = await pdf(
                 <CustomerStatementsPDFTemplate data={{
                     customer: reportData.customer,
@@ -181,9 +218,9 @@ export const CustomerStatementsReport = () => {
                     }
                 }} />
             ).toBlob();
-            
+
             console.log('PDF blob created successfully:', blob);
-            
+
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
@@ -192,7 +229,7 @@ export const CustomerStatementsReport = () => {
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
-            
+
             toast.success('PDF downloaded successfully');
         } catch (error) {
             console.error('Error generating PDF:', error);
@@ -222,10 +259,11 @@ export const CustomerStatementsReport = () => {
         );
     }
 
+    // @ts-ignore
     return (
         <div className="customer-statements-report-page">
             <Sidebar />
-         
+
             <main className="customer-statements-report-main-content">
                 <div ref={contentRef} className="customer-statements-report-content-container">
                     <div className="customer-statements-report-header">
@@ -239,137 +277,127 @@ export const CustomerStatementsReport = () => {
                     </div>
 
                     <div className="customer-statements-report-controls-card">
-                        <div className="customer-statements-report-controls-row">
-                            <div className="customer-statements-report-search-container">
-                                <i className="bi bi-search customer-statements-report-search-icon"></i>
-                                <input
-                                    type="text"
-                                    placeholder="Search remarks"
-                                    value={searchTerm}
-                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="customer-statements-report-search-input"
-                                />
-                            </div>
-                            <select value={sortOption} onChange={(e) => setSortOption(e.target.value)} className="customer-statements-report-dropdown">
-                                <option value="date-desc">Sort: Date (Newest)</option>
-                                <option value="date-asc">Sort: Date (Oldest)</option>
-                                <option value="amount-desc">Sort: Amount (High to Low)</option>
-                                <option value="amount-asc">Sort: Amount (Low to High)</option>
-                            </select>
-                            <select value={filterOption} onChange={(e) => setFilterOption(e.target.value)} className="customer-statements-report-dropdown">
-                                <option value="all">Filter: All</option>
-                                <option value="gave">Filter: You Gave</option>
-                                <option value="received">Filter: You Received</option>
-                            </select>
+
+                        {/* Search */}
+                        <div className="customer-statements-report-search-container">
+                            <i className="bi bi-search customer-statements-report-search-icon"></i>
+
+                            <input
+                                type="search"
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="customer-statements-report-search-input"
+                            />
                         </div>
 
-                        <div className="customer-statements-report-date-controls">
-                            <div className="customer-statements-report-date-input">
-                                <label className="customer-statements-report-date-label">
-                                    <i className="bi bi-calendar3 me-1"></i>
-                                    Start Date
-                                </label>
-                                <input
-                                    type="date"
-                                    value={startDate}
-                                    onChange={(e) => setStartDate(e.target.value)}
-                                    className="customer-statements-report-date-select"
-                                />
-                            </div>
-                            <div className="customer-statements-report-date-input">
-                                <label className="customer-statements-report-date-label">
-                                    <i className="bi bi-calendar3 me-1"></i>
-                                    End Date
-                                </label>
-                                <input 
-                                    type="date" 
-                                    value={endDate}
-                                    onChange={(e) => setEndDate(e.target.value)}
-                                    className="customer-statements-report-date-select"
-                                />
-                            </div>
-                        </div>
+                        {/* Sort */}
+                        <select
+                            value={sortOption}
+                            onChange={(e) => setSortOption(e.target.value)}
+                            className="customer-statements-report-dropdown"
+                        >
+                            <option value="date-desc">Newest</option>
+                            <option value="date-asc">Oldest</option>
+                            <option value="amount-desc">Balance ↓</option>
+                            <option value="amount-asc">Balance ↑</option>
+                        </select>
+
+                        {/* Start Date */}
+                        <input
+                            type="date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                            className="customer-statements-report-date-select"
+                        />
+
+                        {/* End Date */}
+                        <input
+                            type="date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                            className="customer-statements-report-date-select"
+                        />
+
+                        {/* Reset */}
+                        <button
+                            className="customer-statements-report-reset-btn"
+                            onClick={() => {
+                                setSearchTerm("");
+                                setSortOption("date-desc");
+                                setStartDate("");
+                                setEndDate("");
+                            }}
+                        >
+                            <i className="bi bi-arrow-counterclockwise me-1"></i>
+                            Reset
+                        </button>
                     </div>
 
+                    <div className="search-result-count">
+                        Showing {filteredTransactions.length} of {reportData.paymentHistory.length} transactions
+                    </div>
                     <div className="customer-statements-report-summary-section">
-                        <div className="customer-statements-report-summary-item">
-                            <div className="customer-statements-report-summary-title">Total Given</div>
-                            <div className="customer-statements-report-summary-value customer-statements-report-gave-value">
-                                रु{totalGave.toLocaleString()}
-                            </div>
-                        </div>
-                        <div className="customer-statements-report-summary-divider"></div>
-                        <div className="customer-statements-report-summary-item">
-                            <div className="customer-statements-report-summary-title">Total Received</div>
-                            <div className="customer-statements-report-summary-value customer-statements-report-received-value">
-                                रु{totalReceived.toLocaleString()}
-                            </div>
-                        </div>
-                        <div className="customer-statements-report-summary-divider"></div>
-                        <div className="customer-statements-report-summary-item">
-                            <div className="customer-statements-report-summary-title">Net Balance</div>
-                            <div className="customer-statements-report-summary-value customer-statements-report-net-value">
-                                रु{netBalance.toLocaleString()}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="customer-statements-report-table-container">
-                        <table className="customer-statements-report-table">
-                            <thead>
-                                <tr>
-                                    <th className="customer-statements-report-table-header">
-                                        <i className="bi bi-calendar3 me-1"></i>
-                                        Date
-                                    </th>
-                                    <th className="customer-statements-report-table-header">
-                                        <i className="bi bi-arrow-left-right me-1"></i>
-                                        Type
-                                    </th>
-                                    <th className="customer-statements-report-table-header">
-                                        <i className="bi bi-currency-rupee me-1"></i>
-                                        Amount
-                                    </th>
-                                    <th className="customer-statements-report-table-header">
-                                        <i className="bi bi-chat-text me-1"></i>
-                                        Remarks
-                                    </th>
-                                    <th className="customer-statements-report-table-header">
-                                        <i className="bi bi-wallet2 me-1"></i>
-                                        Balance
-                                    </th>
-                                </tr>
-                            </thead>
+                        <table className="statement-table">
                             <tbody>
-                                {filteredTransactions.map((transaction) => (
-                                    <tr key={transaction.id} className="customer-statements-report-table-row">
-                                        <td className="customer-statements-report-table-cell">
-                                            {new Date(transaction.createdAt).toLocaleDateString()}
-                                        </td>
-                                        <td className="customer-statements-report-table-cell">
-                                            <span className={`customer-statements-report-transaction-type ${
-                                                transaction.type === 'Given' ? 'customer-statements-report-type-gave' : 'customer-statements-report-type-received'
-                                            }`}>
-                                                {transaction.type}
-                                            </span>
-                                        </td>
-                                        <td className="customer-statements-report-table-cell">
-                                            रु{Math.abs(transaction.amount).toLocaleString()}
-                                        </td>
-                                        <td className="customer-statements-report-table-cell">
-                                            {transaction.remarks || 'No remarks'}
-                                        </td>
-                                        <td className="customer-statements-report-table-cell">
-                                            रु{transaction.newBalance.toLocaleString()}
-                                        </td>
-                                    </tr>
-                                ))}
+                            <tr>
+                                <td className="net-balance" colSpan="3">
+                                    <div className="net-balance-content">
+                                        <span>Total Net Balance</span>
+                                        <strong>रु{netBalance.toLocaleString()}</strong>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr className="summary-row">
+                                <td>
+                                    Total Bill Count
+                                    <br />
+                                    <strong>{reportData.paymentHistory.length}</strong>
+                                </td>
+
+                                <td>
+                                    You Gave
+                                    <br />
+                                    <strong>रु{totalGave.toLocaleString()}</strong>
+                                </td>
+
+                                <td >
+                                    You Received
+                                    <br />
+                                    <strong>रु{totalReceived.toLocaleString()}</strong>
+                                </td>
+                            </tr>
+
+                            {filteredTransactions.map((item, index) => (
+                                <tr key={index}  className="summary-row-details">
+                                    <td>
+                                        Date: {item.date}
+                                        <br />
+                                        Balance: रु{item.newBalance.toLocaleString()}
+                                        <br />
+                                        Remarks: {item.remarks}
+                                    </td>
+
+                                    <td>
+                                        {item.type === "Given"
+                                            ? "रु " + Math.abs(item.amount).toLocaleString()
+                                            : "-"}
+                                    </td>
+
+                                    <td>
+                                        {item.type === "Received"
+                                            ? "रु " + Math.abs(item.amount).toLocaleString()
+                                            : "-"}
+                                    </td>
+                                </tr>
+                            ))}
+
                             </tbody>
                         </table>
                     </div>
 
                     <div className="customer-statements-report-action-buttons">
-                        <button 
+                        <button
                             className="customer-statements-report-download-button"
                             onClick={handleGeneratePdf}
                             disabled={generatingPdf}
@@ -377,7 +405,7 @@ export const CustomerStatementsReport = () => {
                             <i className={`bi ${generatingPdf ? 'bi-arrow-clockwise spin me-1' : 'bi-download me-1'}`}></i>
                             {generatingPdf ? 'Generating...' : 'Download PDF'}
                         </button>
-                        <button 
+                        <button
                             className="customer-statements-report-share-button"
                             onClick={() => console.log('Share functionality to be implemented')}
                         >
@@ -386,24 +414,7 @@ export const CustomerStatementsReport = () => {
                         </button>
                     </div>
 
-                    <div className="customer-statements-report-footer">
-                        <div className="customer-statements-report-footer-item">
-                            <i className="bi bi-telephone me-1"></i>
-                            Phone: {reportData.customer.phoneNumber}
-                        </div>
-                        <div className="customer-statements-report-footer-item">
-                            <i className="bi bi-list-ul me-1"></i>
-                            Total Transactions: {reportData.paymentHistory.length}
-                        </div>
-                        <div className="customer-statements-report-footer-item">
-                            <i className="bi bi-arrow-up-circle me-1"></i>
-                            Total Given: रु{totalGave.toLocaleString()}
-                        </div>
-                        <div className="customer-statements-report-footer-item">
-                            <i className="bi bi-arrow-down-circle me-1"></i>
-                            Total Received: रु{totalReceived.toLocaleString()}
-                        </div>
-                    </div>
+
                 </div>
             </main>
         </div>

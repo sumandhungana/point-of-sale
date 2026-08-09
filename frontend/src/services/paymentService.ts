@@ -18,6 +18,7 @@ export interface PaymentHistory {
     oldBalance: number;
     newBalance: number;
     createdAt: string;
+    updatedAt: string;
 }
 
 function getAuthHeaders(): Record<string, string> {

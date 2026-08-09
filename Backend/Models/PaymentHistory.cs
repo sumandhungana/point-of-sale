@@ -15,5 +15,6 @@ namespace Backend.Models
         public decimal OldBalance { get; set; }
         public decimal NewBalance { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set;}
     }
 } 

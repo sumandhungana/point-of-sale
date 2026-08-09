@@ -318,11 +318,20 @@ padding:12px;
 
 /* Bottom Row for You Gave/You Received buttons */
 .customer-statements-bottom-row {
-  display: flex !important;
+  /* display: flex !important;
   justify-content: space-between !important;
   gap: 1rem !important;
   margin-top: 2rem !important;
-  margin-bottom: 2rem !important;
+  margin-bottom: 2rem !important; */
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  justify-content: space-between !important;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #fff;
+  border-top: 1px solid #ddd;
 }
 
 /* Date Group */
@@ -588,6 +597,7 @@ padding:12px;
     width: 80px !important;
     height: 80px !important;
   }
+  
 }
 
 /* Smooth transitions for all elements */

@@ -1,0 +1,21 @@
+package com.puff.tech;
+
+import io.micronaut.runtime.EmbeddedApplication;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assertions;
+
+import jakarta.inject.Inject;
+
+@MicronautTest(transactional = false)
+class BackendServiceTest {
+
+    @Inject
+    EmbeddedApplication<?> application;
+
+//    @Test
+//    void testItWorks() {
+//        Assertions.assertTrue(application.isRunning());
+//    }
+
+}

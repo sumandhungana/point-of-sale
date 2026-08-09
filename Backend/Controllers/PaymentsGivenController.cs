@@ -82,7 +82,9 @@ namespace Backend.Controllers
                     Date = p.Date,
                     BillPath = p.BillPath,
                     Type = "Given",
-                    CreatedAt = p.CreatedAt
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt
+                    
                 })
                 .ToListAsync();
 
@@ -99,7 +101,8 @@ namespace Backend.Controllers
                     Date = p.Date,
                     BillPath = p.BillPath,
                     Type = "Received",
-                    CreatedAt = p.CreatedAt
+                    CreatedAt = p.CreatedAt,
+                    UpdatedAt = p.UpdatedAt
                 })
                 .ToListAsync();
 
