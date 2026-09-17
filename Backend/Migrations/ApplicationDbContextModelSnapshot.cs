@@ -1643,7 +1643,12 @@ namespace Backend.Migrations
                         .HasColumnType("character varying(255)");
 
                     b.Property<string>("Remarks")
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<DateOnly?>("SalaryStartDate")
+                        .HasMaxLength(100)
+                        .HasColumnType("date");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -1872,6 +1877,15 @@ namespace Backend.Migrations
                     b.Property<bool>("Enable")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("HasUsedTrial")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ImagePath")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsSubscriptionActive")
+                        .HasColumnType("boolean");
+
                     b.Property<string>("Name")
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
@@ -1909,6 +1923,24 @@ namespace Backend.Migrations
                     b.Property<string>("Remarks")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("SubscriptionEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("SubscriptionStartDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("SubscriptionStatus")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("SubscriptionType")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("TrialEndDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("TrialStartDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -1928,13 +1960,17 @@ namespace Backend.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2026, 7, 14, 14, 41, 39, 701, DateTimeKind.Utc).AddTicks(504),
+                            CreatedAt = new DateTime(2026, 9, 9, 10, 8, 47, 912, DateTimeKind.Utc).AddTicks(6533),
                             Enable = true,
+                            HasUsedTrial = false,
+                            IsSubscriptionActive = false,
                             Password = "",
                             PasswordHash = "wphRXnzVzKYnlQxYSHWH8zlzV8CIxoPUoRyCv2pwCYs=",
                             PasswordSalt = "static_salt_123",
                             Permission = "admin",
-                            UpdatedAt = new DateTime(2026, 7, 14, 14, 41, 39, 701, DateTimeKind.Utc).AddTicks(505),
+                            SubscriptionStatus = 0,
+                            SubscriptionType = 0,
+                            UpdatedAt = new DateTime(2026, 9, 9, 10, 8, 47, 912, DateTimeKind.Utc).AddTicks(6535),
                             Username = "admin"
                         });
                 });

@@ -1,0 +1,352 @@
+UpdateKhataBook.css
+
+.update-khatabook-page-wrapper {
+  display: flex;
+}
+
+.update-khatabook-page-main {
+  flex: 1;
+  margin-left: 100px;
+  overflow-x: hidden;
+}
+
+.update-khata-book-container {
+  width: calc(100% - 4rem);
+  padding: 2rem;
+  margin-top: 100px;
+  box-sizing: border-box;
+  background: linear-gradient(135deg, #f8f9fa 100%, #e9ecef 100%);
+  min-height: 100vh;
+}
+
+.update-khata-book-image-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 3rem;
+}
+
+.update-khata-book-profile-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+
+
+.update-khata-book-image-placeholder {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    border: 3px solid #e9ecef;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.update-khata-book-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+}
+
+.update-khata-book-image-placeholder:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: #667eea;
+}
+
+.update-khata-book-image-placeholder.has-image {
+  border-color: #667eea;
+}
+
+.update-khata-book-add-photo-button {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.update-khata-book-add-photo-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+}
+
+.update-khata-book-add-photo-button:active {
+  transform: translateY(0);
+}
+
+.update-khata-book-hidden-file-input {
+  display: none;
+}
+
+.update-khata-book-section {
+  margin-bottom: 3rem;
+  background: white;
+  padding: 2.5rem;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.update-khata-book-section:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+.update-khata-book-section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.update-khata-book-section-title::before {
+  content: '📋';
+  font-size: 1.5rem;
+  -webkit-text-fill-color: initial;
+}
+
+.update-khata-book-hr {
+  border: none;
+  border-top: 2px solid #e9ecef;
+  margin: 1.5rem 0;
+}
+
+.update-khata-book-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+.update-khata-book-form-group {
+  margin-bottom: 1.5rem;
+}
+
+.update-khata-book-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: #495057;
+  font-size: 0.9rem;
+  font-weight: 600;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.update-khata-book-label::before {
+  content: '📝';
+  font-size: 1rem;
+}
+
+.update-khata-book-label.required::after {
+  content: ' *';
+  color: #dc3545;
+  font-weight: 700;
+}
+
+.update-khata-book-input {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+  box-sizing: border-box;
+}
+
+.update-khata-book-input:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  background: white;
+  transform: translateY(-1px);
+}
+
+.update-khata-book-input::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.update-khata-book-select {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 1rem;
+  background: white;
+  outline: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+.update-khata-book-select:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: translateY(-1px);
+}
+
+.update-khata-book-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.update-khata-book-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  font-weight: 500;
+}
+
+.update-khata-book-checkbox-label:hover {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-color: #667eea;
+  transform: translateX(5px);
+}
+
+.update-khata-book-checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.update-khata-book-save-button {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  float: right;
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.update-khata-book-save-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+}
+
+.update-khata-book-save-button:active {
+  transform: translateY(0);
+}
+
+.update-khata-book-save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Responsive Design */
+
+@media (max-width: 1200px) {
+  .update-khata-book-container {
+    width: calc(100% - 2rem);
+    padding: 1.5rem;
+  }
+
+  .update-khata-book-section {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .update-khata-book-form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .update-khata-book-save-button {
+    width: 100%;
+    float: none;
+    justify-content: center;
+  }
+
+  .update-khata-book-container {
+    width: 100%;
+    padding: 1rem;
+  }
+
+  .update-khata-book-section {
+    padding: 1.5rem;
+  }
+
+  .update-khata-book-section-title {
+    font-size: 1.25rem;
+  }
+
+  .update-khata-book-image-placeholder {
+    width: 120px;
+    height: 120px;
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .update-khata-book-section {
+    padding: 1rem;
+  }
+
+  .update-khata-book-input,
+  .update-khata-book-select {
+    padding: 0.75rem;
+    font-size: 0.9rem;
+  }
+
+  .update-khata-book-image-placeholder {
+    width: 100px;
+    height: 100px;
+    font-size: 2rem;
+  }
+
+  .update-khata-book-add-photo-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+}

@@ -137,6 +137,7 @@ public class StaffController : ControllerBase
             Phone = staffDto.Phone,
             Email = staffDto.Email,
             Remarks = staffDto.Remarks,
+            SalaryStartDate = staffDto.SalaryStartDate,
             ProfileImageUrl = staffDto.ProfileImageUrl,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow

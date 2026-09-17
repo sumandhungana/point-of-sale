@@ -155,12 +155,12 @@ export const Sidebar = () => {
 	// Function to find all parent paths for the current location
 	const findParentPaths = (items: NavItem[], currentPath: string): string[] => {
 		const parentPaths: string[] = [];
-		
+
 		const findParents = (items: NavItem[], path: string): boolean => {
 			for (const item of items) {
 				if (item.children) {
-					if (item.children.some(child => 
-						child.path === path || 
+					if (item.children.some(child =>
+						child.path === path ||
 						(child.children && findParents([child], path))
 					)) {
 						parentPaths.push(item.path);
@@ -250,25 +250,25 @@ export const Sidebar = () => {
 
 		// Check if the current path starts with the item's path
 		const isPathActive = location.pathname.startsWith(path);
-		
+
 		// If this is a parent item, check if any of its children are active
 		if (item.children) {
 			const hasActiveChild = item.children.some(child => {
 				// For nested children, check if the current path exactly matches or starts with the child path
 				if (child.children) {
-					return child.children.some(nestedChild => 
-						location.pathname === nestedChild.path || 
+					return child.children.some(nestedChild =>
+						location.pathname === nestedChild.path ||
 						location.pathname.startsWith(nestedChild.path)
 					);
 				}
 				// Include alias: '/parties/supplier/*' should activate '/parties/suppliers'
 				const childAliasActive = child.path === '/parties/suppliers' && location.pathname.startsWith('/parties/supplier');
-				return childAliasActive || location.pathname === child.path || 
-				       location.pathname.startsWith(child.path);
+				return childAliasActive || location.pathname === child.path ||
+					location.pathname.startsWith(child.path);
 			});
 			return hasActiveChild;
 		}
-		
+
 		return isPathActive;
 	};
 
@@ -335,7 +335,7 @@ export const Sidebar = () => {
 			setCurrentKhataBook(khataBook);
 			localStorage.setItem('companyName', khataBook.companyName);
 			localStorage.setItem('selectedKhataBookId', khataBook.id.toString());
-			
+
 			// Refresh the page to load new KhataBook data
 			window.location.reload();
 		} catch (error) {
@@ -348,17 +348,32 @@ export const Sidebar = () => {
 	return (
 		<div className="sidebar">
 			{/* Logo moved to Navbar */}
-			
-			<div 
+
+			<div
 				className="user-section"
 				onClick={() => setIsPopupOpen(true)}
 			>
-				<div className="user-profile">
-					<div className="avatar">
+				<div className="user-profile" style={{ display: 'flex', flexDirection: 'column' }}>
+					{/* <div className="avatar">
 						{'👤'}
+						{currentKhataBook?.imagePath}
+					</div> */}
+					<div
+						className="avatar"
+						style={{
+							
+							backgroundImage: currentKhataBook?.imagePath
+								? `url(http://localhost:5000${currentKhataBook.imagePath})`
+								: 'linear-gradient(135deg, #3498db, #2980b9)',
+							backgroundSize: 'cover',
+							backgroundPosition: 'center',
+							backgroundRepeat: 'no-repeat',
+						}}
+					>
+						{!currentKhataBook?.imagePath && '👤'}
 					</div>
 					<div className="user-info">
-						<h3 className="user-name">{user?.username || 'User'}</h3>
+						
 						<p className="user-role">
 							{currentKhataBook?.companyName || cachedCompanyName || 'No KhataBook Selected'}
 						</p>
@@ -371,10 +386,10 @@ export const Sidebar = () => {
 					<div className="popup-content" ref={popupRef}>
 						<div className="popup-header">
 							<h2 className="popup-title">
-								<i className="bi bi-building"></i>
+								{/* <i className="bi bi-building"></i> */}
 								KhataBooks
 							</h2>
-							<button 
+							<button
 								className="close-button"
 								onClick={() => setIsPopupOpen(false)}
 							>
@@ -390,16 +405,16 @@ export const Sidebar = () => {
 								<p className="loading-text">No KhataBooks found</p>
 							) : (
 								khataBooks.map((khataBook) => (
-									<div 
-										key={khataBook.id} 
+									<div
+										key={khataBook.id}
 										className="user-card"
 										onClick={() => handleKhataBookClick(khataBook)}
 									>
 										<div className="user-image">
 											{khataBook.imagePath ? (
-												<img 
-													src={khataBook.imagePath} 
-													alt={khataBook.name} 
+												<img
+													src={khataBook.imagePath}
+													alt={khataBook.name}
 													className="user-image-img"
 												/>
 											) : (
@@ -415,7 +430,7 @@ export const Sidebar = () => {
 								))
 							)}
 						</div>
-						<button 
+						<button
 							className="add-button"
 							onClick={handleAddKhatabook}
 						>

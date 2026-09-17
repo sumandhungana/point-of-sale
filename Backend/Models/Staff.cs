@@ -26,7 +26,11 @@ public class Staff
     [StringLength(100)]
     public string? Email { get; set; }
     
+    [StringLength(1000)]
     public string? Remarks { get; set; }
+    
+    [StringLength(100)]
+    public DateOnly? SalaryStartDate {get; set;}
     
     [StringLength(255)]
     public string? ProfileImageUrl { get; set; }
@@ -58,6 +62,8 @@ public class CreateStaffDto
     public string? Email { get; set; }
     
     public string? Remarks { get; set; }
+    
+    public DateOnly? SalaryStartDate { get; set; }
     
     [StringLength(255)]
     public string? ProfileImageUrl { get; set; }

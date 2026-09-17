@@ -4,6 +4,9 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
 import '../styles/CustomerStatements.css';
+import { YouGave } from './YouGave';
+import { YouReceived } from './YouReceived';
+import { color } from 'html2canvas/dist/types/css/types/color';
 
 
 interface CustomerData {
@@ -36,6 +39,9 @@ export const CustomerStatements = () => {
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
     const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showPopup, setShowPopup] = useState(false);
+    const [showReceivedPopup, setShowReceivedPopup] = useState(false);
+    const [showBottomButtons, setShowBottomButtons] = useState(false);
     const [customerData, setCustomerData] = useState<CustomerData>({
         id: 0,
         name: '',
@@ -63,6 +69,42 @@ export const CustomerStatements = () => {
     console.log('CustomerStatements - Received customer data:', customerData);
     console.log('CustomerStatements - Location state:', location.state);
     console.log('CustomerStatements - Customer ID from params:', id);
+
+    ////new code to trans
+   useEffect(() => {
+    const handleScroll = () => {
+        const cards = document.querySelectorAll(
+            ".customer-statements-transaction-card"
+        );
+
+        // Show buttons when there are no transactions
+        if (cards.length === 0) {
+            setShowBottomButtons(true);
+            return;
+        }
+
+        const fourthLastCard = cards[Math.max(0, cards.length - 4)];
+
+        const rect = fourthLastCard.getBoundingClientRect();
+
+        if (rect.top < window.innerHeight) {
+            setShowBottomButtons(true);
+        } else {
+            setShowBottomButtons(false);
+        }
+    };
+
+    window.addEventListener("scroll", handleScroll);
+
+    handleScroll();
+
+    return () => {
+        window.removeEventListener("scroll", handleScroll);
+    };
+}, []);
+
+
+    /////new code to trans
 
     // Set customer data from location state when component mounts
     useEffect(() => {
@@ -100,7 +142,7 @@ export const CustomerStatements = () => {
                             smsLanguage: customer.smsLanguage,
                             transactionHistoryCheck: customer.transactionHistoryCheck,
                             paymentHistory: [],
-                            paymentDateReminder:customer.paymentDateReminder  
+                            paymentDateReminder: customer.paymentDateReminder
                         });
                         setCustomerLoading(false);
                         console.log('Customer data fetched from API:', customer);
@@ -132,11 +174,11 @@ export const CustomerStatements = () => {
             }
             return acc;
         }, { given: 0, received: 0 });
-        
+
         // Apply combined balance logic: You Received = Total Received - Total Given
         const combinedReceived = Math.max(result.received - result.given, 0);
         const combinedGiven = Math.max(result.given - result.received, 0);
-        
+
         console.log('Final totals (combined):', { given: combinedGiven, received: combinedReceived });
         return { given: combinedGiven, received: combinedReceived };
     };
@@ -150,7 +192,7 @@ export const CustomerStatements = () => {
                     navigate('/parties/customers');
                     return;
                 }
-                
+
                 console.log('Fetching payment history for customer ID:', id);
                 const history = await getPaymentHistory(parseInt(id));
                 console.log('Received payment history:', history);
@@ -197,7 +239,8 @@ export const CustomerStatements = () => {
 
     const handleBack = () => {
         // Navigate back to the customers page
-        navigate(-1);
+        // navigate(-1);
+        navigate(`/parties/customers`)
     };
 
     const handleProfileClick = () => {
@@ -205,7 +248,7 @@ export const CustomerStatements = () => {
             toast.error('Customer data not available');
             return;
         }
-        
+
         navigate(`/parties/customers/profile/${id}`, {
             state: {
                 customer: {
@@ -226,7 +269,7 @@ export const CustomerStatements = () => {
                     customerSmsSetting: customerData.customerSmsSetting,
                     smsLanguage: customerData.smsLanguage,
                     transactionHistoryCheck: customerData.transactionHistoryCheck
-                
+
                 }
             }
         });
@@ -256,15 +299,15 @@ export const CustomerStatements = () => {
         setReminderDate(e.target.value);
     };
     useEffect(() => {
-    if (customerData.paymentDateReminder) {
-        const formattedDate = customerData.paymentDateReminder.split("T")[0];
-        setReminderDate(formattedDate);
-    } else {
-        setReminderDate("");
-    }
-}, [customerData.paymentDateReminder]);
+        if (customerData.paymentDateReminder) {
+            const formattedDate = customerData.paymentDateReminder.split("T")[0];
+            setReminderDate(formattedDate);
+        } else {
+            setReminderDate("");
+        }
+    }, [customerData.paymentDateReminder]);
 
-   const handleSetReminder = async () => {
+    const handleSetReminder = async () => {
         // Handle setting the reminder with the selected date
         console.log(`Setting reminder for date: ${reminderDate}`);
         if (!id) return;
@@ -273,7 +316,7 @@ export const CustomerStatements = () => {
             toast.error("Please select a reminder date.");
             return;
         }
-         try {
+        try {
             const response = await fetch(`/api/Customer/${id}`, {
                 method: "PUT", // or PATCH if your API uses PATCH
                 headers: {
@@ -291,11 +334,11 @@ export const CustomerStatements = () => {
 
             toast.success("Reminder date updated successfully.");
             setCustomerData(prev => ({
-            ...prev,
-            paymentDateReminder: reminderDate + "T00:00:00"
-        }));
+                ...prev,
+                paymentDateReminder: reminderDate + "T00:00:00"
+            }));
 
-        
+
         } catch (error) {
             console.error(error);
             toast.error("Failed to update reminder.");
@@ -666,35 +709,36 @@ export const CustomerStatements = () => {
             paddingBottom: '0.5rem',
             borderBottom: '2px solid #dee2e6',
         },
+
     };
 
     return (
-        <div style={{minHeight: '100vh', background: '#f8f9fa'}}>
+        <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
             <Sidebar />
-         
+
             <main className="customer-statements-main-content">
                 <div className="customer-statements-profile-container">
                     <div className="customer-statements-profile-header-grid">
                         <div className="customer-statements-header-left">
-                                                       <button
-                               className="customer-statements-back-button"
-                               onClick={handleBack}
-                               aria-label="Go back to customers"
-                           >
-                               <i className="bi bi-arrow-left"></i>
-                               Back
-                           </button>
+                            <button
+                                className="customer-statements-back-button"
+                                onClick={handleBack}
+                                aria-label="Go back to customers"
+                            >
+                                <i className="bi bi-arrow-left"></i>
+                                Back
+                            </button>
                         </div>
                         <div className="customer-statements-header-center">
-                            <div 
+                            <div
                                 className="customer-statements-profile-image-container"
                                 onClick={handleProfileClick}
                                 title="View customer profile"
                             >
                                 {customerData.profileImage ? (
-                                    <img 
-                                        src={customerData.profileImage} 
-                                        alt={customerData.name || 'Customer'} 
+                                    <img
+                                        src={customerData.profileImage}
+                                        alt={customerData.name || 'Customer'}
                                         className="customer-statements-profile-image"
                                     />
                                 ) : (
@@ -705,7 +749,7 @@ export const CustomerStatements = () => {
                             </div>
                         </div>
                         <div className="customer-statements-header-right">
-                            <button 
+                            <button
                                 className="btn-base btn-primary"
                                 onClick={() => navigate(`/parties/customers/deposit/${id}`)}
                                 aria-label="Make a deposit"
@@ -714,7 +758,7 @@ export const CustomerStatements = () => {
                                 <i className="bi bi-cash-coin"></i>
                                 Deposit
                             </button>
-                            <button 
+                            <button
                                 className="btn-base btn-primary"
                                 onClick={handleCall}
                                 aria-label={`Call ${customerData.name || 'Customer'}`}
@@ -725,7 +769,7 @@ export const CustomerStatements = () => {
                             </button>
                         </div>
                     </div>
-                    <div 
+                    <div
                         className="customer-statements-customer-name"
                         onClick={handleProfileClick}
                         title="View customer profile"
@@ -760,9 +804,9 @@ export const CustomerStatements = () => {
                             <i className="bi bi-calendar-event me-2"></i>
                             Set Date Reminder
                         </div>
-                        <input 
-                            type="date" 
-                            value={reminderDate} 
+                        <input
+                            type="date"
+                            value={reminderDate}
                             onChange={handleDateChange}
                             className="customer-statements-date-input"
                         />
@@ -774,7 +818,7 @@ export const CustomerStatements = () => {
                         <i className="bi bi-graph-up"></i>
                         Report
                     </button>
-                    <button className="btn-base btn-warning"  onClick={handleSetReminder}>
+                    <button className="btn-base btn-warning" onClick={handleSetReminder}>
                         <i className="bi bi-alarm" ></i>
                         Reminder
                     </button>
@@ -789,7 +833,7 @@ export const CustomerStatements = () => {
                         <i className="bi bi-clock-history me-2"></i>
                         Recent Transactions
                     </h3>
-                    
+
                     {isLoading ? (
                         <div className="customer-statements-no-transactions">
                             <i className="bi bi-hourglass-split me-2"></i>
@@ -805,85 +849,176 @@ export const CustomerStatements = () => {
                             {Object.entries(groupedTransactions)
                                 .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
                                 .map(([date, dateTransactions]) => (
-                                <div key={date} className="customer-statements-date-group">
-                                    {dateTransactions
-                                        .sort((a, b) => {
-                                            const tb = new Date(b.createdAt || b.date).getTime();
-                                            const ta = new Date(a.createdAt || a.date).getTime();
-                                            return tb - ta;
-                                        })
-                                        .map(transaction => (
-                                        <div 
-                                            key={transaction.id} 
-                                            className="customer-statements-transaction-card"
-                                            onClick={() => handleTransactionClick(transaction)}
-                                        >
-                                            <div className="customer-statements-transaction-info">
-                                                <div className="customer-statements-transaction-row">
-                                                    <div className="customer-statements-transaction-label">Payment Type:</div>
-                                                    <div className="customer-statements-transaction-value">
-                                                        {transaction.type === 'payment_in' ? (
-                                                            <span className="customer-statements-payment-in">Payment In</span>
-                                                        ) : (
-                                                            <span className="customer-statements-payment-out">Payment Out</span>
-                                                        )}
+                                    <div key={date} className="customer-statements-date-group">
+                                        {dateTransactions
+                                            .sort((a, b) => {
+                                                const tb = new Date(b.createdAt || b.date).getTime();
+                                                const ta = new Date(a.createdAt || a.date).getTime();
+                                                return tb - ta;
+                                            })
+                                            .map(transaction => (
+                                                <div
+                                                    key={transaction.id}
+
+                                                    className="customer-statements-transaction-card"
+                                                    onClick={() => handleTransactionClick(transaction)}
+                                                >
+                                                    <div className="customer-statements-transaction-info">
+                                                        <div className="customer-statements-transaction-row">
+                                                            <div className="customer-statements-transaction-label">Payment Type:</div>
+                                                            <div className="customer-statements-transaction-value">
+                                                                {transaction.type === 'payment_in' ? (
+                                                                    <span className="customer-statements-payment-in">Payment In</span>
+                                                                ) : (
+                                                                    <span className="customer-statements-payment-out">Payment Out</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="customer-statements-transaction-row">
+                                                            <div className="customer-statements-transaction-label">Date/Time:</div>
+                                                            <div className="customer-statements-transaction-value">
+                                                                <i className="bi bi-clock me-1"></i>
+                                                                {new Date(transaction.date).toLocaleDateString()} {transaction.time}
+                                                            </div>
+                                                        </div>
+                                                        <div className="customer-statements-transaction-row">
+                                                            <div className="customer-statements-transaction-label">Balance:</div>
+                                                            <div className="customer-statements-transaction-value">
+                                                                <i className="bi bi-wallet2 me-1"></i>
+                                                                रु{Math.abs(transaction.amount).toLocaleString()}
+                                                            </div>
+                                                        </div>
+                                                        <div className="customer-statements-transaction-row">
+                                                            <div className="customer-statements-transaction-label">Remarks:</div>
+                                                            <div className="customer-statements-transaction-value">
+                                                                <i className="bi bi-chat-text me-1"></i>
+                                                                {transaction.remarks}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="customer-statements-transaction-amounts">
+                                                        <div className={`customer-statements-current-amount ${transaction.type === 'payment_out' ? 'customer-statements-current-amount-red' : ''}`}>
+                                                            रु {Math.abs(transaction.amount).toLocaleString()}
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="customer-statements-transaction-row">
-                                                    <div className="customer-statements-transaction-label">Date/Time:</div>
-                                                    <div className="customer-statements-transaction-value">
-                                                        <i className="bi bi-clock me-1"></i>
-                                                        {new Date(transaction.date).toLocaleDateString()} {transaction.time}
-                                                    </div>
-                                                </div>
-                                                <div className="customer-statements-transaction-row">
-                                                    <div className="customer-statements-transaction-label">Balance:</div>
-                                                    <div className="customer-statements-transaction-value">
-                                                        <i className="bi bi-wallet2 me-1"></i>
-                                                        रु{Math.abs(transaction.amount).toLocaleString()}
-                                                    </div>
-                                                </div>
-                                                <div className="customer-statements-transaction-row">
-                                                    <div className="customer-statements-transaction-label">Remarks:</div>
-                                                    <div className="customer-statements-transaction-value">
-                                                        <i className="bi bi-chat-text me-1"></i>
-                                                        {transaction.remarks}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div className="customer-statements-transaction-amounts">
-                                                <div className={`customer-statements-current-amount ${transaction.type === 'payment_out' ? 'customer-statements-current-amount-red' : ''}`}>
-                                                    रु {Math.abs(transaction.amount).toLocaleString()}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ))}
+                                            ))}
+                                    </div>
+                                ))}
                         </div>
                     )}
                 </div>
 
-                <div className="customer-statements-bottom-row">
+               
+
+                <div
+                    className={`customer-statements-bottom-row ${showBottomButtons ? "show-buttons" : ""
+                        }`}
+                >
                     <button
                         className="btn-base btn-red"
-                        onClick={() => navigate(`/parties/customers/statements/you-gave/${id}`)}
-                        style={{backgroundColor: 'red', color: 'white', padding: '12px 24px', border: 'none', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px'}}
+                        onClick={() => setShowPopup(true)}
+                        style={{
+                            backgroundColor: 'red',
+                            color: 'white',
+                            padding: '12px 24px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
                     >
                         <i className="bi bi-arrow-up-circle"></i>
                         You Gave
                     </button>
+
+
+                    {showPopup && (
+                        <div className="popup-overlay">
+                            <div className="popup-content">
+
+                                <button
+                                    onClick={() => setShowPopup(false)}
+                                    className="popup-close-button"
+                                    aria-label="Close"
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </button>
+
+                                <div className="popup-title-container">
+                                    <h2 style={{
+                                        color: "red",
+                                        textAlign: "center",
+                                        margin: "0",
+                                        padding: "0"
+                                    }} >
+                                        You Gave
+                                    </h2>
+                                </div>
+
+                                <div className="you-gave-popup-body">
+                                    <YouGave />
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
+
+
                     <button
                         className="btn-base btn-green"
-                        onClick={() => navigate(`/parties/customers/statements/you-received/${id}`)}
-                        style={{backgroundColor: 'green', color: 'white', padding: '12px 24px', border: 'none', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '8px'}}
+                        onClick={() => setShowReceivedPopup(true)}
+                        style={{
+                            backgroundColor: 'green',
+                            color: 'white',
+                            padding: '12px 24px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }}
                     >
                         <i className="bi bi-arrow-down-circle"></i>
                         You Received
                     </button>
+                    {showReceivedPopup && (
+                        <div className="popup-overlay">
+                            <div className="popup-content">
+
+                                {/* Close button */}
+                                <button
+                                    onClick={() => setShowReceivedPopup(false)}
+                                    className="popup-close-button"
+                                    aria-label="Close"
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </button>
+
+
+                                <div className="popup-title-container" >
+                                    <h2 style={{
+                                        color: "green",
+                                        textAlign: "center",
+                                        margin: "0",
+                                        padding: "0"
+                                    }} >
+                                        You Received
+                                    </h2>
+                                </div>
+
+
+                                <div className="you-received-popup-body">
+                                    <YouReceived />
+                                </div>
+
+                            </div>
+                        </div>
+                    )}
                 </div>
 
-             
+
             </main>
         </div>
     );

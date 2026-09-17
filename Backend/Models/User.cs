@@ -3,6 +3,26 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Backend.Models;
 
+
+
+public enum SubscriptionType
+{
+    None = 0,
+    Trial = 1,
+    Monthly = 2,
+    Yearly = 3
+}
+
+public enum SubscriptionStatus
+{
+    None = 0,
+    Active = 1,
+    Expired = 2,
+    Cancelled = 3,
+    Trial = 4
+}
+
+
 public class User
 {
     public int Id { get; set; }
@@ -45,13 +65,34 @@ public class User
     public string? Pan { get; set; }
     
     public string? Remarks { get; set; }
+
+    public string? ImagePath { get; set; }
     
-    [Required]
     public string PasswordHash { get; set; } = string.Empty;
-    [Required]
+    
     public string PasswordSalt { get; set; } = string.Empty;
     
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-} 
+
+   
+    // SUBSCRIPTION FIELDS
+  
+
+    public SubscriptionType SubscriptionType { get; set; } = SubscriptionType.None;
+
+    public DateTime? SubscriptionStartDate { get; set; }
+
+    public DateTime? SubscriptionEndDate { get; set; }
+
+    public bool IsSubscriptionActive { get; set; } = false;
+
+    public bool HasUsedTrial { get; set; } = false;
+
+    public DateTime? TrialStartDate { get; set; }
+
+    public DateTime? TrialEndDate { get; set; }
+
+    public SubscriptionStatus SubscriptionStatus { get; set; } = SubscriptionStatus.None;
+}

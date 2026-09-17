@@ -2,7 +2,7 @@
 .customer-statements-main-content {
   overflow: visible !important;
   padding-bottom: 100px !important;
-  padding-top: 1rem !important;
+  padding-top: 4rem !important;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   min-height: 100vh;
   max-width: 1200px !important;
@@ -55,6 +55,7 @@
   margin-bottom: 0.5rem !important;
   position: relative !important;
   width: 100% !important;
+  
 }
 
 .customer-statements-header-left { 
@@ -65,6 +66,7 @@
 .customer-statements-header-center { 
   display: flex !important; 
   justify-content: center !important; 
+ 
 }
 
 .customer-statements-header-right { 
@@ -169,6 +171,7 @@ padding:12px;
   border: 1px solid rgba(0, 0, 0, 0.05) !important;
   margin-bottom: 1rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  
 }
 
 .customer-statements-amount-card:hover {
@@ -180,7 +183,8 @@ padding:12px;
   display: grid !important;
   grid-template-columns: 1fr 1fr !important;
   gap: 1rem !important;
-  margin-bottom: 1.5rem !important;
+  margin-bottom: 1rem !important;
+  
 }
 
 .customer-statements-amount-item {
@@ -207,6 +211,7 @@ padding:12px;
   font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
+  
 }
 
 /* Circular colored backgrounds for arrows */
@@ -248,9 +253,11 @@ padding:12px;
 /* Match Customers page: first card red (You Gave), second green (You Receive) */
 .customer-statements-amount-row .customer-statements-amount-item:first-child .customer-statements-amount-value {
   color: #dc3545 !important;
+  
 }
 .customer-statements-amount-row .customer-statements-amount-item:last-child .customer-statements-amount-value {
   color: #28a745 !important;
+  
 }
 
 /* Separate totals styling */
@@ -317,12 +324,12 @@ padding:12px;
 }
 
 /* Bottom Row for You Gave/You Received buttons */
-.customer-statements-bottom-row {
-  /* display: flex !important;
+/* .customer-statements-bottom-row {
+  display: flex !important;
   justify-content: space-between !important;
   gap: 1rem !important;
   margin-top: 2rem !important;
-  margin-bottom: 2rem !important; */
+  margin-bottom: 2rem !important;
   position: sticky;
   bottom: 0;
   z-index: 100;
@@ -330,8 +337,29 @@ padding:12px;
   display: flex;
   gap: 12px;
   padding: 12px 16px;
-  background: #fff;
-  border-top: 1px solid #ddd;
+  background:transparent;
+
+} */
+
+.customer-statements-bottom-row {
+    position: sticky;
+    bottom: 10px;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    margin-top: 20px;    
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.customer-statements-bottom-row.show-buttons {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
 }
 
 /* Date Group */
@@ -503,6 +531,7 @@ padding:12px;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
   border-radius: 12px !important;
   border: 2px solid #e9ecef !important;
+  height:50px;
 }
 
 .customer-statements-reminder-label {
@@ -604,3 +633,150 @@ padding:12px;
 * {
   transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 } 
+
+/* .popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+.popup-content {
+    position: relative;
+
+    width: 95%;
+    height: 90vh;
+
+    background: white;
+    border-radius: 12px;
+
+    overflow-y: auto;
+    padding: 20px;
+
+    box-sizing: border-box;
+}
+
+.back-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 18px;
+
+    border: none;
+    border-radius: 8px;
+
+    background-color: #f1f1f1;
+    color: #333;
+
+    font-size: 16px;
+    font-weight: 500;
+
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.back-button:hover {
+    background-color: #ddd;
+} */
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+
+    background-color: rgba(0, 0, 0, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    z-index: 9999;
+}
+
+.popup-content {
+    position: relative;
+
+    width: 95%;
+    height: 90vh;
+
+    background: white;
+    border-radius: 12px;
+
+    overflow-y: hidden;
+    padding: 15px;
+
+    box-sizing: border-box;
+}
+
+.popup-close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+
+    width: 40px;
+    height: 40px;
+
+    border: none;
+    border-radius: 50%;
+
+    background-color: #f1f1f1;
+    color: #333;
+
+    font-size: 18px;
+    cursor: pointer;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.popup-close-button:hover {
+    background-color: #ddd;
+}
+.popup-title-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+    padding: 0;
+    text-decoration-color: #dc3545;
+}
+
+.popup-title {
+    color: rgba(255, 0, 0, 0.742) !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2;
+}
+
+.you-gave-popup-body {
+    margin-top: 8px;
+    padding-top: 0;
+}
+
+.popup-title-received {
+    color: green !important;
+    text-align: center !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1.2;
+}
+
+.you-received-popup-body {
+    margin-top: 8px;
+    padding-top: 0;
+}

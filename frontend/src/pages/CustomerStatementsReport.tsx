@@ -269,6 +269,7 @@ export const CustomerStatementsReport = () => {
                     <div className="customer-statements-report-header">
                         <button className="customer-statements-report-back-button" onClick={handleBack}>
                             <i className="bi bi-arrow-left"></i>
+                            Back
                         </button>
                         <h1 className="customer-statements-report-title">
                             <i className="bi bi-file-earmark-text me-2"></i>

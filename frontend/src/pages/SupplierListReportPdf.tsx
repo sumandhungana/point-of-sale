@@ -8,6 +8,7 @@ import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import '../styles/CustomerListReportPdf.css';
+import logo from '../assets/logo.png';
 
 interface SupplierWithBalance extends Customer {  
     balance: number;
@@ -189,7 +190,7 @@ export const SupplierListReportPdf = () => {
                             className="customer-report-back-button"
                         >
                             <i className="bi bi-arrow-left"></i>
-                            Back to Suppliers
+                            Back 
                         </button>
                         <button 
                             onClick={handleGeneratePdf}
@@ -203,21 +204,29 @@ export const SupplierListReportPdf = () => {
 
                     <div className="customer-report-logo-section">
                         <div className="customer-report-logo-container">
-                            <div className="customer-report-logo-image">
+                            {/* <div className="customer-report-logo-image">
                                 <i className="bi bi-building"></i>
-                            </div>
+                            </div> */}
                             <div className="customer-report-company-name">{companyName}</div>
                         </div>
                         <div className="customer-report-print-option">
-                            <input 
+                            {/* <input 
                                 type="checkbox" 
                                 id="printLogo" 
                                 checked={printLogo} 
                                 onChange={() => setPrintLogo(!printLogo)} 
-                            />
+                            /> */}
                             <label htmlFor="printLogo">
-                                <i className="bi bi-printer me-1"></i>
-                                Print/book logo
+                                {/* <i className="bi bi-printer me-1"></i> */}
+                                <img
+                                    src={logo}
+                                    alt="logo"
+                                    style={{
+                                        width: "110px",
+                                        height: "110px",
+                                        objectFit: "contain"
+                                    }}
+                                />
                             </label>
                         </div>
                     </div>

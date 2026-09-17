@@ -81,12 +81,12 @@ export const YouReceived = () => {
 
     return (
         <div className="you-received-page" style={{ position: 'relative' }}>
-            <Sidebar />
-            <BackButton 
+            {/* <Sidebar /> */}
+            {/* <BackButton 
                 to={location.pathname.includes('/supplier/') ? `/parties/suppliers/statements/${id}` : `/parties/customers/statements/${id}`}
-                label="Back to Statements"
+                label="Back "
                 className="below-navbar"
-            />
+            /> */}
             <main className="you-received-main-content">
                 <div className="you-received-form-container">
                     <h2 className="you-received-form-title">
@@ -112,6 +112,25 @@ export const YouReceived = () => {
                                 step="0.01"
                             />
                         </div>
+                        <div className="you-received-form-group">
+                            <label className="you-received-label" htmlFor="paymentType">
+                               <i className="bi bi-credit-card me-1"></i>
+                                Received Type
+                             </label>
+
+                             <select
+                                 id="paymentType"
+                                 name="paymentType"
+                                 value={formData.paymentType}
+                                 onChange={handleChange}
+                                 className="you-gave-input"
+                                  required
+    >
+                                    {/* <option value="">Select receive type</option> */}
+                                    <option value="cash">Cash</option>
+                                    <option value="card">Card</option>
+                             </select>
+                        </div>
 
                         <div className="you-received-form-group">
                             <label className="you-received-label" htmlFor="remarks">
@@ -129,6 +148,8 @@ export const YouReceived = () => {
                             />
                         </div>
 
+                         
+
                         <div className="you-received-form-group">
                             <label className="you-received-label" htmlFor="date">
                                 <i className="bi bi-calendar3 me-1"></i>
@@ -144,6 +165,7 @@ export const YouReceived = () => {
                                 required
                             />
                         </div>
+                        
 
                         <div className="you-received-form-group">
                             <label className="you-received-label">

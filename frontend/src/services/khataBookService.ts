@@ -117,3 +117,28 @@ export async function getSelectedKhataBook() {
     throw error;
   }
 } 
+
+export async function updateKhataBook(
+  id: number,
+  formData: FormData
+): Promise<void> {
+  try {
+    const response = await fetch(`${API_URL}/KhataBook/${id}`, {
+      method: 'PUT',
+      headers: {
+        ...getAuthHeaders(),
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      throw new Error(
+        errorText || `Failed to update KhataBook. HTTP ${response.status}`
+      );
+    }
+  } catch (error) {
+    console.error('Error updating KhataBook:', error);
+    throw error;
+  }}

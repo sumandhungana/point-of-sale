@@ -395,7 +395,7 @@ export const Suppliers = () => {
                     </div>
                 </div>
 
-                <div className="suppliers-checkbox-container">
+                {/* <div className="suppliers-checkbox-container">
                     <div className="suppliers-checkbox-item">
                         <div className="suppliers-checkbox-group">
                             <input
@@ -427,7 +427,7 @@ export const Suppliers = () => {
                             </label>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {error && (
                     <div className="suppliers-error">

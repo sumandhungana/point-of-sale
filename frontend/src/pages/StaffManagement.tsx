@@ -50,12 +50,6 @@ export const StaffManagement = () => {
   const [selectedStaffId, setSelectedStaffId] = useState<string | number | null>(null);
   const [permissionInput, setPermissionInput] = useState<string>('');
   const [staffPermissions, setStaffPermissions] = useState<Record<string | number, string[]>>({});
-  // const [permissionInput, setPermissionInput] = useState('');
-  // const [permissions, setPermissions] = useState<string[]>([]);
-  // const [isPermissionModalOpen, setIsPermissionModalOpen] = useState(false);
-  // const [selectedStaffId, setSelectedStaffId] = useState(null);
-  // const [permissionInput, setPermissionInput] = useState('');
-  // const [staffPermissions, setStaffPermissions] = useState({}); // Stores permissions per staff ID { [staffId]: ['Perm1', 'Perm2'] }
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,27 +69,25 @@ export const StaffManagement = () => {
     };
     fetchStaffList();
   }, []);
-  // Open modal for a specific staff member
+
   const handleOpenPermissionModal = (staffId: string | number) => {
     setSelectedStaffId(staffId);
     setIsPermissionModalOpen(true);
   };
 
-// Close modal & reset temporary input
   const handleClosePermissionModal = () => {
     setIsPermissionModalOpen(false);
     setSelectedStaffId(null);
     setPermissionInput('');
   };
 
-// Add a permission tag to the selected staff member
   const handleAddPermission = () => {
     if (!permissionInput.trim() || !selectedStaffId) return;
 
     setStaffPermissions((prev) => {
       let currentList = prev[selectedStaffId] || [];
       // @ts-ignore
-      if (currentList.includes(permissionInput.trim())) return prev; // Avoid duplicates
+      if (currentList.includes(permissionInput.trim())) return prev;
       return {
         ...prev,
         [selectedStaffId]: [...currentList, permissionInput.trim()],
@@ -105,7 +97,11 @@ export const StaffManagement = () => {
     setPermissionInput('');
   };
 
-// Handle Enter key press inside modal input
+  const totalSalary = staffList.reduce((sum, staff) => {
+    const salary = staff.staffSalaries[0];
+    return sum + (salary?.amount || 0);
+  }, 0);
+
   const handlePermissionKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
@@ -113,27 +109,16 @@ export const StaffManagement = () => {
     }
   };
 
-// Remove a specific permission tag
   const handleRemovePermission = (staffId: string | number, permToRemove: string) => {
     setStaffPermissions((prev) => ({
       ...prev,
       [staffId]: (prev[staffId] || []).filter((p) => p !== permToRemove),
     }));
   };
-  const activePermissions: string[] = selectedStaffId
-      ? staffPermissions[selectedStaffId] || []
-      : [];
 
-  // const handlePermissionKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-  //   if (e.key === 'Enter' && permissionInput.trim()) {
-  //     setPermissions([...permissions, permissionInput.trim()]);
-  //     setPermissionInput('');
-  //   }
-  // };
-  //
-  // const removePermission = (index: number) => {
-  //   setPermissions(permissions.filter((_, i) => i !== index));
-  // };
+  const activePermissions: string[] = selectedStaffId
+    ? staffPermissions[selectedStaffId] || []
+    : [];
 
   const today = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
@@ -141,20 +126,13 @@ export const StaffManagement = () => {
     day: 'numeric',
   });
 
-  // Calculate totals from staff data
-  const totalDue = staffList.reduce((sum, staff) => {
-    const latestSalary = staff.staffSalaries[0];
-    return sum + (latestSalary?.amount || 0);
-  }, 0);
-
   const totalAdvance = staffList.reduce((sum, staff) => {
     const advancePayments = staff.staffSalaries.filter(s => s.salaryType === 'Advance');
     return sum + advancePayments.reduce((advanceSum, salary) => advanceSum + salary.amount, 0);
   }, 0);
 
-  // Calculate attendance counts
   const todayAttendances = staffList.reduce((acc, staff) => {
-    const todayAttendance = staff.staffAttendances.find(a => 
+    const todayAttendance = staff.staffAttendances.find(a =>
       new Date(a.date).toDateString() === new Date().toDateString()
     );
     if (todayAttendance) {
@@ -163,12 +141,11 @@ export const StaffManagement = () => {
     return acc;
   }, {} as Record<string, number>);
 
-  // Filter and sort staff
   const filteredStaff = staffList
     .filter(staff => {
       if (!searchQuery) return true;
       return staff.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-             staff.phone?.toLowerCase().includes(searchQuery.toLowerCase());
+        staff.phone?.toLowerCase().includes(searchQuery.toLowerCase());
     })
     .sort((a, b) => {
       switch (sortBy) {
@@ -185,6 +162,113 @@ export const StaffManagement = () => {
       }
     });
 
+  const calculateAccruedSalary = (staff: Staff): number => {
+    const salary = staff.staffSalaries?.find(
+      (s) => s.salaryType?.toLowerCase() !== 'advance'
+    ) || staff.staffSalaries?.[0];
+
+    if (!salary || !salary.calculationDate || !salary.amount || isNaN(salary.amount)) {
+      return 0;
+    }
+
+    const salaryAmount = Number(salary.amount);
+
+    const rawDateString = String(salary.calculationDate).split('T')[0];
+    const dateParts = rawDateString.split('-');
+    if (dateParts.length !== 3) return 0;
+
+    const startYear = parseInt(dateParts[0], 10);
+    const startMonth = parseInt(dateParts[1], 10) - 1;
+    const startDay = parseInt(dateParts[2], 10);
+
+    if (isNaN(startYear) || startYear < 2000 || isNaN(startMonth) || isNaN(startDay)) {
+      return 0;
+    }
+
+    const startUtc = Date.UTC(startYear, startMonth, startDay);
+
+    const now = new Date();
+    const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+    if (todayUtc < startUtc) {
+      return 0;
+    }
+
+    const diffInMs = todayUtc - startUtc;
+    const elapsedDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24)) + 1;
+
+    if (elapsedDays < 1) return 0;
+
+    switch (salary.salaryType?.toLowerCase()) {
+      case 'monthly': {
+        const daysInMonth = new Date(startYear, startMonth + 1, 0).getDate();
+        if (!daysInMonth || daysInMonth <= 0) return 0;
+
+        const dailySalary = salaryAmount / daysInMonth;
+        return Math.round(dailySalary * elapsedDays);
+      }
+
+      case 'daily': {
+        return Math.round(salaryAmount * elapsedDays);
+      }
+
+      case 'weekly': {
+        const dailySalary = salaryAmount / 7;
+        return Math.round(dailySalary * elapsedDays);
+      }
+
+      default:
+        return 0;
+    }
+  };
+
+  const totalDue = staffList.reduce((total, staff) => {
+    const accrued = calculateAccruedSalary(staff);
+    return total + (isNaN(accrued) || !isFinite(accrued) ? 0 : accrued);
+  }, 0);
+
+  // Format relative time (e.g., "1 day ago", "10 days ago")
+  const formatRelativeTime = (dateString?: string | null): string => {
+    if (!dateString) return 'not set';
+
+    const raw = String(dateString).split('T')[0];
+    const parts = raw.split('-');
+    if (parts.length !== 3) return 'not set';
+
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    if (isNaN(y) || isNaN(m) || isNaN(d)) return 'not set';
+
+    const startUtc = Date.UTC(y, m, d);
+    const now = new Date();
+    const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const diffDays = Math.floor((todayUtc - startUtc) / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) return 'scheduled';
+    if (diffDays === 0) return 'today';
+    if (diffDays === 1) return '1 day ago';
+    if (diffDays < 30) return `${diffDays} days ago`;
+
+    const months = Math.floor(diffDays / 30);
+    if (months === 1) return '1 month ago';
+    if (months < 12) return `${months} months ago`;
+
+    const years = Math.floor(diffDays / 365);
+    return years === 1 ? '1 year ago' : `${years} years ago`;
+  };
+
+  // Salary accrual start date (from calculationDate, fallback to createdAt)
+  const getSalaryStartDate = (staff: Staff): string | null => {
+    const primary =
+      staff.staffSalaries?.find(
+        (s) => s.salaryType?.toLowerCase() !== 'advance'
+      ) || staff.staffSalaries?.[0];
+
+    return primary?.calculationDate ?? primary?.createdAt ?? null;
+  };
+
   return (
     <div className="staff-management-page-wrapper">
       <Sidebar />
@@ -195,29 +279,22 @@ export const StaffManagement = () => {
             <h1 className="staff-management-title">Staff Management</h1>
             <p className="staff-management-subtitle">Manage your team members, salaries, and attendance</p>
           </div>
+
           <div className="staff-summary-container">
-            {/* Finance Card */}
             <div className="staff-summary-card">
               <div className="summary-box due">
                 <span className="summary-title">Total Due</span>
-                <span className="summary-value">
-        ₹{totalDue.toLocaleString()}
-      </span>
+                <span className="summary-value">₹{totalDue.toLocaleString()}</span>
               </div>
 
               <div className="summary-box advance">
                 <span className="summary-title">Total Advance</span>
-                <span className="summary-value">
-        ₹{totalAdvance.toLocaleString()}
-      </span>
+                <span className="summary-value">₹{totalAdvance.toLocaleString()}</span>
               </div>
             </div>
 
-            {/* Attendance Card */}
             <div className="attendance-card">
-              <div className="attendance-header">
-                Attendance ({today})
-              </div>
+              <div className="attendance-header">Attendance ({today})</div>
 
               <div className="attendance-grid">
                 <div className="attendance-item">
@@ -246,28 +323,24 @@ export const StaffManagement = () => {
               </div>
             </div>
           </div>
-          <div className="staff-toolbar">
 
+          <div className="staff-toolbar">
             <button className="toolbar-btn staff-btn">
               <i className="bi bi-people"></i>
               For Staff ({staffList.length})
             </button>
 
             <div className="toolbar-search">
-
               <i className="bi bi-search"></i>
 
               <input
-                  type="text"
-                  placeholder="Search name or phone..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                type="text"
+                placeholder="Search name or phone..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
 
-              <select
-                  value={filterBy}
-                  onChange={(e) => setFilterBy(e.target.value)}
-              >
+              <select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
                 <option value="">Filter</option>
                 <option value="monthly">Monthly</option>
                 <option value="daily">Daily</option>
@@ -275,10 +348,7 @@ export const StaffManagement = () => {
                 <option value="restricted">Restricted</option>
               </select>
 
-              <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-              >
+              <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
                 <option value="">Sort</option>
                 <option value="name_asc">A-Z</option>
                 <option value="name_desc">Z-A</option>
@@ -287,12 +357,9 @@ export const StaffManagement = () => {
               </select>
 
               {searchQuery && (
-                  <button
-                      className="clear-btn"
-                      onClick={() => setSearchQuery("")}
-                  >
-                    <i className="bi bi-x-lg"></i>
-                  </button>
+                <button className="clear-btn" onClick={() => setSearchQuery("")}>
+                  <i className="bi bi-x-lg"></i>
+                </button>
               )}
             </div>
 
@@ -302,9 +369,9 @@ export const StaffManagement = () => {
             </button>
 
             <div className="toolbar-info">
-              <div>
+              <div className="total-salary-highlight">
                 <i className="bi bi-cash-stack"></i>
-                Total Salary: Rs. {totalDue.toLocaleString()}
+                Total Salary: Rs. {totalSalary.toLocaleString()}
               </div>
 
               <div>
@@ -312,159 +379,157 @@ export const StaffManagement = () => {
                 Total Attendance: {Object.values(todayAttendances).reduce((a, b) => a + b, 0)}
               </div>
             </div>
-
           </div>
         </div>
+
         {isLoading ? (
-            <div className="staff-management-loading">
-              <i className="bi bi-arrow-clockwise me-2"></i>
-              Loading staff data...
-            </div>
+          <div className="staff-management-loading">
+            <i className="bi bi-arrow-clockwise me-2"></i>
+            Loading staff data...
+          </div>
         ) : filteredStaff.length === 0 ? (
-            <div className="staff-management-empty">
-              <i className="bi bi-people me-2"></i>
-              {searchQuery ? 'No staff found matching your search' : 'No staff members found'}
-            </div>
+          <div className="staff-management-empty">
+            <i className="bi bi-people me-2"></i>
+            {searchQuery ? 'No staff found matching your search' : 'No staff members found'}
+          </div>
         ) : (
-            filteredStaff.map((staff) => (
+          filteredStaff.map((staff) => (
+            <div key={staff.id} className="staff-management-staff-card">
+              <div className="staff-management-staff-header">
                 <div
-                    key={staff.id}
-                    className="staff-management-staff-card"
+                  className="staff-management-staff-info"
+                  onClick={() => navigate(`/staff/payment/${staff.id}`)}
                 >
-                  <div className="staff-management-staff-header">
-                    {/* Staff Profile & Details */}
-                    <div
-                        className="staff-management-staff-info"
-                        onClick={() => navigate(`/staff/payment/${staff.id}`)}
-                    >
-                      <div className="staff-management-image-placeholder">
-                        {staff.profileImageUrl ? (
-                            <img
-                                src={staff.profileImageUrl}
-                                alt={staff.name}
-                                className="staff-management-staff-image"
-                            />
-                        ) : (
-                            <i className="bi bi-person"></i>
-                        )}
-                      </div>
-                      <div className="staff-management-staff-details">
-                        <div className="staff-management-staff-name">{staff.name}</div>
-                        <div className="staff-management-staff-contact">
-                          <i className="bi bi-telephone me-1"></i>
-                          {staff.phone || 'No phone'}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div
-                        className="staff-management-middle-actions"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                      <button
-                          type="button"
-                          className="staff-management-permission-btn"
-                          onClick={() => handleOpenPermissionModal(staff.id)}
-                      >
-                        <i className="bi bi-shield-plus me-1"></i>
-                        Add Permission
-                      </button>
-                      <select className="staff-management-attendance-dropdown">
-                        <option value="">Today's Attendance</option>
-                        <option value="present">Present</option>
-                        <option value="absent">Absent</option>
-                        <option value="halfday">Half Day</option>
-                        <option value="leave">Leave</option>
-                      </select>
-                    </div>
-                    <div
-                        className="staff-management-amount-section"
-                        onClick={() => navigate(`/staff/payment/${staff.id}`)}
-                    >
-                     <span className="staff-management-salary-type">
-    {staff.staffSalaries[0]?.salaryType || 'Salary'}:
-  </span>
-                      <span className="staff-management-amount">
-    Rs.{staff.staffSalaries[0]?.amount?.toLocaleString() || '0'}
-  </span>
-                    </div>
-                  </div>
-                </div>
-            ))
-
-        )}
-        {isPermissionModalOpen && (
-            <div className="modal-overlay" onClick={handleClosePermissionModal}>
-              <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                  <h5>Manage Permissions</h5>
-                  <button className="modal-close-btn" onClick={handleClosePermissionModal}>
-                    &times;
-                  </button>
-                </div>
-
-                <div className="modal-body">
-                  <label className="staff-management-permission-label">Add Permission</label>
-                  <div className="permission-input-group">
-                    <input
-                        type="text"
-                        value={permissionInput}
-                        onChange={(e) => setPermissionInput(e.target.value)}
-                        onKeyDown={handlePermissionKeyDown}
-                        placeholder="Type permission and press Enter..."
-                        className="staff-management-permission-field"
-                        autoFocus
-                    />
-                    <button
-                        type="button"
-                        className="permission-add-btn"
-                        onClick={handleAddPermission}
-                    >
-                      Add
-                    </button>
-                  </div>
-
-                  {/* Display Added Permissions */}
-                  <div className="staff-management-permission-tags">
-                    {activePermissions.length > 0 ? (
-                        activePermissions.map((permission: string, index: number) => (
-                            <div key={index} className="staff-management-permission-tag">
-                              <i className="bi bi-shield-check me-1"></i>
-                              {permission}
-                              <span
-                                  className="staff-management-remove-tag"
-                                  onClick={() => selectedStaffId && handleRemovePermission(selectedStaffId, permission)}
-                              >
-          ×
-        </span>
-                            </div>
-                        ))
+                  <div className="staff-management-image-placeholder">
+                    {staff.profileImageUrl ? (
+                      <img
+                        src={staff.profileImageUrl}
+                        alt={staff.name}
+                        className="staff-management-staff-image"
+                      />
                     ) : (
-                        <div className="staff-management-no-permissions">
-                          <i className="bi bi-shield-x me-1"></i>
-                          No permissions added yet
-                        </div>
+                      <i className="bi bi-person"></i>
                     )}
                   </div>
+                  <div className="staff-management-staff-details">
+                    <div className="staff-management-staff-name">{staff.name}</div>
+                    <div className="staff-management-staff-contact">
+                      <i className="bi bi-telephone me-1"></i>
+                      {staff.phone || 'No phone'}
+                    </div>
+                    <div className="staff-management-staff-lastpaid">
+                      <i className="bi bi-calendar-event me-1"></i>
+                      Salary from {formatRelativeTime(getSalaryStartDate(staff))}
+                    </div>
+                  </div>
                 </div>
 
-                <div className="modal-footer">
-                  <button className="modal-secondary-btn" onClick={handleClosePermissionModal}>
-                    Close
+                <div
+                  className="staff-management-middle-actions"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <button
+                    type="button"
+                    className="staff-management-permission-btn"
+                    onClick={() => handleOpenPermissionModal(staff.id)}
+                  >
+                    <i className="bi bi-shield-plus me-1"></i>
+                    Add Permission
                   </button>
+                  <select className="staff-management-attendance-dropdown">
+                    <option value="">Today's Attendance</option>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                    <option value="halfday">Half Day</option>
+                    <option value="leave">Leave</option>
+                  </select>
+                </div>
+
+                <div
+                  className="staff-management-amount-section"
+                  onClick={() => navigate(`/staff/payment/${staff.id}`)}
+                >
+                  <span className="staff-management-salary-type">
+                    {staff.staffSalaries[0]?.salaryType || 'Salary'}:
+                  </span>
+                  <span className="staff-management-amount">
+                    Rs.{staff.staffSalaries[0]?.amount?.toLocaleString() || '0'}
+                  </span>
                 </div>
               </div>
             </div>
+          ))
         )}
-          {/*<button */}
-          {/*  className="staff-management-add-staff-button" onClick={() => navigate('/staff/add')}>*/}
-          {/*  <i className="bi bi-person-plus"></i>*/}
-          {/*  Add Staff*/}
-          {/*</button>*/}
+
+        {isPermissionModalOpen && (
+          <div className="modal-overlay" onClick={handleClosePermissionModal}>
+            <div className="modal-container" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h5>Manage Permissions</h5>
+                <button className="modal-close-btn" onClick={handleClosePermissionModal}>
+                  &times;
+                </button>
+              </div>
+
+              <div className="modal-body">
+                <label className="staff-management-permission-label">Add Permission</label>
+                <div className="permission-input-group">
+                  <input
+                    type="text"
+                    value={permissionInput}
+                    onChange={(e) => setPermissionInput(e.target.value)}
+                    onKeyDown={handlePermissionKeyDown}
+                    placeholder="Type permission and press Enter..."
+                    className="staff-management-permission-field"
+                    autoFocus
+                  />
+                  <button
+                    type="button"
+                    className="permission-add-btn"
+                    onClick={handleAddPermission}
+                  >
+                    Add
+                  </button>
+                </div>
+
+                <div className="staff-management-permission-tags">
+                  {activePermissions.length > 0 ? (
+                    activePermissions.map((permission: string, index: number) => (
+                      <div key={index} className="staff-management-permission-tag">
+                        <i className="bi bi-shield-check me-1"></i>
+                        {permission}
+                        <span
+                          className="staff-management-remove-tag"
+                          onClick={() =>
+                            selectedStaffId && handleRemovePermission(selectedStaffId, permission)
+                          }
+                        >
+                          ×
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="staff-management-no-permissions">
+                      <i className="bi bi-shield-x me-1"></i>
+                      No permissions added yet
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="modal-footer">
+                <button className="modal-secondary-btn" onClick={handleClosePermissionModal}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <button
-            type="button"
-            className="staff-management-add-staff-button"
-            onClick={() => navigate('/staff/add')}
+          type="button"
+          className="staff-management-add-staff-button"
+          onClick={() => navigate('/staff/add')}
         >
           <i className="bi bi-person-plus me-2"></i>
           Add Staff
@@ -472,4 +537,4 @@ export const StaffManagement = () => {
       </div>
     </div>
   );
-}; 
+};

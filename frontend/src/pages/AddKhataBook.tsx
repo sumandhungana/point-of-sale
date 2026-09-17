@@ -100,7 +100,17 @@ export const AddKhataBook = () => {
                 {!formData.imagepath && (
                   <i className="bi bi-person-circle"></i>
                 )}
+                
               </div>
+
+              <button 
+                type="button" 
+                className="add-khata-book-add-photo-button"
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <i className="bi bi-camera me-1"></i>
+                {formData.imagepath ? 'Change Logo' : 'Add Logo'}
+              </button>
               <input
                 type="file"
                 ref={fileInputRef}
@@ -108,14 +118,7 @@ export const AddKhataBook = () => {
                 accept="image/*"
                 onChange={handleImageSelect}
               />
-              <button 
-                type="button" 
-                className="add-khata-book-add-photo-button"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <i className="bi bi-camera me-1"></i>
-                {formData.imagepath ? 'Change Photo' : 'Add Photo'}
-              </button>
+              
             </div>
 
             {/* Personal Info Section */}

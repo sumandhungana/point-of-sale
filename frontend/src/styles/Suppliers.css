@@ -164,7 +164,7 @@
 
 .suppliers-add-button {
   position: fixed !important;
-  bottom: 30px !important;
+  /* bottom: 30px !important; */
   right: 2rem !important;
   z-index: 1000 !important;
   padding: 1rem 2rem !important;

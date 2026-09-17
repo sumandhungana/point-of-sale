@@ -47,8 +47,7 @@ public class CreateCashBookUseCase {
 
 
                                 .flatMap(category -> {
-                                    CashBookEntity cashBook =
-                                            CashBookConvertor.toEntity(request, khataBookId);
+                                   var cashBook = CashBookConvertor.toEntity(request, khataBookId);
 
                                     return cashBookRepository.save(cashBook);
                                 })

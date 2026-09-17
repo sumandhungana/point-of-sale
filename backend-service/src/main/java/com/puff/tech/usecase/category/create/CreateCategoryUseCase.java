@@ -23,10 +23,18 @@ public class CreateCategoryUseCase implements UseCase<CreateCategoryUseCaseReque
 
     @Override
     public Mono<CreateCategoryUseCaseResponse> execute(CreateCategoryUseCaseRequest request) {
-        Integer khataBookId= khataBookImplementation.getCurrentKhataBookId().block();
-        var category= CategoryConvertor.toEntity(request,khataBookId);
-        return categoryRepository.save(category)
-                .map(data->new CreateCategoryUseCaseResponse("Category created successfully"))
-                .onErrorResume(err->Mono.error(new RuntimeException("Unexpected hapened")));
+//        Integer khataBookId= khataBookImplementation.getCurrentKhataBookId().block();
+//        var category= CategoryConvertor.toEntity(request,khataBookId);
+//        return categoryRepository.save(category)
+//                .map(data->new CreateCategoryUseCaseResponse("Category created successfully"))
+//                .onErrorResume(err->Mono.error(new RuntimeException("Unexpected hapened")));
+
+        return khataBookImplementation.getCurrentKhataBookId()
+                .flatMap(khataBookId-> {
+                    var category= CategoryConvertor.toEntity(request,khataBookId);
+                    return categoryRepository.save(category)
+                            .map(data->new CreateCategoryUseCaseResponse("Category created successully"))
+                            .onErrorResume(err-> Mono.error(new RuntimeException("Unexpected happened")));
+                });
     }
 }

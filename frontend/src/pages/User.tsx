@@ -19,8 +19,19 @@ interface User {
   address: string;
   pan: string;
   remarks: string;
+  imagePath: string;
   createdAt: string;
   updatedAt: string;
+  // Subscription fields
+  subscriptionType?: 'None' | 'Trial' | 'Monthly' | 'Yearly';
+  subscriptionStartDate?: string | null;
+  subscriptionEndDate?: string | null;
+  isSubscriptionActive?: boolean;
+  hasUsedTrial?: boolean;
+  trialStartDate?: string | null;
+  trialEndDate?: string | null;
+  subscriptionStatus?: 'None' | 'Active' | 'Expired' | 'Cancelled' | 'Trial';
+  remainingDays?: number;
 }
 
 export const User = () => {
@@ -38,6 +49,7 @@ export const User = () => {
     const fetchUsersData = async () => {
       try {
         const data = await fetchUsers();
+        console.log('Fetched users:', data);
         setUsers(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -65,7 +77,18 @@ export const User = () => {
           parent: user.parent,
           address: user.address,
           pan: user.pan,
-          remarks: user.remarks
+          remarks: user.remarks,
+          imagePath: user.imagePath,
+          // Pass subscription data
+          subscriptionType: user.subscriptionType || 'None',
+          subscriptionStartDate: user.subscriptionStartDate || null,
+          subscriptionEndDate: user.subscriptionEndDate || null,
+          isSubscriptionActive: user.isSubscriptionActive,
+          hasUsedTrial: user.hasUsedTrial,
+          trialStartDate: user.trialStartDate || null,
+          trialEndDate: user.trialEndDate || null,
+          subscriptionStatus: user.subscriptionStatus || 'None',
+          remainingDays: user.remainingDays || 0
         }
       }
     });
@@ -88,7 +111,7 @@ export const User = () => {
 
   if (error) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div style={{ display: 'flex', minHeight: '100vh'}}>
         <Sidebar />
         <div className="user-container">
           <Navbar />
@@ -103,6 +126,7 @@ export const User = () => {
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
+      
       <Sidebar />
       <div className="user-container">
         <Navbar />
@@ -198,6 +222,10 @@ export const User = () => {
                     <i className="bi bi-circle-fill"></i>
                     Status
                   </th>
+                  <th className="user-table-header">
+                    <i className="bi bi-trophy"></i>
+                    Subscription
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -218,6 +246,30 @@ export const User = () => {
                         {user.enable ? 'Active' : 'Inactive'}
                       </span>
                     </td>
+                    <td className="user-table-cell">
+                      {user.subscriptionType && user.subscriptionType !== 'None' ? (
+                        <span style={{ 
+                          display: 'inline-block',
+                          padding: '3px 10px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          backgroundColor: user.subscriptionType === 'Trial' ? '#fff3cd' : 
+                                         user.subscriptionType === 'Monthly' ? '#d4edda' : 
+                                         '#cce5ff',
+                          color: user.subscriptionType === 'Trial' ? '#856404' : 
+                                 user.subscriptionType === 'Monthly' ? '#155724' : 
+                                 '#004085'
+                        }}>
+                          {user.subscriptionType}
+                          {user.remainingDays !== undefined && user.remainingDays > 0 && 
+                            ` (${user.remainingDays}d)`
+                          }
+                        </span>
+                      ) : (
+                        <span style={{ color: '#6c757d', fontSize: '12px' }}>None</span>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -237,4 +289,4 @@ export const User = () => {
       </div>
     </div>
   );
-}; 
+};

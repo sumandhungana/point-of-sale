@@ -30,7 +30,7 @@ public class BillEntity {
 
 
     @Relation(Relation.Kind.MANY_TO_ONE)
-    @MappedProperty("khata_book_id")
+    @MappedProperty("khata_book")
     private KhataBookEntity khataBook;
 
     @NotNull

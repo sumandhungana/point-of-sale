@@ -76,8 +76,8 @@ export const YouGave = () => {
                     transition: Bounce,
                     className: 'red-success-toast',
                     style: {
-                        '--toastify-color-success': '#cf1f30',
-                        '--toastify-color-progress-success': '#cf1f30'
+                        '--toastify-color-success': '#1fcfa3',
+                        '--toastify-color-progress-success': '#1fcfa3'
                     } as React.CSSProperties
                 });
             }
@@ -109,12 +109,12 @@ export const YouGave = () => {
 
     return (
         <div className="you-gave-page" style={{ position: 'relative' }}>
-            <Sidebar />
+            {/* <Sidebar />
             <BackButton 
                 to={location.pathname.includes('/supplier/') ? `/parties/suppliers/statements/${id}` : `/parties/customers/statements/${id}`}
-                label="Back to Statements"
+                label="Back"
                 className="below-navbar"
-            />
+            /> */}
             <main className="you-gave-main-content">
                 <div className="you-gave-form-container">
                     <h2 className="you-gave-form-title">
@@ -138,6 +138,28 @@ export const YouGave = () => {
                                 required
                             />
                         </div>
+
+                        <div className="you-gave-form-group">
+                            <label className="you-gave-label" htmlFor="paymentType">
+                               <i className="bi bi-credit-card me-1"></i>
+                                Payment Type
+                             </label>
+
+                             <select
+                                 id="paymentType"
+                                 name="paymentType"
+                                 value={formData.paymentType}
+                                 onChange={handleChange}
+                                 className="you-gave-input"
+                                  required
+    >
+                                    {/* <option value="">Select payment type</option> */}
+                                    <option value="cash">Cash</option>
+                                    <option value="card">Card</option>
+                             </select>
+                        </div>
+
+                       
 
                         <div className="you-gave-form-group">
                             <label className="you-gave-label" htmlFor="remarks">

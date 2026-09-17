@@ -5,6 +5,7 @@
   padding-top: 1.7rem !important;
   background: linear-gradient(135deg, #f8f9fa 100%, #e9ecef 100%);
   min-height: 100vh;
+  /* width: 100% !important; */
   max-width: 1200px !important;
   margin: 0 auto !important;
   padding-left: 2rem !important;
@@ -159,21 +160,21 @@
 }
 
 .customers-primary-button {
-  background: linear-gradient(135deg, #dc3545, #c82333) !important;
-  color: white !important;
+  background: linear-gradient(135deg, #ffc107, #e0a800) !important;
+  color: #212529 !important;
 }
 
 .customers-primary-button:hover {
-  background: linear-gradient(135deg, #c82333, #dc3545) !important;
+  background: linear-gradient(135deg, #e0a800, #ffc107) !important;
 }
 
 .customers-secondary-button {
-  background: linear-gradient(135deg, #6c757d, #495057) !important;
+   background: linear-gradient(135deg, #17a2b8, #138496) !important;
   color: white !important;
 }
 
 .customers-secondary-button:hover {
-  background: linear-gradient(135deg, #495057, #6c757d) !important;
+ background: linear-gradient(135deg, #138496, #17a2b8) !important;
 }
 
 .customers-button::before {
@@ -294,9 +295,9 @@
 
 /* Card Icon */
 .customers-card-icon {
-  width: 35px !important;
-  height: 35px !important;
-  border-radius: 50% !important;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 30% !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -346,13 +347,13 @@
 }
 
 /* Red color for "You Give" card amount */
-.customers-card:first-child .customers-card-amount {
-  color: #dc3545 !important;
+.customers-card:nth-child(1) .customers-card-amount {
+  color: #b83643 !important;
 }
 
 /* Green color for "You Receive" card amount */
-.customers-card:last-child .customers-card-amount {
-  color: #28a745 !important;
+.customers-card:nth-child(2)  .customers-card-amount {
+  color: #0fcb3b !important;
 }
 
 /* Checkbox Container */
@@ -492,7 +493,7 @@
   height: 50px !important;
   border-radius: 50% !important;
   object-fit: cover !important;
-  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
+  /* background: linear-gradient(135deg, #3498db, #2ecc71) !important; */
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -563,7 +564,7 @@
   bottom: 30px !important;
   right: 2rem !important;
   z-index: 1000 !important;
-  padding: 1rem 2rem !important;
+  padding: 1rem 2rem  !important;
   font-size: 1rem !important;
   font-weight: 600 !important;
   border: none !important;
@@ -581,7 +582,8 @@
   gap: 0.5rem !important;
   pointer-events: auto !important;
 }
-
+ 
+   
 .customers-add-button::before {
   content: '' !important;
   position: absolute !important;

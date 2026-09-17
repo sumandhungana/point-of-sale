@@ -5,6 +5,7 @@ import { getCustomers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
 import '../styles/Customers.css';
+import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
 
 interface CustomerWithBalance extends Customer {
     balance: number;
@@ -84,6 +85,33 @@ export const Customers = () => {
 
         fetchCustomers();
     }, []);
+
+    const getAvatarColor = (name: string) => {
+        const colors = [
+        '#FF6B6B',
+        '#4ECDC4',
+        '#45B7D1',
+        '#96CEB4',
+        '#6C5CE7',
+        '#F0932B',
+        '#EB4D4B',
+        '#22A6B3',
+        '#BE2EDD',
+        '#4834D4',
+        '#0097E6',
+        '#44BD32'
+        ];
+
+    let hash = 0;
+
+    for (let i = 0; i < name.length; i++) {
+        hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
+
+    const index = Math.abs(hash) % colors.length;
+
+    return colors[index];
+};
 
     const handleAddCustomer = () => {
         navigate('/parties/customers/add');
@@ -551,6 +579,7 @@ export const Customers = () => {
             },
         },
         addCustomerButton: {
+        
             padding: '0.75rem 1.5rem',
             background: '#28a745',
             color: 'white',
@@ -564,6 +593,7 @@ export const Customers = () => {
             gap: '0.5rem',
             marginTop: '1rem',
             marginLeft: 'auto',
+    
             '&:hover': {
                 background: '#218838',
             },
@@ -621,7 +651,7 @@ export const Customers = () => {
                                 onClick={handleListReportPdf}
                             >
                                 <i className="bi bi-file-earmark-text"></i>
-                                PDF Report
+                                List Report
                             </button>
                         </div>
                     </div>
@@ -633,7 +663,7 @@ export const Customers = () => {
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
                         <div className="customers-card-header">You Gave</div>
-                        <div className="customers-card-amount" style={{ color: '#dc3545' }}>
+                        <div className="customers-card-amount" style={{ color: '#cb1729' }}>
                             रु{overallTotals.given.toLocaleString()}
                         </div>
                     </div>
@@ -642,13 +672,23 @@ export const Customers = () => {
                             <i className="bi bi-arrow-down-circle"></i>
                         </div>
                         <div className="customers-card-header">You Received</div>
-                        <div className="customers-card-amount" style={{ color: '#28a745' }}>
+                        <div className="customers-card-amount" style={{ color: '#1fc445' }}>
                             रु{overallTotals.received.toLocaleString()}
+                        </div>
+                        
+                    </div>
+                    <div className="suppliers-stat-card">
+                        <div className="suppliers-stat-icon suppliers-stat-online-icon">
+                            <i className="bi bi-globe"></i>
+                        </div>
+                        <div className="suppliers-stat-label">Online Collection</div>
+                        <div className="suppliers-stat-value">
+                            रु{overallTotals.online.toLocaleString()}
                         </div>
                     </div>
                 </div>
 
-                <div className="customers-checkbox-container">
+                {/* <div className="customers-checkbox-container">
                     <div className="customers-checkbox-item">
                         <div className="customers-checkbox-group">
                             <input
@@ -694,7 +734,7 @@ export const Customers = () => {
                             </label>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 {error && (
                     <div className="customers-error">
@@ -728,7 +768,8 @@ export const Customers = () => {
                                     <div 
                                         style={{
                                             ...styles.profileImage,
-                                            backgroundColor: '#e9ecef',
+                                            // backgroundColor: '#e9ecef',
+                                            backgroundColor: getAvatarColor(customer.name),
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             fontSize: '1.5rem',
@@ -760,7 +801,7 @@ export const Customers = () => {
                         </div>
                     ))}
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <div style={{ display: 'flex', justifyContent: 'flex-end',position: 'fixed',bottom: '30px', left: '0', width: '98%', zIndex: 1000, pointerEvents: 'none',}}>
                     <button 
                         className="customers-add-button"
                         onClick={handleAddCustomer}
@@ -769,6 +810,7 @@ export const Customers = () => {
                         Add Customer
                     </button>
                 </div>
+                
             </main>
         </div>
     );

@@ -2,10 +2,7 @@ package com.puff.tech.entity;
 
 import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
-import io.micronaut.data.annotation.DateCreated;
-import io.micronaut.data.annotation.DateUpdated;
-import io.micronaut.data.annotation.Id;
-import io.micronaut.data.annotation.MappedEntity;
+import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +17,7 @@ import java.time.Instant;
 public class UserEntity {
 
     @Id
-    @Generated
+    @GeneratedValue(GeneratedValue.Type.IDENTITY)
     private Integer id;
     private String userName;
     private String password;

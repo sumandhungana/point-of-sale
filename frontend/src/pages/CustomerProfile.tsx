@@ -186,16 +186,19 @@ export const CustomerProfile = () => {
     return (
         <div style={{minHeight: '100vh', background: '#f8f9fa'}}>
             <Sidebar />
-            <button 
+           
+            
+            <main className="customer-profile-main-content">
+                <div className="customer-profile-container">
+                    <button 
                 className="customer-profile-back-button"
                 onClick={() => navigate(-1)}
             >
                 <i className="bi bi-arrow-left"></i>
                 Back
             </button>
-            <main className="customer-profile-main-content">
-                <div className="customer-profile-container">
                     <div className="customer-profile-image-container">
+                         
                         {profileImage ? (
                             <img 
                                 src={profileImage} 
@@ -209,7 +212,7 @@ export const CustomerProfile = () => {
                         )}
                         <label htmlFor="profile-image" className="customer-profile-add-photo-button">
                             <i className="bi bi-camera"></i>
-                            Add Photo
+                            {profileImage ? 'Change Photo' : 'Add Photo'}
                         </label>
                         <input
                             id="profile-image"

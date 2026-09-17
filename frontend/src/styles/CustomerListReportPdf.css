@@ -172,11 +172,17 @@
   margin-bottom: 1.5rem;
   border: 1px solid #dee2e6;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  gap: 12px
 }
 
 .customer-report-summary-item {
-  text-align: center;
-  flex: 1;
+  
+    flex: 1;
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+    text-align: center;
 }
 
 .customer-report-summary-item-title-gave {
@@ -212,6 +218,7 @@
   width: 1px;
   background: #dee2e6;
   margin: 0 1rem;
+  display: none;
 }
 
 .customer-report-customer-count {
@@ -225,7 +232,7 @@
   border-left: 4px solid #dc4c39;
 }
 
-.customer-report-table-container {
+/* .customer-report-table-container {
   overflow-x: auto;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -235,6 +242,28 @@
   width: 100%;
   border-collapse: collapse;
   background: white;
+} */
+
+.customer-report-table-container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.customer-report-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    table-layout: fixed;
+    border: 1px solid #ddd;
+}
+
+.customer-report-table th,
+.customer-report-table td {
+    width: 20%;
+    padding: 12px;
+    text-align: left;
 }
 
 .customer-report-table-header {
@@ -259,6 +288,8 @@
   font-size: 0.9rem;
   text-align: center;
   vertical-align: middle;
+  
+
 }
 
 .customer-report-table-header-phone {
@@ -315,6 +346,7 @@
   font-size: 0.9rem;
   text-align: center;
   vertical-align: middle;
+  border: 1px solid #ddd;
 }
 
 .customer-report-table tbody tr:hover {
@@ -322,22 +354,23 @@
 }
 
 .customer-report-gave-cell {
-  background: linear-gradient(135deg, #edd9da, #e9ecef);
+  /* background: linear-gradient(135deg, #edd9da, #e9ecef); */
   color: #f50505;
   font-weight: 500;
   text-align: center;
   vertical-align: middle;
+
 }
 
 .customer-report-name-cell {
-  background: linear-gradient(135deg, #b1b2b4, #e9ecef);
+  /* background: linear-gradient(135deg, #b1b2b4, #e9ecef); */
   font-weight: 500;
   text-align: center;
   vertical-align: middle;
 }
 
 .customer-report-phone-cell {
-  background: linear-gradient(135deg, #b2caec, #e9ecef);
+  /* background: linear-gradient(135deg, #b2caec, #e9ecef); */
 
   font-weight: 500;
   text-align: center;
@@ -345,7 +378,7 @@
 }
 
 .customer-report-received-cell {
-  background: linear-gradient(135deg, #e2f4e8, #e9ecef);
+  /* background: linear-gradient(135deg, #e2f4e8, #e9ecef); */
   color:  #218535;
   font-weight: 500;
   text-align: center;
@@ -353,7 +386,7 @@
 }
 
 .customer-report-collection-cell {
-  background: linear-gradient(135deg, #faf9cf, #fafaf6);
+  /* background: linear-gradient(135deg, #faf9cf, #fafaf6); */
   color:  #161212;
   font-weight: 500;
   text-align: center;
@@ -363,6 +396,7 @@
 .customer-report-total-row {
     text-align: center;
   vertical-align: middle;
+   background: linear-gradient(135deg, #cffaee, #fafaf6);
 }
 
 .customer-report-footer {

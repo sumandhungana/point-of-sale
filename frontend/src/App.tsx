@@ -70,6 +70,7 @@ import './styles/Button.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Bills } from './pages/Bills';
+import BusinessSetting from './pages/BusinessSetting';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -742,7 +743,7 @@ const App: React.FC = () => {
             path="/settings/business"
             element={
               <PrivateRoute>
-                <div>Business Setting Page</div>
+                <BusinessSetting/>
               </PrivateRoute>
             }
           />

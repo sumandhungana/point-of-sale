@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj": {}
+    "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\backend\\Backend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj": {
+    "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\backend\\Backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj",
+        "projectUniqueName": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\backend\\Backend.csproj",
         "projectName": "Backend",
-        "projectPath": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\Backend.csproj",
+        "projectPath": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\backend\\Backend.csproj",
         "packagesPath": "C:\\Users\\baikuntha\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\Backend\\obj\\",
+        "outputPath": "C:\\Users\\baikuntha\\Desktop\\point_of_sale\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\baikuntha\\AppData\\Roaming\\NuGet\\NuGet.Config"
