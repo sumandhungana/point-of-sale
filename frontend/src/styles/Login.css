@@ -6,7 +6,7 @@
   justify-content: center;
   align-items: center;
   padding: 1.5rem;
-  background: url("../assets/Login background.jpg") center center / cover no-repeat fixed;
+  background: url("../assets/login backgroundx.jpg") center center / cover no-repeat fixed;
   position: relative;
 }
 
@@ -264,6 +264,527 @@
   margin: 0;
 }
 
+     /* user Registration Button */
+.user-registration-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.user-registration-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Registration Modal */
+.user-registration-modal {
+  background: #ffffff;
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh; /* Prevents overflow outside viewport */
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  position: relative;
+  z-index: 1001;
+  animation: modalFadeIn 0.25s ease-out;
+}
+
+.user-registration-modal .modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+
+.user-registration-modal .modal-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.registration-subtitle {
+  display: block;
+  margin-top: 3px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.user-registration-modal .modal-body {
+  padding: 24px;
+}
+
+
+/* Form Grid */
+.registration-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.registration-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.registration-field-full {
+  grid-column: 1 / -1;
+}
+
+.registration-field label {
+  margin-bottom: 7px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.registration-field label span {
+  color: #dc2626;
+}
+
+
+/* Input */
+.registration-input-wrapper,
+.registration-textarea-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.registration-input-wrapper > i,
+.registration-textarea-wrapper > i {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  z-index: 1;
+}
+
+.registration-input-wrapper input,
+.registration-input-wrapper select,
+.registration-textarea-wrapper textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 11px 12px 11px 38px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.registration-input-wrapper input:focus,
+.registration-input-wrapper select:focus,
+.registration-textarea-wrapper textarea:focus {
+  border-color: #6b7280;
+  box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.1);
+}
+
+.registration-textarea-wrapper {
+  align-items: flex-start;
+}
+
+.registration-textarea-wrapper > i {
+  top: 16px;
+  transform: none;
+}
+
+.registration-textarea-wrapper textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+
+/* Messages */
+.registration-success,
+.registration-error {
+  padding: 11px 14px;
+  margin-bottom: 18px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+
+.registration-success {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.registration-error {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+
+/* Footer */
+.user-registration-modal .modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.registration-cancel-button,
+.registration-submit-button {
+  padding: 10px 18px;
+  border-radius: 7px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.registration-cancel-button {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+}
+
+.registration-cancel-button:hover {
+  background: #f3f4f6;
+}
+
+.registration-submit-button {
+  border: none;
+  background: #374151;
+  color: #fff;
+}
+
+.registration-submit-button:hover {
+  background: #1f2937;
+}
+
+.registration-submit-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.registration-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 7px;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: registration-spin 0.7s linear infinite;
+}
+/*!* Modal Overlay Setup *!*/
+/*.user-modal-overlay {*/
+/*  position: fixed;*/
+/*  inset: 0;*/
+/*  z-index: 1000;*/
+/*  background: rgba(0, 0, 0, 0.55);*/
+/*  backdrop-filter: blur(4px);*/
+/*  -webkit-backdrop-filter: blur(4px);*/
+/*  display: flex;*/
+/*  align-items: center;*/
+/*  justify-content: center;*/
+/*  padding: 1rem;*/
+/*  overflow-y: auto;*/
+/*}*/
+/* Fixed Modal Overlay */
+.user-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* Modal Box */
+.user-registration-modal {
+  /*background: #ffffff;*/
+  /*width: 100%;*/
+  /*max-width: 680px;*/
+  /*max-height: 90vh;*/
+  /*display: flex;*/
+  /*flex-direction: column;*/
+  /*border-radius: 14px;*/
+  /*box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);*/
+  /*overflow: hidden;*/
+  /*position: relative;*/
+  /*z-index: 1001;*/
+  /*animation: modalFadeIn 0.25s ease-out;*/
+  background: #ffffff;
+  width: 100%;
+  max-width: 680px;
+  max-height: calc(100vh - 2rem); /* Keeps entire modal inside viewport */
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  overflow: hidden;
+  position: relative;
+  z-index: 1001;
+}
+
+/*!* Modal Inner Container *!*/
+/*.user-registration-modal {*/
+/*  background: #ffffff;*/
+/*  width: 100%;*/
+/*  max-width: 680px;*/
+/*  max-height: 90vh;*/
+/*  overflow-y: auto;*/
+/*  border: none;*/
+/*  border-radius: 14px;*/
+/*  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);*/
+/*  position: relative;*/
+/*  z-index: 1001;*/
+/*  animation: modalFadeIn 0.25s ease-out;*/
+/*}*/
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/*!* Header & Close Button Styling *!*/
+/*.user-modal-header {*/
+/*  padding: 20px 24px;*/
+/*  border-bottom: 1px solid #e5e7eb;*/
+/*  background: #f9fafb;*/
+/*  display: flex;*/
+/*  align-items: flex-start;*/
+/*  justify-content: space-between;*/
+/*}*/
+
+/*.user-modal-header h3 {*/
+/*  font-size: 20px;*/
+/*  font-weight: 600;*/
+/*  color: #1f2937;*/
+/*  margin: 0;*/
+/*}*/
+
+/*.user-modal-header p {*/
+/*  margin: 3px 0 0 0;*/
+/*  color: #6b7280;*/
+/*  font-size: 13px;*/
+/*}*/
+
+/*.user-modal-close {*/
+/*  background: transparent;*/
+/*  border: none;*/
+/*  font-size: 1.25rem;*/
+/*  color: #6b7280;*/
+/*  cursor: pointer;*/
+/*  padding: 4px;*/
+/*  line-height: 1;*/
+/*  border-radius: 6px;*/
+/*  transition: color 0.2s, background-color 0.2s;*/
+/*}*/
+
+/*.user-modal-close:hover {*/
+/*  color: #1f2937;*/
+/*  background-color: #e5e7eb;*/
+/*}*/
+
+/*.user-modal-body {*/
+/*  padding: 24px;*/
+/*}*/
+
+/*.user-modal-footer {*/
+/*  padding: 16px 24px;*/
+/*  border-top: 1px solid #e5e7eb;*/
+/*  background: #f9fafb;*/
+/*  display: flex;*/
+/*  justify-content: flex-end;*/
+/*  gap: 10px;*/
+/*}*/
+/* Header */
+.user-modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.user-modal-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.user-modal-header p {
+  margin: 3px 0 0 0;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.user-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: #6b7280;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.user-modal-close:hover {
+  color: #1f2937;
+  background-color: #e5e7eb;
+}
+
+/* Scrollable Form Body */
+.user-modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  max-height: calc(90vh - 140px);
+}
+
+/* Registration Grid */
+.registration-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.registration-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.registration-field-full {
+  grid-column: 1 / -1;
+}
+
+.registration-field label {
+  margin-bottom: 7px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.registration-field label span {
+  color: #dc2626;
+}
+
+/* Input / Textarea Containers */
+.registration-input-wrapper,
+.registration-textarea-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.registration-input-wrapper > i,
+.registration-textarea-wrapper > i {
+  position: absolute;
+  left: 13px;
+  color: #9ca3af;
+  z-index: 1;
+}
+
+.registration-input-wrapper > i {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.registration-textarea-wrapper {
+  align-items: flex-start;
+}
+
+.registration-textarea-wrapper > i {
+  top: 14px;
+}
+
+.registration-input-wrapper input,
+.registration-input-wrapper select,
+.registration-textarea-wrapper textarea {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  padding: 11px 12px 11px 38px;
+  background: #fff;
+  color: #1f2937;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.registration-input-wrapper input:focus,
+.registration-input-wrapper select:focus,
+.registration-textarea-wrapper textarea:focus {
+  border-color: #4c6ef5;
+  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.15);
+}
+
+.registration-textarea-wrapper textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Trigger Button */
+.user-registration-button {
+  width: 100%;
+  margin-top: 12px;
+  padding: 11px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(4px);
+}
+
+.user-registration-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Footer */
+.user-modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0; /* Prevents footer from collapsing or being pushed down */
+}
+
+@keyframes registration-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .login-card {
@@ -271,7 +792,25 @@
     height: auto;
     max-width: 400px;
   }
-  
+  .registration-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .registration-field-full {
+    grid-column: auto;
+  }
+
+  .user-registration-modal .modal-body {
+    padding: 18px;
+  }
+
+  .user-registration-modal .modal-header {
+    padding: 18px;
+  }
+
+  .user-registration-modal .modal-footer {
+    padding: 14px 18px;
+  }
   .login-left-panel {
     width: 100%;
     border-radius: 16px 16px 0 0;

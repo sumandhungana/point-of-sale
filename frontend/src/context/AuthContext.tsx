@@ -1,4 +1,4 @@
-import { useLocalStorage } from '../hooks/useLocalStorage';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
@@ -14,6 +14,7 @@ interface IAuthContext {
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
+// const TOKEN_EXPIRY_KEY = 'tokenExpiry';
 const TOKEN_KEY = 'authToken';
 const USER_KEY = 'userData';
 
