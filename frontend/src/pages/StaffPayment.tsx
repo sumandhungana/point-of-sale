@@ -91,7 +91,6 @@ export const StaffPayment: React.FC = () => {
         <span className="staff-payment-summary-title">
           Total Due
         </span>
-
                 <div className="staff-payment-summary-amount">
                   रु25,000
                 </div>
