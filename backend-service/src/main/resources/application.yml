@@ -3,6 +3,26 @@ micronaut:
     name: backend-service
   server:
     port: 8080
+    cors:
+      enabled: true
+      configurations:
+        frontend:
+          allowed-origins:
+            - "http://localhost:5173"  # Vite default port
+            - "http://localhost:3000"  # Create React App default port
+          allowed-methods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - OPTIONS
+          allowed-headers:
+            - Content-Type
+            - Authorization
+            - X-Requested-With
+          allow-credentials: true
+          max-age: 3600S
+
 r2dbc:
   datasources:
     default:
@@ -18,6 +38,6 @@ r2dbc:
       schema-generate: CREATE
       dialect: POSTGRES
       db-type: postgres
-      username: root
+      username: postgres
       password: root
-      url: r2dbc:pool:postgresql://localhost:5432/khatabook_test
+      url: r2dbc:pool:postgresql://localhost:5432/khatabook

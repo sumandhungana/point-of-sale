@@ -25,7 +25,8 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
-
+// Source: https://mvnrepository.com/artifact/com.nimbusds/nimbus-jose-jwt
+    implementation("com.nimbusds:nimbus-jose-jwt:10.10")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
     runtimeOnly("org.yaml:snakeyaml")
     testImplementation("io.micronaut:micronaut-http-client")
