@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.income.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.IncomeConvertor;
 import com.puff.tech.repository.IncomeRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class UpdateIncomeUseCase implements UseCase<UpdateIncomeUseCaseRequest,UpdateIncomeUseCaseResponse> {
+public class UpdateIncomeUseCase implements UseCases<UpdateIncomeUseCaseRequest,UpdateIncomeUseCaseResponse> {
 
     private final IncomeRepository incomeRepository;
     private final KhataBookImplementation khataBookImplementation;

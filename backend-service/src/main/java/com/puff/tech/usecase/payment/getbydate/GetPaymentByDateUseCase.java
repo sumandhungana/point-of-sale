@@ -1,6 +1,5 @@
 package com.puff.tech.usecase.payment.getbydate;
 
-import com.puff.tech.core.usecases.UseCase;
 import com.puff.tech.covertor.PaymentConvertor;
 import com.puff.tech.repository.PaymentRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -8,7 +7,6 @@ import com.puff.tech.usecase.payment.get.GetPaymentUseCaseResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 @Singleton
 public class GetPaymentByDateUseCase  {

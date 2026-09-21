@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.permission.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.PermissionConvertor;
 import com.puff.tech.repository.PermissionRepository;
 import jakarta.inject.Inject;
@@ -8,7 +8,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreatePermissionUseCase implements UseCase<CreatePermissionUseCaseRequest,CreatePermissionUseCaseResponse> {
+public class CreatePermissionUseCase implements UseCases<CreatePermissionUseCaseRequest,CreatePermissionUseCaseResponse> {
 
     private final PermissionRepository permissionRepository;
 

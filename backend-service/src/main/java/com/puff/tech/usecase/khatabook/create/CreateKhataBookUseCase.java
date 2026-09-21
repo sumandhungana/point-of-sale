@@ -1,15 +1,14 @@
 package com.puff.tech.usecase.khatabook.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.KhataBookConvertor;
 import com.puff.tech.repository.KhataBookRepository;
-import io.micronaut.core.annotation.Creator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateKhataBookUseCase implements UseCase<CreateKhataBookUseCaseRequest,CreateKhataBookUseCaseResponse> {
+public class CreateKhataBookUseCase implements UseCases<CreateKhataBookUseCaseRequest,CreateKhataBookUseCaseResponse> {
 
     private final KhataBookRepository khataBookRepository;
 

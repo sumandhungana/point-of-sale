@@ -1,10 +1,10 @@
 package com.puff.tech.usecase.salesbills.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
 public record DeleteSalesBillUseCaseRequest(
         Integer id
-)implements UseCase.UseCaseRequest {
+)implements UseCases.UseCaseRequest {
 }

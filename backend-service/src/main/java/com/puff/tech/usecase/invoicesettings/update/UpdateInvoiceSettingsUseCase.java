@@ -1,17 +1,15 @@
 package com.puff.tech.usecase.invoicesettings.update;
 
-import com.puff.tech.core.usecases.UseCase;
-import com.puff.tech.covertor.IncomeConvertor;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.InvoiceSettingsConvertor;
 import com.puff.tech.repository.InvoiceSettingRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
-import com.puff.tech.usecase.income.update.UpdateIncomeUseCaseResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class UpdateInvoiceSettingsUseCase implements UseCase<UpdateInvoiceSettingsUseCaseRequest, UpdateInvoiceSettingsUseCaseResponse> {
+public class UpdateInvoiceSettingsUseCase implements UseCases<UpdateInvoiceSettingsUseCaseRequest, UpdateInvoiceSettingsUseCaseResponse> {
 
     private final InvoiceSettingRepository invoiceSettingRepository;
     private final KhataBookImplementation khataBookImplementation;

@@ -1,8 +1,7 @@
 package com.puff.tech.usecase.salesbillitems.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SalesBillItemConvertor;
-import com.puff.tech.entity.ItemEntity;
 import com.puff.tech.entity.SalesBillEntity;
 import com.puff.tech.entity.SalesBillItemEntity;
 import com.puff.tech.repository.ItemRepository;
@@ -14,7 +13,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateSalesBillItemUseCase implements UseCase<CreateSalesBillItemUseCaseRequest,CreateSalesBillItemUseCaseResponse> {
+public class CreateSalesBillItemUseCase implements UseCases<CreateSalesBillItemUseCaseRequest,CreateSalesBillItemUseCaseResponse> {
 
     private final SalesBillItemRepository salesBillItemRepository;
     private final SalesBillRepository salesBillRepository;

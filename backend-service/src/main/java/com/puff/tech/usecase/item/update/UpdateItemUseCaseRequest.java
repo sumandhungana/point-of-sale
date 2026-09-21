@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.item.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -24,5 +24,5 @@ public record UpdateItemUseCaseRequest(
         LocalDate vatDate,
         String photoPath
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

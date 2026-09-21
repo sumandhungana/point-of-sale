@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.rentalitem.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -18,5 +18,5 @@ public record UpdateRentalItemUseCaseRequest(
         LocalDate endDate,
         String remarks
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

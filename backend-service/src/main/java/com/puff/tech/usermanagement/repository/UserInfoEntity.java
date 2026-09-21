@@ -1,13 +1,12 @@
 package com.puff.tech.usermanagement.repository;
 
 import io.micronaut.core.annotation.Introspected;
-import io.micronaut.data.annotation.GeneratedValue;
-import io.micronaut.data.annotation.Id;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.data.annotation.Relation;
+import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.Instant;
 
 @Serdeable
 @Introspected
@@ -21,11 +20,20 @@ public class UserInfoEntity {
     private Long id;
 
     private String username;
+    private String userId;
     private String password;
     private Boolean enable;
     private String permission  = "USER";
     private String role = "ADMIN";
+    // Automatic creation timestamp
+    @DateCreated
+    private Instant createdAt;
 
-//    @Relation(value = Relation.Kind.ONE_TO_ONE, mappedBy = "user")
-//    private UserRegistrationEntity registrationInfo;
+    // Automatic update timestamp
+    @DateUpdated
+    private Instant updatedAt;
+
+    // Optional: User tracking fields if handled manually or via security listener
+    private String createdBy;
+    private String updatedBy;
 }

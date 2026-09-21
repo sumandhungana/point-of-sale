@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.expenses.getall;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -20,5 +20,5 @@ public record GetAllExpensesBookUseCaseResponse(
         String photoPath,
         Instant createdAt
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }

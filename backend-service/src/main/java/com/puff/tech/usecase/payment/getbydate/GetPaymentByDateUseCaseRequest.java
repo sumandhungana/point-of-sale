@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.payment.getbydate;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.time.LocalDate;
@@ -9,5 +9,5 @@ import java.time.LocalDate;
 public record GetPaymentByDateUseCaseRequest(
         LocalDate date
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

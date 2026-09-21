@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.income.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.IncomeRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
@@ -8,7 +8,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeleteIncomeUseCase implements UseCase<DeleteIncomeUseCaseRequest,DeleteIncomeUseCaseResponse> {
+public class DeleteIncomeUseCase implements UseCases<DeleteIncomeUseCaseRequest,DeleteIncomeUseCaseResponse> {
 
     private final IncomeRepository incomeRepository;
     private final KhataBookImplementation khataBookImplementation;

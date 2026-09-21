@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.transaction.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.TransactionRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
@@ -8,7 +8,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeleteTransactionUseCase implements UseCase<DeleteTransactionUseCaseRequest,DeleteTransactionUseCaseResponse> {
+public class DeleteTransactionUseCase implements UseCases<DeleteTransactionUseCaseRequest,DeleteTransactionUseCaseResponse> {
 
     private final TransactionRepository transactionRepository;
     private final KhataBookImplementation khataBookImplementation;

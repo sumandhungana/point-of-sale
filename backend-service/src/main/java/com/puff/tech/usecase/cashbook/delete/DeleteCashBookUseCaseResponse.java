@@ -1,8 +1,8 @@
 package com.puff.tech.usecase.cashbook.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 
 public record DeleteCashBookUseCaseResponse(
         String message
-) implements UseCase.UseCaseResponse {
+) implements UseCases.UseCaseResponse {
 }

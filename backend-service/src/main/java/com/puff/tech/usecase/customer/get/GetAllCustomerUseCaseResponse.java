@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.customer.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -19,5 +19,5 @@ public record GetAllCustomerUseCaseResponse(
         BigDecimal cashBalance,
         String profileImage
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }

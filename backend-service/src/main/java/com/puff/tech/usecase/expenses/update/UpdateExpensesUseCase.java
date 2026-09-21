@@ -1,17 +1,16 @@
 package com.puff.tech.usecase.expenses.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.core.utils.HelperUtils;
 import com.puff.tech.covertor.ExpensesConvertor;
 import com.puff.tech.entity.ExpensesEntity;
 import com.puff.tech.repository.ExpensesRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
-import io.micronaut.http.multipart.CompletedFileUpload;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class UpdateExpensesUseCase implements UseCase<UpdateExpensesUseCaseRequest, UpdateExpensesUseCaseResponse> {
+public class UpdateExpensesUseCase implements UseCases<UpdateExpensesUseCaseRequest, UpdateExpensesUseCaseResponse> {
 
     private final ExpensesRepository repository;
     private final KhataBookImplementation khataBookImplementation;

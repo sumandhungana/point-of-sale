@@ -1,8 +1,8 @@
 package com.puff.tech.usecase.khatabook.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 
 public record DeleteKhataBookUseCaseResponse(
         String message
-) implements UseCase.UseCaseResponse {
+) implements UseCases.UseCaseResponse {
 }

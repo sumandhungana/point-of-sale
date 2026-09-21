@@ -1,13 +1,13 @@
 package com.puff.tech.usecase.role.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.RoleRepository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeleteRoleUseCase implements UseCase<DeleteRoleUseCaseRequest,DeleteRoleUseCaseResponse> {
+public class DeleteRoleUseCase implements UseCases<DeleteRoleUseCaseRequest,DeleteRoleUseCaseResponse> {
 
     private final RoleRepository roleRepository;
 

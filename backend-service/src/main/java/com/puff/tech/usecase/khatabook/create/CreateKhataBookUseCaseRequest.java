@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.khatabook.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.domain.BusinessCategory;
 import com.puff.tech.domain.BusinessType;
 import io.micronaut.serde.annotation.Serdeable;
@@ -22,5 +22,5 @@ public record CreateKhataBookUseCaseRequest(
          boolean kyc,
          String imagePath
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

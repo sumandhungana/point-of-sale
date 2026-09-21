@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.supplier.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SupplierConvertor;
 import com.puff.tech.repository.SupplierRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateSupplierUseCase implements UseCase<CreateSupplierUseCaseRequest,CreateSupplierUseCaseResponse> {
+public class CreateSupplierUseCase implements UseCases<CreateSupplierUseCaseRequest,CreateSupplierUseCaseResponse> {
 
     private final SupplierRepository supplierRepository;
     private final KhataBookImplementation khataBookImplementation;

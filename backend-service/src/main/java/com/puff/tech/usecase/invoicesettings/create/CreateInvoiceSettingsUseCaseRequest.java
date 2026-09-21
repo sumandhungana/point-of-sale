@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.invoicesettings.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
@@ -41,5 +41,5 @@ public record CreateInvoiceSettingsUseCaseRequest(
         String companyNameTextSize,
         String invoiceTaxSize
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

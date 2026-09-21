@@ -1,13 +1,13 @@
 package com.puff.tech.usecase.permission.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.PermissionRepository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeletePermissionUseCase implements UseCase<DeletePermissionUseCaseRequest,DeletePermissionUseCaseResponse> {
+public class DeletePermissionUseCase implements UseCases<DeletePermissionUseCaseRequest,DeletePermissionUseCaseResponse> {
 
     private final PermissionRepository permissionRepository;
 

@@ -1,11 +1,11 @@
 package com.puff.tech.usecase.role.removepermission;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.RolePermissionRepository;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class RemovePermissionUseCase implements UseCase<RemovePermissionUseCaseRequest,RemovePermissionUseCaseResponse> {
+public class RemovePermissionUseCase implements UseCases<RemovePermissionUseCaseRequest,RemovePermissionUseCaseResponse> {
 
     private final RolePermissionRepository rolePermissionRepository;
 

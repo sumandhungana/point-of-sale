@@ -1,11 +1,9 @@
 package com.puff.tech.usecase.permission.getbymodule;
 
-import com.puff.tech.core.usecases.UseCase;
 import com.puff.tech.covertor.PermissionConvertor;
 import com.puff.tech.repository.PermissionRepository;
 import com.puff.tech.usecase.permission.get.GetPermissionUseCaseResponse;
 import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 public class GetPermissionByModuleUseCase {
 

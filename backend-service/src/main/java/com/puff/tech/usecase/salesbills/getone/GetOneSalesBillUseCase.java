@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.salesbills.getone;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SalesBillConvertor;
 import com.puff.tech.repository.SalesBillRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -8,7 +8,7 @@ import com.puff.tech.usecase.salesbills.get.GetSalesBillUseCaseResponse;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class GetOneSalesBillUseCase implements UseCase<GetOneSalesBillUseCaseRequest, GetSalesBillUseCaseResponse> {
+public class GetOneSalesBillUseCase implements UseCases<GetOneSalesBillUseCaseRequest, GetSalesBillUseCaseResponse> {
 
     private final SalesBillRepository salesBillRepository;
     private final KhataBookImplementation khataBookImplementation;

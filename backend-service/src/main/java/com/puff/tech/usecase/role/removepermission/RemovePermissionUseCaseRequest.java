@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.role.removepermission;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.List;
@@ -9,5 +9,5 @@ import java.util.List;
 public record RemovePermissionUseCaseRequest(
         Integer roleId,
         List<Integer> permissionIds
-)implements UseCase.UseCaseRequest {
+)implements UseCases.UseCaseRequest {
 }

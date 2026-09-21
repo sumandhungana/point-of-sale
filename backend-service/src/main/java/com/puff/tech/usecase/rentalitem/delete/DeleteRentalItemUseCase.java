@@ -1,12 +1,12 @@
 package com.puff.tech.usecase.rentalitem.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.RentalRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class DeleteRentalItemUseCase implements UseCase<DeleteRentalItemUseCaseRequest,DeleteRentalItemUseCaseResponse> {
+public class DeleteRentalItemUseCase implements UseCases<DeleteRentalItemUseCaseRequest,DeleteRentalItemUseCaseResponse> {
 
     private final RentalRepository rentalRepository;
     private final KhataBookImplementation khataBookImplementation;

@@ -21,7 +21,7 @@ public class JwtAuthMiddleware
     public async Task InvokeAsync(HttpContext context)
     {
         var path = context.Request.Path.Value?.ToLower();
-        if (path != null && (path.Contains("/api/user/login") || path.Contains("/api/user/logout")))
+        if (path != null && (path.Contains("/api/user/login") || path.Contains("api/v1/user/login") || path.Contains("/api/user/logout")))
         {
             await _next(context);
             return;

@@ -1,14 +1,12 @@
 package com.puff.tech.usermanagement.repository;
 
-import com.puff.tech.entity.UserEntity;
 import io.micronaut.core.annotation.Introspected;
-import io.micronaut.data.annotation.GeneratedValue;
-import io.micronaut.data.annotation.Id;
-import io.micronaut.data.annotation.MappedEntity;
-import io.micronaut.data.annotation.Relation;
+import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.Instant;
 
 
 @MappedEntity(value = "user_registrations")
@@ -33,5 +31,16 @@ public class UserRegistrationEntity {
     private String branch;
     private String organizationAddress;
     private String notes;
+    // Automatic creation timestamp
+    @DateCreated
+    private Instant createdAt;
+
+    // Automatic update timestamp
+    @DateUpdated
+    private Instant updatedAt;
+
+    // Optional: User tracking fields if handled manually or via security listener
+    private String createdBy;
+    private String updatedBy;
 
 }

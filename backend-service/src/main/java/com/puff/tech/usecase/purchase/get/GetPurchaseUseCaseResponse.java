@@ -1,11 +1,9 @@
 package com.puff.tech.usecase.purchase.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.entity.CategoryEntity;
 import com.puff.tech.entity.ItemEntity;
 import com.puff.tech.entity.KhataBookEntity;
-import io.micronaut.data.annotation.DateCreated;
-import io.micronaut.data.annotation.Relation;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -29,5 +27,5 @@ public record GetPurchaseUseCaseResponse(
             CategoryEntity category,
             ItemEntity item
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }

@@ -1,13 +1,13 @@
 package com.puff.tech.usecase.smsgateway.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SmsGatewayConvertor;
 import com.puff.tech.repository.SmsGatewayRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class UpdateSmsGatewayUseCase implements UseCase<UpdateSmsGatewayUseCaseRequest,UpdateSmsGatewayUseCaseResponse> {
+public class UpdateSmsGatewayUseCase implements UseCases<UpdateSmsGatewayUseCaseRequest,UpdateSmsGatewayUseCaseResponse> {
 
     private final SmsGatewayRepository smsGatewayRepository;
     private final KhataBookImplementation khataBookImplementation;

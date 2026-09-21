@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.permission.getone;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.PermissionConvertor;
 import com.puff.tech.repository.PermissionRepository;
 import com.puff.tech.usecase.permission.get.GetPermissionUseCaseResponse;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class GetOnePermissionUseCase implements UseCase<GetOnePermissionUseCaseRequest, GetPermissionUseCaseResponse> {
+public class GetOnePermissionUseCase implements UseCases<GetOnePermissionUseCaseRequest, GetPermissionUseCaseResponse> {
 
     private final PermissionRepository permissionRepository;
 

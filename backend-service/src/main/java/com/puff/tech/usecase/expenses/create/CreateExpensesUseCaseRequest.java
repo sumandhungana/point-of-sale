@@ -1,11 +1,10 @@
 package com.puff.tech.usecase.expenses.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Serdeable
@@ -19,5 +18,5 @@ public record CreateExpensesUseCaseRequest(
         CompletedFileUpload photoPath,
         String remarks
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.income.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -18,5 +18,5 @@ public record GetIncomeUseCaseResponse(
         String remarks,
         String photo
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }

@@ -1,11 +1,11 @@
 package com.puff.tech.controller;
 
 import com.puff.tech.core.responses.RestResponse;
-import com.puff.tech.usecase.auth.user.userlogin.LoginUserUseCase;
-import com.puff.tech.usecase.auth.user.userlogin.LoginUserUseCaseRequest;
-import com.puff.tech.usecase.auth.user.userlogin.LoginUserUseCaseResponse;
-import com.puff.tech.usecase.auth.user.userlogout.LogoutUserUseCase;
-import com.puff.tech.usecase.auth.user.userlogout.LogoutUserUseCaseResponse;
+import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCase;
+import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseRequest;
+import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseResponse;
+import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCase;
+import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCaseResponse;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -14,7 +14,7 @@ import io.micronaut.http.annotation.Post;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-@Controller("/api/v1")
+@Controller("/xapi/v1")
 public class AuthController {
 
     private final LoginUserUseCase loginUserUseCase;

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.role.getone;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.RoleConvertor;
 import com.puff.tech.repository.RoleRepository;
 import com.puff.tech.usecase.role.get.GetRoleUseCaseResponse;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class GetOneRoleUseCase implements UseCase<GetOneRoleUseCaseRequest, GetRoleUseCaseResponse> {
+public class GetOneRoleUseCase implements UseCases<GetOneRoleUseCaseRequest, GetRoleUseCaseResponse> {
 
     private final RoleRepository roleRepository;
 

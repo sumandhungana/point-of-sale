@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.salesbillitems.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -21,7 +21,7 @@ public record GetSalesBillItemUseCaseResponse(
         Instant createdAt,
         Instant updatedAt
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }
 
 

@@ -19,6 +19,9 @@ public record UserRegistrationReqPayload(
         @Email(message = "Invalid email format")
         String gmail,
 
+        @NotBlank(message = "Password is required")
+        String password,
+
         @NotBlank(message = "Organization name is required")
         String organizationName,
 

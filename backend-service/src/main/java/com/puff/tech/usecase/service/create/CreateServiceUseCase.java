@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.service.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.ServiceConvertor;
 import com.puff.tech.repository.ServiceRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateServiceUseCase implements UseCase<CreateServiceUseCaseRequest,CreateServiceUseCaseResponse> {
+public class CreateServiceUseCase implements UseCases<CreateServiceUseCaseRequest,CreateServiceUseCaseResponse> {
 
     private final ServiceRepository serviceRepository;
     private final KhataBookImplementation khataBookImplementation;

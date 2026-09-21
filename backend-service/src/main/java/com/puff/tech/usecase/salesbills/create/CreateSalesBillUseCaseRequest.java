@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.salesbills.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -17,5 +17,5 @@ public record CreateSalesBillUseCaseRequest(
         String photoPath
 
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

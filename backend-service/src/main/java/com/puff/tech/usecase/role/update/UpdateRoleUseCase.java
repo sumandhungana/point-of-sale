@@ -1,12 +1,12 @@
 package com.puff.tech.usecase.role.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.RoleConvertor;
 import com.puff.tech.repository.RoleRepository;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class UpdateRoleUseCase implements UseCase<UpdateRoleUseCaseRequest,UpdateRoleUseCaseResponse> {
+public class UpdateRoleUseCase implements UseCases<UpdateRoleUseCaseRequest,UpdateRoleUseCaseResponse> {
 
     private final RoleRepository roleRepository;
 

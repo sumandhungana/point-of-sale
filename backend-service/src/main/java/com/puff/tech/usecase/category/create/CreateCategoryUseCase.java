@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.category.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.CategoryConvertor;
 import com.puff.tech.repository.CategoryRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateCategoryUseCase implements UseCase<CreateCategoryUseCaseRequest, CreateCategoryUseCaseResponse> {
+public class CreateCategoryUseCase implements UseCases<CreateCategoryUseCaseRequest, CreateCategoryUseCaseResponse> {
 
     private final CategoryRepository categoryRepository;
     private final KhataBookImplementation khataBookImplementation;

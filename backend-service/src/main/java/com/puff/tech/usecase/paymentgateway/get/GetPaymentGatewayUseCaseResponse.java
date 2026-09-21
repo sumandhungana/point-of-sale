@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.paymentgateway.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.time.Instant;
@@ -19,5 +19,5 @@ public record GetPaymentGatewayUseCaseResponse(
         Instant createdAt,
         Instant updatedAt
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }

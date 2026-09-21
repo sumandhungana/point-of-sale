@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.supplier.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.SupplierRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
@@ -8,7 +8,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeleteSupplierUseCase implements UseCase<DeleteSupplierUseCaseRequest,DeleteSupplierUseCaseResponse> {
+public class DeleteSupplierUseCase implements UseCases<DeleteSupplierUseCaseRequest,DeleteSupplierUseCaseResponse> {
 
     private final SupplierRepository supplierRepository;
     private final KhataBookImplementation khataBookImplementation;

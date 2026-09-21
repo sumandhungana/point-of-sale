@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.item.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -23,5 +23,5 @@ public record GetItemUseCaseResponse(
         BigDecimal vatPercentageToday,
         LocalDate vatDate,
         String photo
-)implements UseCase.UseCaseResponse {
+)implements UseCases.UseCaseResponse {
 }

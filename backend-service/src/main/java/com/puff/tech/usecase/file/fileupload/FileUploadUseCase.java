@@ -1,13 +1,13 @@
 package com.puff.tech.usecase.file.fileupload;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.core.utils.HelperUtils;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class FileUploadUseCase implements UseCase<FileUploadUseCaseRequest, FileUploadUseCaseResponse> {
+public class FileUploadUseCase implements UseCases<FileUploadUseCaseRequest, FileUploadUseCaseResponse> {
 
     private final HelperUtils helperUtils;
 

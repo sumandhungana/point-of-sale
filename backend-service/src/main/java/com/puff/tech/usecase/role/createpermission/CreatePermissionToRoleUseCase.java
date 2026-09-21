@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.role.createpermission;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.entity.RolePermissionEntity;
 import com.puff.tech.repository.PermissionRepository;
 import com.puff.tech.repository.RolePermissionRepository;
@@ -8,7 +8,7 @@ import com.puff.tech.repository.RoleRepository;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class CreatePermissionToRoleUseCase implements UseCase<CreatePermissionToRoleUseCaseRequest, CreatePermissionToRoleUseCaseResponse> {
+public class CreatePermissionToRoleUseCase implements UseCases<CreatePermissionToRoleUseCaseRequest, CreatePermissionToRoleUseCaseResponse> {
 
     private final RoleRepository roleRepository;
     private final PermissionRepository permissionRepository;

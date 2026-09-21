@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.rentalitem.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.RentalItemConvertor;
 import com.puff.tech.repository.RentalRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateRentalItemUseCase implements UseCase<CreateRentalItemUseCaseRequest,CreateRentalItemUseCaseResponse> {
+public class CreateRentalItemUseCase implements UseCases<CreateRentalItemUseCaseRequest,CreateRentalItemUseCaseResponse> {
 
     private final RentalRepository rentalRepository;
     private final KhataBookImplementation khataBookImplementation;

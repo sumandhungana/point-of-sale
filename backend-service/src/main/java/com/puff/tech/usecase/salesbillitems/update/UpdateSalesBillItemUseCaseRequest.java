@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.salesbillitems.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
@@ -15,5 +15,5 @@ public record UpdateSalesBillItemUseCaseRequest(
         BigDecimal discount,
         BigDecimal tax
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

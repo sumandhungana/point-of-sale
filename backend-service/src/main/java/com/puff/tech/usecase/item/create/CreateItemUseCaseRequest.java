@@ -1,10 +1,9 @@
 package com.puff.tech.usecase.item.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.LocalDate;
 
 @Serdeable
@@ -24,5 +23,5 @@ public record CreateItemUseCaseRequest(
         LocalDate vatDate,
         String photoPath
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.salesbillitems.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.entity.SalesBillEntity;
 import com.puff.tech.repository.SalesBillItemRepository;
 import com.puff.tech.repository.SalesBillRepository;
@@ -10,7 +10,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeleteSalesBillItemUseCase implements UseCase<DeleteSalesBillItemUseCaseRequest,DeleteSalesBillItemUseCaseResponse> {
+public class DeleteSalesBillItemUseCase implements UseCases<DeleteSalesBillItemUseCaseRequest,DeleteSalesBillItemUseCaseResponse> {
 
     private final SalesBillRepository salesBillRepository;
     private final SalesBillItemRepository salesBillItemRepository;

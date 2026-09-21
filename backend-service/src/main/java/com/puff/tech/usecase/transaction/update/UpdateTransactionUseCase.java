@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.transaction.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.TransactionConvertor;
 import com.puff.tech.repository.TransactionRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class UpdateTransactionUseCase implements UseCase<UpdateTransactionUseCaseRequest,UpdateTransactionUseCaseResponse> {
+public class UpdateTransactionUseCase implements UseCases<UpdateTransactionUseCaseRequest,UpdateTransactionUseCaseResponse> {
 
     private final TransactionRepository transactionRepository;
     private final KhataBookImplementation khataBookImplementation;

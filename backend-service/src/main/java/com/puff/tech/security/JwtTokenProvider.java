@@ -5,15 +5,16 @@ import com.nimbusds.jwt.SignedJWT;
 import jakarta.inject.Singleton;
 
 import java.text.ParseException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 @Singleton
 public class JwtTokenProvider {
 
-    @SuppressWarnings("unchecked")
     public UserSecurityContext extractSecurityContext(String token) {
+        if (token == null || token.isBlank()) {
+            return null;
+        }
+
         try {
             SignedJWT signedJWT = SignedJWT.parse(token);
             JWTClaimsSet claims = signedJWT.getJWTClaimsSet();
@@ -21,18 +22,30 @@ public class JwtTokenProvider {
             // Extract Username (standard 'sub' claim)
             String username = claims.getSubject();
 
-            // Extract Roles (e.g., custom "roles" claim array)
-            List<String> roles = Optional.ofNullable((List<String>) claims.getClaim("roles"))
-                    .orElse(Collections.emptyList());
+            // Safely extract userId
+            String userId = Optional.ofNullable(claims.getClaim("userId"))
+                    .map(Object::toString)
+                    .orElse("");
 
-            // Extract Permissions (e.g., custom "permissions" claim array)
-            List<String> permissions = Optional.ofNullable((List<String>) claims.getClaim("permissions"))
-                    .orElse(Collections.emptyList());
+            // Safely extract roles (handles String or List/Array toString conversion)
+            String roles = Optional.ofNullable(claims.getClaim("roles"))
+                    .map(Object::toString)
+                    .orElse("");
 
-            return new UserSecurityContext(username, roles, permissions);
+            // Safely extract permissions
+            String permissions = Optional.ofNullable(claims.getClaim("permissions"))
+                    .map(Object::toString)
+                    .orElse("");
+
+            // Safely extract enabled flag
+            boolean enabled = Optional.ofNullable(claims.getBooleanClaim("enabled"))
+                    .orElse(false);
+
+            return new UserSecurityContext(username, userId, roles, permissions, enabled);
 
         } catch (ParseException e) {
-            throw new IllegalArgumentException("Invalid or malformed JWT token", e);
+            // Return null on malformed tokens so downstream pipeline receives empty context instead of crashing
+            return null;
         }
     }
 }

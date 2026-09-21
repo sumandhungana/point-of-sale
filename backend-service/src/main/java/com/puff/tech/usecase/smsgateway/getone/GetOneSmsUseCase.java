@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.smsgateway.getone;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SmsGatewayConvertor;
 import com.puff.tech.repository.SmsGatewayRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -8,7 +8,7 @@ import com.puff.tech.usecase.smsgateway.get.GetSmsGatewayUseCaseResponse;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class GetOneSmsUseCase implements UseCase<GetOneSmsUseCaseRequest, GetSmsGatewayUseCaseResponse> {
+public class GetOneSmsUseCase implements UseCases<GetOneSmsUseCaseRequest, GetSmsGatewayUseCaseResponse> {
 
     private final SmsGatewayRepository smsGatewayRepository;
     private final KhataBookImplementation khataBookImplementation;

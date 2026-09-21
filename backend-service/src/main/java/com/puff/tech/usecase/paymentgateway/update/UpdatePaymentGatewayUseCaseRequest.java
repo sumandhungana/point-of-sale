@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.paymentgateway.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
@@ -14,5 +14,5 @@ public record UpdatePaymentGatewayUseCaseRequest(
         String verificationUrl,
         String publicKey,
         String secretKey
-) implements UseCase.UseCaseRequest {
+) implements UseCases.UseCaseRequest {
 }

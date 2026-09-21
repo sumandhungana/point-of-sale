@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.invoicesettings.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.InvoiceSettingRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
@@ -8,7 +8,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeleteInvoiceSettingUseCase implements UseCase<DeleteInvoiceSettingUseCaseRequest,DeleteInvoiceSettingUseCaseResponse> {
+public class DeleteInvoiceSettingUseCase implements UseCases<DeleteInvoiceSettingUseCaseRequest,DeleteInvoiceSettingUseCaseResponse> {
 
     private final InvoiceSettingRepository invoiceSettingRepository;
     private final KhataBookImplementation khataBookImplementation;

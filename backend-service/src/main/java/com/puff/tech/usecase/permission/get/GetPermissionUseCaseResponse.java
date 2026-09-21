@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.permission.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.entity.RolePermissionEntity;
 import jakarta.inject.Singleton;
 
@@ -16,5 +16,5 @@ public record GetPermissionUseCaseResponse(
         Instant updatedAt,
         List<RolePermissionEntity> rolePermissions
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }

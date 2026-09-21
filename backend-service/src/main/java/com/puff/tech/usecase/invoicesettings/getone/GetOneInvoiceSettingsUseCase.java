@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.invoicesettings.getone;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.InvoiceSettingsConvertor;
 import com.puff.tech.repository.InvoiceSettingRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -10,7 +10,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class GetOneInvoiceSettingsUseCase implements UseCase<GetOneInvoiceSettingsUseCaseRequest, GetInvoiceSettingsUseCaseResponse> {
+public class GetOneInvoiceSettingsUseCase implements UseCases<GetOneInvoiceSettingsUseCaseRequest, GetInvoiceSettingsUseCaseResponse> {
 
     private final InvoiceSettingRepository invoiceSettingRepository;
     private final KhataBookImplementation khataBookImplementation;

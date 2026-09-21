@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.bill.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.BillConvertor;
 import com.puff.tech.repository.BillRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateBillUseCase implements UseCase<CreateBillUseCaseRequest,CreateBillUseCaseResponse> {
+public class CreateBillUseCase implements UseCases<CreateBillUseCaseRequest,CreateBillUseCaseResponse> {
 
 
     private final BillRepository billRepository;

@@ -1,7 +1,8 @@
-import { useLocalStorage } from '@/hooks/useLocalStorage';
+// import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { createContext, ReactNode, useContext, useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
+import {apiService} from "@/infrastructure/utils/ApiService";
 
 interface IAuthContext {
   user: AppUser | null;
@@ -10,6 +11,35 @@ interface IAuthContext {
   isAuthenticated: boolean;
   updateUser: (userData: Partial<AppUser>) => void;
   fetchUserProfile: () => Promise<void>;
+}
+export interface UserInfo {
+  id: number;
+  userId: string;
+  userName: string;
+  email: string;
+  enabled: string;
+  imagePath: string;
+  subscriptionType: string;
+  subscriptionStartDate: string;
+  subscriptionEndDate: string;
+  isSubscriptionActive: boolean;
+  hasUsedTrial: boolean;
+  subscriptionStatus: string;
+  permission: string[];
+  role: string;
+}
+
+export interface LoginUserUseCaseResponse {
+  token: string;
+  message: string;
+  userInfo: UserInfo;
+}
+
+interface RestResponse<T> {
+  status?: string;
+  data?: T;
+  message?: string;
+  error?: string;
 }
 
 const AuthContext = createContext<IAuthContext | undefined>(undefined);
@@ -115,10 +145,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (username: string, password: string) => {
     try {
       const response = await ApiClient.login(username, password);
-      const token = response.token;
-      localStorage.setItem(TOKEN_KEY, token);
+      const token = response?.token?.toString();
+      if (token) {
+        localStorage.setItem(TOKEN_KEY, token);
+        const decoded = jwtDecode<JwtPayload>(token);
+        // ... process decoded token
+
+      // localStorage.setItem(TOKEN_KEY, token);
       
-      const decoded = jwtDecode<JwtPayload>(token);
+      // const decoded = jwtDecode<JwtPayload>(token);
       
       console.log('🔐 Login response:', response);
       
@@ -127,17 +162,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         id: decoded.nameid,
         username: decoded.unique_name,
         role: decoded.role,
-        name: response.name || decoded.unique_name,
-        email: response.email || '',
-        imagePath: response.imagePath || response.profileImage || null,
-        profileImage: response.imagePath || response.profileImage || null,
-        branch: response.branch || '',
-        company: response.company || '',
-        phone: response.phone || '',
-        address: response.address || '',
-        pan: response.pan || '',
-        remarks: response.remarks || '',
-        enable: response.enable !== undefined ? response.enable : true,
+        name: response?.userInfo.userName || decoded.unique_name,
+        // name: response.name || decoded.unique_name,
+        email: response?.userInfo.email || '',
+
+        imagePath: response?.userInfo.imagePath || null,
+        profileImage: response?.userInfo.imagePath  || null,
+        // branch: response?.userInfo.branch || '',
+        // company: response?.userInfo.company || '',
+        // phone: response?.userInfo.phone || '',
+        // address: response?.userInfo.address || '',
+        // pan: response?.userInfo.pan || '',
+        // remarks: response?.userInfo.remarks || '',
+        // enable: response?.userInfo.enabled !== undefined ? : true,
       };
       
       console.log('👤 Initial user data:', userData);
@@ -149,7 +186,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       // Fetch full user profile to get image
       await fetchUserProfile();
-      
+      } else {
+        console.error('Login failed: Token is missing from response');
+      }
     } catch (error) {
       console.error('Login error:', error);
       throw error;
@@ -202,9 +241,16 @@ export const useAuth = () => {
 
 export const ApiClient = {
   login: async (username: string, password: string) => {
-    const response = await axios.post('/api/User/login', { username, password });
-    return response.data;
+    // const response = await axios.post('/api/User/login', { username, password });
+    // return response.data;
+    const res = await apiService.post<RestResponse<LoginUserUseCaseResponse>>(
+        'api/v1/user/login',
+        { username, password }
+    );
+    return res?.response?.data
+
   },
+
   logout: async (token: string) => {
     await axios.post('/api/User/logout', {}, {
       headers: { Authorization: `Bearer ${token}` }

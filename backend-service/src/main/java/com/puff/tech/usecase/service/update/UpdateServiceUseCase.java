@@ -1,13 +1,13 @@
 package com.puff.tech.usecase.service.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.ServiceConvertor;
 import com.puff.tech.repository.ServiceRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class UpdateServiceUseCase implements UseCase<UpdateServiceUseCaseRequest,UpdateServiceUseCaseResponse> {
+public class UpdateServiceUseCase implements UseCases<UpdateServiceUseCaseRequest,UpdateServiceUseCaseResponse> {
 
     private final ServiceRepository serviceRepository;
     private final KhataBookImplementation khataBookImplementation;

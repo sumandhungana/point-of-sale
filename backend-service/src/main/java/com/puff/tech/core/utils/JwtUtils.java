@@ -3,10 +3,13 @@ package com.puff.tech.core.utils;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.MacAlgorithm;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,25 +20,38 @@ public class JwtUtils {
 
     private static final ConcurrentHashMap<String, Instant> blacklist = new ConcurrentHashMap<>();
     private static final MacAlgorithm ALGORITHM= Jwts.SIG.HS256;
-    private static final SecretKey SECRET_KEY= ALGORITHM.key().build();
+//    private static final SecretKey SECRET_KEY= ALGORITHM.key().build();
     private static final Long EXPIRATION= (long) (1000*60*60);
+    private static final String keyString ="NKJNTYUIHTUYHBTGYFJBSDANIAUSD";
 
-    public static String generateToken(String subject, String permission){
+    private static SecretKey generateSecretKey() {
+        byte[] keyBytes = JwtUtils.keyString.getBytes(StandardCharsets.UTF_8);
+        if (keyBytes.length < 32) {
+            keyBytes = Arrays.copyOf(keyBytes, 32); // pads with 0s to 32 bytes
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
+    public static String generateToken(JwtTokenInfo jwtTokenInfo){
         String jti= UUID.randomUUID().toString();
+
         return Jwts.builder()
-                .subject(subject)
-                .claim("permission",permission)
-                .setId(jti)
+                .subject(jwtTokenInfo.subject())
+                .claim("enabled", jwtTokenInfo.enabled())
+                .claim("permissions",jwtTokenInfo.permission())
+                .claim("userId", jwtTokenInfo.userId())
+                .claim("roles", jwtTokenInfo.role())
+                .id(jti)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+EXPIRATION))
-                .signWith(SECRET_KEY)
+                .signWith(generateSecretKey())
                 .compact();
     }
 
     public static Boolean isTokenExpired(String token){
         try{
             Date expirationDate= Jwts.parser()
-                    .verifyWith(SECRET_KEY)
+                    .verifyWith(generateSecretKey())
                     .build()
                     .parseSignedClaims(token)
                     .getPayload()
@@ -60,7 +76,7 @@ public class JwtUtils {
 
    public static String extractSubjectFromToken(String token) {
         return Jwts.parser()
-                .verifyWith(SECRET_KEY)
+                .verifyWith(generateSecretKey())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload()
@@ -90,7 +106,7 @@ public class JwtUtils {
     }
    public static Claims getClaims(String token) throws JwtException {
         return Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+                .setSigningKey(generateSecretKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

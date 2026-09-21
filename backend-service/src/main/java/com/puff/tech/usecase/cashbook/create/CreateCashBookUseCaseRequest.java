@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.cashbook.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.http.multipart.CompletedFileUpload;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotNull;
@@ -19,5 +19,5 @@ public record CreateCashBookUseCaseRequest(
         String remarks,
         CompletedFileUpload photo
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

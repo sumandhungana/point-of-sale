@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.payment.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.PaymentConvertor;
 import com.puff.tech.repository.PaymentRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreatePaymentUseCase implements UseCase<CreatePaymentUseCaseRequest,CreatePaymentUseCaseResponse> {
+public class CreatePaymentUseCase implements UseCases<CreatePaymentUseCaseRequest,CreatePaymentUseCaseResponse> {
 
     private final PaymentRepository paymentRepository;
     private final KhataBookImplementation khataBookImplementation;

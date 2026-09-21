@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.paymentgateway.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.PaymentGatewayConvertor;
 import com.puff.tech.repository.PaymentGatewayRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreatePaymentGatewayUseCase implements UseCase<CreatePaymentGatewayUseCaseRequest,CreatePaymentGatewayUseCaseResponse> {
+public class CreatePaymentGatewayUseCase implements UseCases<CreatePaymentGatewayUseCaseRequest,CreatePaymentGatewayUseCaseResponse> {
 
     private final PaymentGatewayRepository paymentGatewayRepository;
     private final KhataBookImplementation khataBookImplementation;

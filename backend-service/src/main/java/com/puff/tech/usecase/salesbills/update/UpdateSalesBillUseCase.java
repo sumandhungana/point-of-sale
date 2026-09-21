@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.salesbills.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SalesBillConvertor;
 import com.puff.tech.repository.SalesBillRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
@@ -9,7 +9,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class UpdateSalesBillUseCase implements UseCase<UpdateSalesBillUseCaseRequest, UpdateSalesBillUseCaseResponse> {
+public class UpdateSalesBillUseCase implements UseCases<UpdateSalesBillUseCaseRequest, UpdateSalesBillUseCaseResponse> {
 
     private final SalesBillRepository salesBillRepository;
     private final KhataBookImplementation khataBookImplementation;

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.purchase.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.PurchaseConvertor;
 import com.puff.tech.repository.CategoryRepository;
 import com.puff.tech.repository.ItemRepository;
@@ -11,7 +11,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreatePurchaseUseCase implements UseCase<CreatePurchaseUseCaseRequest,CreatePurchaseUseCaseResponse> {
+public class CreatePurchaseUseCase implements UseCases<CreatePurchaseUseCaseRequest,CreatePurchaseUseCaseResponse> {
 
     private final PurchaseRepository purchaseRepository;
     private final CategoryRepository categoryRepository;

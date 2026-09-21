@@ -1,12 +1,12 @@
 package com.puff.tech.usecase.permission.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.PermissionConvertor;
 import com.puff.tech.repository.PermissionRepository;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class UpdatePermissionUseCase implements UseCase<UpdatePermissionUseCaseRequest,UpdatePermissionUseCaseResponse> {
+public class UpdatePermissionUseCase implements UseCases<UpdatePermissionUseCaseRequest,UpdatePermissionUseCaseResponse> {
 
     private final PermissionRepository permissionRepository;
 

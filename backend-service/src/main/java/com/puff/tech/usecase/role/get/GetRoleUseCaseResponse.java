@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.role.get;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.entity.RolePermissionEntity;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -17,5 +17,5 @@ public record GetRoleUseCaseResponse(
         Instant updatedAt,
         List<RolePermissionEntity> rolePermissionEntity
 )
-implements UseCase.UseCaseResponse {
+implements UseCases.UseCaseResponse {
 }

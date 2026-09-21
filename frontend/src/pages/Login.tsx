@@ -16,6 +16,8 @@ type UserFormType = {
   userName: string;
   phoneNumber: string;
   gmail: string;
+  password: string,
+  confirmPassword: string,
   organizationName: string;
   organizationAddress: string;
   panVatNumber: string;
@@ -56,6 +58,8 @@ export const Login = () => {
     userName: '',
     phoneNumber: '',
     gmail: '',
+    password: '',
+    confirmPassword: '',
     organizationName: '',
     organizationAddress: '',
     panVatNumber: '',
@@ -124,10 +128,26 @@ export const Login = () => {
     setRegistrationError('');
     setRegistrationSuccess('');
 
+    const passwordRegex =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+
+    if (!passwordRegex.test(userForm.password)) {
+      setRegistrationError(
+          'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.'
+      );
+      return;
+    }
+
+    if (userForm.password !== userForm.confirmPassword) {
+      setRegistrationError('Password and Confirm Password do not match.');
+      return;
+    }
+
     const payload = {
       userName: userForm.userName,
       phoneNumber: userForm.phoneNumber,
       gmail: userForm.gmail,
+      password: userForm.password,
       organizationName: userForm.organizationName,
       branch: userForm.branch || undefined,
       panVatNumber: userForm.panVatNumber || undefined,
@@ -137,7 +157,7 @@ export const Login = () => {
     };
 
     const res = await apiService.post<RestResponse<UserRegistrationUcResponse>>(
-        'api/v1/register',
+        'api/v1/user/register',
         payload
     );
 
@@ -161,6 +181,8 @@ export const Login = () => {
         userName: '',
         phoneNumber: '',
         gmail: '',
+        password: '',
+        confirmPassword: '',
         organizationName: '',
         organizationAddress: '',
         panVatNumber: '',

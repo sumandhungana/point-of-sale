@@ -1,6 +1,5 @@
 package com.puff.tech.usecase.khatabook.update;
 
-import com.puff.tech.core.usecases.UseCase;
 import com.puff.tech.covertor.KhataBookConvertor;
 import com.puff.tech.repository.KhataBookRepository;
 import jakarta.inject.Singleton;

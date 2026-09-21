@@ -4,6 +4,8 @@ type UserFormType = {
     userName: string;
     phoneNumber: string;
     gmail: string;
+    password: string;
+    confirmPassword: string;
     organizationName: string;
     organizationAddress: string;
     panVatNumber: string;
@@ -125,6 +127,50 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                                 </div>
                             </div>
 
+                            {/* Password */}
+                            <div className="registration-field">
+                                <label>
+                                    Password <span>*</span>
+                                </label>
+
+                                <div className="registration-input-wrapper">
+                                    <i className="bi bi-lock"></i>
+
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        value={userForm.password}
+                                        onChange={onInputChange}
+                                        placeholder="Enter password"
+                                        minLength={8}
+                                        pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}"
+                                        title="Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character."
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Confirm Password */}
+                            <div className="registration-field">
+                                <label>
+                                    Confirm Password <span>*</span>
+                                </label>
+
+                                <div className="registration-input-wrapper">
+                                    <i className="bi bi-lock-fill"></i>
+
+                                    <input
+                                        type="password"
+                                        name="confirmPassword"
+                                        value={userForm.confirmPassword}
+                                        onChange={onInputChange}
+                                        placeholder="Re-enter password"
+                                        minLength={8}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
                             {/* Organization */}
                             <div className="registration-field">
                                 <label>
@@ -197,25 +243,23 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                                     </select>
                                 </div>
                             </div>
-
-                            {/* Address */}
-                            <div className="registration-field registration-field-full">
+                            <div className="registration-field">
                                 <label>
                                     Organization Address <span>*</span>
                                 </label>
-                                <div className="registration-textarea-wrapper">
+                                <div className="registration-input-wrapper">
                                     <i className="bi bi-geo-alt"></i>
-                                    <textarea
+                                    <input
+                                        type="text"
                                         name="organizationAddress"
                                         value={userForm.organizationAddress}
                                         onChange={onInputChange}
                                         placeholder="Enter organization address"
-                                        rows={2}
+                                        // rows={2}
                                         required
                                     />
                                 </div>
                             </div>
-
                             {/* Notes / Remarks */}
                             <div className="registration-field registration-field-full">
                                 <label>Notes / Remarks</label>

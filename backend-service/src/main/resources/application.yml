@@ -41,3 +41,9 @@ r2dbc:
       username: root
       password: root
       url: r2dbc:pool:postgresql://localhost:5432/khatabook
+
+logger:
+  levels:
+    io.micronaut.data.query: DEBUG
+    io.micronaut.data.r2dbc: DEBUG
+    io.r2dbc.postgresql.QUERY: DEBUG

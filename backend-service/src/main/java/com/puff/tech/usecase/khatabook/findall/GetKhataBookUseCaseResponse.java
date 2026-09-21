@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.khatabook.findall;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.domain.BusinessCategory;
 import com.puff.tech.domain.BusinessType;
 import io.micronaut.serde.annotation.Serdeable;
@@ -21,5 +21,5 @@ public record GetKhataBookUseCaseResponse(
         String bookAccount,
         boolean kyc,
         String imagePath
-) implements UseCase.UseCaseResponse {
+) implements UseCases.UseCaseResponse {
 }

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.khatabook.selected;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
@@ -10,5 +10,5 @@ public record SelectedKhataBookUseCaseResponse(
         String name,
         String email
 
-)implements UseCase.UseCaseResponse {
+)implements UseCases.UseCaseResponse {
 }

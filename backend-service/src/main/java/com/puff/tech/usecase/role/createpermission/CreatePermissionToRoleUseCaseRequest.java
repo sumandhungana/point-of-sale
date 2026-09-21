@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.role.createpermission;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.util.List;
@@ -10,5 +10,5 @@ public record CreatePermissionToRoleUseCaseRequest(
         Integer roleId,
         List<Integer> permissionIds
 )
-implements UseCase.UseCaseRequest {
+implements UseCases.UseCaseRequest {
 }

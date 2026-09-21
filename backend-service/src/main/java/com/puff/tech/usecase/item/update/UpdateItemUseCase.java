@@ -1,13 +1,13 @@
 package com.puff.tech.usecase.item.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.ItemConvertor;
 import com.puff.tech.repository.ItemRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
-public class UpdateItemUseCase implements UseCase<UpdateItemUseCaseRequest,UpdateItemUseCaseResponse> {
+public class UpdateItemUseCase implements UseCases<UpdateItemUseCaseRequest,UpdateItemUseCaseResponse> {
 
     private final ItemRepository itemRepository;
     private final KhataBookImplementation khataBookImplementation;

@@ -1,27 +1,38 @@
 package com.puff.tech.usermanagement.controller;
 
 import com.puff.tech.core.responses.RestResponse;
-import com.puff.tech.usecase.user.add.AddUserUseCaseRequest;
-import com.puff.tech.usecase.user.add.AddUserUseCaseResponse;
+import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCase;
+import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseRequest;
+import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseResponse;
+import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCase;
+import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCaseResponse;
 import com.puff.tech.usermanagement.controller.converter.UserEnrollmentConverter;
 import com.puff.tech.usermanagement.controller.payload.UserRegistrationReqPayload;
-import com.puff.tech.usermanagement.usecase.UserRegistrationUcResponse;
-import com.puff.tech.usermanagement.usecase.UserRegistrationUseCase;
+import com.puff.tech.usermanagement.usecase.registration.UserRegistrationUcResponse;
+import com.puff.tech.usermanagement.usecase.registration.UserRegistrationUseCase;
+import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Header;
 import io.micronaut.http.annotation.Post;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
 
-@Controller("/api/v1")
+@Controller("/api/v1/user")
 public class UserEnrollmentController {
 
     private final UserRegistrationUseCase userRegistrationUseCase;
+    private final LoginUserUseCase loginUserUseCase;
+    private final LogoutUserUseCase logoutUserUseCase;
 
     @Inject
-    UserEnrollmentController(UserRegistrationUseCase userRegistrationUseCases) {
+    UserEnrollmentController(UserRegistrationUseCase userRegistrationUseCases,
+                             LoginUserUseCase loginUserUseCase,
+                             LogoutUserUseCase logoutUserUseCase) {
         this.userRegistrationUseCase = userRegistrationUseCases;
+        this.loginUserUseCase = loginUserUseCase;
+        this.logoutUserUseCase = logoutUserUseCase;
     }
 
     @Post("/register")
@@ -29,5 +40,22 @@ public class UserEnrollmentController {
         return userRegistrationUseCase.execute(UserEnrollmentConverter.toUcRequest(payload))
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
+    }
+
+    @Post("login")
+    public Mono<RestResponse<LoginUserUseCaseResponse>> login(@Body LoginUserUseCaseRequest request){
+        return loginUserUseCase.execute(request)
+                .map(RestResponse::success)
+                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
+    }
+
+    @Post("/logout")
+    public Mono<RestResponse<LogoutUserUseCaseResponse>> logout(@Header(HttpHeaders.AUTHORIZATION)
+                                                                String authorization){
+        return Mono.justOrEmpty(authorization)
+                .switchIfEmpty(Mono.error(new Throwable("Unauthorized")))
+                .flatMap(logoutUserUseCase::execute)
+                .map(RestResponse::success)
+                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 }

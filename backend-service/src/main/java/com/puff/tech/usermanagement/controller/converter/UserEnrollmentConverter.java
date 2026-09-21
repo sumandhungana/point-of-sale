@@ -1,10 +1,30 @@
 package com.puff.tech.usermanagement.controller.converter;
 
 import com.puff.tech.usermanagement.controller.payload.UserRegistrationReqPayload;
-import com.puff.tech.usermanagement.usecase.UserRegistrationUcRequest;
+import com.puff.tech.usermanagement.usecase.registration.UserRegistrationUcRequest;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class UserEnrollmentConverter {
     private UserEnrollmentConverter(){}
+
+    private static final AtomicInteger counter = new AtomicInteger(0);
+
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyyMMdd-HHmmssSSS");
+
+    public static String generateUserId() {
+        int sequence = counter.getAndUpdate(i -> (i + 1) % 26);
+
+        char prefix = (char) ('A' + sequence);
+
+        String timestamp = LocalDateTime.now().format(FORMATTER);
+
+        return prefix + "-" + timestamp;
+    }
+
 
     public static UserRegistrationUcRequest toUcRequest(UserRegistrationReqPayload payload) {
         return new UserRegistrationUcRequest(
@@ -17,8 +37,8 @@ public class UserEnrollmentConverter {
                 payload.organizationType(),
                 payload.organizationAddress(),
                 payload.notes(),
-                "testPassword",
-                "testUserId"
+                payload.password(),
+                generateUserId()
         );
     }
 }

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.smsgateway.delete;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.repository.SmsGatewayRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
@@ -8,7 +8,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class DeleteSmsGatewayUseCase implements UseCase<DeleteSmsGatewayUseCaseRequest,DeleteSmsGatewayUseCaseResponse> {
+public class DeleteSmsGatewayUseCase implements UseCases<DeleteSmsGatewayUseCaseRequest,DeleteSmsGatewayUseCaseResponse> {
 
     private final SmsGatewayRepository smsGatewayRepository;
     private final KhataBookImplementation khataBookImplementation;

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.khatabook.update;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.domain.BusinessCategory;
 import com.puff.tech.domain.BusinessType;
 import io.micronaut.serde.annotation.Serdeable;
@@ -21,5 +21,5 @@ public record UpdateKhataBookUseCaseRequest(
         String bookAccount,
         boolean kyc,
         String imagePath
-) implements UseCase.UseCaseRequest {
+) implements UseCases.UseCaseRequest {
 }

@@ -1,6 +1,6 @@
 package com.puff.tech.usecase.salesbills.create;
 
-import com.puff.tech.core.usecases.UseCase;
+import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SalesBillConvertor;
 import com.puff.tech.repository.CustomerRepository;
 import com.puff.tech.repository.SalesBillRepository;
@@ -10,7 +10,7 @@ import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class CreateSalesBillUseCase implements UseCase<CreateSalesBillUseCaseRequest,CreateSalesBillUseCaseResponse> {
+public class CreateSalesBillUseCase implements UseCases<CreateSalesBillUseCaseRequest,CreateSalesBillUseCaseResponse> {
 
     private final SalesBillRepository salesBillRepository;
     private final CustomerRepository customerRepository;
