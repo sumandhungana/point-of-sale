@@ -6,5 +6,6 @@ public record JwtTokenInfo(
         String userName,
         String role,
         String permission,
-        boolean enabled) {
+        boolean enabled,
+        String memberId) {
 }

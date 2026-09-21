@@ -1,7 +1,9 @@
-package com.puff.tech.usermanagement.usecase.userlogin;
+package com.puff.tech.onboarding.usecase.userlogin;
 
+import com.puff.tech.core.usecases.UCResponse;
 import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
+import lombok.Builder;
 
 @Serdeable
 public record LoginUserUseCaseResponse(
@@ -10,8 +12,9 @@ public record LoginUserUseCaseResponse(
         UserInfo userInfo
 
 )
-implements UseCases.UseCaseResponse {
+implements UCResponse {
     @Serdeable
+    @Builder
     record UserInfo(
             Long id,
             String userId,
@@ -24,8 +27,11 @@ implements UseCases.UseCaseResponse {
             boolean isSubscriptionActive,
             boolean hasUsedTrial,
             String subscriptionStatus,
-            String[] permission,
-            String role
+            String permission,
+            String role,
+            String memberId,
+            String organizationName,
+            boolean enabled
                    ) {}
 
 }

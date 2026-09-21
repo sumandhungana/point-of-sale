@@ -1,4 +1,4 @@
-package com.puff.tech.usermanagement.repository;
+package com.puff.tech.onboarding.repository;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;

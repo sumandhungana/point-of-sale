@@ -1,15 +1,15 @@
-package com.puff.tech.usermanagement.controller;
+package com.puff.tech.onboarding.controller;
 
 import com.puff.tech.core.responses.RestResponse;
-import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCase;
-import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseRequest;
-import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseResponse;
-import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCase;
-import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCaseResponse;
-import com.puff.tech.usermanagement.controller.converter.UserEnrollmentConverter;
-import com.puff.tech.usermanagement.controller.payload.UserRegistrationReqPayload;
-import com.puff.tech.usermanagement.usecase.registration.UserRegistrationUcResponse;
-import com.puff.tech.usermanagement.usecase.registration.UserRegistrationUseCase;
+import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCase;
+import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseRequest;
+import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseResponse;
+import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCase;
+import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseResponse;
+import com.puff.tech.onboarding.controller.converter.UserEnrollmentConverter;
+import com.puff.tech.onboarding.controller.payload.UserRegistrationReqPayload;
+import com.puff.tech.onboarding.usecase.registration.UserRegistrationUcResponse;
+import com.puff.tech.onboarding.usecase.registration.UserRegistrationUseCase;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;

@@ -38,7 +38,7 @@ r2dbc:
       schema-generate: CREATE
       dialect: POSTGRES
       db-type: postgres
-      username: root
+      username: postgres
       password: root
       url: r2dbc:pool:postgresql://localhost:5432/khatabook
 

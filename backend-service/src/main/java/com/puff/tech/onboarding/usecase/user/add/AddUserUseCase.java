@@ -1,4 +1,4 @@
-package com.puff.tech.usermanagement.usecase.user.add;
+package com.puff.tech.onboarding.usecase.user.add;
 
 import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.UserConvertor;

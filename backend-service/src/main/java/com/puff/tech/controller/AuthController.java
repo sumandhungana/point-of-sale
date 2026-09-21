@@ -1,11 +1,11 @@
 package com.puff.tech.controller;
 
 import com.puff.tech.core.responses.RestResponse;
-import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCase;
-import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseRequest;
-import com.puff.tech.usermanagement.usecase.userlogin.LoginUserUseCaseResponse;
-import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCase;
-import com.puff.tech.usermanagement.usecase.userlogout.LogoutUserUseCaseResponse;
+import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCase;
+import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseRequest;
+import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseResponse;
+import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCase;
+import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseResponse;
 import io.micronaut.http.HttpHeaders;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;

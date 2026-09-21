@@ -1,4 +1,4 @@
-package com.puff.tech.usermanagement.repository;
+package com.puff.tech.onboarding.repository;
 
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository;

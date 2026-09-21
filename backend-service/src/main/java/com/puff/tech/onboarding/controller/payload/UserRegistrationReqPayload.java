@@ -1,4 +1,4 @@
-package com.puff.tech.usermanagement.controller.payload;
+package com.puff.tech.onboarding.controller.payload;
 
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.Email;

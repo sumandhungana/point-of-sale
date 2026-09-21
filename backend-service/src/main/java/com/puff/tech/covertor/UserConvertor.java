@@ -2,9 +2,9 @@ package com.puff.tech.covertor;
 
 import com.puff.tech.core.utils.SecurityUtils;
 import com.puff.tech.entity.UserEntity;
-import com.puff.tech.usermanagement.usecase.user.add.AddUserUseCaseRequest;
-import com.puff.tech.usermanagement.usecase.user.get.GetUserUseCaseResponse;
-import com.puff.tech.usermanagement.usecase.user.update.UpdateUserUseCaseRequest;
+import com.puff.tech.onboarding.usecase.user.add.AddUserUseCaseRequest;
+import com.puff.tech.onboarding.usecase.user.get.GetUserUseCaseResponse;
+import com.puff.tech.onboarding.usecase.user.update.UpdateUserUseCaseRequest;
 import java.util.Arrays;
 
 public class UserConvertor {

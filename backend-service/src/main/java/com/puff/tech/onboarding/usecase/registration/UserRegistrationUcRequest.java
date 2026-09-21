@@ -1,5 +1,6 @@
-package com.puff.tech.usermanagement.usecase.registration;
+package com.puff.tech.onboarding.usecase.registration;
 
+import com.puff.tech.core.usecases.UCRequest;
 import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -16,6 +17,6 @@ public record UserRegistrationUcRequest(
         String notes,
         String password,
         String userId
-) implements UseCases.UseCaseRequest {
+) implements UCRequest {
 
 }

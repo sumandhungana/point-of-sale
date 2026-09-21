@@ -41,6 +41,7 @@ public class JwtUtils {
                 .claim("permissions",jwtTokenInfo.permission())
                 .claim("userId", jwtTokenInfo.userId())
                 .claim("roles", jwtTokenInfo.role())
+                .claim("memberId", jwtTokenInfo.memberId())
                 .id(jti)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis()+EXPIRATION))

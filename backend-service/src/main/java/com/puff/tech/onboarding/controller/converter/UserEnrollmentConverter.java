@@ -1,7 +1,7 @@
-package com.puff.tech.usermanagement.controller.converter;
+package com.puff.tech.onboarding.controller.converter;
 
-import com.puff.tech.usermanagement.controller.payload.UserRegistrationReqPayload;
-import com.puff.tech.usermanagement.usecase.registration.UserRegistrationUcRequest;
+import com.puff.tech.onboarding.controller.payload.UserRegistrationReqPayload;
+import com.puff.tech.onboarding.usecase.registration.UserRegistrationUcRequest;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -38,7 +38,7 @@ public class UserEnrollmentConverter {
                 payload.organizationAddress(),
                 payload.notes(),
                 payload.password(),
-                generateUserId()
+                payload.gmail()
         );
     }
 }

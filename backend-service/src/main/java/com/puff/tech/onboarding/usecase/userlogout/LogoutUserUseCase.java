@@ -1,4 +1,4 @@
-package com.puff.tech.usermanagement.usecase.userlogout;
+package com.puff.tech.onboarding.usecase.userlogout;
 
 import com.puff.tech.core.utils.JwtUtils;
 import com.puff.tech.repository.UserRepository;
