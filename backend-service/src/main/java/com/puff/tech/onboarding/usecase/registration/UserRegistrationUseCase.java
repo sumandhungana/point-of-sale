@@ -2,11 +2,10 @@
 package com.puff.tech.usermanagement.usecase.registration;
 
 import com.puff.tech.core.usecases.UseCases;
-import com.puff.tech.security.SecurityContextHolder;
 import com.puff.tech.usermanagement.repository.UserEnrollmentRepository;
 import com.puff.tech.usermanagement.repository.UserInfoEntity;
 import com.puff.tech.usermanagement.repository.UserInfoRepository;
-import com.puff.tech.usermanagement.repository.UserRegistrationEntity;
+import com.puff.tech.usermanagement.repository.UserMemberEntity;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
@@ -55,8 +54,8 @@ public class UserRegistrationUseCase implements UseCases<UserRegistrationUcReque
         return user;
     }
 
-    private UserRegistrationEntity mapToRegistrationEntity(UserRegistrationUcRequest request, UserInfoEntity user) {
-        UserRegistrationEntity registration = new UserRegistrationEntity();
+    private UserMemberEntity mapToRegistrationEntity(UserRegistrationUcRequest request, UserInfoEntity user) {
+        UserMemberEntity registration = new UserMemberEntity();
         registration.setUser(user); // Connect saved UserInfoEntity (Populates user_id)
         registration.setUserName(request.userName());
         registration.setPhoneNumber(request.phoneNumber());
@@ -72,7 +71,7 @@ public class UserRegistrationUseCase implements UseCases<UserRegistrationUcReque
         return registration;
     }
 
-    private UserRegistrationUcResponse mapToResponse(UserInfoEntity user, UserRegistrationEntity registration) {
+    private UserRegistrationUcResponse mapToResponse(UserInfoEntity user, UserMemberEntity registration) {
         return UserRegistrationUcResponse.success(
                 user.getId(),
                 registration.getGmail(),

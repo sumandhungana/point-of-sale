@@ -1,5 +1,5 @@
 // Service for staff-related API calls
-import axios from 'axios';
+// import axios from 'axios';
 import {apiService} from "@/infrastructure/utils/ApiService";
 
 function getAuthHeaders(): Record<string, string> {
@@ -30,19 +30,19 @@ interface RestResponse<T> {
 }
 
 export async function fetchStaff() {
-  const response = await axios.get('/api/Staff', { headers: getAuthHeaders() });
-  return response.data;
-  //
-  // const res= await apiService.get<RestResponse<GetStaffResponse>>(
-  //     'api/v1/staffs',
-  //     {
-  //       headers: {
-  //         ...getAuthHeaders(),
-  //       },
-  //     }
-  // );
-  // if(res.error) throw new Error('Failed to create staff');
-  // return res?.response?.data
+  // const response = await axios.get('/api/Staff', { headers: getAuthHeaders() });
+  // return response.data;
+
+  const res= await apiService.get<RestResponse<GetStaffResponse>>(
+      'api/v1/staffs',
+      {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      }
+  );
+  if(res.error) throw new Error('Failed to create staff');
+  return res?.response?.data
 }
 
 export async function createStaff(formData: any) {

@@ -19,21 +19,21 @@ public class UserInfoEntity {
     @GeneratedValue(GeneratedValue.Type.AUTO)
     private Long id;
 
-    private String username;
+    private String userName;
     private String userId;
     private String password;
-    private Boolean enable;
-    private String permission  = "USER";
+    private String phoneNumber;
+    private String gmail;
+    private Boolean enable = true;
+    private String permission = "USER";
     private String role = "ADMIN";
-    // Automatic creation timestamp
+
     @DateCreated
     private Instant createdAt;
 
-    // Automatic update timestamp
     @DateUpdated
     private Instant updatedAt;
 
-    // Optional: User tracking fields if handled manually or via security listener
     private String createdBy;
     private String updatedBy;
 }
