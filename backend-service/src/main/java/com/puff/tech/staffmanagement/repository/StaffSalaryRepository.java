@@ -1,6 +1,5 @@
 package com.puff.tech.staffmanagement.repository;
 
-import com.puff.tech.entity.StaffSalaryEntity;
 import io.micronaut.data.annotation.Join;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.model.query.builder.sql.Dialect;
@@ -17,24 +16,22 @@ public interface StaffSalaryRepository extends ReactorCrudRepository<StaffSalary
     @Join(value = "staff")
     @Query("""
             SELECT * FROM staff_salaries
-            WHERE khata_book_id = :khataBookId
+            WHERE member_id = :MemberId
             ORDER BY year DESC, month DESC
             """)
-    Flux<StaffSalaryEntity> findAllByKhataBookId(Integer khataBookId);
+    Flux<StaffSalaryEntity> findAllByMemberId(Integer MemberId);
     @Join(value = "staff")
-    Mono<StaffSalaryEntity> findByIdAndKhataBookId(Integer id, Integer khataBookId);
+    Mono<StaffSalaryEntity> findByIdAndMemberId(Integer id, Integer MemberId);
 
     @Join(value = "staff")
     @Query("""
         SELECT * FROM staff_salaries
         WHERE staff_id = :staffId
-        AND khata_book_id = :khataBookId
+        AND khata_book_id = :MemberId
         ORDER BY year DESC, month DESC
         """)
-    Flux<StaffSalaryEntity> findByStaffIdAndKhataBookId(
+    Flux<StaffSalaryEntity> findByStaffIdAndMemberId(
             Integer staffId,
-            Integer khataBookId
+            Integer MemberId
     );
-
-    Mono<Boolean> existsByIdAndKhataBookId(Integer id, Integer khataBookId);
 }

@@ -1,6 +1,7 @@
 package com.puff.tech.staffmanagement.controller;
 
 import com.puff.tech.core.responses.RestResponse;
+import com.puff.tech.security.Secured;
 import com.puff.tech.staffmanagement.usecase.staffsalary.delete.DeleteStaffSalaryUseCaseRequest;
 import com.puff.tech.staffmanagement.usecase.staffsalary.delete.DeleteStaffSalaryUseCaseResponse;
 import com.puff.tech.staffmanagement.usecase.staffsalary.get.GetStaffSalaryUseCase;
@@ -46,6 +47,7 @@ public class StaffSalaryController {
         this.deleteStaffSalaryUseCase = deleteStaffSalaryUseCase;
     }
 
+    @Secured
     @Post("/staff-salary")
     public Mono<RestResponse<CreateStaffSalaryUseCaseResponse>> create(@Body CreateStaffSalaryUseCaseRequest request){
         return  createStaffSalaryUseCase.execute(request)

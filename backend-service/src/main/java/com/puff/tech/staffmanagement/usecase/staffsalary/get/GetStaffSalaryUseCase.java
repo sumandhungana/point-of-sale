@@ -23,7 +23,7 @@ public class GetStaffSalaryUseCase {
     public Flux<GetStaffSalaryUseCaseResponse> execute(){
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMapMany(khataBookId->
-                        staffSalaryRepository.findAllByKhataBookId(khataBookId)
+                        staffSalaryRepository.findAllByMemberId(khataBookId)
                                 .map(StaffSalaryConvertor::toResponse)
                                 .onErrorResume(err->Flux.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage()))));
     }

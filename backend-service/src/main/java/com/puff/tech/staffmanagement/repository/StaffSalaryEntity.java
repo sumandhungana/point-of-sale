@@ -1,5 +1,6 @@
-package com.puff.tech.entity;
+package com.puff.tech.staffmanagement.repository;
 
+import com.puff.tech.onboarding.repository.MemberEntity;
 import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;
@@ -14,22 +15,21 @@ import java.time.Instant;
 @Setter
 @Serdeable
 @Introspected
-@MappedEntity(value = "StaffSalaries")
+@MappedEntity(value = "staff_salaries")
 public class StaffSalaryEntity {
 
     @Id
-    @Generated
+    @GeneratedValue(GeneratedValue.Type.IDENTITY)
     private Integer id;
 
-    private Integer khataBookId;
-
+    // Micronaut Data will automatically map this relation to "member_id"
     @Relation(Relation.Kind.MANY_TO_ONE)
-    private KhataBookEntity khataBook;
+    private MemberEntity member;
 
-    private Integer staffId;
-
+    // Micronaut Data will automatically map this relation to "staff_id"
     @Relation(Relation.Kind.MANY_TO_ONE)
-    private StaffEntity staff;
+    private OrganizationStaffEntity staff;
+
     private Integer month;
     private Integer year;
     private Instant selectedDate;

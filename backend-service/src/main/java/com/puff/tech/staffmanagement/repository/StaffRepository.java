@@ -1,6 +1,5 @@
 package com.puff.tech.staffmanagement.repository;
 
-import com.puff.tech.entity.OrganizationStaffEntity;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository;
 import io.micronaut.data.repository.reactive.ReactorCrudRepository;
@@ -11,11 +10,11 @@ import reactor.core.publisher.Mono;
         dialect = Dialect.POSTGRES
 )
 public interface StaffRepository extends ReactorCrudRepository<OrganizationStaffEntity,Integer> {
-    Flux<OrganizationStaffEntity> findByMemberIdOrderByCreatedAtDesc(String memberId);
+    Flux<OrganizationStaffEntity> findByMemberIdOrderByCreatedAtDesc(Long memberId);
 
-    Mono<OrganizationStaffEntity> findByIdAndMemberId(Integer id, String khataBookId);
+    Mono<OrganizationStaffEntity> findByIdAndMemberId(Integer id, Long memberId);
 
-    Mono<Boolean> existsByIdAndMemberId(Integer id, String  khataBookId);
+    Mono<Boolean> existsByIdAndMemberId(Integer id, Long  memberId);
 
-    Mono<Void> deleteByIdAndMemberId(Integer id, String khataBookId);
+    Mono<Void> deleteByIdAndMemberId(Integer id, Long khataBookId);
 }

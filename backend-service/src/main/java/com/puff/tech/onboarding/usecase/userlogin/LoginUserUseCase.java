@@ -39,7 +39,7 @@ public class LoginUserUseCase implements MonoUC<LoginUserUseCaseRequest,LoginUse
     }
 
     private LoginUserUseCaseResponse mapToResponse(UserInfoEntity user, MemberEntity member) {
-        String memberId = Objects.nonNull(member) ? member.getMemberId() : null;
+        Long memberId = Objects.nonNull(member) ? member.getId() : null;
         String orgName = Objects.nonNull(member) ? member.getOrganizationName() : null;
 
         return new LoginUserUseCaseResponse(
@@ -59,7 +59,7 @@ public class LoginUserUseCase implements MonoUC<LoginUserUseCaseRequest,LoginUse
         );
     }
 
-    private static JwtTokenInfo prepareJwtTokenInfo(UserInfoEntity userInfo, String memberId) {
+    private static JwtTokenInfo prepareJwtTokenInfo(UserInfoEntity userInfo, Long memberId) {
         return new JwtTokenInfo(
                 userInfo.getUserId(),
                 userInfo.getUserId(),

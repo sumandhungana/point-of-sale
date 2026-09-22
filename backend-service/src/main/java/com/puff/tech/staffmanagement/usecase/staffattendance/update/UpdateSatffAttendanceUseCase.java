@@ -1,7 +1,7 @@
 package com.puff.tech.staffmanagement.usecase.staffattendance.update;
 
 import com.puff.tech.core.usecases.UseCases;
-import com.puff.tech.staffmanagement.converter.StaffAttedanceConvertor;
+import com.puff.tech.staffmanagement.converter.StaffAttendanceConvertor;
 import com.puff.tech.staffmanagement.repository.StaffAttendanceRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
@@ -25,10 +25,10 @@ public class UpdateSatffAttendanceUseCase implements UseCases<UpdateSatffAttenda
     public Mono<UpdateSatffAttendanceUseCaseResponse> execute(UpdateSatffAttendanceUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffAttendanceRepository.findByIdAndKhataBookId(request.id(), khataBookId)
+                        staffAttendanceRepository.findByIdAndMemberId(request.id(), khataBookId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("Attendance not found")))
                                 .flatMap(existing->{
-                                    var updated= StaffAttedanceConvertor.toEntityUpdate(request,existing);
+                                    var updated= StaffAttendanceConvertor.toEntityUpdate(request,existing);
                                     return staffAttendanceRepository.update(updated)
                                             .map(saved->new UpdateSatffAttendanceUseCaseResponse("Attendance updated"))
                                             .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage())));

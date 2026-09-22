@@ -1,7 +1,7 @@
 package com.puff.tech.staffmanagement.usecase.staffattendance.create;
 
 import com.puff.tech.core.usecases.UseCases;
-import com.puff.tech.staffmanagement.converter.StaffAttedanceConvertor;
+import com.puff.tech.staffmanagement.converter.StaffAttendanceConvertor;
 import com.puff.tech.staffmanagement.repository.StaffAttendanceRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
@@ -25,7 +25,7 @@ public class CreateStaffAtendanceUseCase implements UseCases<CreateStaffAtendanc
     public Mono<CreateStaffAtendanceUseCaseResponse> execute(CreateStaffAtendanceUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffAttendanceRepository.findByStaffIdAndDateAndKhataBookId(
+                        staffAttendanceRepository.findByStaffIdAndDateAndMemberId(
                                 request.staffId(),
                                 request.date(),
                                 khataBookId
@@ -33,7 +33,7 @@ public class CreateStaffAtendanceUseCase implements UseCases<CreateStaffAtendanc
                         )
                                 .flatMap(existing->Mono.<CreateStaffAtendanceUseCaseResponse>error(new RuntimeException("Attendance already done")))
                                 .switchIfEmpty(Mono.defer(()->{
-                                    var staffAttendance= StaffAttedanceConvertor.toEntity(request,khataBookId);
+                                    var staffAttendance= StaffAttendanceConvertor.toEntity(request,khataBookId);
                                     return staffAttendanceRepository.save(staffAttendance)
                                             .map(saved-> new CreateStaffAtendanceUseCaseResponse("Attendance done"))
                                             .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage())));

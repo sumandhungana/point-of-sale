@@ -24,10 +24,10 @@ public class DeleteStaffUseCase implements UseCases<DeleteStaffUseCaseRequest,De
     public Mono<DeleteStaffUseCaseResponse> execute(DeleteStaffUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffRepository.findByIdAndMemberId(request.id(), khataBookId.toString())
+                        staffRepository.findByIdAndMemberId(request.id(), khataBookId.longValue())
                                 .switchIfEmpty(Mono.error(new RuntimeException("Staff not found")))
                                 .flatMap(staffEntity ->
-                                        staffRepository.deleteByIdAndMemberId(request.id(), khataBookId.toString())
+                                        staffRepository.deleteByIdAndMemberId(request.id(), khataBookId.longValue())
                                                 .then(Mono.just(new DeleteStaffUseCaseResponse("Staff deleted"))))
                 );
     }

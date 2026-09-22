@@ -1,6 +1,5 @@
 package com.puff.tech.staffmanagement.repository;
 
-import com.puff.tech.entity.StaffAttendanceEntity;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository;
 import io.micronaut.data.repository.reactive.ReactorCrudRepository;
@@ -14,25 +13,25 @@ import java.time.Instant;
 )
 public interface StaffAttendanceRepository extends ReactorCrudRepository<StaffAttendanceEntity,Integer> {
 
-    Flux<StaffAttendanceEntity> findByKhataBookIdOrderByDateDesc(Integer khataBookId);
+    Flux<StaffAttendanceEntity> findByMemberIdOrderByDateDesc(Integer MemberId);
 
-    Mono<StaffAttendanceEntity> findByIdAndKhataBookId(Integer id, Integer khataBookId);
+    Mono<StaffAttendanceEntity> findByIdAndMemberId(Integer id, Integer MemberId);
 
-    Flux<StaffAttendanceEntity> findByStaffIdAndKhataBookIdOrderByDateDesc(
+    Flux<StaffAttendanceEntity> findByStaffIdAndMemberIdOrderByDateDesc(
             Integer staffId,
-            Integer khataBookId
+            Integer MemberId
     );
-    Flux<StaffAttendanceEntity> findByDateAndKhataBookIdOrderByStaffIdAsc(
+    Flux<StaffAttendanceEntity> findByDateAndMemberIdOrderByStaffIdAsc(
             Instant date,
-            Integer khataBookId
+            Integer MemberId
     );
 
-    Mono<StaffAttendanceEntity> findByStaffIdAndDateAndKhataBookId(
+    Mono<StaffAttendanceEntity> findByStaffIdAndDateAndMemberId(
             Integer staffId,
             Instant date,
-            Integer khataBookId
+            Integer MemberId
     );
-    Mono<Boolean> existsByIdAndKhataBookId(Integer id, Integer khataBookId);
+    Mono<Boolean> existsByIdAndMemberId(Integer id, Integer MemberId);
 
-    Mono<Void> deleteByIdAndKhataBookId(Integer id, Integer khataBookId);
+    Mono<Void> deleteByIdAndMemberId(Integer id, Integer MemberId);
 }

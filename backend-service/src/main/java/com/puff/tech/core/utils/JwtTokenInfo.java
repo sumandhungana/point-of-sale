@@ -7,5 +7,5 @@ public record JwtTokenInfo(
         String role,
         String permission,
         boolean enabled,
-        String memberId) {
+        Long memberId) {
 }

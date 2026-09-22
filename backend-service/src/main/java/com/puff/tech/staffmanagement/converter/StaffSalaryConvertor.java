@@ -1,24 +1,63 @@
 package com.puff.tech.staffmanagement.converter;
 
-import com.puff.tech.entity.StaffSalaryEntity;
+import com.puff.tech.onboarding.repository.MemberEntity;
+import com.puff.tech.staffmanagement.repository.OrganizationStaffEntity;
+import com.puff.tech.staffmanagement.repository.StaffSalaryEntity;
+import com.puff.tech.staffmanagement.usecase.staff.get.StaffSalaryResponse;
 import com.puff.tech.staffmanagement.usecase.staffsalary.create.CreateStaffSalaryUseCaseRequest;
 import com.puff.tech.staffmanagement.usecase.staffsalary.get.GetStaffSalaryUseCaseResponse;
 import com.puff.tech.staffmanagement.usecase.staffsalary.update.UpdateStaffSalaryUseCaseRequest;
+
+import java.time.Instant;
+import java.time.ZoneOffset;
 
 
 public class StaffSalaryConvertor {
     private StaffSalaryConvertor(){}
 
+    public static StaffSalaryResponse toSalaryResponse(StaffSalaryEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        return new StaffSalaryResponse(
+                entity.getId(),
+                entity.getMonth(),
+                entity.getYear(),
+                entity.getSelectedDate(),
+                entity.getIsSlideOn(),
+                entity.getCalculationDate(),
+                entity.getSalaryType(),
+                entity.getAmount(),
+                entity.getPermission(),
+                entity.getCreatedAt(),
+                entity.getUpdatedAt()
+        );
+    }
     public static StaffSalaryEntity toEntity(CreateStaffSalaryUseCaseRequest request,
-                                             Integer khataBookId){
+                                             Long memberId){
         StaffSalaryEntity staffSalaryEntity= new StaffSalaryEntity();
-        staffSalaryEntity.setKhataBookId(khataBookId);
-        staffSalaryEntity.setStaffId(request.staffId());
+        if (memberId != null) {
+            MemberEntity memberRef = new MemberEntity();
+            memberRef.setId(memberId); // Sets FK for member_id
+            staffSalaryEntity.setMember(memberRef);
+        }
+        if(request.staffId() != null) {
+            OrganizationStaffEntity staff = new OrganizationStaffEntity();
+            staff.setId(request.staffId());
+            staffSalaryEntity.setStaff(staff);
+        }
         staffSalaryEntity.setMonth(request.month());
         staffSalaryEntity.setYear(request.year());
-        staffSalaryEntity.setSelectedDate(request.selectedDate());
+        Instant selectedInstant = request.selectedDate() != null
+                ? request.selectedDate().toInstant(ZoneOffset.UTC)
+                : null;
+        staffSalaryEntity.setSelectedDate(selectedInstant);
         staffSalaryEntity.setIsSlideOn(request.isSlideOn());
-        staffSalaryEntity.setCalculationDate(request.calculationDate());
+        Instant calculationInstant = request.calculationDate() != null
+                ? request.calculationDate().toInstant(ZoneOffset.UTC)
+                : null;
+        staffSalaryEntity.setCalculationDate(calculationInstant);
         staffSalaryEntity.setSalaryType(request.salaryType());
         staffSalaryEntity.setAmount(request.amount());
         staffSalaryEntity.setPermission(request.permission());
@@ -28,7 +67,7 @@ public class StaffSalaryConvertor {
     public static GetStaffSalaryUseCaseResponse toResponse(StaffSalaryEntity staffSalaryEntity){
         return new GetStaffSalaryUseCaseResponse(
                 staffSalaryEntity.getId(),
-                staffSalaryEntity.getStaffId(),
+                staffSalaryEntity.getStaff().getId(),
                 staffSalaryEntity.getMonth(),
                 staffSalaryEntity.getYear(),
                 staffSalaryEntity.getSelectedDate(),
@@ -45,7 +84,7 @@ public class StaffSalaryConvertor {
     public static StaffSalaryEntity toEntityUpdate(UpdateStaffSalaryUseCaseRequest request,
                                              StaffSalaryEntity staffSalaryEntity    ){
 
-        staffSalaryEntity.setStaffId(request.staffId());
+//        staffSalaryEntity.setStaffId(request.staffId());
         staffSalaryEntity.setMonth(request.month());
         staffSalaryEntity.setYear(request.year());
         staffSalaryEntity.setSelectedDate(request.selectedDate());

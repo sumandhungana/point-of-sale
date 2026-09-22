@@ -25,7 +25,7 @@ public class UpdateStaffUseCase implements UseCases<UpdateStaffUseCaseRequest,Up
     public Mono<UpdateStaffUseCaseResponse> execute(UpdateStaffUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffRepository.findByIdAndMemberId(request.id(),khataBookId.toString())
+                        staffRepository.findByIdAndMemberId(request.id(),khataBookId.longValue())
                                 .switchIfEmpty(Mono.error(new RuntimeException("Staff not found")))
                                 .flatMap(staffEntity -> {
                                     var staff= StaffConvertor.toEntityUpdate(request,staffEntity);

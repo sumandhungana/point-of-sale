@@ -1,7 +1,7 @@
 package com.puff.tech.staffmanagement.usecase.staffattendance.getbyid;
 
 import com.puff.tech.core.usecases.UseCases;
-import com.puff.tech.staffmanagement.converter.StaffAttedanceConvertor;
+import com.puff.tech.staffmanagement.converter.StaffAttendanceConvertor;
 import com.puff.tech.staffmanagement.repository.StaffAttendanceRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUseCaseResponse;
@@ -26,8 +26,8 @@ public class GetStaffAttendanceByIdUseCase implements UseCases<GetStaffAttendanc
     public Mono<GetStaffAttendanceUseCaseResponse> execute(GetStaffAttendanceByIdUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffAttendanceRepository.findByIdAndKhataBookId(request.id(), khataBookId)
-                                .map(StaffAttedanceConvertor::toResponse)
+                        staffAttendanceRepository.findByIdAndMemberId(request.id(), khataBookId)
+                                .map(StaffAttendanceConvertor::toResponse)
                                 .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage()))));
     }
 }

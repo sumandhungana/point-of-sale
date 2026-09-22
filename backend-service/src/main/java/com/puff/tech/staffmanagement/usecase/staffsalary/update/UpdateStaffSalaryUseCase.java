@@ -25,7 +25,7 @@ public class UpdateStaffSalaryUseCase implements UseCases<UpdateStaffSalaryUseCa
     public Mono<UpdateStaffSalaryUseCaseResponse> execute(UpdateStaffSalaryUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffSalaryRepository.findByIdAndKhataBookId(request.id(), khataBookId)
+                        staffSalaryRepository.findByIdAndMemberId(request.id(), khataBookId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("Salary not found")))
                                 .flatMap(staffSalaryEntity -> {
                                     var updated= StaffSalaryConvertor.toEntityUpdate(request,staffSalaryEntity);

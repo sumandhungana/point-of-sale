@@ -1,5 +1,6 @@
-package com.puff.tech.entity;
+package com.puff.tech.staffmanagement.repository;
 
+import com.puff.tech.onboarding.repository.MemberEntity;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;
@@ -7,7 +8,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,8 +34,8 @@ public class OrganizationStaffEntity {
 
     private String profileImageUrl;
 
-    @MappedProperty("member_id")
-    private String memberId;
+    @Relation(Relation.Kind.MANY_TO_ONE)
+    private MemberEntity member;
 
     @DateCreated
     private Instant createdAt;
@@ -43,10 +43,10 @@ public class OrganizationStaffEntity {
     @DateUpdated
     private Instant updatedAt;
 
-    @Relation(value = Relation.Kind.ONE_TO_MANY, cascade = Relation.Cascade.ALL)
-    private List<StaffSalaryEntity> staffSalaries = new ArrayList<>();
+    @Relation(value = Relation.Kind.ONE_TO_MANY, mappedBy = "staff", cascade = Relation.Cascade.ALL)
+    private List<StaffSalaryEntity> salaries = new ArrayList<>();
 
-    @Relation(value = Relation.Kind.ONE_TO_MANY, cascade = Relation.Cascade.ALL)
-    private List<StaffAttendanceEntity> staffAttendances = new ArrayList<>();
+    @Relation(value = Relation.Kind.ONE_TO_MANY, mappedBy = "staff", cascade = Relation.Cascade.ALL)
+    private List<StaffAttendanceEntity> attendances = new ArrayList<>();
 }
 

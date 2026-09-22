@@ -13,6 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Base64;
+import java.util.Objects;
 import java.util.Optional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,7 +73,8 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
                 String userId = getClaimValue(claims, "subject", "userId");
                 String permission = getClaimValue(claims, "permission");
                 String roles = getClaimValue(claims, "roles");
-                String memberId = getClaimValue(claims, "memberId");
+                Long memberId = Long.parseLong(Objects.requireNonNull(getClaimValue(claims, "memberId")));
+                boolean enabled =  Boolean.getBoolean(getClaimValue(claims, "enabled"));
                 // TODO: Implement your token validation logic here
                 return UseCaseContext.builder()
                         .token(token)
@@ -82,6 +84,7 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
                                 .memberId(memberId)
                                 .permission(permission)
                                 .role(roles)
+                                .enabled(enabled)
                                 .build()).build();
             }
 //            if (requiredRoles.length > 0) {

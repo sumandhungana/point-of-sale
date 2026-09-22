@@ -1,6 +1,6 @@
 package com.puff.tech.staffmanagement.usecase.staff.getsalary;
 
-import com.puff.tech.entity.StaffSalaryEntity;
+import com.puff.tech.staffmanagement.repository.StaffSalaryEntity;
 import com.puff.tech.staffmanagement.repository.StaffSalaryRepository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

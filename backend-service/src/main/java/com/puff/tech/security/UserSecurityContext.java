@@ -9,6 +9,6 @@ public record UserSecurityContext(
         String role,
         String permission,
         boolean enabled,
-        String memberId
+        Long memberId
 ) {
 }

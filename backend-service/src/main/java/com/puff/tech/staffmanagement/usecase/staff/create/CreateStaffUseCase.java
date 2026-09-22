@@ -13,31 +13,17 @@ import reactor.core.publisher.Mono;
 public class CreateStaffUseCase implements MonoUC<CreateStaffUseCaseRequest,CreateStaffUseCaseResponse> {
 
     private final OrganizationStaffRepository staffRepository;
-    private final KhataBookImplementation khataBookImplementation;
 
     @Inject
-    public CreateStaffUseCase(OrganizationStaffRepository staffRepository,
-                              KhataBookImplementation khataBookImplementation) {
+    public CreateStaffUseCase(OrganizationStaffRepository staffRepository) {
         this.staffRepository = staffRepository;
-        this.khataBookImplementation = khataBookImplementation;
     }
-
-//    @Override
-//    public Mono<CreateStaffUseCaseResponse> execute(CreateStaffUseCaseRequest request) {
-//        return khataBookImplementation.getCurrentKhataBookId()
-//                .flatMap(khataBookId->{
-//                    var staff= StaffConvertor.toEntity(request,khataBookId);
-//                    return staffRepository.save(staff)
-//                            .map(saved->new CreateStaffUseCaseResponse("Staff created"))
-//                            .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage())));
-//                });
-//    }
 
     @Override
     public Mono<CreateStaffUseCaseResponse> execute(CreateStaffUseCaseRequest request, UseCaseContext context) {
         System.out.println(context.securityContext().userId());
         return staffRepository.save(StaffConvertor.toEntity(request, context.securityContext()))
-                .map(saved->new CreateStaffUseCaseResponse("Staff created Successfully"))
+                .map(saved->new CreateStaffUseCaseResponse("Staff created Successfully", saved.getId()))
                             .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened:: " +err.getLocalizedMessage())));
     }
 }

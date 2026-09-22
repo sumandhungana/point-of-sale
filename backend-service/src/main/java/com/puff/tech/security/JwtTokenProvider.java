@@ -41,9 +41,10 @@ public class JwtTokenProvider {
             boolean enabled = Optional.ofNullable(claims.getBooleanClaim("enabled"))
                     .orElse(false);
 
-            String memberId = Optional.ofNullable(claims.getClaim("memberId"))
+            Long memberId = Optional.ofNullable(claims.getClaim("memberId"))
                     .map(Object::toString)
-                    .orElse("");
+                    .map(Long::valueOf)
+                    .orElse(null);
 
             return new UserSecurityContext(username, userId, roles, permissions, enabled, memberId);
 

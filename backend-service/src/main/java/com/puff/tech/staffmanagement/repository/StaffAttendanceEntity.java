@@ -1,6 +1,8 @@
-package com.puff.tech.entity;
+package com.puff.tech.staffmanagement.repository;
 
 import com.puff.tech.domain.AttendanceStatus;
+import com.puff.tech.entity.KhataBookEntity;
+import com.puff.tech.onboarding.repository.MemberEntity;
 import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;
@@ -14,25 +16,23 @@ import java.time.Instant;
 @Setter
 @Serdeable
 @Introspected
-@MappedEntity(value = "StaffAttendances")
+@MappedEntity(value = "staff_attendance")
 public class StaffAttendanceEntity {
 
     @Id
     @Generated
     private Integer id;
 
-    private Integer khataBookId;
 
     @Relation(Relation.Kind.MANY_TO_ONE)
-    private KhataBookEntity khataBook;
+    private MemberEntity member;
 
-    private Integer staffId;
 
     @Relation(Relation.Kind.MANY_TO_ONE)
-    private StaffEntity staff;
+    private OrganizationStaffEntity staff;
 
     // -------- Attendance Info --------
-    private AttendanceStatus status = AttendanceStatus.ABSENT; // present, absent, leave
+    private AttendanceStatus status = AttendanceStatus.PRESENT; // present, absent, leave
 
     private Instant date;
 

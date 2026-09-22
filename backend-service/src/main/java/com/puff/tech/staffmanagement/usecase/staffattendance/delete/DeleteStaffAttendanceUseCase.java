@@ -24,10 +24,10 @@ public class DeleteStaffAttendanceUseCase implements UseCases<DeleteStaffAttenda
     public Mono<DeleteStaffAttendanceUseCaseResponse> execute(DeleteStaffAttendanceUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffAttendanceRepository.findByIdAndKhataBookId(request.id(), khataBookId)
+                        staffAttendanceRepository.findByIdAndMemberId(request.id(), khataBookId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("Attendance not found")))
                                 .flatMap(staffAttendanceEntity ->
-                                        staffAttendanceRepository.deleteByIdAndKhataBookId(request.id(), khataBookId))
+                                        staffAttendanceRepository.deleteByIdAndMemberId(request.id(), khataBookId))
                                 .then(Mono.just(new DeleteStaffAttendanceUseCaseResponse("Attendance removed"))));
     }
 }

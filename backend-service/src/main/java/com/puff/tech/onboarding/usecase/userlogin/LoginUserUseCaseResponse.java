@@ -29,7 +29,7 @@ implements UCResponse {
             String subscriptionStatus,
             String permission,
             String role,
-            String memberId,
+            Long memberId,
             String organizationName,
             boolean enabled
                    ) {}

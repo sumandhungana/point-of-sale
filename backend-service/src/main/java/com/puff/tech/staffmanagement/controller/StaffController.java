@@ -24,6 +24,8 @@ import io.micronaut.http.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @Controller("/api/v1")
 public class StaffController {
 
@@ -61,10 +63,17 @@ public class StaffController {
 
     @Secured
     @Get("/staffs")
-    public Flux<RestResponse<GetStaffUseCaseResponse>> get(){
+    public Mono<RestResponse<List<GetStaffUseCaseResponse>>> get(){
         return getStaffUseCase.execute(new GetStaffUCRequest())
+                .collectList()
                 .map(RestResponse::success)
-                .onErrorResume(err-> Flux.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
+                .onErrorResume(err ->
+                        Mono.just(
+                                RestResponse.error(
+                                        "Unexpected on controller " + err.getLocalizedMessage()
+                                )
+                        )
+                );
     }
 
     @Get("/{id}/attendance")

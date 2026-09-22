@@ -1,6 +1,5 @@
-package com.puff.tech.entity;
+package com.puff.tech.staffmanagement.repository;
 
-import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;
@@ -9,7 +8,6 @@ import lombok.Setter;
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
 
 @Getter
 @Setter

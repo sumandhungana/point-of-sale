@@ -24,7 +24,7 @@ public class DeleteStaffSalaryUseCase implements UseCases<DeleteStaffSalaryUseCa
     public Mono<DeleteStaffSalaryUseCaseResponse> execute(DeleteStaffSalaryUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffSalaryRepository.findByIdAndKhataBookId(request.id(), khataBookId)
+                        staffSalaryRepository.findByIdAndMemberId(request.id(), khataBookId)
                                 .switchIfEmpty(Mono.error(new RuntimeException("Staff salary not found")))
                                 .flatMap(staffSalaryEntity ->
                                         staffSalaryRepository.deleteById(request.id())

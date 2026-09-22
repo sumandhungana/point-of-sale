@@ -27,7 +27,7 @@ public class GetOneStaffSalaryUseCase implements UseCases<GetOneStaffSalaryUseCa
     public Mono<GetStaffSalaryUseCaseResponse> execute(GetOneStaffSalaryUseCaseRequest request) {
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMap(khataBookId->
-                        staffSalaryRepository.findByIdAndKhataBookId(request.id(), khataBookId)
+                        staffSalaryRepository.findByIdAndMemberId(request.id(), khataBookId)
                                 .map(StaffSalaryConvertor::toResponse)
                                 .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage()))));
     }

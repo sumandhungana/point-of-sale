@@ -1,6 +1,7 @@
 package com.puff.tech.staffmanagement.usecase.staff.get;
 
 import com.puff.tech.core.usecases.FluxUC;
+import com.puff.tech.onboarding.repository.MemberRepository;
 import com.puff.tech.staffmanagement.converter.StaffConvertor;
 import com.puff.tech.staffmanagement.repository.OrganizationStaffRepository;
 import com.puff.tech.security.UseCaseContext;
@@ -16,26 +17,18 @@ public class GetStaffUseCase implements FluxUC<GetStaffUCRequest, GetStaffUseCas
     @Inject
     public GetStaffUseCase(OrganizationStaffRepository staffRepository) {
         this.staffRepository = staffRepository;
-
     }
 
     @Override
     public Flux<GetStaffUseCaseResponse> execute(GetStaffUCRequest request, UseCaseContext context) {
 
-        System.out.println("Context = " + context);
-        System.out.println("Security Context = " + context.securityContext());
+        Long memberId = context.securityContext().memberId();
         return staffRepository
-                .findByMemberIdOrderByCreatedAtDesc(
-                        context.securityContext().userId()
-                )
+                .findByMemberIdOrderByCreatedAtDesc(memberId)
                 .map(StaffConvertor::toResponse)
-                .onErrorResume(err ->
-                        Flux.error(
-                                new RuntimeException(
-                                        "Unexpected happened:: " + err.getLocalizedMessage(),
-                                        err
-                                )
-                        )
-                );
+                .onErrorMap(err -> new RuntimeException(
+                        "Unexpected error occurred while fetching staff: " + err.getLocalizedMessage(),
+                        err
+                ));
     }
 }

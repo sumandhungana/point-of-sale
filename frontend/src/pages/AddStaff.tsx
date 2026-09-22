@@ -309,8 +309,7 @@ export const AddStaff: React.FC = () => {
           formData
         );
 
-      const staffId =
-        staffData.id;
+      const staffId = staffData?.id
 
       const selectedDateValue =
         formatDateForApi(

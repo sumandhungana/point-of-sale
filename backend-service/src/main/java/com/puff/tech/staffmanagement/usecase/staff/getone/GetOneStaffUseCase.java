@@ -22,7 +22,7 @@ public class GetOneStaffUseCase implements MonoUC<GetOneStaffUseCaseRequest, Get
 
     @Override
     public Mono<GetStaffUseCaseResponse> execute(GetOneStaffUseCaseRequest request, UseCaseContext context) {
-        return staffRepository.findByIdAndMemberId(request.id(), context.securityContext().userId())
+        return staffRepository.findByIdAndMemberId(request.id(), context.securityContext().memberId())
                 .map(StaffConvertor::toResponse)
                 .onErrorResume(err -> Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage())));
     }

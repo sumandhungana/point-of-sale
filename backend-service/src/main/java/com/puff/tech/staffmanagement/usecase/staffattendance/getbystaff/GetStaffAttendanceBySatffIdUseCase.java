@@ -1,6 +1,6 @@
 package com.puff.tech.staffmanagement.usecase.staffattendance.getbystaff;
 
-import com.puff.tech.staffmanagement.converter.StaffAttedanceConvertor;
+import com.puff.tech.staffmanagement.converter.StaffAttendanceConvertor;
 import com.puff.tech.staffmanagement.repository.StaffAttendanceRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUseCaseResponse;
@@ -24,8 +24,8 @@ public class GetStaffAttendanceBySatffIdUseCase {
     public Flux<GetStaffAttendanceUseCaseResponse> execute(GetStaffAttendanceBySatffIdUseCaseRequest request){
         return khataBookImplementation.getCurrentKhataBookId()
                 .flatMapMany(khataBookId->
-                        staffAttendanceRepository.findByStaffIdAndKhataBookIdOrderByDateDesc(request.staffId(),khataBookId)
-                                .map(StaffAttedanceConvertor::toResponse)
+                        staffAttendanceRepository.findByStaffIdAndMemberIdOrderByDateDesc(request.staffId(),khataBookId)
+                                .map(StaffAttendanceConvertor::toResponse)
                                 .onErrorResume(err->Flux.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage()))));
 
     }
