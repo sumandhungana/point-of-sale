@@ -1,7 +1,8 @@
 package com.puff.tech.security;
 
-import com.puff.tech.security.UserSecurityContext;
+import lombok.Builder;
 
+@Builder
 public record UseCaseContext(
         UserSecurityContext securityContext,
         String token

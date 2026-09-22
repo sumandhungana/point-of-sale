@@ -1,11 +1,14 @@
 package com.puff.tech.security;
 
-import java.util.List;
+import lombok.Builder;
 
+@Builder
 public record UserSecurityContext(
         String subject,
         String userId,
         String role,
         String permission,
-        boolean enabled
-) {}
+        boolean enabled,
+        String memberId
+) {
+}

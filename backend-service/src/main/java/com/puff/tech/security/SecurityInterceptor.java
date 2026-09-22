@@ -1,73 +1,199 @@
 package com.puff.tech.security;
 
+import io.micronaut.aop.MethodInterceptor;
+import io.micronaut.aop.MethodInvocationContext;
+import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.http.HttpRequest;
-import io.micronaut.http.MutableHttpResponse;
-import io.micronaut.http.annotation.Filter;
-import io.micronaut.http.filter.HttpServerFilter;
-import io.micronaut.http.filter.ServerFilterChain;
+import io.micronaut.http.context.ServerRequestContext;
 import jakarta.inject.Singleton;
 import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.util.context.Context;
 
+import java.util.Base64;
 import java.util.Optional;
-import java.util.Set;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@Filter("/**")
 @Singleton
-public class SecurityInterceptor implements HttpServerFilter {
+public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
 
+    private static final Logger LOG = LoggerFactory.getLogger(SecurityInterceptor.class);
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
-
-    // Public routes that bypass token validation
-    private static final Set<String> PUBLIC_ENDPOINTS = Set.of(
-            "/api/v1/user/login",
-            "/api/v1/user/register"
-    );
-
-    private final JwtTokenProvider tokenProvider;
-
-    public SecurityInterceptor(JwtTokenProvider tokenProvider) {
-        this.tokenProvider = tokenProvider;
-    }
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
-    public Publisher<MutableHttpResponse<?>> doFilter(HttpRequest<?> request, ServerFilterChain chain) {
-        String path = request.getPath();
+    public Object intercept(MethodInvocationContext<Object, Object> context) {
+        LOG.debug("SecurityInterceptor invoked for method: {}", context.getMethodName());
 
-        // 1. Bypass authentication context for public endpoints
-        if (isPublicEndpoint(path)) {
-            return chain.proceed(request);
+        AnnotationValue<Secured> securedAnnotation = context.getAnnotation(Secured.class);
+        String[] requiredRoles = securedAnnotation != null ?
+                securedAnnotation.stringValues("roles") : new String[]{};
+
+        Optional<HttpRequest<Object>> requestOpt = ServerRequestContext.currentRequest();
+
+        if (requestOpt.isEmpty()) {
+            LOG.warn("No HTTP request context available");
+            return handleUnauthorized(context, "No request context");
         }
 
-        // 2. Extract token and security context
+        HttpRequest<?> request = requestOpt.get();
         String token = extractToken(request);
-        UserSecurityContext securityContext = tokenProvider.extractSecurityContext(token);
 
-        Mono<MutableHttpResponse<?>> responseMono = Mono.from(chain.proceed(request));
-
-        // 3. Safely build Reactor Context without null values
-        Context combinedContext = Context.empty();
-        if (token != null && !token.isBlank()) {
-            combinedContext = combinedContext.put(SecurityContextHolder.SECURITY_TOKEN_KEY, token);
-        }
-        if (securityContext != null) {
-            combinedContext = combinedContext.put(SecurityContextHolder.SECURITY_CONTEXT_KEY, securityContext);
+        if (token == null) {
+            LOG.warn("No authorization token found");
+            return handleUnauthorized(context, "Missing authorization token");
         }
 
-        // 4. Attach context upstream
-        return responseMono.contextWrite(combinedContext);
-    }
+        UseCaseContext securityContext = validateAndCreateContext(token, requiredRoles);
 
-    private boolean isPublicEndpoint(String path) {
-        return PUBLIC_ENDPOINTS.stream().anyMatch(path::startsWith);
+        if (securityContext == null) {
+            return handleUnauthorized(context, "Invalid token or insufficient permissions");
+        }
+
+        return proceedWithContext(context, securityContext);
     }
 
     private String extractToken(HttpRequest<?> request) {
-        return Optional.ofNullable(request.getHeaders().get(AUTHORIZATION_HEADER))
-                .filter(header -> header.startsWith(BEARER_PREFIX))
-                .map(header -> header.substring(BEARER_PREFIX.length()))
-                .orElse("");
+        Optional<String> authHeader = request.getHeaders().findFirst(AUTHORIZATION_HEADER);
+        if (authHeader.isPresent() && authHeader.get().startsWith(BEARER_PREFIX)) {
+            return authHeader.get().substring(BEARER_PREFIX.length());
+        }
+        return null;
+    }
+
+    private UseCaseContext validateAndCreateContext(String token, String[] requiredRoles) {
+        try {
+            JsonNode claims = extractClaimsFromJwt(token);
+            if (claims != null) {
+                String userId = getClaimValue(claims, "subject", "userId");
+                String permission = getClaimValue(claims, "permission");
+                String roles = getClaimValue(claims, "roles");
+                String memberId = getClaimValue(claims, "memberId");
+                // TODO: Implement your token validation logic here
+                return UseCaseContext.builder()
+                        .token(token)
+                        .securityContext(UserSecurityContext.builder()
+                                .subject(userId)
+                                .userId(userId)
+                                .memberId(memberId)
+                                .permission(permission)
+                                .role(roles)
+                                .build()).build();
+            }
+//            if (requiredRoles.length > 0) {
+//                // TODO: Implement role validation
+//            }
+
+            return null;
+        } catch (Exception e) {
+            LOG.error("Error validating token", e);
+            return null;
+        }
+    }
+
+    private JsonNode extractClaimsFromJwt(String token) {
+        try {
+            // JWT format: header.payload.signature
+            String[] parts = token.split("\\.");
+            if (parts.length < 2) {
+                LOG.warn("Invalid JWT format");
+                return null;
+            }
+
+            // Decode payload (second part)
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            return objectMapper.readTree(payload);
+        } catch (Exception e) {
+            LOG.error("Error decoding JWT", e);
+            return null;
+        }
+    }
+
+    private String getClaimValue(JsonNode claims, String... claimNames) {
+        for (String claimName : claimNames) {
+            JsonNode node = claims.get(claimName);
+            if (node != null && !node.isNull()) {
+                return node.asText();
+            }
+        }
+        return null;
+    }
+
+    private boolean hasRequiredRoles(JsonNode claims, String[] requiredRoles) {
+        // Check common role claim locations
+        JsonNode rolesNode = claims.get("roles");
+        if (rolesNode == null) {
+            rolesNode = claims.get("authorities");
+        }
+        if (rolesNode == null) {
+            JsonNode realmAccess = claims.get("realm_access");
+            if (realmAccess != null) {
+                rolesNode = realmAccess.get("roles");
+            }
+        }
+
+        if (rolesNode == null || !rolesNode.isArray()) {
+            return false;
+        }
+
+        for (String requiredRole : requiredRoles) {
+            boolean found = false;
+            for (JsonNode roleNode : rolesNode) {
+                if (requiredRole.equalsIgnoreCase(roleNode.asText())) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private Object proceedWithContext(MethodInvocationContext<Object, Object> context, UseCaseContext securityContext) {
+        Class<?> returnType = context.getReturnType().getType();
+
+        if (Mono.class.isAssignableFrom(returnType)) {
+            return Mono.deferContextual(ctx -> {
+                Object result = context.proceed();
+                return (Mono<?>) result;
+            }).contextWrite(ctx -> SecurityContextHolder.withSecurityContext(ctx, securityContext));
+        }
+
+        if (Flux.class.isAssignableFrom(returnType)) {
+            return Flux.deferContextual(ctx -> {
+                Object result = context.proceed();
+                return (Flux<?>) result;
+            }).contextWrite(ctx -> SecurityContextHolder.withSecurityContext(ctx, securityContext));
+        }
+
+        if (Publisher.class.isAssignableFrom(returnType)) {
+            return Flux.deferContextual(ctx -> {
+                Object result = context.proceed();
+                return Flux.from((Publisher<?>) result);
+            }).contextWrite(ctx -> SecurityContextHolder.withSecurityContext(ctx, securityContext));
+        }
+
+        // Non-reactive - just proceed
+        return context.proceed();
+    }
+
+    private Object handleUnauthorized(MethodInvocationContext<Object, Object> context, String message) {
+        Class<?> returnType = context.getReturnType().getType();
+
+        if (Mono.class.isAssignableFrom(returnType)) {
+            return Mono.error(new SecurityException(message));
+        }
+
+        if (Flux.class.isAssignableFrom(returnType)) {
+            return Flux.error(new SecurityException(message));
+        }
+
+        throw new SecurityException(message);
     }
 }

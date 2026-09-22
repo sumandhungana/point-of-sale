@@ -12,8 +12,8 @@ public class SecurityContextHolder {
         return Context.of(SECURITY_TOKEN_KEY, token);
     }
 
-    public static Context withSecurityContext(UserSecurityContext context) {
-        return Context.of(SECURITY_CONTEXT_KEY, context);
+    public static Context withSecurityContext(Context context, UseCaseContext userSecurityContext) {
+        return context.put(SECURITY_CONTEXT_KEY, userSecurityContext.securityContext());
     }
 
     // Resolves both values safely into a single UseCaseContext

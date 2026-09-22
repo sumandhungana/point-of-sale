@@ -1,6 +1,7 @@
 package com.puff.tech.staffmanagement.controller;
 
 import com.puff.tech.core.responses.RestResponse;
+import com.puff.tech.security.Secured;
 import com.puff.tech.staffmanagement.usecase.staff.create.CreateStaffUseCase;
 import com.puff.tech.staffmanagement.usecase.staff.create.CreateStaffUseCaseRequest;
 import com.puff.tech.staffmanagement.usecase.staff.create.CreateStaffUseCaseResponse;
@@ -50,6 +51,7 @@ public class StaffController {
         this.getStaffSalaryUseCase = getStaffSalaryUseCase;
     }
 
+    @Secured
     @Post("/staff")
     public Mono<RestResponse<CreateStaffUseCaseResponse>> create(@Body CreateStaffUseCaseRequest request){
         return createStaffUseCase.execute(request)
@@ -57,6 +59,7 @@ public class StaffController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller " +err.getLocalizedMessage())));
     }
 
+    @Secured
     @Get("/staffs")
     public Flux<RestResponse<GetStaffUseCaseResponse>> get(){
         return getStaffUseCase.execute(new GetStaffUCRequest())

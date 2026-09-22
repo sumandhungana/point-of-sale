@@ -41,7 +41,11 @@ public class JwtTokenProvider {
             boolean enabled = Optional.ofNullable(claims.getBooleanClaim("enabled"))
                     .orElse(false);
 
-            return new UserSecurityContext(username, userId, roles, permissions, enabled);
+            String memberId = Optional.ofNullable(claims.getClaim("memberId"))
+                    .map(Object::toString)
+                    .orElse("");
+
+            return new UserSecurityContext(username, userId, roles, permissions, enabled, memberId);
 
         } catch (ParseException e) {
             // Return null on malformed tokens so downstream pipeline receives empty context instead of crashing
