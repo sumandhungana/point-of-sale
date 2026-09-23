@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-@Controller("")
+@Controller("staff")
 public class StaffController {
 
     private final CreateStaffUseCase createStaffUseCase;
@@ -54,7 +54,7 @@ public class StaffController {
     }
 
     @Secured
-    @Post("/staff")
+    @Post()
     public Mono<RestResponse<CreateStaffUseCaseResponse>> create(@Body CreateStaffUseCaseRequest request){
         return createStaffUseCase.execute(request)
                 .map(RestResponse::success)
@@ -62,7 +62,7 @@ public class StaffController {
     }
 
     @Secured
-    @Get("/staffs")
+    @Get("/all-staffs")
     public Mono<RestResponse<List<GetStaffUseCaseResponse>>> get(){
         return getStaffUseCase.execute(new GetStaffUCRequest())
                 .collectList()
@@ -84,7 +84,7 @@ public class StaffController {
                 .onErrorResume(err-> Flux.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
     }
 
-    @Get("/staff/{id}")
+    @Get("{id}")
     public Mono<RestResponse<GetStaffUseCaseResponse>> getOne(@PathVariable Integer id){
         var request= new GetOneStaffUseCaseRequest(id);
         return getOneStaffUseCase.execute(request)
@@ -92,14 +92,14 @@ public class StaffController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
     }
 
-    @Put("/staff/{id}")
+    @Put("{id}")
     public Mono<RestResponse<UpdateStaffUseCaseResponse>> update(@Body UpdateStaffUseCaseRequest request){
         return updateStaffUseCase.execute(request)
                 .map(RestResponse::success)
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
     }
 
-    @Delete("/staff/{id}")
+    @Delete("{id}")
     public Mono<RestResponse<DeleteStaffUseCaseResponse>> delete(@PathVariable Integer id){
         var request= new DeleteStaffUseCaseRequest(id);
         return deleteStaffUseCase.execute(request)

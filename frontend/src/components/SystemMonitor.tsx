@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import {apiService} from "@/infrastructure/utils/ApiService";
 
 interface SystemMetrics {
   cpuUsage: number;
@@ -6,6 +7,13 @@ interface SystemMetrics {
   diskUsage: number;
   timestamp: string;
 }
+interface RestResponse<T> {
+  code: number;
+  message: string;
+  data: T;
+  error?: string;
+}
+
 
 interface SemiCircularGaugeProps {
   percentage: number;
@@ -110,14 +118,19 @@ export const SystemMonitor: React.FC = () => {
 
   const fetchMetrics = async () => {
     try {
+      ///api/v1/metrics/system-monitor
       const token = localStorage.getItem('authToken');
-      const response = await fetch('/api/systemmonitor/metrics', {
-        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-      });
-      if (!response.ok) {
+      const res = await apiService.get<RestResponse<SystemMetrics>>(
+          'api/v1/metrics/system-monitor',
+          {
+            headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          }
+      );
+
+      if (res.error) {
         throw new Error('Failed to fetch system metrics');
       }
-      const data = await response.json();
+      const data = res?.response?.data;
       setMetrics(data);
       setError(null);
     } catch (err) {

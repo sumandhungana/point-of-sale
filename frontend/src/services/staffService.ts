@@ -66,7 +66,7 @@ interface RestResponse<T> {
 // 1. Fetch all staff members
 export async function fetchStaff(): Promise<GetStaffResponse[]> {
   const res = await apiService.get<RestResponse<GetStaffResponse[]>>(
-      'api/v1/staffs',
+      'api/v1/staff/all-staffs',
       {
         headers: {
           ...getAuthHeaders(),

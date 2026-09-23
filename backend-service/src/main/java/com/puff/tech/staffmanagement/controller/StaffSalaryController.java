@@ -22,7 +22,7 @@ import jakarta.inject.Inject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Controller("")
+@Controller("staff-salary")
 public class StaffSalaryController {
 
     private final CreateStaffSalaryUseCase createStaffSalaryUseCase;
@@ -48,7 +48,7 @@ public class StaffSalaryController {
     }
 
     @Secured
-    @Post("/staff-salary")
+    @Post()
     public Mono<RestResponse<CreateStaffSalaryUseCaseResponse>> create(@Body CreateStaffSalaryUseCaseRequest request){
         return  createStaffSalaryUseCase.execute(request)
                 .map(RestResponse::success)
