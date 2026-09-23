@@ -1,16 +1,17 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
+import { fetchSingleCustomerData } from '../services/customerService';
 import { toast } from 'react-toastify';
 import '../styles/CustomerStatements.css';
 import { YouGave } from './YouGave';
 import { YouReceived } from './YouReceived';
-import { color } from 'html2canvas/dist/types/css/types/color';
-
+import { resolveImageSrc } from '../utils/imageResolver';
 
 interface CustomerData {
     id: number;
+    customer_id?: number;
     name: string;
     phone: string | null;
     email: string | null;
@@ -31,19 +32,80 @@ interface CustomerData {
     paymentDateReminder: string | null;
 }
 
+/**
+ * Avatar that validates the resolved image before rendering it.
+ * Shows a person icon if the image is missing or fails to load.
+ */
+const CustomerAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string }) => {
+    const [status, setStatus] = useState<'loading' | 'ok' | 'failed'>(
+        imageSrc ? 'loading' : 'failed'
+    );
+
+    useEffect(() => {
+        if (!imageSrc) {
+            setStatus('failed');
+            return;
+        }
+        setStatus('loading');
+
+        let cancelled = false;
+        const probe = new Image();
+        probe.onload = () => { if (!cancelled) setStatus('ok'); };
+        probe.onerror = () => { if (!cancelled) setStatus('failed'); };
+        probe.src = imageSrc;
+
+        return () => {
+            cancelled = true;
+            probe.onload = null;
+            probe.onerror = null;
+        };
+    }, [imageSrc]);
+
+    if (status !== 'ok') {
+        return (
+            <div
+                style={{
+                    fontSize: '2.5rem',
+                    color: '#6c757d',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%',
+                    height: '100%',
+                }}
+            >
+                <i className="bi bi-person"></i>
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={imageSrc}
+            alt={name || 'Customer'}
+            className="customer-statements-profile-image"
+            style={{ objectFit: 'cover', display: 'block', width: '100%', height: '100%' }}
+        />
+    );
+};
+
 export const CustomerStatements = () => {
     const navigate = useNavigate();
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
+
+    const isValidUrlId = Boolean(id && id !== 'undefined' && !isNaN(Number(id)));
+    const numericUrlId = isValidUrlId ? parseInt(id!, 10) : 0;
+
     const [reminderDate, setReminderDate] = useState<string>('');
-    const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
     const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
     const [showReceivedPopup, setShowReceivedPopup] = useState(false);
     const [showBottomButtons, setShowBottomButtons] = useState(false);
+
     const [customerData, setCustomerData] = useState<CustomerData>({
-        id: 0,
+        id: numericUrlId,
         name: '',
         phone: null,
         email: null,
@@ -65,217 +127,138 @@ export const CustomerStatements = () => {
     });
     const [customerLoading, setCustomerLoading] = useState(true);
 
-    // Debug: Log the received data
-    console.log('CustomerStatements - Received customer data:', customerData);
-    console.log('CustomerStatements - Location state:', location.state);
-    console.log('CustomerStatements - Customer ID from params:', id);
+    useEffect(() => {
+        const handleScroll = () => {
+            const cards = document.querySelectorAll(".customer-statements-transaction-card");
+            if (cards.length === 0) {
+                setShowBottomButtons(true);
+                return;
+            }
+            const fourthLastCard = cards[Math.max(0, cards.length - 4)];
+            const rect = fourthLastCard.getBoundingClientRect();
+            setShowBottomButtons(rect.top < window.innerHeight);
+        };
 
-    ////new code to trans
-   useEffect(() => {
-    const handleScroll = () => {
-        const cards = document.querySelectorAll(
-            ".customer-statements-transaction-card"
-        );
+        window.addEventListener("scroll", handleScroll);
+        handleScroll();
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
-        // Show buttons when there are no transactions
-        if (cards.length === 0) {
-            setShowBottomButtons(true);
-            return;
-        }
-
-        const fourthLastCard = cards[Math.max(0, cards.length - 4)];
-
-        const rect = fourthLastCard.getBoundingClientRect();
-
-        if (rect.top < window.innerHeight) {
-            setShowBottomButtons(true);
-        } else {
-            setShowBottomButtons(false);
-        }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-
-    handleScroll();
-
-    return () => {
-        window.removeEventListener("scroll", handleScroll);
-    };
-}, []);
-
-
-    /////new code to trans
-
-    // Set customer data from location state when component mounts
     useEffect(() => {
         if (location.state?.customer) {
-            setCustomerData(location.state.customer as CustomerData);
+            const stateCust = location.state.customer;
+            const actualId = stateCust.id ?? stateCust.customer_id ?? numericUrlId;
+            setCustomerData({
+                ...stateCust,
+                id: Number(actualId)
+            });
             setCustomerLoading(false);
-            console.log('Customer data set from location state:', location.state.customer);
-        } else if (id) {
-            // If no location state, try to fetch customer data from API
-            const fetchCustomerData = async () => {
+        } else if (isValidUrlId) {
+            const loadCustomer = async () => {
                 try {
-                    const response = await fetch(`/api/Customer/${id}`, {
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-                        }
-                    });
-                    if (response.ok) {
-                        const customer = await response.json();
+                    const data: any = await fetchSingleCustomerData(id!);
+                    if (data) {
+                        const actualId = data.id ?? data.customer_id ?? numericUrlId;
                         setCustomerData({
-                            id: customer.id,
-                            name: customer.name,
-                            phone: customer.phone,
-                            email: customer.email,
-                            address: customer.address,
-                            company: customer.company,
-                            pan: customer.pan,
-                            contactPerson: customer.contactPerson,
-                            isSupplier: customer.isSupplier,
-                            createdAt: customer.createdAt,
-                            updatedAt: customer.updatedAt,
-                            bankAccount: customer.bankAccount,
-                            cashBalance: customer.cashBalance,
-                            profileImage: customer.profileImage,
-                            customerSmsSetting: customer.customerSmsSetting,
-                            smsLanguage: customer.smsLanguage,
-                            transactionHistoryCheck: customer.transactionHistoryCheck,
+                            id: Number(actualId),
+                            name: data.name || '',
+                            phone: data.phone || null,
+                            email: data.email || null,
+                            address: data.address || null,
+                            company: data.company || null,
+                            pan: data.pan || null,
+                            contactPerson: data.contactPerson || null,
+                            isSupplier: Boolean(data.isSupplier),
+                            createdAt: data.createdAt || '',
+                            updatedAt: data.updatedAt || '',
+                            bankAccount: data.bankAccount || null,
+                            cashBalance: data.cashBalance || 0,
+                            profileImage: data.profileImage || null,
+                            customerSmsSetting: Boolean(data.customerSmsSetting),
+                            smsLanguage: Boolean(data.smsLanguage),
+                            transactionHistoryCheck: Boolean(data.transactionHistoryCheck),
                             paymentHistory: [],
-                            paymentDateReminder: customer.paymentDateReminder
+                            paymentDateReminder: data.paymentDateReminder || null
                         });
-                        setCustomerLoading(false);
-                        console.log('Customer data fetched from API:', customer);
                     }
                 } catch (error) {
                     console.error('Error fetching customer data:', error);
+                    toast.error('Failed to load customer details');
+                } finally {
                     setCustomerLoading(false);
                 }
             };
-            fetchCustomerData();
+            loadCustomer();
         } else {
             setCustomerLoading(false);
         }
-    }, [location.state, id]);
+    }, [location.state, id, isValidUrlId, numericUrlId]);
 
-
-    // Calculate totals from payment history with combined balance logic
     const calculateTotals = (history: PaymentHistory[]) => {
-        console.log('Calculating totals from history:', history);
         const result = history.reduce((acc, payment) => {
-            console.log('Processing payment:', payment);
             const t = (payment.type || '').toLowerCase();
             if (t === 'given' || t === 'payment_out' || t === 'you_gave') {
                 acc.given += payment.amount;
-                console.log('Added to given:', payment.amount, 'Total given now:', acc.given);
             } else if (t === 'received' || t === 'payment_in' || t === 'you_received') {
                 acc.received += payment.amount;
-                console.log('Added to received:', payment.amount, 'Total received now:', acc.received);
             }
             return acc;
         }, { given: 0, received: 0 });
 
-        // Apply combined balance logic: You Received = Total Received - Total Given
-        const combinedReceived = Math.max(result.received - result.given, 0);
-        const combinedGiven = Math.max(result.given - result.received, 0);
-
-        console.log('Final totals (combined):', { given: combinedGiven, received: combinedReceived });
-        return { given: combinedGiven, received: combinedReceived };
+        return {
+            given: Math.max(result.given - result.received, 0),
+            received: Math.max(result.received - result.given, 0)
+        };
     };
+
     const totals = calculateTotals(paymentHistory);
 
     useEffect(() => {
         const fetchPaymentHistory = async () => {
-            try {
-                if (!id) {
-                    console.error('No customer ID provided');
-                    navigate('/parties/customers');
-                    return;
-                }
+            const targetId = numericUrlId || customerData.id || customerData.customer_id;
+            if (!targetId) return;
 
-                console.log('Fetching payment history for customer ID:', id);
-                const history = await getPaymentHistory(parseInt(id));
-                console.log('Received payment history:', history);
-                setPaymentHistory(history);
-                setIsLoading(false);
+            try {
+                const history = await getPaymentHistory(targetId);
+                setPaymentHistory(Array.isArray(history) ? history : []);
             } catch (error) {
                 console.error('Error fetching payment history:', error);
                 toast.error('Failed to fetch payment history');
+            } finally {
                 setIsLoading(false);
             }
         };
 
         fetchPaymentHistory();
-    }, [id, navigate]);
-
-    // Group transactions by type and date
-    const groupedTransactions = paymentHistory.reduce((groups, transaction) => {
-        const date = new Date(transaction.date).toISOString().split('T')[0];
-        const rawType = (transaction.type || '').toLowerCase();
-        const type = rawType === 'given' || rawType === 'payment_out' || rawType === 'you_gave' ? 'payment_out' : 'payment_in';
-        if (!groups[date]) groups[date] = [];
-        groups[date].push({
-            id: transaction.id,
-            type: type,
-            date: transaction.date,
-            amount: transaction.amount,
-            oldBalance: transaction.oldBalance,
-            currentBalance: transaction.newBalance,
-            remarks: transaction.remarks,
-            time: new Date(transaction.createdAt).toLocaleTimeString(),
-            timestamp: new Date(transaction.createdAt).getTime()
-        });
-        return groups;
-    }, {} as Record<string, any[]>);
+    }, [numericUrlId, customerData.id, customerData.customer_id]);
 
     const handleCall = () => {
         if (!customerData.phone) {
             toast.error('No phone number available');
             return;
         }
-        console.log(`Calling ${customerData.phone}`);
         window.open(`tel:${customerData.phone.replace(/\D/g, '')}`, '_blank');
     };
 
     const handleBack = () => {
-        // Navigate back to the customers page
-        // navigate(-1);
-        navigate(`/parties/customers`)
+        navigate('/parties/customers');
     };
 
     const handleProfileClick = () => {
-        if (!customerData.id) {
-            toast.error('Customer data not available');
+        const targetId = (isValidUrlId ? id : null) || customerData.id || customerData.customer_id;
+
+        if (!targetId || targetId === 'undefined' || targetId === 0) {
+            toast.error('Customer ID not available');
             return;
         }
 
-        navigate(`/parties/customers/profile/${id}`, {
-            state: {
-                customer: {
-                    id: customerData.id,
-                    name: customerData.name || 'Customer',
-                    phone: customerData.phone,
-                    email: customerData.email,
-                    address: customerData.address,
-                    company: customerData.company,
-                    pan: customerData.pan,
-                    contactPerson: customerData.contactPerson,
-                    isSupplier: customerData.isSupplier,
-                    createdAt: customerData.createdAt,
-                    updatedAt: customerData.updatedAt,
-                    bankAccount: customerData.bankAccount,
-                    cashBalance: customerData.cashBalance,
-                    profileImage: customerData.profileImage,
-                    customerSmsSetting: customerData.customerSmsSetting,
-                    smsLanguage: customerData.smsLanguage,
-                    transactionHistoryCheck: customerData.transactionHistoryCheck
-
-                }
-            }
+        navigate(`/parties/customers/profile/${targetId}`, {
+            state: { customer: customerData }
         });
     };
 
     const handleTransactionClick = (transaction: any) => {
+        const activeCustId = customerData.id || numericUrlId;
         navigate(`/parties/customers/statement/${transaction.id}`, {
             state: {
                 transaction: {
@@ -284,7 +267,7 @@ export const CustomerStatements = () => {
                     totalAmount: Math.abs(transaction.amount),
                     phoneNumber: customerData.phone,
                     type: transaction.type,
-                    customerId: customerData.id,
+                    customerId: activeCustId,
                     details: `${transaction.type === 'payment_in' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.date).toLocaleDateString()}`,
                     remarks: transaction.remarks,
                     sms: `Dear ${customerData.name || 'Customer'}, your payment of रु${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: रु${transaction.currentBalance}. Thank you for your business.`
@@ -294,423 +277,63 @@ export const CustomerStatements = () => {
     };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(`xxSetting reminder for date: ${reminderDate}`);
-        console.log(`Id is: ${id} `)
         setReminderDate(e.target.value);
     };
+
     useEffect(() => {
         if (customerData.paymentDateReminder) {
-            const formattedDate = customerData.paymentDateReminder.split("T")[0];
-            setReminderDate(formattedDate);
+            setReminderDate(customerData.paymentDateReminder.split("T")[0]);
         } else {
             setReminderDate("");
         }
     }, [customerData.paymentDateReminder]);
 
     const handleSetReminder = async () => {
-        // Handle setting the reminder with the selected date
-        console.log(`Setting reminder for date: ${reminderDate}`);
-        if (!id) return;
+        const targetId = numericUrlId || customerData.id || customerData.customer_id;
+        if (!targetId) return;
 
         if (!reminderDate) {
             toast.error("Please select a reminder date.");
             return;
         }
         try {
-            const response = await fetch(`/api/Customer/${id}`, {
-                method: "PUT", // or PATCH if your API uses PATCH
+            const response = await fetch(`/api/v1/customer/${targetId}`, {
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "Authorization": `Bearer ${localStorage.getItem("authToken")}`
+                    "Authorization": `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({
-                    PaymentDateReminder: reminderDate
+                    paymentDateReminder: reminderDate
                 })
             });
 
-            if (!response.ok) {
-                throw new Error("Failed to update reminder");
-            }
+            if (!response.ok) throw new Error("Failed to update reminder");
 
             toast.success("Reminder date updated successfully.");
             setCustomerData(prev => ({
                 ...prev,
-                paymentDateReminder: reminderDate + "T00:00:00"
+                paymentDateReminder: `${reminderDate}T00:00:00`
             }));
-
-
         } catch (error) {
             console.error(error);
             toast.error("Failed to update reminder.");
         }
-
-
     };
 
     const handleReport = () => {
-        navigate(`/parties/customers/statements/report/${id}`, {
+        const targetId = numericUrlId || customerData.id || customerData.customer_id;
+        navigate(`/parties/customers/statements/report/${targetId}`, {
             state: {
                 customer: customerData,
-                paymentHistory: paymentHistory,
-                totals: totals
+                paymentHistory,
+                totals
             }
         });
     };
 
-    const styles = {
-        container: {
-            minHeight: '100vh',
-            background: '#f8f9fa',
-        },
-        profileContainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            display: 'flex',
-            flexDirection: 'column' as const,
-            alignItems: 'center',
-            marginBottom: '2rem',
-        },
-        profileHeader: {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '100%',
-            marginBottom: '1rem',
-            position: 'relative' as const,
-        },
-        buttonContainer: {
-            position: 'absolute' as const,
-            right: 0,
-            display: 'flex',
-            gap: '0.5rem',
-        },
-        backButton: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1rem',
-            background: '#6c757d',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            position: 'absolute' as const,
-            left: 0,
-            '&:hover': {
-                background: '#5a6268',
-            },
-        },
-        profileImageContainer: {
-            width: '100px',
-            height: '100px',
-            borderRadius: '50%',
-            overflow: 'hidden',
-            border: '3px solid #dc4c39',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: '#e9ecef',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-                transform: 'scale(1.05)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-            },
-        },
-        profileImage: {
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover' as const,
-        },
-        customerName: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '0.5rem',
-            textAlign: 'center' as const,
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-                color: '#dc4c39',
-            },
-        },
-        callButton: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1rem',
-            background: '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-                background: '#218838',
-            },
-        },
-        depositButton: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1rem',
-            background: '#6f42c1',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            '&:hover': {
-                background: '#5a32a3',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-            },
-        },
-        amountCard: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            marginBottom: '2rem',
-        },
-        amountRow: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1.5rem',
-        },
-        amountItem: {
-            flex: 1,
-            padding: '1rem',
-            borderRadius: '8px',
-            backgroundColor: '#f8f9fa',
-            margin: '0 0.5rem',
-            textAlign: 'center' as const,
-        },
-        amountLabel: {
-            fontSize: '1rem',
-            color: '#6c757d',
-            marginBottom: '0.5rem',
-        },
-        amountValue: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#28a745',
-        },
-        reminderRow: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginTop: '1rem',
-        },
-        reminderLabel: {
-            fontSize: '1rem',
-            color: '#495057',
-            fontWeight: '500',
-        },
-        dateInput: {
-            padding: '0.5rem',
-            border: '1px solid #ced4da',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-        },
-        transactionsContainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            marginBottom: '2rem',
-        },
-        transactionsTitle: {
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '1.5rem',
-            paddingBottom: '0.75rem',
-            borderBottom: '1px solid #dee2e6',
-        },
-        actionButtonsContainer: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '1.5rem',
-        },
-        actionButton: {
-            padding: '0.75rem 1.5rem',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: '500',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-        },
-        giveButton: {
-            background: '#dc3545',
-            color: 'white',
-            '&:hover': {
-                background: '#c82333',
-            },
-        },
-        receiveButton: {
-            background: '#28a745',
-            color: 'white',
-            '&:hover': {
-                background: '#218838',
-            },
-        },
-        dateGroup: {
-            marginBottom: '2rem',
-        },
-        dateLabel: {
-            textAlign: 'center' as const,
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            color: '#495057',
-            marginBottom: '1rem',
-            padding: '0.5rem',
-            backgroundColor: '#f8f9fa',
-            borderRadius: '4px',
-        },
-        transactionCard: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            padding: '1rem',
-            border: '1px solid #dee2e6',
-            borderRadius: '4px',
-            marginBottom: '1rem',
-            backgroundColor: 'white',
-            cursor: 'pointer',
-            transition: 'all 0.2s ease',
-            '&:hover': {
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                transform: 'translateY(-2px)',
-            },
-        },
-        transactionInfo: {
-            flex: 1,
-        },
-        transactionRow: {
-            display: 'flex',
-            marginBottom: '0.5rem',
-        },
-        transactionLabel: {
-            width: '120px',
-            fontSize: '0.875rem',
-            color: '#6c757d',
-            fontWeight: '500',
-        },
-        transactionValue: {
-            fontSize: '0.875rem',
-            color: '#212529',
-        },
-        transactionAmounts: {
-            display: 'flex',
-            flexDirection: 'column' as const,
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: '0 1rem',
-            borderLeft: '1px solid #dee2e6',
-        },
-        oldAmount: {
-            fontSize: '0.875rem',
-            color: '#6c757d',
-            marginBottom: '0.5rem',
-            padding: '0.25rem 0.5rem',
-            border: '1px dashed #ced4da',
-            borderRadius: '4px',
-        },
-        currentAmount: {
-            fontSize: '1rem',
-            fontWeight: 'bold',
-            color: '#28a745',
-            padding: '0.25rem 0.5rem',
-            border: '1px solid #28a745',
-            borderRadius: '4px',
-        },
-        currentAmountRed: {
-            color: '#dc3545',
-            border: '1px solid #dc3545',
-        },
-        currentAmountRedNoBorder: {
-            color: '#dc3545',
-        },
-        paymentIn: {
-            color: '#28a745',
-        },
-        paymentOut: {
-            color: '#dc3545',
-        },
-        statementsContainer: {
-            background: 'white',
-            padding: '2rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-        },
-        statementsTitle: {
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '1.5rem',
-            paddingBottom: '0.75rem',
-            borderBottom: '1px solid #dee2e6',
-        },
-        noStatements: {
-            textAlign: 'center' as const,
-            padding: '2rem',
-            color: '#6c757d',
-            fontSize: '1rem',
-        },
-        actionButtonsRow: {
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginBottom: '2rem',
-        },
-        reportButton: {
-            background: '#17a2b8',
-            color: 'white',
-            '&:hover': {
-                background: '#138496',
-            },
-        },
-        reminderButton: {
-            background: '#ffc107',
-            color: '#212529',
-            '&:hover': {
-                background: '#e0a800',
-            },
-        },
-        smsButton: {
-            background: '#6f42c1',
-            color: 'white',
-            '&:hover': {
-                background: '#5a32a3',
-            },
-        },
-        transactionSection: {
-            marginBottom: '2rem',
-            padding: '1rem',
-            background: '#f8f9fa',
-            borderRadius: '8px',
-        },
-        sectionTitle: {
-            fontSize: '1.1rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '1rem',
-            paddingBottom: '0.5rem',
-            borderBottom: '2px solid #dee2e6',
-        },
-
-    };
+    const activeId = numericUrlId || customerData.id || customerData.customer_id;
+    const resolvedImage = resolveImageSrc(customerData.profileImage);
 
     return (
         <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
@@ -735,23 +358,13 @@ export const CustomerStatements = () => {
                                 onClick={handleProfileClick}
                                 title="View customer profile"
                             >
-                                {customerData.profileImage ? (
-                                    <img
-                                        src={customerData.profileImage}
-                                        alt={customerData.name || 'Customer'}
-                                        className="customer-statements-profile-image"
-                                    />
-                                ) : (
-                                    <div style={{ fontSize: '2.5rem', color: 'white' }}>
-                                        <i className="bi bi-person"></i>
-                                    </div>
-                                )}
+                                <CustomerAvatar name={customerData.name} imageSrc={resolvedImage} />
                             </div>
                         </div>
                         <div className="customer-statements-header-right">
                             <button
                                 className="btn-base btn-primary"
-                                onClick={() => navigate(`/parties/customers/deposit/${id}`)}
+                                onClick={() => navigate(`/parties/customers/deposit/${activeId}`)}
                                 aria-label="Make a deposit"
                                 title="Make a deposit"
                             >
@@ -819,7 +432,7 @@ export const CustomerStatements = () => {
                         Report
                     </button>
                     <button className="btn-base btn-warning" onClick={handleSetReminder}>
-                        <i className="bi bi-alarm" ></i>
+                        <i className="bi bi-alarm"></i>
                         Reminder
                     </button>
                     <button className="btn-base btn-purple">
@@ -846,20 +459,34 @@ export const CustomerStatements = () => {
                         </div>
                     ) : (
                         <div>
-                            {Object.entries(groupedTransactions)
+                            {Object.entries(
+                                paymentHistory.reduce((groups, transaction) => {
+                                    const date = new Date(transaction.date).toISOString().split('T')[0];
+                                    const rawType = (transaction.type || '').toLowerCase();
+                                    const type = rawType === 'given' || rawType === 'payment_out' || rawType === 'you_gave' ? 'payment_out' : 'payment_in';
+                                    if (!groups[date]) groups[date] = [];
+                                    groups[date].push({
+                                        id: transaction.id,
+                                        type,
+                                        date: transaction.date,
+                                        amount: transaction.amount,
+                                        oldBalance: transaction.oldBalance,
+                                        currentBalance: transaction.newBalance,
+                                        remarks: transaction.remarks,
+                                        time: new Date(transaction.createdAt).toLocaleTimeString(),
+                                        timestamp: new Date(transaction.createdAt).getTime()
+                                    });
+                                    return groups;
+                                }, {} as Record<string, any[]>)
+                            )
                                 .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
                                 .map(([date, dateTransactions]) => (
                                     <div key={date} className="customer-statements-date-group">
                                         {dateTransactions
-                                            .sort((a, b) => {
-                                                const tb = new Date(b.createdAt || b.date).getTime();
-                                                const ta = new Date(a.createdAt || a.date).getTime();
-                                                return tb - ta;
-                                            })
+                                            .sort((a, b) => b.timestamp - a.timestamp)
                                             .map(transaction => (
                                                 <div
                                                     key={transaction.id}
-
                                                     className="customer-statements-transaction-card"
                                                     onClick={() => handleTransactionClick(transaction)}
                                                 >
@@ -909,12 +536,7 @@ export const CustomerStatements = () => {
                     )}
                 </div>
 
-               
-
-                <div
-                    className={`customer-statements-bottom-row ${showBottomButtons ? "show-buttons" : ""
-                        }`}
-                >
+                <div className={`customer-statements-bottom-row ${showBottomButtons ? "show-buttons" : ""}`}>
                     <button
                         className="btn-base btn-red"
                         onClick={() => setShowPopup(true)}
@@ -933,11 +555,9 @@ export const CustomerStatements = () => {
                         You Gave
                     </button>
 
-
                     {showPopup && (
                         <div className="popup-overlay">
                             <div className="popup-content">
-
                                 <button
                                     onClick={() => setShowPopup(false)}
                                     className="popup-close-button"
@@ -945,26 +565,17 @@ export const CustomerStatements = () => {
                                 >
                                     <i className="bi bi-x-lg"></i>
                                 </button>
-
                                 <div className="popup-title-container">
-                                    <h2 style={{
-                                        color: "red",
-                                        textAlign: "center",
-                                        margin: "0",
-                                        padding: "0"
-                                    }} >
+                                    <h2 style={{ color: "red", textAlign: "center", margin: "0", padding: "0" }}>
                                         You Gave
                                     </h2>
                                 </div>
-
                                 <div className="you-gave-popup-body">
                                     <YouGave />
                                 </div>
-
                             </div>
                         </div>
                     )}
-
 
                     <button
                         className="btn-base btn-green"
@@ -983,11 +594,10 @@ export const CustomerStatements = () => {
                         <i className="bi bi-arrow-down-circle"></i>
                         You Received
                     </button>
+
                     {showReceivedPopup && (
                         <div className="popup-overlay">
                             <div className="popup-content">
-
-                                {/* Close button */}
                                 <button
                                     onClick={() => setShowReceivedPopup(false)}
                                     className="popup-close-button"
@@ -995,31 +605,19 @@ export const CustomerStatements = () => {
                                 >
                                     <i className="bi bi-x-lg"></i>
                                 </button>
-
-
-                                <div className="popup-title-container" >
-                                    <h2 style={{
-                                        color: "green",
-                                        textAlign: "center",
-                                        margin: "0",
-                                        padding: "0"
-                                    }} >
+                                <div className="popup-title-container">
+                                    <h2 style={{ color: "green", textAlign: "center", margin: "0", padding: "0" }}>
                                         You Received
                                     </h2>
                                 </div>
-
-
                                 <div className="you-received-popup-body">
                                     <YouReceived />
                                 </div>
-
                             </div>
                         </div>
                     )}
                 </div>
-
-
             </main>
         </div>
     );
-}; 
+};

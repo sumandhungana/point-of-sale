@@ -25,7 +25,7 @@ import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 
-@Controller("/api/v1")
+@Controller("")
 public class StaffAttendanceController {
 
     private final CreateStaffAtendanceUseCase createStaffAtendanceUseCase;

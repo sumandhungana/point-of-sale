@@ -22,7 +22,7 @@ import jakarta.inject.Inject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Controller("/api/v1")
+@Controller("")
 public class StaffSalaryController {
 
     private final CreateStaffSalaryUseCase createStaffSalaryUseCase;

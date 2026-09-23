@@ -19,7 +19,7 @@ import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
 
-@Controller("/api/v1/user")
+@Controller("/user")
 public class UserEnrollmentController {
 
     private final UserRegistrationUseCase userRegistrationUseCase;

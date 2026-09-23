@@ -62,7 +62,7 @@ public class LoginUserUseCase implements MonoUC<LoginUserUseCaseRequest,LoginUse
     private static JwtTokenInfo prepareJwtTokenInfo(UserInfoEntity userInfo, Long memberId) {
         return new JwtTokenInfo(
                 userInfo.getUserId(),
-                userInfo.getUserId(),
+                userInfo.getId().toString(),
                 userInfo.getUserName(),
                 userInfo.getRole(),
                 userInfo.getPermission(),

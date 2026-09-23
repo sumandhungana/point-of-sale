@@ -30,4 +30,7 @@ public interface UserMemberRepository  extends ReactiveStreamsCrudRepository<Use
 
     // Delete a specific link between a user and a member
     Mono<Long> deleteByUserAndMember(UserInfoEntity user, MemberEntity member);
+    @Join(value = "user", type = Join.Type.FETCH)
+    @Join(value = "member", type = Join.Type.FETCH)
+    Mono<UserMemberEntity> findByUserIdAndMemberId(Long userId, Long memberId);
 }

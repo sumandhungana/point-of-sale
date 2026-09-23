@@ -2,7 +2,7 @@ package com.puff.tech.usecase.salesbills.create;
 
 import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.SalesBillConvertor;
-import com.puff.tech.repository.CustomerRepository;
+import com.puff.tech.customermanagement.repository.CustomerRepository;
 import com.puff.tech.repository.SalesBillRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;

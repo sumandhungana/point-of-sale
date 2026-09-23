@@ -2,6 +2,13 @@ export interface ApiOptions extends RequestInit {
     headers?: Record<string, string>;
 }
 
+export interface ApiResponse<T> {
+    success: boolean;
+    response?: T;
+    failure: boolean;
+    error?: string;
+}
+
 export class ApiService {
     // Safely detect environment variables across Vite, Webpack, or fallback to default
     private baseUrl: string =
@@ -30,26 +37,28 @@ export class ApiService {
                 throw new Error(`Api Error ${response.status}: ${errorBody}`);
             }
 
-            return response.json();
+            // Handle HTTP 204 No Content or empty responses
+            if (response.status === 204) {
+                return {} as T;
+            }
+
+            const text = await response.text();
+            return text ? JSON.parse(text) : ({} as T);
         } catch (error: any) {
             throw new Error(error?.message || String(error));
         }
     }
 
-    async get<T>(endpoint: string, options: ApiOptions = {}): Promise<{
-        success: boolean;
-        response?: T;
-        failure: boolean;
-        error?: string;
-    }> {
+    async get<T>(endpoint: string, options: ApiOptions = {}): Promise<ApiResponse<T>> {
         return this.request<T>(endpoint, {
             ...options,
             method: 'GET'
-        }).then((resp) => ({
-            success: true,
-            response: resp,
-            failure: false
-        }))
+        })
+            .then((resp) => ({
+                success: true,
+                response: resp,
+                failure: false
+            }))
             .catch((error: any) => ({
                 success: false,
                 failure: true,
@@ -57,21 +66,52 @@ export class ApiService {
             }));
     }
 
-    async post<T>(endpoint: string, body: any, options: ApiOptions = {}): Promise<{
-        success: boolean;
-        response?: T;
-        failure: boolean;
-        error?: string;
-    }> {
+    async post<T>(endpoint: string, body: any, options: ApiOptions = {}): Promise<ApiResponse<T>> {
         return this.request<T>(endpoint, {
             ...options,
             method: 'POST',
             body: JSON.stringify(body)
-        }).then((resp) => ({
-            success: true,
-            response: resp,
-            failure: false
-        }))
+        })
+            .then((resp) => ({
+                success: true,
+                response: resp,
+                failure: false
+            }))
+            .catch((error: any) => ({
+                success: false,
+                failure: true,
+                error: `Network Error: ${error?.message || String(error)}`
+            }));
+    }
+
+    async put<T>(endpoint: string, body: any, options: ApiOptions = {}): Promise<ApiResponse<T>> {
+        return this.request<T>(endpoint, {
+            ...options,
+            method: 'PUT',
+            body: JSON.stringify(body)
+        })
+            .then((resp) => ({
+                success: true,
+                response: resp,
+                failure: false
+            }))
+            .catch((error: any) => ({
+                success: false,
+                failure: true,
+                error: `Network Error: ${error?.message || String(error)}`
+            }));
+    }
+
+    async delete<T>(endpoint: string, options: ApiOptions = {}): Promise<ApiResponse<T>> {
+        return this.request<T>(endpoint, {
+            ...options,
+            method: 'DELETE'
+        })
+            .then((resp) => ({
+                success: true,
+                response: resp,
+                failure: false
+            }))
             .catch((error: any) => ({
                 success: false,
                 failure: true,

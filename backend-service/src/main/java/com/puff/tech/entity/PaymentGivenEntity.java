@@ -1,5 +1,6 @@
 package com.puff.tech.entity;
 
+import com.puff.tech.customermanagement.repository.CustomerEntity;
 import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;

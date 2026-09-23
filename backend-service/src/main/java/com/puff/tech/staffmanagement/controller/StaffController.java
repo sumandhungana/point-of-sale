@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-@Controller("/api/v1")
+@Controller("")
 public class StaffController {
 
     private final CreateStaffUseCase createStaffUseCase;

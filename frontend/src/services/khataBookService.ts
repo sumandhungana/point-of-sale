@@ -1,4 +1,4 @@
-import axios from 'axios';
+import {apiService} from "@/infrastructure/utils/ApiService";
 
 // Use relative URLs to work with Vite proxy
 const API_URL = '/api';
@@ -23,6 +23,13 @@ export interface KhataBook {
   updatedAt: string;
 }
 
+interface RestResponse<T> {
+  code: number;
+  message: string;
+  data: T;
+
+  error?: string;
+}
 
 
 function getAuthHeaders(): Record<string, string> {
@@ -95,17 +102,22 @@ export async function switchKhataBook(khataBookId: number) {
 
 export async function getSelectedKhataBook() {
   try {
-    const response = await fetch(`${API_URL}/KhataBook/selected`, {
-      headers: getAuthHeaders(),
-    });
 
-    if (!response.ok) {
-      // If no KhataBook is selected, throw an error
-      throw new Error('No KhataBook is currently selected');
+    const res = await apiService.get<RestResponse<KhataBook>>(
+        'api/v1/member/selected-member',
+        {
+          headers: {
+            ...getAuthHeaders(),
+          },
+        }
+    );
+
+    if (res.error) {
+      throw new Error('Failed to fetch selected khatabook/member');
     }
 
-    const selectedKhataBook = await response.json();
-    
+    const selectedKhataBook = res?.response?.data;
+
     // If the selected KhataBook is null or undefined, throw an error
     if (!selectedKhataBook || !selectedKhataBook.id) {
       throw new Error('Selected KhataBook is null or undefined');

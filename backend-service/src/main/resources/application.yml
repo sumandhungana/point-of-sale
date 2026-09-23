@@ -5,6 +5,7 @@ micronaut:
     name: backend-service
   server:
     port: 8080
+    context-path: /api/v1
     cors:
       enabled: true
       configurations:
@@ -39,6 +40,9 @@ r2dbc:
         poolName: webcheckout-r2dbc
       schema-generate: CREATE
       dialect: POSTGRES
+      packages:
+        - com.puff.tech.customermanagement.repository
+        - com.puff.tech.suppliermanagement.repository
       db-type: postgres
       username: postgres
       password: root
@@ -48,4 +52,5 @@ logger:
   levels:
     io.micronaut.data.query: DEBUG
     io.micronaut.data.r2dbc: DEBUG
+    io.micronaut.data.schema: DEBUG
     io.r2dbc.postgresql.QUERY: DEBUG

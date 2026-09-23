@@ -1,16 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { getCustomers, Customer } from '../services/customerService';
+import { fetchCustomers, Customer } from '../services/customerService';
 import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
 import { toast } from 'react-toastify';
 import '../styles/Customers.css';
-import { position } from 'html2canvas/dist/types/css/property-descriptors/position';
 
 interface CustomerWithBalance extends Customer {
     balance: number;
     paymentHistory: PaymentHistory[];
-    profileImage?: string;
 }
 
 interface OverallTotals {
@@ -19,145 +17,364 @@ interface OverallTotals {
     online: number;
 }
 
+/**
+ * Detects whether a string is a valid image data URL.
+ */
+const isDataUrl = (s: string): boolean =>
+    /^data:image\/[a-z0-9.+-]+;base64,/i.test(s);
+
+/**
+ * Safely base64-decode a string (UTF-8 aware).
+ * Handles URL-safe base64 (with - and _) and returns null on failure.
+ */
+const safeAtob = (input: string): string | null => {
+    try {
+        // Normalize URL-safe base64
+        let s = input.replace(/-/g, '+').replace(/_/g, '/');
+        // Pad to multiple of 4
+        while (s.length % 4) s += '=';
+        // Decode as binary then reinterpret as UTF-8
+        const binary = atob(s);
+        try {
+            const bytes = Uint8Array.from(binary, c => c.charCodeAt(0));
+            return new TextDecoder('utf-8', { fatal: false }).decode(bytes);
+        } catch {
+            return binary;
+        }
+    } catch {
+        return null;
+    }
+};
+
+/**
+ * Sniff image MIME from the first bytes of a base64 payload.
+ */
+const sniffMimeFromBase64 = (b64: string): string => {
+    try {
+        const head = b64.substring(0, 24);
+        const padded = head + '='.repeat((4 - (head.length % 4)) % 4);
+        const binary = atob(padded);
+        const bytes = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+        if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return 'image/png';
+        if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'image/jpeg';
+        if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x38) return 'image/gif';
+        if (
+            bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46 &&
+            bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50
+        ) return 'image/webp';
+        if (bytes[0] === 0x42 && bytes[1] === 0x4d) return 'image/bmp';
+        const textHead = binary.substring(0, 5);
+        if (textHead.startsWith('<svg') || textHead.startsWith('<?xml')) return 'image/svg+xml';
+        if (bytes[0] === 0x00 && bytes[1] === 0x00 && bytes[2] === 0x01 && bytes[3] === 0x00) return 'image/x-icon';
+    } catch {
+        /* ignore */
+    }
+    return 'image/jpeg';
+};
+
+/**
+ * Universal image source resolver.
+ *
+ * Handles the specific case seen in this project: the DB stores a
+ * base64-encoded DATA URL, i.e. base64("data:image/png;base64,iVBOR...").
+ * We decode it once so the browser gets a real renderable data URL.
+ *
+ * Also handles: raw base64, plain data URL, http(s) URLs, Node.js Buffers,
+ * raw byte arrays, JSON-stringified strings, double-prefixed data URLs.
+ */
+const resolveImageSrc = (input: any): string => {
+    if (input === undefined || input === null) return '';
+
+    // ── Node.js Buffer: { type: 'Buffer', data: [137, 80, ...] }
+    if (
+        typeof input === 'object' &&
+        !Array.isArray(input) &&
+        (input.type === 'Buffer' || Array.isArray(input.data))
+    ) {
+        try {
+            const bytes = new Uint8Array(input.data);
+            let binary = '';
+            const chunk = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunk) {
+                binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)) as any);
+            }
+            const b64 = btoa(binary);
+            return `data:${sniffMimeFromBase64(b64)};base64,${b64}`;
+        } catch {
+            return '';
+        }
+    }
+
+    // ── Raw byte array
+    if (Array.isArray(input) && input.length > 8 && input.every((n: any) => typeof n === 'number')) {
+        try {
+            const bytes = new Uint8Array(input);
+            let binary = '';
+            const chunk = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunk) {
+                binary += String.fromCharCode.apply(null, Array.from(bytes.subarray(i, i + chunk)) as any);
+            }
+            const b64 = btoa(binary);
+            return `data:${sniffMimeFromBase64(b64)};base64,${b64}`;
+        } catch {
+            return '';
+        }
+    }
+
+    // ── Object with a string `.data` field
+    let value: any = input;
+    if (typeof value === 'object' && typeof value.data === 'string') {
+        value = value.data;
+    }
+
+    // ── Stringify and sanitize
+    let s = String(value).trim();
+
+    // Strip JSON-style surrounding quotes
+    if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+        s = s.slice(1, -1);
+    }
+
+    // Remove whitespace/null bytes
+    s = s.replace(/[\s\u0000-\u001F\u007F]/g, '');
+
+    if (!s || s === 'null' || s === 'undefined') return '';
+
+    // ── HTTP(S) / blob URLs
+    if (s.startsWith('http://') || s.startsWith('https://') || s.startsWith('blob:')) {
+        return s;
+    }
+
+    // ── Direct data URL
+    if (isDataUrl(s)) {
+        // Trust the declared MIME but correct it if it's wrong
+        const commaIdx = s.indexOf(',');
+        const meta = s.substring(0, commaIdx);
+        const payload = s.substring(commaIdx + 1);
+        const declared = meta.match(/data:([^;]+)/)?.[1] || 'image/jpeg';
+        const actual = sniffMimeFromBase64(payload);
+        if (declared !== actual && declared !== 'application/octet-stream') {
+            return `data:${actual};base64,${payload}`;
+        }
+        return s;
+    }
+
+    // ── THE IMPORTANT CASE ──
+    // The string is base64 of a data URL: base64("data:image/png;base64,...")
+    // Decode it once. If the result is a data URL, use it directly.
+    const decodedOnce = safeAtob(s);
+    if (decodedOnce && isDataUrl(decodedOnce)) {
+        return decodedOnce;
+    }
+
+    // Also handle the case where decoding once yields another base64 payload
+    // (double-encoded base64 of raw bytes) — decode again if it looks right
+    if (decodedOnce && /^[A-Za-z0-9+/=]+$/.test(decodedOnce) && decodedOnce.length > 32) {
+        const decodedTwice = safeAtob(decodedOnce);
+        if (decodedTwice && decodedTwice.length > 0) {
+            // Try to sniff MIME from the twice-decoded payload
+            const mime = sniffMimeFromBase64(decodedOnce);
+            return `data:${mime};base64,${decodedOnce}`;
+        }
+    }
+
+    // ── If it contains ",data:" the outer prefix was wrong — strip it
+    if (s.includes(',data:')) {
+        const inner = s.substring(s.indexOf(',data:') + 1);
+        if (isDataUrl(inner)) return inner;
+    }
+
+    // ── Final fallback: treat as raw base64 image bytes
+    return `data:${sniffMimeFromBase64(s)};base64,${s}`;
+};
+
+// Shared avatar color generator
+const getAvatarColor = (name?: string) => {
+    const safeName = name || 'Customer';
+    const colors = [
+        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#6C5CE7',
+        '#F0932B', '#EB4D4B', '#22A6B3', '#BE2EDD', '#4834D4',
+        '#0097E6', '#44BD32'
+    ];
+    let hash = 0;
+    for (let i = 0; i < safeName.length; i++) {
+        hash = safeName.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+};
+
+/**
+ * Avatar component — validates the image before rendering it.
+ * Shows the fallback letter if the image is missing or fails to load.
+ */
+const CustomerAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string }) => {
+    const [status, setStatus] = useState<'loading' | 'ok' | 'failed'>(
+        imageSrc ? 'loading' : 'failed'
+    );
+
+    useEffect(() => {
+        if (!imageSrc) {
+            setStatus('failed');
+            return;
+        }
+        setStatus('loading');
+
+        let cancelled = false;
+        const probe = new Image();
+        probe.onload = () => { if (!cancelled) setStatus('ok'); };
+        probe.onerror = () => { if (!cancelled) setStatus('failed'); };
+        probe.src = imageSrc;
+
+        return () => {
+            cancelled = true;
+            probe.onload = null;
+            probe.onerror = null;
+        };
+    }, [imageSrc]);
+
+    if (status !== 'ok') {
+        return (
+            <div
+                className="customers-profile-image"
+                style={{
+                    backgroundColor: getAvatarColor(name),
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.5rem',
+                    color: '#ffffff',
+                    fontWeight: 'bold',
+                }}
+            >
+                {name ? name.charAt(0).toUpperCase() : '?'}
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={imageSrc}
+            alt={name || 'Customer'}
+            className="customers-profile-image"
+            style={{ objectFit: 'cover', display: 'block' }}
+        />
+    );
+};
+
 export const Customers = () => {
     const navigate = useNavigate();
     const [searchQuery, setSearchQuery] = useState('');
     const [filterBy] = useState('all');
     const [sortBy, setSortBy] = useState('mostRecent');
-    const [viewReport, setViewReport] = useState(false);
-    const [openCashbook, setOpenCashbook] = useState(false);
     const [customers, setCustomers] = useState<CustomerWithBalance[]>([]);
     const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
-
     const [error, setError] = useState<string | null>(null);
-    const [openReport, setOpenReport] = useState(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        const fetchCustomers = async () => {
+        let isMounted = true;
+
+        const loadCustomers = async () => {
             try {
-                const data = await getCustomers();
+                setIsLoading(true);
+                const data = await fetchCustomers();
+
+                const customerArray = Array.isArray(data) ? data : [];
+
                 const customersWithBalance = await Promise.all(
-                    data.map(async (customer) => {
+                    customerArray.map(async (customer: any) => {
+                        const resolvedId = customer?.id ?? customer?.customer_id ?? (customer as any)?.customerId;
+
+                        if (!resolvedId) {
+                            return { ...customer, id: 0, balance: 0, paymentHistory: [] };
+                        }
+
                         try {
-                            console.log('Fetching payment history for customer:', customer.id, customer.name);
-                            const paymentHistory = await getPaymentHistory(customer.id);
-                            console.log('Received payment history for', customer.name, ':', paymentHistory);
-                            const balance = paymentHistory.reduce((acc, payment) => {
-                                if (payment.type === 'Received') {
-                                    return acc + payment.amount;
-                                } else {
-                                    return acc - payment.amount;
-                                }
+                            const paymentHistory = await getPaymentHistory(Number(resolvedId));
+                            const historyList = Array.isArray(paymentHistory) ? paymentHistory : [];
+
+                            const balance = historyList.reduce((acc, payment) => {
+                                const amount = Number(payment?.amount) || 0;
+                                const type = (payment?.type || '').toLowerCase();
+                                const isReceived = type === 'received' || type === 'payment_in' || type === 'you_received';
+                                return isReceived ? acc + amount : acc - amount;
                             }, 0);
-                            console.log('Calculated balance for', customer.name, ':', balance);
-                            return { ...customer, balance, paymentHistory };
+
+                            return { ...customer, id: Number(resolvedId), balance, paymentHistory: historyList };
                         } catch (err) {
-                            console.error(`Failed to fetch payment history for customer ${customer.id}:`, err);
-                            return { ...customer, balance: 0, paymentHistory: [] };
+                            console.error(`Failed to load payments for customer ${resolvedId}:`, err);
+                            return { ...customer, id: Number(resolvedId), balance: 0, paymentHistory: [] };
                         }
                     })
                 );
+
+                if (!isMounted) return;
+
+                // 🔍 TEMP DEBUG — verify the double-decode is working
+                customersWithBalance.forEach((c: any) => {
+                    if (c.profileImage) {
+                        const raw = String(c.profileImage);
+                        const resolved = resolveImageSrc(c.profileImage);
+                        console.log(
+                            `[Avatar] ${c.name}`,
+                            '\n  raw (first 60):', raw.slice(0, 60),
+                            '\n  raw length:', raw.length,
+                            '\n  resolved (first 60):', resolved.slice(0, 60),
+                            '\n  resolved length:', resolved.length,
+                            '\n  starts with data:image?', resolved.startsWith('data:image/')
+                        );
+                    }
+                });
+
                 setCustomers(customersWithBalance);
 
-                // Calculate overall totals by summing positive/negative balances
-                // - Positive balances contribute to You Received
-                // - Negative balances contribute to You Gave (absolute value)
-                console.log('Calculating overall totals from customer balances:', customersWithBalance);
                 const totals = customersWithBalance.reduce(
                     (acc, customer) => {
                         const bal = Number(customer.balance) || 0;
-                        if (bal > 0) {
-                            acc.received += bal;
-                        } else if (bal < 0) {
-                            acc.given += Math.abs(bal);
-                        }
+                        if (bal > 0) acc.received += bal;
+                        else if (bal < 0) acc.given += Math.abs(bal);
                         return acc;
                     },
                     { given: 0, received: 0, online: 0 }
                 );
 
-                console.log('Final overall totals (by balances):', { given: totals.given, received: totals.received, online: totals.online });
-                setOverallTotals({ given: totals.given, received: totals.received, online: totals.online });
-            } catch (err) {
-                setError('Failed to load customers');
+                setOverallTotals(totals);
+            } catch (err: any) {
+                console.error("Error loading customers:", err);
+                if (isMounted) setError(err?.message || 'Failed to load customers');
+            } finally {
+                if (isMounted) setIsLoading(false);
             }
         };
 
-        fetchCustomers();
+        loadCustomers();
+
+        return () => { isMounted = false; };
     }, []);
 
-    const getAvatarColor = (name: string) => {
-        const colors = [
-        '#FF6B6B',
-        '#4ECDC4',
-        '#45B7D1',
-        '#96CEB4',
-        '#6C5CE7',
-        '#F0932B',
-        '#EB4D4B',
-        '#22A6B3',
-        '#BE2EDD',
-        '#4834D4',
-        '#0097E6',
-        '#44BD32'
-        ];
-
-    let hash = 0;
-
-    for (let i = 0; i < name.length; i++) {
-        hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-
-    const index = Math.abs(hash) % colors.length;
-
-    return colors[index];
-};
-
-    const handleAddCustomer = () => {
-        navigate('/parties/customers/add');
-    };
-
-    const handleBulkReminder = () => {
-
-    };
+    const handleAddCustomer = () => navigate('/parties/customers/add');
 
     const handleCustomerClick = (customer: CustomerWithBalance) => {
+        const validId = customer.id || customer.customer_id || (customer as any).customerId;
+        if (!validId || validId === 'undefined' || Number(validId) === 0) {
+            console.error('Invalid customer object clicked:', customer);
+            toast.error('Customer ID missing from server');
+            return;
+        }
         try {
-            console.log('Clicking customer:', customer);
-            
-            // Use only the fields that are available in the Customer interface
-            const customerData = {
-                id: customer.id,
-                name: customer.name || 'Unknown Customer',
-                phone: customer.phone || customer.phoneNumber || null,
-                email: customer.email || null,
-                address: customer.address || null,
-                company: customer.company || null,
-                pan: customer.pan || null,
-                contactPerson: customer.ContactPerson || null,
-                isSupplier: customer.isSupplier || false,
-                createdAt: customer.createdAt || new Date().toISOString(),
-                updatedAt: customer.updatedAt || new Date().toISOString(),
-                bankAccount: null, // Not available in Customer interface
-                cashBalance: 0, // Not available in Customer interface
-                profileImage: customer.profileImage || null,
-                customerSmsSetting: false, // Not available in Customer interface
-                smsLanguage: false, // Not available in Customer interface
-                transactionHistoryCheck: false, // Not available in Customer interface
-                paymentHistory: customer.paymentHistory || [],
-                paymentDateReminder: customer.paymentDateReminder || null
-            };
-
-            console.log('Navigating with customer data:', customerData);
-            console.log('Navigating to URL:', `/parties/customers/statements/${customer.id}`);
-
-            // Test navigation - try without state first
-            console.log('Attempting navigation...');
-            
-            navigate(`/parties/customers/statements/${customer.id}`, { 
-                state: { 
-                    customer: customerData
-                } 
+            navigate(`/parties/customers/statements/${validId}`, {
+                state: {
+                    customer: {
+                        ...customer,
+                        id: Number(validId),
+                        phone: customer.phone || 'N/A',
+                        contactPerson: customer.contactPerson || null,
+                        bankAccount: customer.bankAccount || null,
+                        cashBalance: customer.cashBalance ?? 0,
+                    }
+                }
             });
         } catch (error) {
             console.error('Error navigating to customer statements:', error);
@@ -165,456 +382,66 @@ export const Customers = () => {
         }
     };
 
-    const getRelativeTime = (date: string) => {
-        const now = new Date();
-        const updated = new Date(date);
-
-        const diffMs = now.getTime() - updated.getTime();
-
+    const getRelativeTime = (date?: string) => {
+        if (!date) return 'N/A';
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return 'Recently';
+        const diffMs = Date.now() - d.getTime();
         const seconds = Math.floor(diffMs / 1000);
         const minutes = Math.floor(seconds / 60);
         const hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
-        const months = Math.floor(days / 30);
-        const years = Math.floor(days / 365);
-
-        if (seconds < 60) {
-            return `${seconds} sec${seconds !== 1 ? 's' : ''} ago`;
-        }
-
-        if (minutes < 60) {
-            return `${minutes} min${minutes !== 1 ? 's' : ''} ago`;
-        }
-
-        if (hours < 24) {
-            return `${hours} hr${hours !== 1 ? 's' : ''} ago`;
-        }
-
-        if (days < 30) {
-            return `${days} day${days !== 1 ? 's' : ''} ago`;
-        }
-
-        if (months < 12) {
-            return `${months} month${months !== 1 ? 's' : ''} ago`;
-        }
-
-        return `${years} year${years !== 1 ? 's' : ''} ago`;
+        if (seconds < 60) return `${Math.max(0, seconds)} sec ago`;
+        if (minutes < 60) return `${minutes} min ago`;
+        if (hours < 24) return `${hours} hr ago`;
+        if (days < 30) return `${days} day${days !== 1 ? 's' : ''} ago`;
+        return d.toLocaleDateString();
     };
 
     const getLatestUpdatedAt = (customer: CustomerWithBalance) => {
-        const dates: Date[] = [];
-
-        if (customer.updatedAt) {
-            dates.push(new Date(customer.updatedAt));
+        const dates: number[] = [];
+        if (customer.updatedAt && !isNaN(new Date(customer.updatedAt).getTime())) {
+            dates.push(new Date(customer.updatedAt).getTime());
         }
-
-        customer.paymentHistory.forEach(payment => {
-            if (payment.updatedAt) {
-                dates.push(new Date(payment.updatedAt));
-            }
-        });
-
-        if (dates.length === 0) {
-            return new Date().toISOString();
+        if (Array.isArray(customer.paymentHistory)) {
+            customer.paymentHistory.forEach(p => {
+                if (p?.updatedAt && !isNaN(new Date(p.updatedAt).getTime())) {
+                    dates.push(new Date(p.updatedAt).getTime());
+                }
+            });
         }
-
-        const latest = new Date(
-            Math.max(...dates.map(d => d.getTime()))
-        );
-
-        return latest.toISOString();
-    };
-    const getLatestUpdatedTime = (customer: CustomerWithBalance) => {
-        const times = [
-            new Date(customer.updatedAt).getTime(),
-            ...customer.paymentHistory
-                .filter(payment => payment.updatedAt)
-                .map(payment => new Date(payment.updatedAt).getTime()),
-        ];
-
-        return Math.max(...times);
+        return dates.length > 0 ? new Date(Math.max(...dates)).toISOString() : customer.createdAt || '';
     };
 
     const filteredAndSortedCustomers = customers
         .filter(customer => {
-            // Search filter
-            if (searchQuery && !customer.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-                return false;
-            }
-            
-            // Balance filter
+            const customerName = (customer?.name || '').toLowerCase();
+            if (searchQuery && !customerName.includes(searchQuery.toLowerCase())) return false;
+            const bal = Number(customer?.balance) || 0;
             switch (filterBy) {
-                case 'toReceive':
-                    return customer.balance > 0;
-                case 'toGive':
-                    return customer.balance < 0;
-                case 'settled':
-                    return customer.balance === 0;
-                default:
-                    return true;
+                case 'toReceive': return bal > 0;
+                case 'toGive': return bal < 0;
+                case 'settled': return bal === 0;
+                default: return true;
             }
-        }).sort((a, b) => getLatestUpdatedTime(b) - getLatestUpdatedTime(a));
-        // .sort((a, b) => {
-        //     switch (sortBy) {
-        //         case 'mostRecent':
-        //             // return getLatestUpdatedAt(b) - getLatestUpdatedAt(a);
-        //             return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
-        //         case 'highestAmount':
-        //             return Math.abs(b.balance) - Math.abs(a.balance);
-        //         case 'leastAmount':
-        //             return Math.abs(a.balance) - Math.abs(b.balance);
-        //         case 'byName':
-        //             return a.name.localeCompare(b.name);
-        //         case 'oldest':
-        //             return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-        //         default:
-        //             return 0;
-        //     }
-        // });
-
-    const styles = {
-        container: {
-            minHeight: '100vh',
-            background: '#f8f9fa',
-            paddingTop: '40px',
-        },
-        mainContent: {
-            padding: '2rem',
-            maxWidth: '1200px',
-            margin: '0 auto',
-            width: '100%',
-            '@media (max-width: 768px)': {
-                padding: '1rem',
-                maxWidth: '100%',
-                margin: '0',
-            },
-        },
-        searchContainer: {
-            background: 'white',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            marginBottom: '1rem',
-            '@media (max-width: 768px)': {
-                padding: '1rem',
-                marginBottom: '0.5rem',
-            },
-        },
-        searchBar: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1rem',
-            marginBottom: '1rem',
-            flexWrap: 'wrap' as const,
-            '@media (max-width: 768px)': {
-                flexDirection: 'column' as const,
-                gap: '0.75rem',
-                marginBottom: '0.5rem',
-            },
-        },
-        searchInput: {
-            flex: 2,
-            padding: '0.75rem 1rem',
-            border: '1px solid #dee2e6',
-            borderRadius: '4px',
-            fontSize: '1rem',
-            minWidth: '200px',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-            '&:focus': {
-                outline: 'none',
-                borderColor: '#dc4c39',
-                boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-            },
-            '@media (max-width: 768px)': {
-                flex: 'none',
-                width: '100%',
-                minWidth: 'auto',
-                fontSize: '16px', // Prevents zoom on iOS
-            },
-        },
-        filterGroup: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            flex: 1,
-            minWidth: '200px',
-            '@media (max-width: 768px)': {
-                flex: 'none',
-                width: '100%',
-                minWidth: 'auto',
-            },
-        },
-        select: {
-            padding: '0.75rem 1rem',
-            border: '1px solid #dee2e6',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            flex: 1,
-            backgroundColor: 'white',
-            cursor: 'pointer',
-            transition: 'border-color 0.2s, box-shadow 0.2s',
-            '&:focus': {
-                outline: 'none',
-                borderColor: '#dc4c39',
-                boxShadow: '0 0 0 2px rgba(220, 76, 57, 0.1)',
-            },
-            '@media (max-width: 768px)': {
-                fontSize: '16px', // Prevents zoom on iOS
-            },
-        },
-        label: {
-            fontSize: '0.875rem',
-            color: '#6c757d',
-            whiteSpace: 'nowrap',
-        },
-        actionButtons: {
-            display: 'flex',
-            gap: '0.75rem',
-            marginLeft: 'auto',
-            '@media (max-width: 768px)': {
-                marginLeft: '0',
-                width: '100%',
-                justifyContent: 'space-between',
-            },
-        },
-        button: {
-            padding: '0.5rem 1rem',
-            border: 'none',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            fontSize: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            '@media (max-width: 768px)': {
-                padding: '0.75rem 1rem',
-                fontSize: '0.9rem',
-                flex: 1,
-                justifyContent: 'center',
-            },
-        },
-        primaryButton: {
-            background: '#dc4c39',
-            color: 'white',
-        },
-        secondaryButton: {
-            background: '#f8f9fa',
-            color: '#212529',
-            border: '1px solid #dee2e6',
-        },
-        filterButtons: {
-            display: 'flex',
-            gap: '1rem',
-        },
-        cardsContainer: {
-            display: 'flex',
-            background: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            overflow: 'hidden',
-            borderBottom: '1px solid #dee2e6',
-            '@media (max-width: 768px)': {
-                flexDirection: 'column' as const,
-                marginBottom: '0.5rem',
-            },
-        },
-        card: {
-            flex: 1,
-            padding: '1.5rem',
-            borderRight: '1px solid #dee2e6',
-            '&:last-child': {
-                borderRight: 'none',
-            },
-            '@media (max-width: 768px)': {
-                padding: '1rem',
-                borderRight: 'none',
-                borderBottom: '1px solid #dee2e6',
-                '&:last-child': {
-                    borderBottom: 'none',
-                },
-            },
-        },
-        cardHeader: {
-            fontSize: '1rem',
-            color: '#6c757d',
-            marginBottom: '0.5rem',
-        },
-        cardAmount: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            '@media (max-width: 768px)': {
-                fontSize: '1.25rem',
-            },
-        },
-        checkboxCard: {
-            display: 'flex',
-            background: 'white',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            overflow: 'hidden',
-            '@media (max-width: 768px)': {
-                flexDirection: 'column' as const,
-                marginBottom: '0.5rem',
-            },
-        },
-        checkboxCardItem: {
-            flex: 1,
-            padding: '1rem 1.5rem',
-            borderRight: '1px solid #dee2e6',
-            '&:last-child': {
-                borderRight: 'none',
-            },
-            '@media (max-width: 768px)': {
-                padding: '0.75rem 1rem',
-                borderRight: 'none',
-                borderBottom: '1px solid #dee2e6',
-                '&:last-child': {
-                    borderBottom: 'none',
-                },
-            },
-        },
-        checkboxGroup: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-        },
-        checkbox: {
-            width: '16px',
-            height: '16px',
-            cursor: 'pointer',
-            '@media (max-width: 768px)': {
-                width: '20px',
-                height: '20px',
-            },
-        },
-        checkboxLabel: {
-            fontSize: '0.875rem',
-            color: '#212529',
-            cursor: 'pointer',
-            '@media (max-width: 768px)': {
-                fontSize: '1rem',
-                padding: '0.25rem 0',
-            },
-        },
-        customerCard: {
-            background: 'white',
-            padding: '1.5rem',
-            borderRadius: '8px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            marginBottom: '1rem',
-            marginTop: '1rem',
-            cursor: 'pointer',
-            transition: 'transform 0.2s, box-shadow 0.2s',
-            '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-            },
-            '@media (max-width: 768px)': {
-                padding: '1rem',
-                marginBottom: '0.75rem',
-                marginTop: '0.75rem',
-                minHeight: '80px', // Better touch target
-                display: 'flex',
-                alignItems: 'center',
-            },
-        },
-        customerInfo: {
-            display: 'flex',
-            alignItems: 'center',
-            gap: '1.5rem',
-            '@media (max-width: 768px)': {
-                gap: '1rem',
-                flexDirection: 'column' as const,
-                alignItems: 'flex-start',
-            },
-        },
-        profileImage: {
-            width: '60px',
-            height: '60px',
-            borderRadius: '50%',
-            objectFit: 'cover' as const,
-            backgroundColor: '#e9ecef',
-            '@media (max-width: 768px)': {
-                width: '50px',
-                height: '50px',
-            },
-        },
-        customerDetails: {
-            flex: 1,
-            '@media (max-width: 768px)': {
-                width: '100%',
-            },
-        },
-        customerName: {
-            fontSize: '1.25rem',
-            fontWeight: 'bold',
-            color: '#212529',
-            marginBottom: '0.25rem',
-            '@media (max-width: 768px)': {
-                fontSize: '1.1rem',
-            },
-        },
-        workingHours: {
-            fontSize: '0.875rem',
-            color: '#6c757d',
-        },
-        customerAmount: {
-            fontSize: '1.5rem',
-            fontWeight: 'bold',
-            color: '#dc4c39',
-            paddingLeft: '1.5rem',
-            borderLeft: '2px solid #dee2e6',
-            height: '100%',
-            display: 'flex',
-            alignItems: 'center',
-            '@media (max-width: 768px)': {
-                fontSize: '1.25rem',
-                paddingLeft: '0',
-                borderLeft: 'none',
-                borderTop: '1px solid #dee2e6',
-                paddingTop: '0.5rem',
-                marginTop: '0.5rem',
-                justifyContent: 'center',
-            },
-        },
-        addCustomerButton: {
-        
-            padding: '0.75rem 1.5rem',
-            background: '#28a745',
-            color: 'white',
-            border: 'none',
-            borderRadius: '4px',
-            fontSize: '0.875rem',
-            fontWeight: 'bold',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            marginTop: '1rem',
-            marginLeft: 'auto',
-    
-            '&:hover': {
-                background: '#218838',
-            },
-            '@media (max-width: 768px)': {
-                width: '100%',
-                marginLeft: '0',
-                justifyContent: 'center',
-                padding: '1rem 1.5rem',
-                fontSize: '1rem',
-            },
-        },
-    };
-
-    const handleListReportPdf = () => {
-        navigate('/parties/customers/list-report-pdf');
-    };
+        })
+        .sort((a, b) => {
+            const timeA = new Date(getLatestUpdatedAt(a) || 0).getTime();
+            const timeB = new Date(getLatestUpdatedAt(b) || 0).getTime();
+            switch (sortBy) {
+                case 'mostRecent': return timeB - timeA;
+                case 'highestAmount': return Math.abs(b.balance || 0) - Math.abs(a.balance || 0);
+                case 'leastAmount': return Math.abs(a.balance || 0) - Math.abs(b.balance || 0);
+                case 'byName': return (a.name || '').localeCompare(b.name || '');
+                case 'oldest': return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+                default: return 0;
+            }
+        });
 
     return (
-        <div style={styles.container}>
+        <div style={{ minHeight: '100vh', background: '#f8f9fa', paddingTop: '40px' }}>
             <Sidebar />
-            <main style={styles.mainContent} className="customers-main-content">
+            <main className="customers-main-content">
                 <div className="customers-search-container">
                     <div className="customers-search-row">
                         <div className="customers-search-group">
@@ -639,16 +466,13 @@ export const Customers = () => {
                             <option value="oldest">Sort by Oldest</option>
                         </select>
                         <div className="customers-action-buttons">
-                            <button 
-                                className="customers-action-button customers-primary-button"
-                                onClick={handleBulkReminder}
-                            >
+                            <button className="customers-action-button customers-primary-button" onClick={() => {}}>
                                 <i className="bi bi-bell"></i>
                                 Bulk Reminder
                             </button>
-                            <button 
+                            <button
                                 className="customers-action-button customers-secondary-button"
-                                onClick={handleListReportPdf}
+                                onClick={() => navigate('/parties/customers/list-report-pdf')}
                             >
                                 <i className="bi bi-file-earmark-text"></i>
                                 List Report
@@ -675,7 +499,6 @@ export const Customers = () => {
                         <div className="customers-card-amount" style={{ color: '#1fc445' }}>
                             रु{overallTotals.received.toLocaleString()}
                         </div>
-                        
                     </div>
                     <div className="suppliers-stat-card">
                         <div className="suppliers-stat-icon suppliers-stat-online-icon">
@@ -688,130 +511,69 @@ export const Customers = () => {
                     </div>
                 </div>
 
-                {/* <div className="customers-checkbox-container">
-                    <div className="customers-checkbox-item">
-                        <div className="customers-checkbox-group">
-                            <input
-                                type="checkbox"
-                                id="viewReport"
-                                checked={viewReport}
-                                onChange={(e) => setViewReport(e.target.checked)}
-                                className="customers-checkbox"
-                            />
-                            <label htmlFor="viewReport" className="customers-checkbox-label">
-                                <i className="bi bi-eye me-1"></i>
-                                View Report
-                            </label>
-                        </div>
-                    </div>
-                    <div className="customers-checkbox-item">
-                        <div className="customers-checkbox-group">
-                            <input
-                                type="checkbox"
-                                id="openCashbook"
-                                checked={openCashbook}
-                                onChange={(e) => setOpenCashbook(e.target.checked)}
-                                className="customers-checkbox"
-                            />
-                            <label htmlFor="openCashbook" className="customers-checkbox-label">
-                                <i className="bi bi-cash-stack me-1"></i>
-                                Open Cashbook
-                            </label>
-                        </div>
-                    </div>
-                    <div className="customers-checkbox-item">
-                        <div className="customers-checkbox-group">
-                            <input
-                                type="checkbox"
-                                id="openReport"
-                                checked={openReport}
-                                onChange={(e) => setOpenReport(e.target.checked)}
-                                className="customers-checkbox"
-                            />
-                            <label htmlFor="openReport" className="customers-checkbox-label">
-                                <i className="bi bi-file-earmark-text me-1"></i>
-                                Open Report
-                            </label>
-                        </div>
-                    </div>
-                </div> */}
-
                 {error && (
-                    <div className="customers-error">
+                    <div className="customers-error" style={{ color: '#dc3545', margin: '1rem 0' }}>
                         <i className="bi bi-exclamation-triangle me-2"></i>
                         {error}
                     </div>
                 )}
-                {filteredAndSortedCustomers.map((customer) => (
-                        <div 
-                            key={customer.id}
-                            style={styles.customerCard}
-                            className="customers-customer-card"
-                            onClick={() => handleCustomerClick(customer)}
-                        >
-                            <div style={styles.customerInfo} className="customers-customer-info">
-                                {customer.profileImage ? (
-                                    <img 
-                                        src={customer.profileImage} 
-                                        alt={customer.name}
-                                        style={styles.profileImage}
-                                        className="customers-profile-image"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            const nextSibling = e.currentTarget.nextSibling as HTMLElement;
-                                            if (nextSibling) {
-                                                nextSibling.style.display = 'flex';
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <div 
-                                        style={{
-                                            ...styles.profileImage,
-                                            // backgroundColor: '#e9ecef',
-                                            backgroundColor: getAvatarColor(customer.name),
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '1.5rem',
-                                            color: '#6c757d'
-                                        }}
-                                        className="customers-profile-image"
-                                    >
-                                        {customer.name.charAt(0).toUpperCase()}
-                                    </div>
-                                )}
-                                <div style={styles.customerDetails} className="customers-customer-details">
-                                    <h3 style={styles.customerName} className="customers-customer-name">{customer.name}</h3>
-                                    <p className="customers-working-hours">
-                                        <i className="bi bi-telephone me-1"></i>
-                                        {customer.phone || customer.phoneNumber || 'N/A'}
-                                    </p>
-                                    <p className="customers-working-hours">
-                                        <i className="bi bi-clock me-1"></i>
-                                        {getRelativeTime(getLatestUpdatedAt(customer))}
-                                    </p>
-                                </div>
-                                                                 <div className={`customers-customer-amount ${
-                                     customer.balance === 0 ? 'balance-zero' : 
-                                     customer.balance > 0 ? 'balance-positive' : 'balance-negative'
-                                 }`}>
-                                     रु{Math.abs(customer.balance).toLocaleString()}
-                                 </div>
-                            </div>
-                        </div>
-                    ))}
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end',position: 'fixed',bottom: '30px', left: '0', width: '98%', zIndex: 1000, pointerEvents: 'none',}}>
-                    <button 
+                {isLoading ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>
+                        Loading customers...
+                    </div>
+                ) : filteredAndSortedCustomers.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d', background: '#fff', borderRadius: '8px', marginTop: '1rem' }}>
+                        No customers found. Click below to add your first customer.
+                    </div>
+                ) : (
+                    filteredAndSortedCustomers.map((customer) => {
+                        const customerKey = customer.id || customer.customer_id || Math.random();
+                        const imageSrc = resolveImageSrc(customer.profileImage);
+
+                        return (
+                            <div
+                                key={customerKey}
+                                className="customers-customer-card"
+                                onClick={() => handleCustomerClick(customer)}
+                            >
+                                <div className="customers-customer-info">
+                                    <CustomerAvatar name={customer.name} imageSrc={imageSrc} />
+
+                                    <div className="customers-customer-details">
+                                        <h3 className="customers-customer-name">{customer.name || 'Unnamed Customer'}</h3>
+                                        <p className="customers-working-hours">
+                                            <i className="bi bi-telephone me-1"></i>
+                                            {customer.phone || 'N/A'}
+                                        </p>
+                                        <p className="customers-working-hours">
+                                            <i className="bi bi-clock me-1"></i>
+                                            {getRelativeTime(getLatestUpdatedAt(customer))}
+                                        </p>
+                                    </div>
+                                    <div className={`customers-customer-amount ${
+                                        (customer.balance || 0) === 0 ? 'balance-zero' :
+                                            (customer.balance || 0) > 0 ? 'balance-positive' : 'balance-negative'
+                                    }`}>
+                                        रु{Math.abs(customer.balance || 0).toLocaleString()}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', position: 'fixed', bottom: '30px', left: '0', width: '98%', zIndex: 1000, pointerEvents: 'none' }}>
+                    <button
                         className="customers-add-button"
+                        style={{ pointerEvents: 'auto' }}
                         onClick={handleAddCustomer}
                     >
                         <i className="bi bi-plus-circle"></i>
                         Add Customer
                     </button>
                 </div>
-                
             </main>
         </div>
     );
-}; 
+};
