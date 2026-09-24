@@ -16,6 +16,5 @@ public interface OrganizationStaffRepository extends ReactorCrudRepository<Organ
     Mono<OrganizationStaffEntity> findByIdAndMemberId(Integer id, Long memberId);
     // Eagerly join salaries when querying staff
     @Join(value = "salaries", type = Join.Type.LEFT)
-    @Join(value = "attendances", type = Join.Type.LEFT)
     Flux<OrganizationStaffEntity> findByMemberIdOrderByCreatedAtDesc(Long memberId);
 }

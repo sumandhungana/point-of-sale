@@ -13,11 +13,9 @@ import java.time.LocalDateTime;
 @Singleton
 public class GetSelectedMemberUC implements MonoUC<GetSelectedMemberUCRequest, GetSelectedMemberUCResponse> {
 
-    private final MemberRepository memberRepository;
     private final UserMemberRepository userMemberRepository;
 
-    public GetSelectedMemberUC(MemberRepository memberRepository, UserMemberRepository userMemberRepository) {
-        this.memberRepository = memberRepository;
+    public GetSelectedMemberUC(UserMemberRepository userMemberRepository) {
         this.userMemberRepository = userMemberRepository;
     }
 
@@ -45,28 +43,3 @@ public class GetSelectedMemberUC implements MonoUC<GetSelectedMemberUCRequest, G
 
     }
 }
-/*
-        return new GetSelectedMemberUCResponse(
-                userMember.getMember().getId(),
-
-                userMember.getMember().getOrganizationName(),
-                userMember.getUser().getPhoneNumber(),
-                member.getAddress(),
-                member.getEmail(),
-                member.getCompanyName(),
-                member.getCompanyNumber(),
-                member.getCompanyAddress(),
-                member.getCompanyEmail(),
-                member.getBusinessCategory(),
-                member.getBusinessType(),
-                member.getTaxVat(),
-                member.getBookAccount(),
-                member.getKyc(),
-                member.getImagePath(),
-                member.getIsUsed(),
-                member.getCreatedAt(),
-                member.getUpdatedAt()
-
-        );
-
-         */

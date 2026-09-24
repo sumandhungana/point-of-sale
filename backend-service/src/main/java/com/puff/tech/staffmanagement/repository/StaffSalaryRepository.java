@@ -23,15 +23,7 @@ public interface StaffSalaryRepository extends ReactorCrudRepository<StaffSalary
     @Join(value = "staff")
     Mono<StaffSalaryEntity> findByIdAndMemberId(Integer id, Integer MemberId);
 
-    @Join(value = "staff")
-    @Query("""
-        SELECT * FROM staff_salaries
-        WHERE staff_id = :staffId
-        AND khata_book_id = :MemberId
-        ORDER BY year DESC, month DESC
-        """)
     Flux<StaffSalaryEntity> findByStaffIdAndMemberId(
-            Integer staffId,
-            Integer MemberId
+            Integer staff_id, Long member_id
     );
 }

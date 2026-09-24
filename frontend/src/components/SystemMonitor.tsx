@@ -24,7 +24,7 @@ interface SemiCircularGaugeProps {
 
 const clamp = (v: number, min = 0, max = 100) => Math.min(max, Math.max(min, v));
 
-const SemiCircularGauge: React.FC<SemiCircularGaugeProps> = ({
+const SemiCircularGauge: React.FC<SemiCircularGaugeProps > = ({
   percentage,
   title,
   icon,
@@ -107,7 +107,7 @@ const SemiCircularGauge: React.FC<SemiCircularGaugeProps> = ({
 };
 
 export const SystemMonitor: React.FC = () => {
-  const [metrics, setMetrics] = useState<SystemMetrics>({
+  const [metrics, setMetrics] = useState<SystemMetrics | undefined>({
     cpuUsage: 0,
     memoryUsage: 0,
     diskUsage: 0,

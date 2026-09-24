@@ -43,10 +43,13 @@ export interface Staff {
   createdAt: string;
   updatedAt: string;
   // Support both backend field names and frontend fallback names
-  staffSalaryEntities?: StaffSalary[];
+  // Backend response keys
+  salaryResponses?: StaffSalary[];
+  // salaryResponse?: StaffSalary;
+  // staffSalaryEntities?: StaffSalary[];
   staffAttendanceEntities?: StaffAttendance[];
-  staffSalaries?: StaffSalary[];
-  staffAttendances?: StaffAttendance[];
+  // staffSalaries?: StaffSalary[];
+  // staffAttendances?: StaffAttendance[];
 }
 
 export const StaffManagement = () => {
@@ -62,12 +65,17 @@ export const StaffManagement = () => {
   const [sortBy, setSortBy] = useState('');
 
   // Helper getters to safely retrieve nested arrays regardless of property name
+  // Helper getter to safely retrieve nested salary arrays regardless of property name
   const getSalaries = (staff: Staff): StaffSalary[] => {
-    return staff.staffSalaryEntities || staff.staffSalaries || [];
+    if (Array.isArray(staff.salaryResponses)) {
+      return staff.salaryResponses;
+    }
+
+    return [];
   };
 
   const getAttendances = (staff: Staff): StaffAttendance[] => {
-    return staff.staffAttendanceEntities || staff.staffAttendances || [];
+    return staff.staffAttendanceEntities || staff.staffAttendanceEntities || [];
   };
 
   useEffect(() => {

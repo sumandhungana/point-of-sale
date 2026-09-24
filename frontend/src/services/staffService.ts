@@ -48,7 +48,7 @@ export interface GetStaffResponse {
   profileImageUrl: string;
   createdAt: string;
   updatedAt: string;
-  staffSalaryEntities?: StaffSalaryEntity[];
+  salaryResponses?: StaffSalaryEntity[];
   staffAttendanceEntities?: StaffAttendanceEntity[];
 }
 

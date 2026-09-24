@@ -71,6 +71,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Bills } from './pages/Bills';
 import BusinessSetting from './pages/BusinessSetting';
+import {RoleManagement} from "@/pages/RoleManagement";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -234,6 +235,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+              <Route path="/role" element={<RoleManagement />} />
           <Route
             path="/parties/customers/profile/:id"
             element={

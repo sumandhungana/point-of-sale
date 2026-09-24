@@ -4,8 +4,6 @@ import com.puff.tech.core.responses.RestResponse;
 import com.puff.tech.metrices.usecase.SystemMetricsUC;
 import com.puff.tech.metrices.usecase.SystemMetricsUCRequest;
 import com.puff.tech.metrices.usecase.SystemMetricsUCResponse;
-import com.puff.tech.onboarding.usecase.member.get.GetSelectedMemberUCRequest;
-import com.puff.tech.onboarding.usecase.member.get.GetSelectedMemberUCResponse;
 import com.puff.tech.security.Secured;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
