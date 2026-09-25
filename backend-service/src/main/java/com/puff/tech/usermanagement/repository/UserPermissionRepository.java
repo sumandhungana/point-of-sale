@@ -5,6 +5,8 @@ import io.micronaut.data.repository.reactive.ReactorCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @R2dbcRepository(dialect = Dialect.POSTGRES)
 public interface UserPermissionRepository extends ReactorCrudRepository<UserPermissionEntity, Integer> {
 
@@ -13,4 +15,6 @@ public interface UserPermissionRepository extends ReactorCrudRepository<UserPerm
 
     // Bulk delete permissions when updating/re-assigning role permissions
     Mono<Long> deleteByRoleId(Integer roleId);
+
+    Flux<UserPermissionEntity> findByRoleIdAndIdIn(Integer roleId, List<Integer> permissionIds);
 }

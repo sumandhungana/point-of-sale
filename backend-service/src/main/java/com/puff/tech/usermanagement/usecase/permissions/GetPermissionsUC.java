@@ -2,7 +2,7 @@ package com.puff.tech.usermanagement.usecase.permissions;
 
 import com.puff.tech.core.usecases.FluxUC;
 import com.puff.tech.security.UseCaseContext;
-import com.puff.tech.usermanagement.enums.Permissions;
+import com.puff.tech.usermanagement.enums.Permission;
 import com.puff.tech.usermanagement.usecase.permissions.payload.GetPermissionsUCRequest;
 import com.puff.tech.usermanagement.usecase.permissions.payload.GetPermissionsUCResponse;
 import jakarta.inject.Singleton;
@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
 public class GetPermissionsUC implements FluxUC<GetPermissionsUCRequest, GetPermissionsUCResponse> {
     @Override
     public Flux<GetPermissionsUCResponse> execute(GetPermissionsUCRequest request, UseCaseContext context) {
-        Map<String, List<String>> groupedPermissions = Arrays.stream(Permissions.values())
+        Map<String, List<String>> groupedPermissions = Arrays.stream(Permission.values())
                 .collect(Collectors.groupingBy(
-                        Permissions::getModule,
-                        Collectors.mapping(Permissions::getValue, Collectors.toList())
+                        permission -> permission.getModule().getCode(), // Or getModule().getDisplayName()
+                        Collectors.mapping(Permission::getValue, Collectors.toList())
                 ));
 
         return Flux.fromIterable(groupedPermissions.entrySet())

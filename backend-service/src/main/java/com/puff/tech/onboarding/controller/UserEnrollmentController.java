@@ -37,7 +37,7 @@ public class UserEnrollmentController {
 
     @Post("/register")
     public Mono<RestResponse<UserRegistrationUcResponse>> register(@Body UserRegistrationReqPayload payload) {
-        return userRegistrationUseCase.execute(UserEnrollmentConverter.toUcRequest(payload))
+        return userRegistrationUseCase.execute(UserEnrollmentConverter.toUcRequest(payload, true))
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }

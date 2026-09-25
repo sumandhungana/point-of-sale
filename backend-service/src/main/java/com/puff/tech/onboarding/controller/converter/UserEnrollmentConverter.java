@@ -26,7 +26,7 @@ public class UserEnrollmentConverter {
     }
 
 
-    public static UserRegistrationUcRequest toUcRequest(UserRegistrationReqPayload payload) {
+    public static UserRegistrationUcRequest toUcRequest(UserRegistrationReqPayload payload, boolean isExternalOnboarding) {
         return new UserRegistrationUcRequest(
                 payload.userName(),
                 payload.phoneNumber(),
@@ -38,7 +38,8 @@ public class UserEnrollmentConverter {
                 payload.organizationAddress(),
                 payload.notes(),
                 payload.password(),
-                payload.gmail()
+                payload.gmail(),
+                isExternalOnboarding
         );
     }
 }

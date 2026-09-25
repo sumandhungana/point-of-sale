@@ -1,22 +1,22 @@
 package com.puff.tech.security;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.micronaut.aop.MethodInterceptor;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.core.annotation.AnnotationValue;
 import io.micronaut.http.HttpRequest;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.context.ServerRequestContext;
+import io.micronaut.http.exceptions.HttpStatusException;
+import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
-import org.reactivestreams.Publisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.*;
 
 @Singleton
 public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
@@ -26,88 +26,135 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
     private static final String BEARER_PREFIX = "Bearer ";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
+    private final SecurityDataService securityDataService;
+
+    @Inject
+    public SecurityInterceptor(SecurityDataService securityDataService) {
+        this.securityDataService = securityDataService;
+    }
+
     @Override
     public Object intercept(MethodInvocationContext<Object, Object> context) {
-        LOG.debug("SecurityInterceptor invoked for method: {}", context.getMethodName());
-
         AnnotationValue<Secured> securedAnnotation = context.getAnnotation(Secured.class);
-        String[] requiredRoles = securedAnnotation != null ?
-                securedAnnotation.stringValues("roles") : new String[]{};
+        if (securedAnnotation == null) {
+            return context.proceed();
+        }
+
+        String[] requiredRoles = securedAnnotation.stringValues("roles");
+        String[] requiredPermissions = securedAnnotation.stringValues("permissions");
 
         Optional<HttpRequest<Object>> requestOpt = ServerRequestContext.currentRequest();
-
         if (requestOpt.isEmpty()) {
-            LOG.warn("No HTTP request context available");
-            return handleUnauthorized(context, "No request context");
+            return handleSecurityFailure(context, HttpStatus.UNAUTHORIZED, "No request context");
         }
 
         HttpRequest<?> request = requestOpt.get();
         String token = extractToken(request);
-
         if (token == null) {
-            LOG.warn("No authorization token found");
-            return handleUnauthorized(context, "Missing authorization token");
+            return handleSecurityFailure(context, HttpStatus.UNAUTHORIZED, "Missing authorization token");
         }
 
-        UseCaseContext securityContext = validateAndCreateContext(token, requiredRoles);
-
-        if (securityContext == null) {
-            return handleUnauthorized(context, "Invalid token or insufficient permissions");
+        JsonNode claims = extractClaimsFromJwt(token);
+        if (claims == null) {
+            return handleSecurityFailure(context, HttpStatus.UNAUTHORIZED, "Invalid JWT format");
         }
 
-        return proceedWithContext(context, securityContext);
+        // Extract IDs from Token Claims
+        Long roleId = parseLongClaim(claims, "roles");
+        String permissionIds = getClaimValue(claims, "permissions");
+        String subject = getClaimValue(claims, "sub");
+        String userId = getClaimValue(claims, "userId");
+        Long memberId = parseLongClaim(claims, "memberId");
+
+        if (roleId == null) {
+            return handleSecurityFailure(context, HttpStatus.UNAUTHORIZED, "Token missing roleId claim");
+        }
+
+        // Fetch permissions from DB and validate reactively
+        Mono<Object> executionMono = securityDataService.fetchSecurityDetails(roleId, permissionIds, memberId)
+                .switchIfEmpty(Mono.error(new HttpStatusException(HttpStatus.UNAUTHORIZED, "Security record not found")))
+                .flatMap(details -> {
+                    if (!details.enabled()) {
+                        return Mono.error(new HttpStatusException(HttpStatus.UNAUTHORIZED, "User role or account disabled"));
+                    }
+
+                    // Validate Roles
+                    if (requiredRoles.length > 0 && lacksAccess(Set.of(details.roleName()), requiredRoles)) {
+                        return Mono.error(new HttpStatusException(HttpStatus.FORBIDDEN, "Insufficient role privileges"));
+                    }
+
+                    // Validate Permissions
+                    if (requiredPermissions.length > 0 && lacksAccess(details.permissions(), requiredPermissions)) {
+                        return Mono.error(new HttpStatusException(HttpStatus.FORBIDDEN, "Insufficient permission privileges"));
+                    }
+
+                    UserSecurityContext userSecurityContext = UserSecurityContext.builder()
+                            .subject(subject)
+                            .userId(userId)
+                            .memberId(memberId)
+                            .roles(List.of(details.roleName()))
+                            .permissions(new ArrayList<>(details.permissions()))
+                            .enabled(details.enabled())
+                            .build();
+
+                    UseCaseContext useCaseContext = UseCaseContext.builder()
+                            .token(token)
+                            .securityContext(userSecurityContext)
+                            .build();
+
+                    return Mono.deferContextual(ctx -> (Mono<?>) context.proceed())
+                            .contextWrite(ctx -> SecurityContextHolder.withSecurityContext(ctx, useCaseContext));
+                });
+
+        return adaptExecutionToReturnType(context, executionMono);
+    }
+
+    private boolean hasAccess(Collection<String> userAuthorities, String[] requiredAuthorities) {
+        if (userAuthorities == null || userAuthorities.isEmpty()) return false;
+        for (String required : requiredAuthorities) {
+            if (userAuthorities.contains(required)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    private boolean lacksAccess(Collection<String> userAuthorities, String[] requiredAuthorities) {
+        if (userAuthorities == null || userAuthorities.isEmpty()) return true;
+        for (String required : requiredAuthorities) {
+            if (userAuthorities.contains(required)) {
+                return false; // User has access
+            }
+        }
+        return true; // User lacks all required authorities
+    }
+
+    private Object adaptExecutionToReturnType(MethodInvocationContext<Object, Object> context, Mono<Object> executionMono) {
+        Class<?> returnType = context.getReturnType().getType();
+
+        if (Mono.class.isAssignableFrom(returnType)) {
+            return executionMono;
+        }
+
+        if (Flux.class.isAssignableFrom(returnType)) {
+            return executionMono.flatMapMany(result -> (Flux<?>) result);
+        }
+
+        // Block for non-reactive synchronous controller endpoints
+        return executionMono.block();
     }
 
     private String extractToken(HttpRequest<?> request) {
         Optional<String> authHeader = request.getHeaders().findFirst(AUTHORIZATION_HEADER);
         if (authHeader.isPresent() && authHeader.get().startsWith(BEARER_PREFIX)) {
-            return authHeader.get().substring(BEARER_PREFIX.length());
+            return authHeader.get().substring(BEARER_PREFIX.length()).trim();
         }
         return null;
     }
 
-    private UseCaseContext validateAndCreateContext(String token, String[] requiredRoles) {
-        try {
-            JsonNode claims = extractClaimsFromJwt(token);
-            if (claims != null) {
-                String userId = getClaimValue(claims, "subject", "userId");
-                String permission = getClaimValue(claims, "permission");
-                String roles = getClaimValue(claims, "roles");
-                Long memberId = Long.parseLong(Objects.requireNonNull(getClaimValue(claims, "memberId")));
-                boolean enabled =  Boolean.getBoolean(getClaimValue(claims, "enabled"));
-                // TODO: Implement your token validation logic here
-                return UseCaseContext.builder()
-                        .token(token)
-                        .securityContext(UserSecurityContext.builder()
-                                .subject(userId)
-                                .userId(userId)
-                                .memberId(memberId)
-                                .permission(permission)
-                                .role(roles)
-                                .enabled(enabled)
-                                .build()).build();
-            }
-//            if (requiredRoles.length > 0) {
-//                // TODO: Implement role validation
-//            }
-
-            return null;
-        } catch (Exception e) {
-            LOG.error("Error validating token", e);
-            return null;
-        }
-    }
-
     private JsonNode extractClaimsFromJwt(String token) {
         try {
-            // JWT format: header.payload.signature
             String[] parts = token.split("\\.");
-            if (parts.length < 2) {
-                LOG.warn("Invalid JWT format");
-                return null;
-            }
-
-            // Decode payload (second part)
+            if (parts.length < 2) return null;
             String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
             return objectMapper.readTree(payload);
         } catch (Exception e) {
@@ -126,77 +173,24 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
         return null;
     }
 
-    private boolean hasRequiredRoles(JsonNode claims, String[] requiredRoles) {
-        // Check common role claim locations
-        JsonNode rolesNode = claims.get("roles");
-        if (rolesNode == null) {
-            rolesNode = claims.get("authorities");
+    private Long parseLongClaim(JsonNode claims, String claimName) {
+        JsonNode node = claims.get(claimName);
+        if (node != null && !node.isNull()) {
+            return node.asLong();
         }
-        if (rolesNode == null) {
-            JsonNode realmAccess = claims.get("realm_access");
-            if (realmAccess != null) {
-                rolesNode = realmAccess.get("roles");
-            }
-        }
-
-        if (rolesNode == null || !rolesNode.isArray()) {
-            return false;
-        }
-
-        for (String requiredRole : requiredRoles) {
-            boolean found = false;
-            for (JsonNode roleNode : rolesNode) {
-                if (requiredRole.equalsIgnoreCase(roleNode.asText())) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                return false;
-            }
-        }
-        return true;
+        return null;
     }
 
-    private Object proceedWithContext(MethodInvocationContext<Object, Object> context, UseCaseContext securityContext) {
+    private Object handleSecurityFailure(MethodInvocationContext<Object, Object> context, HttpStatus status, String message) {
         Class<?> returnType = context.getReturnType().getType();
+        HttpStatusException exception = new HttpStatusException(status, message);
 
         if (Mono.class.isAssignableFrom(returnType)) {
-            return Mono.deferContextual(ctx -> {
-                Object result = context.proceed();
-                return (Mono<?>) result;
-            }).contextWrite(ctx -> SecurityContextHolder.withSecurityContext(ctx, securityContext));
+            return Mono.error(exception);
         }
-
         if (Flux.class.isAssignableFrom(returnType)) {
-            return Flux.deferContextual(ctx -> {
-                Object result = context.proceed();
-                return (Flux<?>) result;
-            }).contextWrite(ctx -> SecurityContextHolder.withSecurityContext(ctx, securityContext));
+            return Flux.error(exception);
         }
-
-        if (Publisher.class.isAssignableFrom(returnType)) {
-            return Flux.deferContextual(ctx -> {
-                Object result = context.proceed();
-                return Flux.from((Publisher<?>) result);
-            }).contextWrite(ctx -> SecurityContextHolder.withSecurityContext(ctx, securityContext));
-        }
-
-        // Non-reactive - just proceed
-        return context.proceed();
-    }
-
-    private Object handleUnauthorized(MethodInvocationContext<Object, Object> context, String message) {
-        Class<?> returnType = context.getReturnType().getType();
-
-        if (Mono.class.isAssignableFrom(returnType)) {
-            return Mono.error(new SecurityException(message));
-        }
-
-        if (Flux.class.isAssignableFrom(returnType)) {
-            return Flux.error(new SecurityException(message));
-        }
-
-        throw new SecurityException(message);
+        throw exception;
     }
 }

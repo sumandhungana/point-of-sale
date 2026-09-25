@@ -83,7 +83,7 @@ public class CustomerController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened on controller: " +err.getLocalizedMessage())));
     }
 
-    @Secured
+    @Secured(roles = {"ADMIN"}, permissions = {"customer:delete"})
     @Delete("{id}")
     public Mono<RestResponse<DeleteCustomerUseCaseResponse>> delete(@PathVariable Integer id){
         var request = new DeleteCustomerUseCaseRequest(id);

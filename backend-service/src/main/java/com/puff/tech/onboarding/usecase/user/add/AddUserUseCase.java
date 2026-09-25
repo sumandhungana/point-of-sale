@@ -3,6 +3,8 @@ package com.puff.tech.onboarding.usecase.user.add;
 import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.covertor.UserConvertor;
 import com.puff.tech.repository.UserRepository;
+import com.puff.tech.usermanagement.repository.UserPermissionRepository;
+import com.puff.tech.usermanagement.repository.UserRoleRepository;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;

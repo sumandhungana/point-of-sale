@@ -12,4 +12,5 @@ import java.lang.annotation.*;
 @Type(SecurityInterceptor.class)
 public @interface Secured {
     String[] roles() default {};
+    String[] permissions() default {};
 }

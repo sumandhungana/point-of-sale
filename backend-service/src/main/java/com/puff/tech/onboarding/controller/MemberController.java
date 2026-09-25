@@ -18,7 +18,7 @@ public class MemberController {
         this.getSelectedMemberUC = getSelectedMemberUC;
     }
 
-    @Secured
+    @Secured(roles = {"ADMIN"}, permissions = {"member:selected"})
     @Get("selected-member")
     public Mono<RestResponse<GetSelectedMemberUCResponse>> selectedMember() {
         return getSelectedMemberUC.execute(new GetSelectedMemberUCRequest())
