@@ -1,4 +1,44 @@
 // Service for role-related API calls
+import {apiService} from "@/infrastructure/utils/ApiService";
+
+interface RestResponse<T> {
+  code: number;
+  message: string;
+  data: T;
+
+  error?: string;
+}
+
+export interface RoleResponse{
+  id:number;
+  name:string;
+}
+
+export async function getRoles(): Promise<RoleResponse[]> {
+  const res = await apiService.get<RestResponse<RoleResponse[]>>(
+      'api/v1/role/list',
+      {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      }
+  );
+
+  if (res.error) {
+    throw new Error(res.error || 'Failed to fetch roles');
+  }
+
+  const rawList: any[] = res?.response?.data || [];
+
+  if (!Array.isArray(rawList)) {
+    return [];
+  }
+
+  return rawList.map((role) => ({
+    id: role.id ?? role.roleId ?? role.role_id,
+    name: role.name,
+  }));
+}
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('authToken');

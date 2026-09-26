@@ -53,7 +53,7 @@ if (transaction.type === "Given") {
 
 ### 1. **Component Structure**
 
-#### **YouGave Component** (`frontend/src/pages/YouGave.tsx`)
+#### **YouGave Component** (`frontend/src/features/customerpayment/components/YouGave.tsx`)
 ```typescript
 // Key Features:
 - Form for recording money given
@@ -63,7 +63,7 @@ if (transaction.type === "Given") {
 - Red-themed success notifications
 ```
 
-#### **YouReceived Component** (`frontend/src/pages/YouReceived.tsx`)
+#### **YouReceived Component** (`frontend/src/features/customerpayment/components/YouReceived.tsx`)
 ```typescript
 // Key Features:
 - Form for recording money received

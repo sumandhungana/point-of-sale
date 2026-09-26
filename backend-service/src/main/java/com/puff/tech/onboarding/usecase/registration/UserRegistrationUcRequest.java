@@ -17,7 +17,9 @@ public record UserRegistrationUcRequest(
         String notes,
         String password,
         String userId,
-        boolean isExternalOnboarding
+        String role,
+        boolean isExternalOnboarding,
+        boolean isSelfOrganizationOnboarded
 ) implements UCRequest {
 
 }

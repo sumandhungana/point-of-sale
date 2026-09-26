@@ -60,13 +60,13 @@ public class UserController {
                 .map(RestResponse::success)
                 .onErrorResume(err->Mono.just(RestResponse.error("Operation failed" + err.getLocalizedMessage())));
     }
-
-    @Get("/users")
-    public Flux<RestResponse<GetUserUseCaseResponse>> get(){
-        return getUserUseCase.execute()
-                .map(RestResponse::success)
-                .onErrorResume(err->Flux.just(RestResponse.error("Cannot fetch user")));
-    }
+//
+//    @Get("/users")
+//    public Flux<RestResponse<GetUserUseCaseResponse>> get(){
+//        return getUserUseCase.execute()
+//                .map(RestResponse::success)
+//                .onErrorResume(err->Flux.just(RestResponse.error("Cannot fetch user")));
+//    }
 
     @Get("/user/{id}")
     public Mono<RestResponse<GetUserUseCaseResponse>> getOneUser(@PathVariable Integer id){

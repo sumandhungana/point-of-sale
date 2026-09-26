@@ -55,7 +55,7 @@ public class CustomerController {
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened while adding customer" +err.getLocalizedMessage())));
     }
 
-    @Secured
+    @Secured(roles = {"Super Admin","ADMIN","USER"}, permissions = {"customer:view"})
     @Get("all-customers")
     public Mono<RestResponse<List<GetAllCustomerUseCaseResponse>>> getCustomers(){
         return getAllCustomerUseCase.execute(new GetCustomerUseCaseRequest())

@@ -36,6 +36,8 @@ public record UserRegistrationReqPayload(
         String organizationAddress,
 
         @Size(max = 500, message = "Notes cannot exceed 500 characters")
-        String notes
+        String notes,
+        @NotBlank(message = "Role is required")
+        String role
 ) {
 }

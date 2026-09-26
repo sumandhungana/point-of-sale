@@ -2,8 +2,7 @@ import {apiService} from "@/infrastructure/utils/ApiService";
 
 export interface Customer {
   id: number;
-  customer_id?: number; // Backend key
-  customerId?: number;  // Fallback
+  customerId?: number; // Backend key
   name: string;
   phone?: string;
   email?: string;
@@ -28,6 +27,25 @@ export interface Customer {
 
   paymentDateReminder?: string; // Optional UI/derived field
 }
+
+
+export interface Supplier {
+  id: number;
+  supplierId?: number; // Backend key
+  name: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  company?: string;
+  pan?: string;
+  contactPerson?: string;
+  profileImage?: string;
+  createdAt: string;
+  updatedAt: string;
+
+  paymentDateReminder?: string; // Optional UI/derived field
+}
+
 export interface CreateCustomerRequest {
   name: string;
   phone: string;
@@ -54,7 +72,6 @@ export interface CreateCustomerResponse {
 
 export interface UpdateCustomerRequest {
   customerId: number;
-  customer_id?: number; // optional alias
   name: string;
   phone?: string | null;
   email?: string | null;
@@ -83,16 +100,6 @@ export interface DeleteCustomerUseCaseResponse {
   message: string;
 }
 
-
-export const getSuppliers = async (): Promise<Customer[]> => {
-  try {
-    const response = await fetch(`/api/v1/Customer/suppliers`, { headers: getAuthHeaders() });
-    return response.json();
-  } catch (error) {
-    console.error('Error fetching suppliers:', error);
-    return [];
-  } 
-};
 export const getCustomers = async (): Promise<Customer[]> => {
   try {
     const res = await apiService.get<RestResponse<Customer[]>>(
@@ -141,7 +148,7 @@ export async function fetchCustomers(): Promise<Customer[]> {
   // Normalize so customer.id is always populated
   return rawList.map((customer) => ({
     ...customer,
-    id: customer.id ?? customer.customer_id ?? customer.customerId,
+    id: customer.id ?? customer.customerId,
   }));
 }
 
@@ -168,7 +175,7 @@ export async function fetchSuppliers(): Promise<Customer[]> {
   // Normalize so customer.id is always populated
   return rawList.map((customer) => ({
     ...customer,
-    id: customer.id ?? customer.customer_id ?? customer.customerId,
+    id: customer.id ?? customer.customerId,
   }));
 }
 
@@ -227,7 +234,7 @@ export async function createCustomer(formData: CreateCustomerRequest): Promise<C
 export async function updateCustomer(
     formData: UpdateCustomerRequest
 ): Promise<UpdateCustomerResponse | undefined> {
-  const customerId = formData.customerId ?? formData.customer_id;
+  const customerId = formData.customerId ?? formData.customerId;
 
   if (!customerId) {
     throw new Error('Customer ID is required for update');

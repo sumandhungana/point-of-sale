@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Sidebar } from '@/components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
-import { fetchSingleCustomerData } from '../services/customerService';
+import { getPaymentList, GetPaymentResponse } from '@/features/services/paymentService';
+import { fetchSingleCustomerData } from '@/features/services/customerService';
 import { toast } from 'react-toastify';
-import '../styles/CustomerStatements.css';
-import { YouGave } from './YouGave';
-import { YouReceived } from './YouReceived';
-import { resolveImageSrc } from '../utils/imageResolver';
+import '../../../styles/CustomerStatements.css';
+import { YouGave } from '../components/YouGave';
+import { YouReceived } from '../components/YouReceived';
+import { resolveImageSrc } from '@/utils/ImageResolver';
 
 interface CustomerData {
     id: number;
-    customer_id?: number;
+    customerId?: number;
     name: string;
     phone: string | null;
     email: string | null;
@@ -28,7 +28,7 @@ interface CustomerData {
     customerSmsSetting: boolean;
     smsLanguage: boolean;
     transactionHistoryCheck: boolean;
-    paymentHistory: PaymentHistory[];
+    paymentHistory: GetPaymentResponse[];
     paymentDateReminder: string | null;
 }
 
@@ -98,7 +98,7 @@ export const CustomerStatements = () => {
     const numericUrlId = isValidUrlId ? parseInt(id!, 10) : 0;
 
     const [reminderDate, setReminderDate] = useState<string>('');
-    const [paymentHistory, setPaymentHistory] = useState<PaymentHistory[]>([]);
+    const [paymentHistory, setPaymentHistory] = useState<GetPaymentResponse[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
     const [showReceivedPopup, setShowReceivedPopup] = useState(false);
@@ -127,6 +127,8 @@ export const CustomerStatements = () => {
     });
     const [customerLoading, setCustomerLoading] = useState(true);
 
+    const activeId = numericUrlId || customerData.id || customerData.customerId || 0;
+    console.log("adctive i" + activeId)
     useEffect(() => {
         const handleScroll = () => {
             const cards = document.querySelectorAll(".customer-statements-transaction-card");
@@ -147,7 +149,7 @@ export const CustomerStatements = () => {
     useEffect(() => {
         if (location.state?.customer) {
             const stateCust = location.state.customer;
-            const actualId = stateCust.id ?? stateCust.customer_id ?? numericUrlId;
+            const actualId = stateCust.id ?? stateCust.customerId ?? numericUrlId;
             setCustomerData({
                 ...stateCust,
                 id: Number(actualId)
@@ -158,7 +160,7 @@ export const CustomerStatements = () => {
                 try {
                     const data: any = await fetchSingleCustomerData(id!);
                     if (data) {
-                        const actualId = data.id ?? data.customer_id ?? numericUrlId;
+                        const actualId = data.id ?? data.customerId ?? numericUrlId;
                         setCustomerData({
                             id: Number(actualId),
                             name: data.name || '',
@@ -194,13 +196,36 @@ export const CustomerStatements = () => {
         }
     }, [location.state, id, isValidUrlId, numericUrlId]);
 
-    const calculateTotals = (history: PaymentHistory[]) => {
+    // Fetch payments using getPaymentList
+    const fetchPayments = useCallback(async () => {
+        if (!activeId) return;
+
+        setIsLoading(true);
+        try {
+            const payments = await getPaymentList({
+                paymentParty: 'CUSTOMER',
+                partyId: activeId
+            });
+            setPaymentHistory(Array.isArray(payments) ? payments : []);
+        } catch (error) {
+            console.error('Error fetching payment list:', error);
+            toast.error('Failed to fetch payment list');
+        } finally {
+            setIsLoading(false);
+        }
+    }, [activeId]);
+
+    useEffect(() => {
+        fetchPayments();
+    }, [fetchPayments]);
+
+    const calculateTotals = (history: GetPaymentResponse[]) => {
         const result = history.reduce((acc, payment) => {
-            const t = (payment.type || '').toLowerCase();
-            if (t === 'given' || t === 'payment_out' || t === 'you_gave') {
-                acc.given += payment.amount;
-            } else if (t === 'received' || t === 'payment_in' || t === 'you_received') {
-                acc.received += payment.amount;
+            const category = (payment.paymentCategory || '').toUpperCase();
+            if (category === 'GIVEN') {
+                acc.given += payment.amount || 0;
+            } else if (category === 'RECEIVED') {
+                acc.received += payment.amount || 0;
             }
             return acc;
         }, { given: 0, received: 0 });
@@ -212,25 +237,6 @@ export const CustomerStatements = () => {
     };
 
     const totals = calculateTotals(paymentHistory);
-
-    useEffect(() => {
-        const fetchPaymentHistory = async () => {
-            const targetId = numericUrlId || customerData.id || customerData.customer_id;
-            if (!targetId) return;
-
-            try {
-                const history = await getPaymentHistory(targetId);
-                setPaymentHistory(Array.isArray(history) ? history : []);
-            } catch (error) {
-                console.error('Error fetching payment history:', error);
-                toast.error('Failed to fetch payment history');
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchPaymentHistory();
-    }, [numericUrlId, customerData.id, customerData.customer_id]);
 
     const handleCall = () => {
         if (!customerData.phone) {
@@ -245,7 +251,7 @@ export const CustomerStatements = () => {
     };
 
     const handleProfileClick = () => {
-        const targetId = (isValidUrlId ? id : null) || customerData.id || customerData.customer_id;
+        const targetId = (isValidUrlId ? id : null) || customerData.id || customerData.customerId;
 
         if (!targetId || targetId === 'undefined' || targetId === 0) {
             toast.error('Customer ID not available');
@@ -257,20 +263,20 @@ export const CustomerStatements = () => {
         });
     };
 
-    const handleTransactionClick = (transaction: any) => {
+    const handleTransactionClick = (transaction: GetPaymentResponse) => {
         const activeCustId = customerData.id || numericUrlId;
         navigate(`/parties/customers/statement/${transaction.id}`, {
             state: {
                 transaction: {
                     customerName: customerData.name || 'Customer',
-                    date: transaction.date,
+                    date: transaction.createdAt,
                     totalAmount: Math.abs(transaction.amount),
                     phoneNumber: customerData.phone,
-                    type: transaction.type,
+                    type: transaction.paymentCategory === 'RECEIVED' ? 'payment_in' : 'payment_out',
                     customerId: activeCustId,
-                    details: `${transaction.type === 'payment_in' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.date).toLocaleDateString()}`,
+                    details: `${transaction.paymentCategory === 'RECEIVED' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.createdAt).toLocaleDateString()}`,
                     remarks: transaction.remarks,
-                    sms: `Dear ${customerData.name || 'Customer'}, your payment of रु${Math.abs(transaction.amount)} has been ${transaction.type === 'payment_in' ? 'received' : 'processed'}. Current balance: रु${transaction.currentBalance}. Thank you for your business.`
+                    sms: `Dear ${customerData.name || 'Customer'}, your payment of रु${Math.abs(transaction.amount)} has been ${transaction.paymentCategory === 'RECEIVED' ? 'received' : 'processed'}. Thank you for your business.`
                 }
             }
         });
@@ -289,15 +295,14 @@ export const CustomerStatements = () => {
     }, [customerData.paymentDateReminder]);
 
     const handleSetReminder = async () => {
-        const targetId = numericUrlId || customerData.id || customerData.customer_id;
-        if (!targetId) return;
+        if (!activeId) return;
 
         if (!reminderDate) {
             toast.error("Please select a reminder date.");
             return;
         }
         try {
-            const response = await fetch(`/api/v1/customer/${targetId}`, {
+            const response = await fetch(`/api/v1/customer/${activeId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -322,8 +327,7 @@ export const CustomerStatements = () => {
     };
 
     const handleReport = () => {
-        const targetId = numericUrlId || customerData.id || customerData.customer_id;
-        navigate(`/parties/customers/statements/report/${targetId}`, {
+        navigate(`/parties/customers/statements/report/${activeId}`, {
             state: {
                 customer: customerData,
                 paymentHistory,
@@ -332,7 +336,6 @@ export const CustomerStatements = () => {
         });
     };
 
-    const activeId = numericUrlId || customerData.id || customerData.customer_id;
     const resolvedImage = resolveImageSrc(customerData.profileImage);
 
     return (
@@ -461,19 +464,13 @@ export const CustomerStatements = () => {
                         <div>
                             {Object.entries(
                                 paymentHistory.reduce((groups, transaction) => {
-                                    const date = new Date(transaction.date).toISOString().split('T')[0];
-                                    const rawType = (transaction.type || '').toLowerCase();
-                                    const type = rawType === 'given' || rawType === 'payment_out' || rawType === 'you_gave' ? 'payment_out' : 'payment_in';
+                                    const date = new Date(transaction.createdAt).toISOString().split('T')[0];
+                                    const isReceived = transaction.paymentCategory === 'RECEIVED';
                                     if (!groups[date]) groups[date] = [];
                                     groups[date].push({
-                                        id: transaction.id,
-                                        type,
-                                        date: transaction.date,
-                                        amount: transaction.amount,
-                                        oldBalance: transaction.oldBalance,
-                                        currentBalance: transaction.newBalance,
-                                        remarks: transaction.remarks,
-                                        time: new Date(transaction.createdAt).toLocaleTimeString(),
+                                        ...transaction,
+                                        isReceived,
+                                        formattedTime: new Date(transaction.createdAt).toLocaleTimeString(),
                                         timestamp: new Date(transaction.createdAt).getTime()
                                     });
                                     return groups;
@@ -484,7 +481,7 @@ export const CustomerStatements = () => {
                                     <div key={date} className="customer-statements-date-group">
                                         {dateTransactions
                                             .sort((a, b) => b.timestamp - a.timestamp)
-                                            .map(transaction => (
+                                            .map((transaction) => (
                                                 <div
                                                     key={transaction.id}
                                                     className="customer-statements-transaction-card"
@@ -494,10 +491,10 @@ export const CustomerStatements = () => {
                                                         <div className="customer-statements-transaction-row">
                                                             <div className="customer-statements-transaction-label">Payment Type:</div>
                                                             <div className="customer-statements-transaction-value">
-                                                                {transaction.type === 'payment_in' ? (
-                                                                    <span className="customer-statements-payment-in">Payment In</span>
+                                                                {transaction.isReceived ? (
+                                                                    <span className="customer-statements-payment-in">Payment In ({transaction.paymentType})</span>
                                                                 ) : (
-                                                                    <span className="customer-statements-payment-out">Payment Out</span>
+                                                                    <span className="customer-statements-payment-out">Payment Out ({transaction.paymentType})</span>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -505,26 +502,19 @@ export const CustomerStatements = () => {
                                                             <div className="customer-statements-transaction-label">Date/Time:</div>
                                                             <div className="customer-statements-transaction-value">
                                                                 <i className="bi bi-clock me-1"></i>
-                                                                {new Date(transaction.date).toLocaleDateString()} {transaction.time}
-                                                            </div>
-                                                        </div>
-                                                        <div className="customer-statements-transaction-row">
-                                                            <div className="customer-statements-transaction-label">Balance:</div>
-                                                            <div className="customer-statements-transaction-value">
-                                                                <i className="bi bi-wallet2 me-1"></i>
-                                                                रु{Math.abs(transaction.amount).toLocaleString()}
+                                                                {new Date(transaction.createdAt).toLocaleDateString()} {transaction.formattedTime}
                                                             </div>
                                                         </div>
                                                         <div className="customer-statements-transaction-row">
                                                             <div className="customer-statements-transaction-label">Remarks:</div>
                                                             <div className="customer-statements-transaction-value">
                                                                 <i className="bi bi-chat-text me-1"></i>
-                                                                {transaction.remarks}
+                                                                {transaction.remarks || '-'}
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <div className="customer-statements-transaction-amounts">
-                                                        <div className={`customer-statements-current-amount ${transaction.type === 'payment_out' ? 'customer-statements-current-amount-red' : ''}`}>
+                                                        <div className={`customer-statements-current-amount ${!transaction.isReceived ? 'customer-statements-current-amount-red' : 'customer-statements-current-amount-green'}`}>
                                                             रु {Math.abs(transaction.amount).toLocaleString()}
                                                         </div>
                                                     </div>
@@ -571,7 +561,14 @@ export const CustomerStatements = () => {
                                     </h2>
                                 </div>
                                 <div className="you-gave-popup-body">
-                                    <YouGave />
+                                    <YouGave
+                                        customerId={activeId}
+                                        onSuccess={() => {
+                                            fetchPayments();
+                                            setShowPopup(false);
+                                        }}
+                                        onClose={() => setShowPopup(false)}
+                                    />
                                 </div>
                             </div>
                         </div>
@@ -611,7 +608,14 @@ export const CustomerStatements = () => {
                                     </h2>
                                 </div>
                                 <div className="you-received-popup-body">
-                                    <YouReceived />
+                                    <YouReceived
+                                        customerId={activeId}
+                                        onSuccess={() => {
+                                            fetchPayments();
+                                            setShowReceivedPopup(false);
+                                        }}
+                                        onClose={() => setShowReceivedPopup(false)}
+                                    />
                                 </div>
                             </div>
                         </div>

@@ -7,24 +7,10 @@ import {
   Image,
   StyleSheet
 } from '@react-pdf/renderer';
-import { registerFonts, DEVANAGARI_FAMILY, DEVANAGARI_ENABLED, getCurrencySymbol } from './fonts';
+import { registerFonts, DEVANAGARI_FAMILY, DEVANAGARI_ENABLED, getCurrencySymbol } from '../../../components/fonts';
 import logo from "@/assets/logo.png";
+import {CustomerData, GetPaymentResponse} from "@/features/services/paymentService";
 
-/* ------------------ Types ------------------ */
-interface PaymentHistory {
-  id: number;
-  createdAt: string;
-  type: string; // supports 'GIVE', 'GIVEN', 'RECEIVE', 'RECEIVED' (case-insensitive)
-  amount: number | string;
-  remarks: string;
-  newBalance: number | string;
-}
-
-interface CustomerData {
-  name: string;
-  phone: string;
-  balance: number | string;
-}
 
 interface ReportData {
   companyName?: string;
@@ -35,7 +21,7 @@ interface ReportData {
   openingBalance?: number | string;
   openingBalanceDate?: string;
   customer: CustomerData;
-  paymentHistory: PaymentHistory[];
+  paymentHistory: GetPaymentResponse[];
   totals: {
     given: number | string;
     received: number | string;
@@ -64,7 +50,7 @@ const formatDate = (dateString: string): string => {
   return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-US');
 };
 
-const getReportDateRange = (transactions: PaymentHistory[]) => {
+const getReportDateRange = (transactions: GetPaymentResponse[]) => {
   if (!transactions || transactions.length === 0) {
     return {
       oldestDate: '-',
@@ -104,8 +90,8 @@ const formatMonthYear = (dateString: string): string => {
       : date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
 };
 
-const groupTransactionsByMonth = (txs: PaymentHistory[]) => {
-  const groups: { [key: string]: PaymentHistory[] } = {};
+const groupTransactionsByMonth = (txs: GetPaymentResponse[]) => {
+  const groups: { [key: string]: GetPaymentResponse[] } = {};
   txs.forEach(tx => {
     const key = formatMonthYear(tx.createdAt);
     if (!groups[key]) groups[key] = [];
@@ -582,7 +568,7 @@ const CustomerStatementsPDFTemplate: React.FC<{ data: ReportData }> = ({ data })
 
                 // Localized subtotal tracking updated to support both shortened and full naming variations safely
                 currentMonthTxs.forEach(tx => {
-                  const typeCleaned = String(tx.type).toUpperCase();
+                  const typeCleaned = String(tx.paymentCategory).toUpperCase();
                   if (typeCleaned === 'GIVE' || typeCleaned === 'GIVEN') {
                     localizedGive += toNumber(tx.amount);
                   } else if (typeCleaned === 'RECEIVE' || typeCleaned === 'RECEIVED') {
@@ -612,7 +598,7 @@ const CustomerStatementsPDFTemplate: React.FC<{ data: ReportData }> = ({ data })
 
                       {/* Data Records Rows */}
                       {currentMonthTxs.map((tx) => {
-                        const typeCleaned = String(tx.type).toUpperCase();
+                        const typeCleaned = String(tx.paymentCategory).toUpperCase();
                         const isGive = typeCleaned === 'GIVE' || typeCleaned === 'GIVEN';
                         const isReceive = typeCleaned === 'RECEIVE' || typeCleaned === 'RECEIVED';
 

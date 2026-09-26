@@ -11,7 +11,6 @@ import reactor.core.publisher.Mono;
 )
 public interface CustomerRepository extends ReactorCrudRepository<OrganizationCustomerEntity,Integer> {
     Flux<OrganizationCustomerEntity> findByMemberIdAndSupplierOrderByCreatedAtDesc(Long memberId, boolean supplier);
-
     Mono<OrganizationCustomerEntity> findByIdAndMemberId(Integer id, Long memberId);
 
 }

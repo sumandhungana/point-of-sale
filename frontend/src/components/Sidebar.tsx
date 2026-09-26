@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState, useRef, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { usePermission } from '@/core/rbac/usePermission';
 import { getKhataBooks, switchKhataBook, getSelectedKhataBook, KhataBook } from '../services/khataBookService';
 import dashboardIcon from '../assets/dashboard.png';
 import '../styles/Sidebar.css';
@@ -9,6 +9,8 @@ interface NavItem {
 	title: string;
 	path: string;
 	icon: string;
+	module?: string;
+	permission?: string;
 	children?: NavItem[];
 }
 
@@ -19,8 +21,8 @@ const navItems: NavItem[] = [
 		path: '/parties',
 		icon: '👥',
 		children: [
-			{ title: 'Customer', path: '/parties/customers', icon: '' },
-			{ title: 'Suppliers', path: '/parties/suppliers', icon: '' },
+			{ title: 'Customer', path: '/parties/customers', icon: '', module: 'customer' },
+			{ title: 'Suppliers', path: '/parties/suppliers', icon: '', module: 'supplier' },
 			{ title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '' },
 			{ title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '' },
 		],
@@ -44,8 +46,8 @@ const navItems: NavItem[] = [
 		path: '/others',
 		icon: '📦',
 		children: [
-			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼' },
-			{ title: 'Rental Items', path: '/rental-items', icon: '📦' },
+			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼', module: 'staff' },
+			{ title: 'Rental Items', path: '/rental-items', icon: '📦', module: 'rental' },
 			{ title: 'Note', path: '/others/note', icon: '📝' },
 		],
 	},
@@ -76,7 +78,7 @@ const navItems: NavItem[] = [
 		icon: '⚙️',
 		children: [
 			{ title: 'API', path: '/settings/api', icon: '💬' },
-			{ title: 'Organization', path: '/user', icon: '🌐' },
+			{ title: 'Organization Management', path: '/user', icon: '🌐', module: 'organization'},
 			{ title: 'Backup', path: '/settings/backup', icon: '💾' },
 			{ title: 'Recycle Bin', path: '/settings/recycle-bin', icon: '🗑️' },
 			{ title: 'Role & Permission', path: '/role', icon: '🔒' },
@@ -101,50 +103,15 @@ const navItems: NavItem[] = [
 	},
 ];
 
-interface UserCard {
-	id: string;
-	name: string;
-	company: string;
-	phone: string;
-	role: string;
-	image: string;
-}
-
-const userCards: UserCard[] = [
-	{
-		id: '1',
-		name: 'John Doe',
-		company: 'ABC Corporation',
-		phone: '+1 234 567 8901',
-		role: 'Admin',
-		image: '👤',
-	},
-	{
-		id: '2',
-		name: 'Jane Smith',
-		company: 'XYZ Enterprises',
-		phone: '+1 234 567 8902',
-		role: 'Manager',
-		image: '👤',
-	},
-	{
-		id: '3',
-		name: 'Robert Johnson',
-		company: '123 Industries',
-		phone: '+1 234 567 8903',
-		role: 'Staff',
-		image: '👤',
-	},
-];
-
 export const Sidebar = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
-	const { user } = useAuth();
+	const { hasModule, hasPermission } = usePermission();
+
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const popupRef = useRef<HTMLDivElement>(null);
 	const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
-		'/parties': true // Always keep Parties menu expanded
+		'/parties': true,
 	});
 	const [khataBooks, setKhataBooks] = useState<KhataBook[]>([]);
 	const [currentKhataBook, setCurrentKhataBook] = useState<KhataBook | null>(null);
@@ -152,17 +119,17 @@ export const Sidebar = () => {
 	const [error, setError] = useState<string | null>(null);
 	const cachedCompanyName = (typeof window !== 'undefined' && localStorage.getItem('companyName')) || '';
 
-	// Function to find all parent paths for the current location
 	const findParentPaths = (items: NavItem[], currentPath: string): string[] => {
 		const parentPaths: string[] = [];
 
 		const findParents = (items: NavItem[], path: string): boolean => {
 			for (const item of items) {
 				if (item.children) {
-					if (item.children.some(child =>
-						child.path === path ||
-						(child.children && findParents([child], path))
-					)) {
+					if (
+						item.children.some(
+							(child) => child.path === path || (child.children && findParents([child], path))
+						)
+					) {
 						parentPaths.push(item.path);
 						return true;
 					}
@@ -175,15 +142,13 @@ export const Sidebar = () => {
 		return parentPaths;
 	};
 
-	// Update expanded items when location changes
 	useEffect(() => {
 		const parentPaths = findParentPaths(navItems, location.pathname);
-		setExpandedItems(prev => {
+		setExpandedItems((prev) => {
 			const newExpanded = { ...prev };
-			parentPaths.forEach(path => {
+			parentPaths.forEach((path) => {
 				newExpanded[path] = true;
 			});
-			// Always keep Parties menu expanded
 			newExpanded['/parties'] = true;
 			return newExpanded;
 		});
@@ -207,7 +172,6 @@ export const Sidebar = () => {
 				setError(null);
 				try {
 					const data = await getKhataBooks();
-					console.log('Fetched KhataBooks:', data);
 					setKhataBooks(data);
 				} catch (err) {
 					setError('Failed to load KhataBooks');
@@ -221,16 +185,13 @@ export const Sidebar = () => {
 		fetchKhataBooks();
 	}, [isPopupOpen]);
 
-	// Fetch current selected KhataBook on component mount
 	useEffect(() => {
 		const fetchCurrentKhataBook = async () => {
 			try {
 				const selectedKhataBook = await getSelectedKhataBook();
-				console.log('Current selected KhataBook:', selectedKhataBook);
 				setCurrentKhataBook(selectedKhataBook);
 			} catch (err) {
 				console.error('Failed to fetch current KhataBook:', err);
-				// Keep existing state/cached value to avoid UI flicker
 			}
 		};
 
@@ -238,33 +199,25 @@ export const Sidebar = () => {
 	}, []);
 
 	const isActive = (path: string, item: NavItem) => {
-		// Special handling for root paths
-		if (path === '/') {
-			return false;
-		}
+		if (path === '/') return false;
 
-		// Normalize special-case aliases (supplier singular vs plural)
 		if (path === '/parties/suppliers' && location.pathname.startsWith('/parties/supplier')) {
 			return true;
 		}
 
-		// Check if the current path starts with the item's path
 		const isPathActive = location.pathname.startsWith(path);
 
-		// If this is a parent item, check if any of its children are active
 		if (item.children) {
-			const hasActiveChild = item.children.some(child => {
-				// For nested children, check if the current path exactly matches or starts with the child path
+			const hasActiveChild = item.children.some((child) => {
 				if (child.children) {
-					return child.children.some(nestedChild =>
-						location.pathname === nestedChild.path ||
-						location.pathname.startsWith(nestedChild.path)
+					return child.children.some(
+						(nestedChild) =>
+							location.pathname === nestedChild.path || location.pathname.startsWith(nestedChild.path)
 					);
 				}
-				// Include alias: '/parties/supplier/*' should activate '/parties/suppliers'
-				const childAliasActive = child.path === '/parties/suppliers' && location.pathname.startsWith('/parties/supplier');
-				return childAliasActive || location.pathname === child.path ||
-					location.pathname.startsWith(child.path);
+				const childAliasActive =
+					child.path === '/parties/suppliers' && location.pathname.startsWith('/parties/supplier');
+				return childAliasActive || location.pathname === child.path || location.pathname.startsWith(child.path);
 			});
 			return hasActiveChild;
 		}
@@ -273,14 +226,39 @@ export const Sidebar = () => {
 	};
 
 	const toggleItem = (path: string) => {
-		// Prevent Parties menu from being collapsed
-		if (path === '/parties') {
-			return;
-		}
-		setExpandedItems(prev => ({
+		if (path === '/parties') return;
+		setExpandedItems((prev) => ({
 			...prev,
-			[path]: !prev[path]
+			[path]: !prev[path],
 		}));
+	};
+
+	/**
+	 * Recursive filter to check module/permission authorization for navigation items
+	 */
+	const filterAuthorizedNavItems = (items: NavItem[]): NavItem[] => {
+		return items
+			.filter((item) => {
+				// Module check
+				if (item.module && !hasModule(item.module)) {
+					return false;
+				}
+				// Permission check
+				if (item.permission && !hasPermission(item.permission)) {
+					return false;
+				}
+				return true;
+			})
+			.map((item) => {
+				if (item.children) {
+					return {
+						...item,
+						children: filterAuthorizedNavItems(item.children),
+					};
+				}
+				return item;
+			})
+			.filter((item) => !item.children || item.children.length > 0);
 	};
 
 	const renderNavItems = (items: NavItem[], level = 0) => {
@@ -289,28 +267,33 @@ export const Sidebar = () => {
 			const isExpanded = expandedItems[item.path];
 			const active = isActive(item.path, item);
 
-			// Hide icons for nested items under /parties
 			const hideIconForPartiesChildren = level > 0 && item.path.startsWith('/parties/');
-			const showIcon = !(hideIconForPartiesChildren);
+			const showIcon = !hideIconForPartiesChildren;
 
 			return (
 				<li key={item.path} className={`${level > 0 ? 'nested-nav-item' : 'nav-item'} mb-2`}>
 					<div
-						onClick={() => hasChildren ? toggleItem(item.path) : navigate(item.path)}
-						className={`${level > 0 ? 'nested-nav-link' : 'nav-link'} ${active ? 'active' : ''} d-flex align-items-center py-2 px-3 rounded`}
-						style={{ paddingLeft: `${0.75 + (level * 0.5)}rem` }}
+						onClick={() => (hasChildren ? toggleItem(item.path) : navigate(item.path))}
+						className={`${level > 0 ? 'nested-nav-link' : 'nav-link'} ${
+							active ? 'active' : ''
+						} d-flex align-items-center py-2 px-3 rounded`}
+						style={{ paddingLeft: `${0.75 + level * 0.5}rem` }}
 					>
 						{showIcon && (
 							<span className={`${level > 0 ? 'nested-nav-icon' : 'nav-icon'} me-2`}>
-								{item.title === 'Dashboard' ? (
-									<img src={dashboardIcon} alt="Dashboard" style={{ width: '28px', height: '28px' }} />
-								) : (
-									item.icon
-								)}
-							</span>
+                {item.title === 'DASHBOARD' ? (
+					<img src={dashboardIcon} alt="Dashboard" style={{ width: '28px', height: '28px' }} />
+				) : (
+					item.icon
+				)}
+              </span>
 						)}
-						<span className={`${level > 0 ? 'nested-nav-text' : 'nav-text'} flex-grow-1`}>{item.title}</span>
-						{hasChildren && item.path !== '/parties' && <span className="expand-icon ms-auto">{isExpanded ? '▾' : '▸'}</span>}
+						<span className={`${level > 0 ? 'nested-nav-text' : 'nav-text'} flex-grow-1`}>
+              {item.title}
+            </span>
+						{hasChildren && item.path !== '/parties' && (
+							<span className="expand-icon ms-auto">{isExpanded ? '▾' : '▸'}</span>
+						)}
 					</div>
 
 					{hasChildren && isExpanded && (
@@ -330,13 +313,10 @@ export const Sidebar = () => {
 
 	const handleKhataBookClick = async (khataBook: KhataBook) => {
 		try {
-			console.log('Switching to KhataBook:', khataBook);
 			await switchKhataBook(khataBook.id);
 			setCurrentKhataBook(khataBook);
 			localStorage.setItem('companyName', khataBook.companyName);
 			localStorage.setItem('selectedKhataBookId', khataBook.id.toString());
-
-			// Refresh the page to load new KhataBook data
 			window.location.reload();
 		} catch (error) {
 			console.error('Error switching KhataBook:', error);
@@ -345,23 +325,15 @@ export const Sidebar = () => {
 		setIsPopupOpen(false);
 	};
 
+	const authorizedNavItems = filterAuthorizedNavItems(navItems);
+
 	return (
 		<div className="sidebar">
-			{/* Logo moved to Navbar */}
-
-			<div
-				className="user-section"
-				onClick={() => setIsPopupOpen(true)}
-			>
+			<div className="user-section" onClick={() => setIsPopupOpen(true)}>
 				<div className="user-profile" style={{ display: 'flex', flexDirection: 'column' }}>
-					{/* <div className="avatar">
-						{'👤'}
-						{currentKhataBook?.imagePath}
-					</div> */}
 					<div
 						className="avatar"
 						style={{
-							
 							backgroundImage: currentKhataBook?.imagePath
 								? `url(http://localhost:5000${currentKhataBook.imagePath})`
 								: 'linear-gradient(135deg, #3498db, #2980b9)',
@@ -373,7 +345,6 @@ export const Sidebar = () => {
 						{!currentKhataBook?.imagePath && '👤'}
 					</div>
 					<div className="user-info">
-						
 						<p className="user-role">
 							{currentKhataBook?.companyName || cachedCompanyName || 'No KhataBook Selected'}
 						</p>
@@ -385,14 +356,8 @@ export const Sidebar = () => {
 				<div className="popup-container">
 					<div className="popup-content" ref={popupRef}>
 						<div className="popup-header">
-							<h2 className="popup-title">
-								{/* <i className="bi bi-building"></i> */}
-								KhataBooks
-							</h2>
-							<button
-								className="close-button"
-								onClick={() => setIsPopupOpen(false)}
-							>
+							<h2 className="popup-title">KhataBooks</h2>
+							<button className="close-button" onClick={() => setIsPopupOpen(false)}>
 								×
 							</button>
 						</div>
@@ -412,11 +377,7 @@ export const Sidebar = () => {
 									>
 										<div className="user-image">
 											{khataBook.imagePath ? (
-												<img
-													src={khataBook.imagePath}
-													alt={khataBook.name}
-													className="user-image-img"
-												/>
+												<img src={khataBook.imagePath} alt={khataBook.name} className="user-image-img" />
 											) : (
 												'👤'
 											)}
@@ -430,10 +391,7 @@ export const Sidebar = () => {
 								))
 							)}
 						</div>
-						<button
-							className="add-button"
-							onClick={handleAddKhatabook}
-						>
+						<button className="add-button" onClick={handleAddKhatabook}>
 							Add New Khatabook
 						</button>
 					</div>
@@ -441,10 +399,8 @@ export const Sidebar = () => {
 			)}
 
 			<div className="nav-section">
-				<ul className="nav-items list-unstyled">
-					{renderNavItems(navItems)}
-				</ul>
+				<ul className="nav-items list-unstyled">{renderNavItems(authorizedNavItems)}</ul>
 			</div>
 		</div>
 	);
-}; 
+};

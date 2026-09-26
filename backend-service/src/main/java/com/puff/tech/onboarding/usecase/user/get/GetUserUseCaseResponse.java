@@ -1,24 +1,22 @@
 package com.puff.tech.onboarding.usecase.user.get;
 
+import com.puff.tech.core.usecases.UCResponse;
 import io.micronaut.serde.annotation.Serdeable;
+import lombok.Builder;
 
 import java.time.Instant;
 
 @Serdeable
+@Builder
 public record GetUserUseCaseResponse(
-
+        Long userId,
         String userName,
-        String branch,
-        String permission,
-        String parent,
-        String name,
-        String address,
-        String company,
-        String email,
-        String phone,
-        String pan,
+        String role,
+        boolean isActive,
+        String createdBy,
         Instant createdAt,
+        String  updatedBy,
         Instant updatedAt
 
-) {
+) implements UCResponse {
 }

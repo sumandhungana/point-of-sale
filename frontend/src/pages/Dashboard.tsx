@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Sidebar } from '../components/Sidebar';
-import { getCustomers, getSuppliers } from '../services/customerService';
-import { SystemMonitor } from '../components/SystemMonitor';
-import { getDashboardPaymentTotals } from '../services/paymentService';
-import { fetchStaff } from '../services/staffService';
-import { fetchSalesBills } from '../services/salesBillService';
-import { fetchPurchases } from '../services/purchaseListService';
-import { fetchExpenses } from '../services/expensesListService';
-import { fetchIncomes } from '../services/incomeService';
-import { fetchCashbooks } from '../services/cashbookService';
-import { fetchRentalItems } from '../services/rentalItemService';
-import { fetchUsers } from '../services/userService';
-import { fetchItems } from '../services/itemService';
+import { Sidebar } from '@/components/Sidebar';
+import { getCustomers } from '@/features/services/customerService';
+
+import { getSuppliers } from '@/features/services/supplierService';
+import { SystemMonitor } from '@/components/SystemMonitor';
+import { getDashboardPaymentTotals } from '@/services/paymentService';
+import { fetchStaff } from '@/services/staffService';
+import { fetchSalesBills } from '@/services/salesBillService';
+import { fetchPurchases } from '@/services/purchaseListService';
+import { fetchExpenses } from '@/services/expensesListService';
+import { fetchIncomes } from '@/services/incomeService';
+import { fetchCashbooks } from '@/services/cashbookService';
+import { fetchRentalItems } from '@/services/rentalItemService';
+import { fetchUsers } from '@/services/userService';
+import { fetchItems } from '@/services/itemService';
 import '../styles/Dashboard.css';
 
 const hexToRgba = (hex: string, alpha: number): string => {
@@ -81,7 +83,7 @@ const Dashboard: React.FC = () => {
         setTotalBranch(1);
 
         const users = await fetchUsers();
-        setTotalAppUser(users.length || 0);
+        setTotalAppUser(users.toString.length || 0);
 
         const items = await fetchItems();
         setTotalItem(items.length || 0);

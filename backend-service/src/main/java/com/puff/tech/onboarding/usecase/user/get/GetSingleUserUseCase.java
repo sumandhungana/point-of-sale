@@ -17,8 +17,9 @@ public class GetSingleUserUseCase {
     }
 
     public Mono<GetUserUseCaseResponse> execute(Integer id){
-        return userRepository.findById(id)
-                .map(UserConvertor::toGetUsers)
-                .onErrorResume(err-> Mono.error(new Throwable("Cannot fetch user" +err.getLocalizedMessage())));
+//        return userRepository.findById(id)
+//                .map(UserConvertor::toGetUsers)
+//                .onErrorResume(err-> Mono.error(new Throwable("Cannot fetch user" +err.getLocalizedMessage())));
+        return null;
     }
 }

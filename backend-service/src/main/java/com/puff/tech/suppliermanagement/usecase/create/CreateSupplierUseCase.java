@@ -28,7 +28,7 @@ public class CreateSupplierUseCase implements MonoUC<CreateSupplierUseCaseReques
         var supplier = SupplierConvertor.toEntity(request, context.securityContext());
         return supplierRepository.save(supplier)
                 .map(saved->new CreateSupplierUseCaseResponse("Supplier created"))
-                .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage())));
+                .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened: " +err.getLocalizedMessage())));
 
     }
 

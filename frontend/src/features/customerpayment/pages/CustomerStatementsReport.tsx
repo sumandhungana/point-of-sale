@@ -1,26 +1,18 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { PaymentHistory, getPaymentHistory } from '../services/paymentService';
-import { getCustomers } from '../services/customerService';
+import {CustomerData, getPaymentList, GetPaymentResponse} from '@/features/services/paymentService';
+import { getCustomers } from '@/features/services/customerService';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 import CustomerStatementsPDFTemplate from '../components/CustomerStatementsPDFTemplate';
-import '../styles/CustomerStatementsReport.css';
-
-interface CustomerData {
-    name: string;
-    phoneNumber: string;
-    profileImage: string | null;
-    balance: number;
-    paymentHistory: PaymentHistory[];
-}
+import '../../../styles/CustomerStatementsReport.css';
 
 interface ReportData {
     customer: CustomerData;
-    paymentHistory: PaymentHistory[];
+    paymentHistory: GetPaymentResponse[];
     totals: {
         given: number;
         received: number;
@@ -32,33 +24,44 @@ export const CustomerStatementsReport = () => {
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
     const contentRef = useRef<HTMLDivElement>(null);
-    // Data will be managed by reportData state
 
     const [searchTerm, setSearchTerm] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [sortOption, setSortOption] = useState("date-desc");
-    const [filterOption, setFilterOption] = useState("all");
+    const [filterOption] = useState("all");
     const [generatingPdf, setGeneratingPdf] = useState(false);
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState<ReportData>({
         customer: {
+            id: 0,
             name: '',
-            phoneNumber: '',
+            phone: null,
+            email: null,
+            address: null,
+            company: null,
+            pan: null,
+            contactPerson: null,
+            isSupplier: false,
+            createdAt: '',
+            updatedAt: '',
+            bankAccount: null,
+            cashBalance: 0,
             profileImage: null,
-            balance: 0,
-            paymentHistory: []
+            customerSmsSetting: false,
+            smsLanguage: false,
+            transactionHistoryCheck: false,
+            paymentHistory: [],
+            paymentDateReminder: null,
         },
         paymentHistory: [],
         totals: { given: 0, received: 0 }
     });
 
-    // Use data from location.state if available, otherwise fetch it
     useEffect(() => {
         if (location.state && location.state.customer && location.state.paymentHistory) {
             setReportData(location.state as ReportData);
         } else if (id) {
-            // Fetch data if not available from location.state
             fetchReportData();
         }
     }, [id, location.state]);
@@ -69,7 +72,7 @@ export const CustomerStatementsReport = () => {
         setLoading(true);
         try {
             const customers = await getCustomers();
-            const customer = customers.find(c => c.id === parseInt(id));
+            const customer = customers.find((c: any) => c.id === parseInt(id));
 
             if (!customer) {
                 toast.error('Customer not found');
@@ -77,42 +80,45 @@ export const CustomerStatementsReport = () => {
                 return;
             }
 
-            const paymentHistory = await getPaymentHistory(customer.id);
+            const paymentHistory = await getPaymentList({
+                paymentParty: 'CUSTOMER',
+                partyId: customer.id,
+            });
 
-            // Calculate totals
             const totals = paymentHistory.reduce((acc, payment) => {
-                // Ensure amount is a proper number
                 const amount = typeof payment.amount === 'string' ? parseFloat(payment.amount) : payment.amount;
                 const cleanAmount = isNaN(amount) ? 0 : amount;
 
-                if (payment.type === 'Given') {
+                if (payment.paymentCategory === 'GIVEN') {
                     acc.given += cleanAmount;
-                } else if (payment.type === 'Received') {
+                } else if (payment.paymentCategory === 'RECEIVED') {
                     acc.received += cleanAmount;
                 }
                 return acc;
             }, { given: 0, received: 0 });
 
-            // Calculate current balance from payment history
-            const currentBalance = paymentHistory.reduce((acc, payment) => {
-                // Ensure amount is a proper number
-                const amount = typeof payment.amount === 'string' ? parseFloat(payment.amount) : payment.amount;
-                const cleanAmount = isNaN(amount) ? 0 : amount;
-
-                if (payment.type === 'Received') {
-                    return acc + cleanAmount;
-                } else if (payment.type === 'Given') {
-                    return acc - cleanAmount;
-                }
-                return acc;
-            }, 0);
+            const currentBalance = totals.received - totals.given;
 
             const customerData: CustomerData = {
+                id: customer.id,
                 name: customer.name,
-                phoneNumber: customer.phoneNumber,
+                phone: customer.phone ?? null,
+                email: customer.email ?? null,
+                address: customer.address ?? null,
+                company: customer.company ?? null,
+                pan: customer.pan ?? null,
+                contactPerson: customer.contactPerson ?? null,
+                isSupplier: customer.isSupplier ?? false,
+                createdAt: customer.createdAt ?? new Date().toISOString(),
+                updatedAt: customer.updatedAt ?? new Date().toISOString(),
+                bankAccount: customer.bankAccount ?? null,
+                cashBalance: currentBalance,
                 profileImage: customer.profileImage || null,
-                balance: currentBalance,
-                paymentHistory: paymentHistory
+                customerSmsSetting: customer.customerSmsSetting ?? false,
+                smsLanguage: customer.smsLanguage ?? false,
+                transactionHistoryCheck: customer.transactionHistoryCheck ?? false,
+                paymentHistory: paymentHistory,
+                paymentDateReminder: customer.paymentDateReminder ?? null,
             };
 
             setReportData({
@@ -132,41 +138,36 @@ export const CustomerStatementsReport = () => {
         navigate(`/parties/customers/statements/${id}`);
     };
 
-    // Calculate totals
     const totalGave = reportData.totals.given;
     const totalReceived = reportData.totals.received;
     const netBalance = totalReceived - totalGave;
 
-    // Filter and sort transactions
     const filteredTransactions = reportData.paymentHistory
         .filter((transaction) => {
             const search = searchTerm.trim().toLowerCase();
+            const typeText = transaction.paymentCategory === 'GIVEN' ? 'given' : 'received';
+            const dateStr = new Date(transaction.createdAt).toLocaleDateString();
 
             const matchesSearch =
                 search === "" ||
                 transaction.remarks?.toLowerCase().includes(search) ||
-                transaction.type.toLowerCase().includes(search) ||
-                transaction.date?.toLowerCase().includes(search) ||
+                typeText.includes(search) ||
+                dateStr.includes(search) ||
                 transaction.amount.toString().includes(search) ||
-                transaction.newBalance.toString().includes(search) ||
                 reportData.customer.name.toLowerCase().includes(search);
 
             const matchesFilter =
                 filterOption === "all" ||
-                (filterOption === "gave" && transaction.type === "Given") ||
-                (filterOption === "received" &&
-                    transaction.type === "Received");
+                (filterOption === "gave" && transaction.paymentCategory === "GIVEN") ||
+                (filterOption === "received" && transaction.paymentCategory === "RECEIVED");
 
-            const transactionDate = new Date(transaction.createdAt);
+            const transactionTime = new Date(transaction.createdAt).getTime();
 
             const matchesStartDate =
-                !startDate || transactionDate >= new Date(startDate);
+                !startDate || transactionTime >= new Date(`${startDate}T00:00:00`).getTime();
 
             const matchesEndDate =
-                !endDate ||
-                transactionDate <= new Date(
-                    `${endDate}T23:59:59`
-                );
+                !endDate || transactionTime <= new Date(`${endDate}T23:59:59`).getTime();
 
             return (
                 matchesSearch &&
@@ -178,22 +179,16 @@ export const CustomerStatementsReport = () => {
         .sort((a, b) => {
             switch (sortOption) {
                 case "date-desc":
-                    return (
-                        new Date(b.createdAt).getTime() -
-                        new Date(a.createdAt).getTime()
-                    );
+                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
 
                 case "date-asc":
-                    return (
-                        new Date(a.createdAt).getTime() -
-                        new Date(b.createdAt).getTime()
-                    );
+                    return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
 
                 case "amount-desc":
-                    return Number(b.newBalance) - Number(a.newBalance);
+                    return Number(b.amount || 0) - Number(a.amount || 0);
 
                 case "amount-asc":
-                    return Number(a.newBalance) - Number(b.newBalance);
+                    return Number(a.amount || 0) - Number(b.amount || 0);
 
                 default:
                     return 0;
@@ -203,11 +198,6 @@ export const CustomerStatementsReport = () => {
     const handleGeneratePdf = async () => {
         setGeneratingPdf(true);
         try {
-            console.log('Starting PDF generation...');
-            console.log('Customer data:', reportData.customer);
-            console.log('Filtered transactions:', filteredTransactions);
-            console.log('Totals:', { given: totalGave, received: totalReceived });
-
             const blob = await pdf(
                 <CustomerStatementsPDFTemplate data={{
                     customer: reportData.customer,
@@ -218,8 +208,6 @@ export const CustomerStatementsReport = () => {
                     }
                 }} />
             ).toBlob();
-
-            console.log('PDF blob created successfully:', blob);
 
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -233,10 +221,6 @@ export const CustomerStatementsReport = () => {
             toast.success('PDF downloaded successfully');
         } catch (error) {
             console.error('Error generating PDF:', error);
-            console.error('Error details:', {
-                message: error instanceof Error ? error.message : 'Unknown error',
-                stack: error instanceof Error ? error.stack : undefined
-            });
             toast.error(`Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`);
         } finally {
             setGeneratingPdf(false);
@@ -259,7 +243,6 @@ export const CustomerStatementsReport = () => {
         );
     }
 
-    // @ts-ignore
     return (
         <div className="customer-statements-report-page">
             <Sidebar />
@@ -278,11 +261,9 @@ export const CustomerStatementsReport = () => {
                     </div>
 
                     <div className="customer-statements-report-controls-card">
-
                         {/* Search */}
                         <div className="customer-statements-report-search-container">
                             <i className="bi bi-search customer-statements-report-search-icon"></i>
-
                             <input
                                 type="search"
                                 placeholder="Search..."
@@ -300,8 +281,8 @@ export const CustomerStatementsReport = () => {
                         >
                             <option value="date-desc">Newest</option>
                             <option value="date-asc">Oldest</option>
-                            <option value="amount-desc">Balance ↓</option>
-                            <option value="amount-asc">Balance ↑</option>
+                            <option value="amount-desc">Amount ↓</option>
+                            <option value="amount-asc">Amount ↑</option>
                         </select>
 
                         {/* Start Date */}
@@ -338,14 +319,15 @@ export const CustomerStatementsReport = () => {
                     <div className="search-result-count">
                         Showing {filteredTransactions.length} of {reportData.paymentHistory.length} transactions
                     </div>
+
                     <div className="customer-statements-report-summary-section">
                         <table className="statement-table">
                             <tbody>
                             <tr>
-                                <td className="net-balance" colSpan="3">
+                                <td className="net-balance" colSpan={3}>
                                     <div className="net-balance-content">
                                         <span>Total Net Balance</span>
-                                        <strong>रु{netBalance.toLocaleString()}</strong>
+                                        <strong>रु{(netBalance || 0).toLocaleString()}</strong>
                                     </div>
                                 </td>
                             </tr>
@@ -355,44 +337,39 @@ export const CustomerStatementsReport = () => {
                                     <br />
                                     <strong>{reportData.paymentHistory.length}</strong>
                                 </td>
-
                                 <td>
                                     You Gave
                                     <br />
-                                    <strong>रु{totalGave.toLocaleString()}</strong>
+                                    <strong>रु{(totalGave || 0).toLocaleString()}</strong>
                                 </td>
-
-                                <td >
+                                <td>
                                     You Received
                                     <br />
-                                    <strong>रु{totalReceived.toLocaleString()}</strong>
+                                    <strong>रु{(totalReceived || 0).toLocaleString()}</strong>
                                 </td>
                             </tr>
 
-                            {filteredTransactions.map((item, index) => (
-                                <tr key={index}  className="summary-row-details">
+                            {filteredTransactions.map((item) => (
+                                <tr key={item.id} className="summary-row-details">
                                     <td>
-                                        Date: {item.date}
+                                        Date: {new Date(item.createdAt).toLocaleDateString()}
                                         <br />
-                                        Balance: रु{item.newBalance.toLocaleString()}
+                                        Payment Method: {item.paymentType}
                                         <br />
-                                        Remarks: {item.remarks}
+                                        Remarks: {item.remarks || '-'}
                                     </td>
-
                                     <td>
-                                        {item.type === "Given"
-                                            ? "रु " + Math.abs(item.amount).toLocaleString()
+                                        {item.paymentCategory === "GIVEN"
+                                            ? "रु " + Math.abs(Number(item.amount) || 0).toLocaleString()
                                             : "-"}
                                     </td>
-
                                     <td>
-                                        {item.type === "Received"
-                                            ? "रु " + Math.abs(item.amount).toLocaleString()
+                                        {item.paymentCategory === "RECEIVED"
+                                            ? "रु " + Math.abs(Number(item.amount) || 0).toLocaleString()
                                             : "-"}
                                     </td>
                                 </tr>
                             ))}
-
                             </tbody>
                         </table>
                     </div>
@@ -414,11 +391,8 @@ export const CustomerStatementsReport = () => {
                             Share
                         </button>
                     </div>
-
-
                 </div>
             </main>
         </div>
     );
-}; 
-
+};

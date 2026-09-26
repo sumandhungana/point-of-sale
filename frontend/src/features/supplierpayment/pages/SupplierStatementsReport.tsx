@@ -1,26 +1,19 @@
 "use client"
 
 import { useState, useRef, useEffect } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { PaymentHistory, getPaymentHistory } from '../services/paymentService';
-import { getSuppliers } from '../services/customerService';
+import { getPaymentList, GetPaymentResponse, SupplierData} from '@/features/services/paymentService';
+import { getSuppliers } from '@/features/services/supplierService';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
-import CustomerStatementsPDFTemplate from '../components/CustomerStatementsPDFTemplate';
-import '../styles/CustomerStatementsReport.css';
+import '../../../styles/CustomerStatementsReport.css';
+import SupplierStatementsPDFTemplate from "@/features/supplierpayment/components/SupplierStatementsPDFTemplate";
 
-interface SupplierData {
-    name: string;
-    phoneNumber: string;
-    profileImage: string | null;
-    balance: number;
-    paymentHistory: PaymentHistory[];
-}
 
 interface ReportData {
-    customer: SupplierData;
-    paymentHistory: PaymentHistory[];
+    supplier: SupplierData;
+    paymentHistory: GetPaymentResponse[];
     totals: {
         given: number;
         received: number;
@@ -41,7 +34,7 @@ export const SupplierStatementsReport = () => {
     const [generatingPdf, setGeneratingPdf] = useState(false);
     const [loading, setLoading] = useState(false);
     const [reportData, setReportData] = useState<ReportData>({
-        customer: {
+        supplier: {
             name: '',
             phoneNumber: '',
             profileImage: null,
@@ -77,17 +70,19 @@ export const SupplierStatementsReport = () => {
                 return;
             }
 
-            const paymentHistory = await getPaymentHistory(supplier.id);
-            
+            const paymentHistory = await getPaymentList({
+                paymentParty: 'SUPPLIER',
+                partyId: supplier.id
+            });
             // Calculate totals
             const totals = paymentHistory.reduce((acc, payment) => {
                 // Ensure amount is a proper number
                 const amount = typeof payment.amount === 'string' ? parseFloat(payment.amount) : payment.amount;
                 const cleanAmount = isNaN(amount) ? 0 : amount;
                 
-                if (payment.type === 'Given') {
+                if (payment.paymentCategory === 'GIVEN') {
                     acc.given += cleanAmount;
-                } else if (payment.type === 'Received') {
+                } else if (payment.paymentCategory === 'RECEIVED') {
                     acc.received += cleanAmount;
                 }
                 return acc;
@@ -99,9 +94,9 @@ export const SupplierStatementsReport = () => {
                 const amount = typeof payment.amount === 'string' ? parseFloat(payment.amount) : payment.amount;
                 const cleanAmount = isNaN(amount) ? 0 : amount;
                 
-                if (payment.type === 'Received') {
+                if (payment.paymentCategory === 'RECEIVED') {
                     return acc + cleanAmount;
-                } else if (payment.type === 'Given') {
+                } else if (payment.paymentCategory === 'GIVEN') {
                     return acc - cleanAmount;
                 }
                 return acc;
@@ -109,14 +104,14 @@ export const SupplierStatementsReport = () => {
 
             const supplierData: SupplierData = {
                 name: supplier.name,
-                phoneNumber: supplier.phoneNumber,
+                phoneNumber: supplier.phone ?? '',
                 profileImage: supplier.profileImage || null,
                 balance: currentBalance,
                 paymentHistory: paymentHistory
             };
 
             setReportData({
-                customer: supplierData,
+                supplier: supplierData,
                 paymentHistory: paymentHistory,
                 totals: totals
             });
@@ -142,8 +137,8 @@ export const SupplierStatementsReport = () => {
         .filter(transaction => {
             const matchesSearch = !searchTerm || (transaction.remarks && transaction.remarks.toLowerCase().includes(searchTerm.toLowerCase()));
             const matchesFilter = filterOption === 'all' || 
-                (filterOption === 'gave' && transaction.type === 'Given') ||
-                (filterOption === 'received' && transaction.type === 'Received');
+                (filterOption === 'gave' && transaction.paymentCategory === 'GIVEN') ||
+                (filterOption === 'received' && transaction.paymentCategory === 'RECEIVED');
             const matchesDate = (!startDate || new Date(transaction.createdAt) >= new Date(startDate)) &&
                 (!endDate || new Date(transaction.createdAt) <= new Date(endDate));
             return matchesSearch && matchesFilter && matchesDate;
@@ -167,13 +162,14 @@ export const SupplierStatementsReport = () => {
         setGeneratingPdf(true);
         try {
             console.log('Starting PDF generation...');
-            console.log('Supplier data:', reportData.customer);
+            console.log('Supplier data:', reportData.supplier);
             console.log('Filtered transactions:', filteredTransactions);
             console.log('Totals:', { given: totalGave, received: totalReceived });
             
+            // @ts-ignore
             const blob = await pdf(
-                <CustomerStatementsPDFTemplate data={{
-                    customer: reportData.customer,
+                <SupplierStatementsPDFTemplate data={{
+                    supplier: reportData.supplier,
                     paymentHistory: filteredTransactions,
                     totals: {
                         given: totalGave,
@@ -187,7 +183,7 @@ export const SupplierStatementsReport = () => {
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
             link.href = url;
-            link.download = `supplier-statement-${reportData.customer.name.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.pdf`;
+            link.download = `supplier-statement-${reportData.supplier.name.replace(/[^a-zA-Z0-9]/g, '_')}-${new Date().toISOString().split('T')[0]}.pdf`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -234,7 +230,7 @@ export const SupplierStatementsReport = () => {
                         </button>
                         <h1 className="customer-statements-report-title">
                             <i className="bi bi-file-earmark-text me-2"></i>
-                            Report of {reportData.customer.name}
+                            Report of {reportData.supplier.name}
                         </h1>
                     </div>
 
@@ -348,9 +344,9 @@ export const SupplierStatementsReport = () => {
                                         </td>
                                         <td className="customer-statements-report-table-cell">
                                             <span className={`customer-statements-report-transaction-type ${
-                                                transaction.type === 'Given' ? 'customer-statements-report-type-gave' : 'customer-statements-report-type-received'
+                                                transaction.paymentCategory === 'GIVEN' ? 'customer-statements-report-type-gave' : 'customer-statements-report-type-received'
                                             }`}>
-                                                {transaction.type}
+                                                {transaction.paymentCategory}
                                             </span>
                                         </td>
                                         <td className="customer-statements-report-table-cell">
@@ -389,7 +385,7 @@ export const SupplierStatementsReport = () => {
                     <div className="customer-statements-report-footer">
                         <div className="customer-statements-report-footer-item">
                             <i className="bi bi-telephone me-1"></i>
-                            Phone: {reportData.customer.phoneNumber}
+                            Phone: {reportData.supplier.phoneNumber}
                         </div>
                         <div className="customer-statements-report-footer-item">
                             <i className="bi bi-list-ul me-1"></i>

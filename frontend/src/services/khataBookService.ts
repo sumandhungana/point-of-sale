@@ -27,8 +27,51 @@ interface RestResponse<T> {
   code: number;
   message: string;
   data: T;
-
   error?: string;
+}
+
+export interface CreateKhatBookRequest{
+
+  userName: string;
+  phoneNumber:string;
+  gmail:string;
+  organizationName:string;
+  panVatNumber:string;
+  branch:string;
+  organizationType:string;
+  organizationAddress:string;
+  notes:string;
+  password:string;
+  userId:string;
+  role:string;
+  isExternalOnboarding:boolean;
+}
+
+export interface CreateKhataBookResponse{
+  userId: number;
+  gmail: string;
+  userName: string;
+  organizationName: string;
+  memberId:string;
+  message:string;
+  success:boolean;
+  errorMessage:string;
+}
+
+export async function createNewKhataBook(formData: CreateKhatBookRequest): Promise<CreateKhataBookResponse | undefined>{
+  const res= await apiService.post<RestResponse<CreateKhataBookResponse>>(
+      'api/v1/user/onboarding',
+      formData,
+      {
+        headers:{
+          ...getAuthHeaders()
+        },
+      }
+  );
+  if(res.error){
+    throw new Error(res.error || "Failed to create khatabook");
+  }
+  return res?.response?.data;
 }
 
 

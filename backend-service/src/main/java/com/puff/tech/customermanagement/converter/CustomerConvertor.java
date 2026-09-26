@@ -32,11 +32,7 @@ public class CustomerConvertor {
         customerEntity.setSupplier(request.isSupplier());
         customerEntity.setBankAccount(request.bankAccount());
         customerEntity.setCashBalance(request.cashBalance());
-        try{
-            customerEntity.setProfileImage(getImageBase64String(request.profileImage().getBytes()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        customerEntity.setProfileImage(request.profileImage());
         customerEntity.setCustomerSmsSetting(request.customerSmsSetting());
         customerEntity.setSmsLanguage(request.smsLanguage());
         customerEntity.setTransactionHistoryCheck(request.transactionHistoryCheck());
@@ -75,11 +71,8 @@ public class CustomerConvertor {
        customerEntity.setContactPerson(request.contactPerson());
        customerEntity.setBankAccount(request.bankAccount());
        customerEntity.setCashBalance(request.cashBalance());
-        try{
-            customerEntity.setProfileImage(getImageBase64String(request.profileImage().getBytes()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+       customerEntity.setProfileImage(request.profileImage());
+
 
         return customerEntity;
 

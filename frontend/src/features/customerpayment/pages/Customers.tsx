@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { fetchCustomers, Customer } from '../services/customerService';
-import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
+import { fetchCustomers, Customer } from '@/features/services/customerService';
+import {getPaymentList, GetPaymentResponse} from "@/features/services/paymentService";
 import { toast } from 'react-toastify';
-import '../styles/Customers.css';
+import '../../../styles/Customers.css';
 
 interface CustomerWithBalance extends Customer {
     balance: number;
-    paymentHistory: PaymentHistory[];
+    paymentHistory: GetPaymentResponse[];
 }
 
 interface OverallTotals {
@@ -285,19 +285,22 @@ export const Customers = () => {
 
                 const customersWithBalance = await Promise.all(
                     customerArray.map(async (customer: any) => {
-                        const resolvedId = customer?.id ?? customer?.customer_id ?? (customer as any)?.customerId;
+                        const resolvedId = customer?.id ?? customer?.customerId ?? (customer as any)?.customerId;
 
                         if (!resolvedId) {
                             return { ...customer, id: 0, balance: 0, paymentHistory: [] };
                         }
 
                         try {
-                            const paymentHistory = await getPaymentHistory(Number(resolvedId));
+                            const paymentHistory = await getPaymentList({
+                                paymentParty: 'CUSTOMER',
+                                partyId: Number(resolvedId)
+                            });
                             const historyList = Array.isArray(paymentHistory) ? paymentHistory : [];
 
                             const balance = historyList.reduce((acc, payment) => {
                                 const amount = Number(payment?.amount) || 0;
-                                const type = (payment?.type || '').toLowerCase();
+                                const type = (payment?.paymentCategory || '').toLowerCase();
                                 const isReceived = type === 'received' || type === 'payment_in' || type === 'you_received';
                                 return isReceived ? acc + amount : acc - amount;
                             }, 0);
@@ -357,7 +360,7 @@ export const Customers = () => {
     const handleAddCustomer = () => navigate('/parties/customers/add');
 
     const handleCustomerClick = (customer: CustomerWithBalance) => {
-        const validId = customer.id || customer.customer_id || (customer as any).customerId;
+        const validId = customer.id || customer.customerId || (customer as any).customerId;
         if (!validId || validId === 'undefined' || Number(validId) === 0) {
             console.error('Invalid customer object clicked:', customer);
             toast.error('Customer ID missing from server');
@@ -528,7 +531,7 @@ export const Customers = () => {
                     </div>
                 ) : (
                     filteredAndSortedCustomers.map((customer) => {
-                        const customerKey = customer.id || customer.customer_id || Math.random();
+                        const customerKey = customer.id || customer.customerId || Math.random();
                         const imageSrc = resolveImageSrc(customer.profileImage);
 
                         return (

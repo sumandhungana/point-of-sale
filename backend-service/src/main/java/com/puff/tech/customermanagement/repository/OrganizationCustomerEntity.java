@@ -32,7 +32,8 @@ public class OrganizationCustomerEntity {
     private String company;
     private String pan;
     private String contactPerson;
-    private boolean isSupplier;
+    @MappedProperty("supplier")
+    private boolean supplier;
 
     private String bankAccount;
     private BigDecimal cashBalance;

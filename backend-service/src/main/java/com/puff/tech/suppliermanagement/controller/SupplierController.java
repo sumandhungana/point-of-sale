@@ -5,11 +5,13 @@ import com.puff.tech.security.Secured;
 import com.puff.tech.suppliermanagement.usecase.create.CreateSupplierUseCase;
 import com.puff.tech.suppliermanagement.usecase.create.CreateSupplierUseCaseRequest;
 import com.puff.tech.suppliermanagement.usecase.create.CreateSupplierUseCaseResponse;
+//import com.puff.tech.suppliermanagement.usecase.delete.DeleteSupplierUseCase;
 import com.puff.tech.suppliermanagement.usecase.delete.DeleteSupplierUseCase;
 import com.puff.tech.suppliermanagement.usecase.delete.DeleteSupplierUseCaseRequest;
 import com.puff.tech.suppliermanagement.usecase.delete.DeleteSupplierUseCaseResponse;
 import com.puff.tech.suppliermanagement.usecase.get.GetSupplierUseCase;
 import com.puff.tech.suppliermanagement.usecase.get.GetSupplierUseCaseResponse;
+import com.puff.tech.suppliermanagement.usecase.get.GetSuppliersUseCaseRequest;
 import com.puff.tech.suppliermanagement.usecase.getone.GetOneSupplierUseCase;
 import com.puff.tech.suppliermanagement.usecase.getone.GetOneSupplierUseCaseRequest;
 import com.puff.tech.suppliermanagement.usecase.update.UpdateSupplierUseCase;
@@ -20,7 +22,9 @@ import jakarta.inject.Inject;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Controller("/api/v1")
+import java.util.List;
+
+@Controller("/supplier")
 public class SupplierController {
 
     private final CreateSupplierUseCase createSupplierUseCase;
@@ -34,7 +38,8 @@ public class SupplierController {
                               GetSupplierUseCase getSupplierUseCase,
                               GetOneSupplierUseCase getOneSupplierUseCase,
                               UpdateSupplierUseCase updateSupplierUseCase,
-                              DeleteSupplierUseCase deleteSupplierUseCase) {
+                              DeleteSupplierUseCase deleteSupplierUseCase
+                              ) {
         this.createSupplierUseCase = createSupplierUseCase;
         this.getSupplierUseCase = getSupplierUseCase;
         this.getOneSupplierUseCase = getOneSupplierUseCase;
@@ -43,21 +48,24 @@ public class SupplierController {
     }
 
     @Secured
-    @Post("/supplier")
+    @Post()
     public Mono<RestResponse<CreateSupplierUseCaseResponse>> create(@Body CreateSupplierUseCaseRequest request){
         return createSupplierUseCase.execute(request)
                 .map(RestResponse::success)
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 
-    @Get("/suppliers")
-    public Flux<RestResponse<GetSupplierUseCaseResponse>> get(){
-        return getSupplierUseCase.execute()
+    @Secured
+    @Get("all")
+    public Mono<RestResponse<List<GetSupplierUseCaseResponse>>> get(){
+        return getSupplierUseCase.execute(new GetSuppliersUseCaseRequest())
+                .collectList()
                 .map(RestResponse::success)
-                .onErrorResume(err->Flux.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
+                .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 
-    @Get("/supplier/{id}")
+    @Secured
+    @Get("/{id}")
     public Mono<RestResponse<GetSupplierUseCaseResponse>> getOne(@PathVariable Integer id){
         var request = new GetOneSupplierUseCaseRequest(id);
         return getOneSupplierUseCase.execute(request)
@@ -65,14 +73,16 @@ public class SupplierController {
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 
-    @Put("/supplier/{id}")
+    @Secured
+    @Put()
     public Mono<RestResponse<UpdateSupplierUseCaseResponse>> update(@Body UpdateSupplierUseCaseRequest request){
         return updateSupplierUseCase.execute(request)
                 .map(RestResponse::success)
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 
-    @Delete("/supplier/{id}")
+    @Secured
+    @Delete("/{id}")
     public Mono<RestResponse<DeleteSupplierUseCaseResponse>> delete(@PathVariable Integer id){
         var request = new DeleteSupplierUseCaseRequest(id);
         return deleteSupplierUseCase.execute(request)

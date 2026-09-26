@@ -2,6 +2,8 @@
 // AUTH HEADERS
 // ============================================================
 
+import {apiService} from "@/infrastructure/utils/ApiService";
+
 function getAuthHeaders(): Record<string, string> {
   const token =
     localStorage.getItem('authToken');
@@ -19,26 +21,99 @@ function getAuthHeaders(): Record<string, string> {
 // GET USERS
 // ============================================================
 
-export async function fetchUsers() {
-  const response =
-    await fetch('/api/User', {
-      method: 'GET',
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
+export interface User {
+    userId: number;
+    userName: string;
+    role: string;
+    isActive: boolean;
+    createdBy: string;
+    createdAt: string;
+    updatedBy: string;
+    updatedAt: string;
+    memberId?: number | null; // Selected member association
+}
 
-  if (!response.ok) {
-    const errorText =
-      await response.text();
+export interface Member {
+    id: number;
+    name: string;
+}
 
-    throw new Error(
-      errorText ||
-      'Failed to fetch users'
+export interface RoleOption {
+    id: string;
+    name: string;
+}
+
+export interface AddUserPayload {
+    userName: string;
+    role: string;
+    memberId: number;
+}
+interface RestResponse<T> {
+    code: number;
+    message: string;
+    data: T;
+    error?: string;
+}
+
+// Mock API Services (Replace with your actual API calls)
+export const fetchUsers = async (): Promise<User | any[]> => {
+    const res= await apiService.get<RestResponse<User>>(
+        'api/v1/user/list',
+        {
+            headers:{
+                ...getAuthHeaders()
+            },
+        }
     );
-  }
+    if(res.error){
+        throw new Error(res.error || "Failed to Fetch User");
+    }
+    return res?.response?.data ?? [];
+};
 
-  const data = await response.json();
+export const fetchMembers = async (): Promise<Member[]> => {
+    return [
+        { id: 101, name: 'Main Organization' },
+        { id: 102, name: 'Branch A' },
+        { id: 103, name: 'Branch B' },
+    ];
+};
+
+export const fetchRoleOptions = async (): Promise<RoleOption[]> => {
+    return [
+        { id: '1', name: 'Admin' },
+        { id: '2', name: 'Manager' },
+        { id: '5', name: 'Operator' },
+    ];
+};
+
+export const addUser = async (payload: AddUserPayload): Promise<void> => {
+    await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+};
+// export async function fetchUsers() {
+//   const response =
+//     await fetch('/api/User', {
+//       method: 'GET',
+//       headers: {
+//         ...getAuthHeaders(),
+//       },
+//     });
+//
+//   if (!response.ok) {
+//     const errorText =
+//       await response.text();
+//
+//     throw new Error(
+//       errorText ||
+//       'Failed to fetch users'
+//     );
+//   }
+//
+//   const data = await response.json();
 
   // --------------------------------------------------------
   // TEMP FIX: backend (likely ASP.NET Core default) may return
@@ -56,13 +131,13 @@ export async function fetchUsers() {
   //             JsonNamingPolicy.CamelCase;
   //     });
   // --------------------------------------------------------
-  return Array.isArray(data)
-    ? data.map((u: any) => ({
-        ...u,
-        imagePath: u.imagePath ?? u.ImagePath ?? '',
-      }))
-    : data;
-}
+//   return Array.isArray(data)
+//     ? data.map((u: any) => ({
+//         ...u,
+//         imagePath: u.imagePath ?? u.ImagePath ?? '',
+//       }))
+//     : data;
+// }
 
 // ============================================================
 // GET USER BY ID

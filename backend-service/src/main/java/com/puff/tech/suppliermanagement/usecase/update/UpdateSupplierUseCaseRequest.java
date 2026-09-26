@@ -1,5 +1,7 @@
 package com.puff.tech.suppliermanagement.usecase.update;
 
+import com.puff.tech.core.usecases.UCRequest;
+import com.puff.tech.core.usecases.UCResponse;
 import com.puff.tech.core.usecases.UseCases;
 import io.micronaut.serde.annotation.Serdeable;
 
@@ -15,5 +17,5 @@ public record UpdateSupplierUseCaseRequest(
         String contactPerson,
         String profileImage
 )
-implements UseCases.UseCaseRequest {
+implements UCRequest {
 }

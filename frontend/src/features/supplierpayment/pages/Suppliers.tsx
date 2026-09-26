@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { fetchSuppliers, Customer } from '../services/customerService';
-import { getPaymentHistory, PaymentHistory } from '../services/paymentService';
+import { getSuppliers, GetSupplierResponse } from '@/features/services/supplierService';
+import { getPaymentList, GetPaymentResponse } from '@/features/services/paymentService';
 import { toast } from 'react-toastify';
-import '../styles/Suppliers.css';
+import '../../../styles/Suppliers.css';
 
-interface SupplierWithBalance extends Customer {
+interface SupplierWithBalance extends GetSupplierResponse {
     balance: number;
-    paymentHistory: PaymentHistory[];
+    paymentHistory: GetPaymentResponse[];
+    phoneNumber?: string;
 }
 
 interface OverallTotals {
@@ -16,6 +17,87 @@ interface OverallTotals {
     received: number;
     online: number;
 }
+
+// Helper to handle double Base64 encoding and ensure valid Data URI scheme
+const formatImageSrc = (src?: string | null): string => {
+    if (!src) return '';
+    let clean = src.trim().replace(/(\r\n|\n|\r)/gm, '');
+
+    // Check and decode Double-Base64 encoding ("ZGF0YT" is Base64 for "data:")
+    if (clean.startsWith('ZGF0YT')) {
+        try {
+            clean = atob(clean).trim().replace(/(\r\n|\n|\r)/gm, '');
+        } catch (e) {
+            console.error('Failed to decode double-base64 string:', e);
+        }
+    }
+
+    // If it already has the data URI scheme or is an HTTP/HTTPS URL, return directly
+    if (clean.startsWith('data:image/') || clean.startsWith('http://') || clean.startsWith('https://')) {
+        return clean;
+    }
+
+    // Inspect Base64 magic headers to pick the exact MIME type if raw
+    let mimeType = 'image/png';
+    if (clean.startsWith('/9j/')) {
+        mimeType = 'image/jpeg';
+    } else if (clean.startsWith('iVBORw0KGgo')) {
+        mimeType = 'image/png';
+    } else if (clean.startsWith('R0lGOD')) {
+        mimeType = 'image/gif';
+    } else if (clean.startsWith('UklGR')) {
+        mimeType = 'image/webp';
+    }
+
+    return `data:${mimeType};base64,${clean}`;
+};
+
+// Isolated avatar component with robust error fallback
+const SupplierAvatar = ({ imageSrc, name }: { imageSrc?: string; name: string }) => {
+    const [imgError, setImgError] = useState(false);
+    const formattedSrc = React.useMemo(() => formatImageSrc(imageSrc), [imageSrc]);
+
+    if (!formattedSrc || imgError) {
+        return (
+            <div
+                className="suppliers-profile-image"
+                style={{
+                    backgroundColor: '#e9ecef',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.25rem',
+                    fontWeight: '600',
+                    color: '#6c757d',
+                    borderRadius: '50%',
+                    width: '45px',
+                    height: '45px',
+                    minWidth: '45px',
+                    userSelect: 'none',
+                }}
+            >
+                {name ? name.charAt(0).toUpperCase() : '?'}
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={formattedSrc}
+            alt={name || 'Supplier'}
+            className="suppliers-profile-image"
+            style={{
+                width: '45px',
+                height: '45px',
+                minWidth: '45px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+                display: 'block',
+            }}
+            onError={() => setImgError(true)}
+        />
+    );
+};
 
 export const Suppliers = () => {
     const navigate = useNavigate();
@@ -31,13 +113,17 @@ export const Suppliers = () => {
         const loadSuppliers = async () => {
             try {
                 setLoading(true);
-                const data = await fetchSuppliers();
+                const data = await getSuppliers();
+
                 const suppliersWithBalance = await Promise.all(
-                    data.map(async (supplier: Customer) => {
+                    data.map(async (supplier: GetSupplierResponse) => {
                         try {
-                            const paymentHistory = await getPaymentHistory(supplier.id);
-                            const balance = paymentHistory.reduce((acc: number, payment: PaymentHistory) => {
-                                if (payment.type === 'Received') {
+                            const paymentHistory =await getPaymentList({
+                                paymentParty: 'SUPPLIER',
+                                partyId: supplier.id
+                            });
+                            const balance = paymentHistory.reduce((acc: number, payment: GetPaymentResponse) => {
+                                if (payment.paymentCategory === 'RECEIVED') {
                                     return acc + payment.amount;
                                 } else {
                                     return acc - payment.amount;
@@ -50,10 +136,9 @@ export const Suppliers = () => {
                         }
                     })
                 );
+
                 setSuppliers(suppliersWithBalance);
 
-                // Calculate overall totals
-                // Positive balances -> Received, Negative balances -> Given
                 const totals = suppliersWithBalance.reduce(
                     (acc: { given: number; received: number; online: number }, supplier: SupplierWithBalance) => {
                         const bal = Number(supplier.balance) || 0;
@@ -96,7 +181,6 @@ export const Suppliers = () => {
         navigate(`/parties/supplier/statements/${supplierId}`);
     };
 
-    // Filter and sort items based on controls
     const filteredSuppliers = suppliers
         .filter((supplier) => {
             const matchesSearch =
@@ -113,7 +197,7 @@ export const Suppliers = () => {
         .sort((a, b) => {
             if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
             if (sortBy === 'balance') return b.balance - a.balance;
-            if (sortBy === 'recent') return (b.id as number) - (a.id as number);
+            if (sortBy === 'recent') return Number(b.id) - Number(a.id);
             return 0;
         });
 
@@ -218,33 +302,10 @@ export const Suppliers = () => {
                             onClick={() => handleSupplierClick(supplier.id)}
                         >
                             <div className="suppliers-customer-info">
-                                {supplier.profileImage ? (
-                                    <img
-                                        src={supplier.profileImage}
-                                        alt={supplier.name}
-                                        className="suppliers-profile-image"
-                                        onError={(e) => {
-                                            e.currentTarget.style.display = 'none';
-                                            const nextSibling = e.currentTarget.nextSibling as HTMLElement;
-                                            if (nextSibling) {
-                                                nextSibling.style.display = 'flex';
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <div
-                                        className="suppliers-profile-image"
-                                        style={{
-                                            backgroundColor: '#e9ecef',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            fontSize: '1.5rem',
-                                            color: '#6c757d'
-                                        }}
-                                    >
-                                        {supplier.name ? supplier.name.charAt(0).toUpperCase() : '?'}
-                                    </div>
-                                )}
+                                <SupplierAvatar
+                                    imageSrc={supplier.profileImage}
+                                    name={supplier.name}
+                                />
                                 <div className="suppliers-customer-details">
                                     <h3 className="suppliers-customer-name">{supplier.name}</h3>
                                     <p className="suppliers-working-hours">

@@ -1,0 +1,330 @@
+/* Container & Layout */
+.user-management-page-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+.user-management-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Prevents flex children from overflowing */
+}
+/* Tab Navigation */
+.tab-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6c757d;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    color: #0066cc;
+    border-bottom-color: #0066cc;
+}
+
+.tab-btn:hover {
+    color: #004499;
+}
+
+/* Inline Table Controls */
+.table-role-select {
+    padding: 6px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 13px;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.table-role-select:focus {
+    border-color: #0066cc;
+}
+
+.btn-activate {
+    padding: 6px 14px;
+    background-color: #2b8a3e;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.btn-activate:hover {
+    background-color: #216a2f;
+}
+
+.btn-activate:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.empty-container {
+    padding: 40px;
+    text-align: center;
+    color: #adb5bd;
+    font-size: 14px;
+}
+
+.user-management-content {
+    /* Adjust to match the exact height of your Navbar */
+    padding: 80px 28px 28px;
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Page Header Card */
+.user-management-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    background: #ffffff;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.user-management-header h2 {
+    margin: 0;
+    font-size: 22px;
+    color: #1a1d20;
+}
+
+.user-management-header p {
+    margin: 4px 0 0 0;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+.btn-add-user {
+    background-color: #0066cc;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+    transition: background-color 0.2s ease;
+}
+
+.btn-add-user:hover {
+    background-color: #0052a3;
+}
+
+/* Card & Table View */
+.user-table-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.user-table thead tr {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.user-table th {
+    padding: 16px 20px;
+    color: #495057;
+    font-size: 13px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.user-table td {
+    padding: 16px 20px;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f3f5;
+}
+
+.user-id-cell {
+    color: #6c757d;
+    font-weight: 500;
+}
+
+.user-name-cell {
+    font-weight: 600;
+    color: #212529;
+}
+
+/* Badges */
+.badge-role {
+    font-size: 12px;
+    font-weight: 600;
+    color: #1971c2;
+    background-color: #e7f5ff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.badge-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.badge-status.active {
+    color: #2b8a3e;
+    background-color: #ebfbee;
+}
+
+.badge-status.inactive {
+    color: #c92a2a;
+    background-color: #fff5f5;
+}
+
+/* Loading & Empty States */
+.loading-container {
+    padding: 40px;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Modal Styling */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background-color: #ffffff;
+    border-radius: 12px;
+    width: 520px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #212529;
+}
+
+.btn-close-modal {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #adb5bd;
+}
+
+.modal-form {
+    padding: 24px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 13px;
+    color: #343a40;
+    margin-bottom: 6px;
+}
+
+.form-group label .required {
+    color: #e03131;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.form-control:focus {
+    border-color: #0066cc;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.btn-cancel {
+    padding: 8px 18px;
+    background: #f1f3f5;
+    color: #495057;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.btn-submit {
+    padding: 8px 18px;
+    background: #0066cc;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}

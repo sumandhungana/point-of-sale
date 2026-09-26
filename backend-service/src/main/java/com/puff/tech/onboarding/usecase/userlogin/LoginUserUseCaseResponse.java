@@ -2,8 +2,11 @@ package com.puff.tech.onboarding.usecase.userlogin;
 
 import com.puff.tech.core.usecases.UCResponse;
 import com.puff.tech.core.usecases.UseCases;
+import com.puff.tech.usermanagement.usecase.permissions.payload.GetPermissionsUCResponse;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Builder;
+
+import java.util.List;
 
 @Serdeable
 public record LoginUserUseCaseResponse(
@@ -27,7 +30,7 @@ implements UCResponse {
             boolean isSubscriptionActive,
             boolean hasUsedTrial,
             String subscriptionStatus,
-            String permission,
+            GetPermissionsUCResponse permissionResponse,
             String role,
             Long memberId,
             String organizationName,

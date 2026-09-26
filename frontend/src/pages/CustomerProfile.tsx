@@ -7,7 +7,7 @@ import {
     updateCustomer,
     deleteSingleCustomer,
     Customer
-} from '../services/customerService';
+} from '../features/services/customerService';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { resolveImageSrc } from '../utils/imageResolver';
 import '../styles/CustomerProfile.css';
@@ -106,7 +106,7 @@ export const CustomerProfile = () => {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     const populateForm = (data: Customer) => {
-        const resolvedCustId = data.id ?? (data as any).customer_id ?? numericId;
+        const resolvedCustId = data.id ?? (data as any).customerId ?? numericId;
         setCustomerData({
             ...data,
             id: Number(resolvedCustId)
@@ -198,7 +198,7 @@ export const CustomerProfile = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const activeId = numericId || customerData.id || (customerData as any).customer_id;
+        const activeId = numericId || customerData.id || (customerData as any).customerId;
 
         if (!activeId) {
             toast.error('Cannot update: Missing customer ID');
@@ -233,7 +233,7 @@ export const CustomerProfile = () => {
     };
 
     const performDelete = async () => {
-        const activeId = numericId || customerData.id || (customerData as any).customer_id;
+        const activeId = numericId || customerData.id || (customerData as any).customerId;
         if (!activeId) {
             toast.error('Cannot delete: Missing customer ID');
             return;

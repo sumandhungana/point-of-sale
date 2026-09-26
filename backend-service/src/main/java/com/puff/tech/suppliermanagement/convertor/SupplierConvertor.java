@@ -25,11 +25,8 @@ public class SupplierConvertor {
         supplierEntity.setAddress(request.address());
         supplierEntity.setCompany(request.company());
         supplierEntity.setPan(request.pan());
-        try{
-            supplierEntity.setProfileImage(getImageBase64String(request.profileImage().getBytes()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        supplierEntity.setContactPerson(request.contactPerson());
+        supplierEntity.setProfileImage(request.profileImage());
         supplierEntity.setCreatedBy("SYSTEM");
         supplierEntity.setUpdatedBy("SYSTEM");
         return supplierEntity;
@@ -64,11 +61,8 @@ public class SupplierConvertor {
         supplierEntity.setAddress(request.address());
         supplierEntity.setCompany(request.company());
         supplierEntity.setPan(request.pan());
-        try{
-            supplierEntity.setProfileImage(getImageBase64String(request.profileImage().getBytes()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        supplierEntity.setProfileImage(request.profileImage());
+
         return supplierEntity;
     }
 }

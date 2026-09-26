@@ -1,37 +1,37 @@
 package com.puff.tech.suppliermanagement.usecase.update;
 
-import com.puff.tech.core.usecases.UseCases;
+import com.puff.tech.core.usecases.MonoUC;
+import com.puff.tech.security.UseCaseContext;
 import com.puff.tech.suppliermanagement.convertor.SupplierConvertor;
 import com.puff.tech.suppliermanagement.repository.SupplierRepository;
-import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class UpdateSupplierUseCase implements UseCases<UpdateSupplierUseCaseRequest,UpdateSupplierUseCaseResponse> {
+public class UpdateSupplierUseCase implements MonoUC<UpdateSupplierUseCaseRequest,UpdateSupplierUseCaseResponse> {
     private final SupplierRepository supplierRepository;
-    private final KhataBookImplementation khataBookImplementation;
 
     @Inject
-    public UpdateSupplierUseCase(SupplierRepository supplierRepository,
-                                 KhataBookImplementation khataBookImplementation) {
+    public UpdateSupplierUseCase(SupplierRepository supplierRepository) {
         this.supplierRepository = supplierRepository;
-        this.khataBookImplementation = khataBookImplementation;
-    }
 
+    }
 
     @Override
-    public Mono<UpdateSupplierUseCaseResponse> execute(UpdateSupplierUseCaseRequest request) {
-        return khataBookImplementation.getCurrentKhataBookId()
-                .flatMap(khataBookId->
-                        supplierRepository.findByIdAndMemberId(request.id(), khataBookId)
-                                .switchIfEmpty(Mono.error(new RuntimeException("Supplier not found")))
-                                .flatMap(supplierEntity -> {
-                                    var updated= SupplierConvertor.toEntityUpdate(request,supplierEntity);
-                                    return supplierRepository.update(updated)
-                                            .map(saved->new UpdateSupplierUseCaseResponse("Supplier updated"))
-                                            .onErrorResume(err->Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage())));
-                                }));
+    public Mono<UpdateSupplierUseCaseResponse> execute(UpdateSupplierUseCaseRequest request, UseCaseContext context) {
+        return supplierRepository.findByIdAndMemberId(request.id(), context.securityContext().memberId())
+                .switchIfEmpty(Mono.error(new Throwable("Supplier not found")))
+                .flatMap(supplier->{
+                    var newSupplier= SupplierConvertor.toEntityUpdate(request,supplier);
+                    newSupplier.setUpdatedBy("SYSTEM");
+                    return supplierRepository.update(newSupplier)
+                            .map(updatedSupplier->UpdateSupplierUseCaseResponse.builder()
+                                            .message("Supplier updated")
+                                    .build())
+                            .onErrorResume(err->Mono.error(new Throwable("Failed to update supplier" +err.getLocalizedMessage())));
+                });
     }
+
+
 }

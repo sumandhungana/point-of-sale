@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
-import { createCustomer } from '../services/customerService';
-import { CreateCustomerRequest } from '../types/customer'; // Adjust import path as needed
+import { createCustomer } from '../features/services/customerService';
+import { CreateCustomerRequest } from '../types/customer';
 import '../styles/AddCustomer.css';
 
 export const AddCustomer = () => {
     const navigate = useNavigate();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState<CreateCustomerRequest>({
         name: '',
@@ -26,6 +27,7 @@ export const AddCustomer = () => {
         transactionHistoryCheck: false,
     });
 
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
     const [showAlert, setShowAlert] = useState(false);
     const [alertMessage, setAlertMessage] = useState('');
     const [alertType, setAlertType] = useState<'success' | 'error'>('success');
@@ -50,6 +52,41 @@ export const AddCustomer = () => {
                 ...prev,
                 [name]: value
             }));
+        }
+    };
+
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        // Limit file size (e.g., 2MB)
+        if (file.size > 2 * 1024 * 1024) {
+            setAlertMessage('Image size must be less than 2MB');
+            setAlertType('error');
+            setShowAlert(true);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64String = reader.result as string;
+            setImagePreview(base64String);
+            setFormData(prev => ({
+                ...prev,
+                profileImage: base64String
+            }));
+        };
+        reader.readAsDataURL(file);
+    };
+
+    const handleRemoveImage = () => {
+        setImagePreview(null);
+        setFormData(prev => ({
+            ...prev,
+            profileImage: ''
+        }));
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
     };
 
@@ -91,6 +128,107 @@ export const AddCustomer = () => {
                     </h2>
 
                     <form onSubmit={handleSubmit}>
+                        {/* Profile Image Section */}
+                        {/* Profile Image Section */}
+                        <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '0.75rem',
+                            marginBottom: '2rem'
+                        }}>
+                            {/* Circular Image Placeholder */}
+                            <div
+                                onClick={() => fileInputRef.current?.click()}
+                                style={{
+                                    width: '110px',
+                                    height: '110px',
+                                    borderRadius: '50%',
+                                    border: '2px dashed #cbd5e1',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    overflow: 'hidden',
+                                    cursor: 'pointer',
+                                    backgroundColor: '#f8fafc',
+                                    transition: 'border-color 0.2s ease'
+                                }}
+                                title="Click to upload profile photo"
+                            >
+                                {imagePreview ? (
+                                    <img
+                                        src={imagePreview}
+                                        alt="Preview"
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <div style={{ textAlign: 'center', color: '#94a3b8' }}>
+                                        <i className="bi bi-camera" style={{ fontSize: '1.85rem', display: 'block', lineHeight: 1 }}></i>
+                                        <span style={{ fontSize: '0.75rem', marginTop: '4px', display: 'inline-block' }}>Upload</span>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Hidden Native File Input */}
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                style={{ display: 'none' }}
+                            />
+
+                            {/* Action Buttons Below the Placeholder */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                <button
+                                    type="button"
+                                    onClick={() => fileInputRef.current?.click()}
+                                    style={{
+                                        padding: '0.45rem 1rem',
+                                        borderRadius: '6px',
+                                        border: '1px solid #cbd5e1',
+                                        background: '#fff',
+                                        fontSize: '0.85rem',
+                                        fontWeight: 500,
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                        color: '#334155'
+                                    }}
+                                >
+                                    <i className="bi bi-upload"></i>
+                                    {imagePreview ? 'Change Photo' : 'Upload Photo'}
+                                </button>
+
+                                {imagePreview && (
+                                    <button
+                                        type="button"
+                                        onClick={handleRemoveImage}
+                                        style={{
+                                            padding: '0.45rem 0.85rem',
+                                            borderRadius: '6px',
+                                            border: '1px solid #fecaca',
+                                            background: '#fef2f2',
+                                            color: '#dc2626',
+                                            fontSize: '0.85rem',
+                                            fontWeight: 500,
+                                            cursor: 'pointer',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.35rem'
+                                        }}
+                                    >
+                                        <i className="bi bi-trash"></i>
+                                        Remove
+                                    </button>
+                                )}
+                            </div>
+
+
+                        </div>
+
                         {/* Name & Phone */}
                         <div className="add-customer-form-row">
                             <div className="add-customer-form-group">

@@ -38,7 +38,7 @@ public class BillEntity {
     private Long customerId;
 
     @Relation(Relation.Kind.MANY_TO_ONE)
-    @MappedProperty("customer_id")
+    @MappedProperty("customerId")
     private CustomerEntity customer;
 
     @NotNull

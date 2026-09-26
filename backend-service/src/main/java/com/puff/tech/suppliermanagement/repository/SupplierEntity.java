@@ -5,6 +5,7 @@ import com.puff.tech.onboarding.repository.MemberEntity;
 import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;
+import io.micronaut.data.model.DataType;
 import io.micronaut.serde.annotation.Serdeable;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,6 +31,7 @@ public class SupplierEntity {
     private String company;
     private String pan;
     private String contactPerson;
+    @MappedProperty(type = DataType.STRING)
     private String profileImage;
     private String createdBy;
     private String updatedBy;

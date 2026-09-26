@@ -2,6 +2,7 @@ package com.puff.tech.covertor;
 
 import com.puff.tech.core.utils.SecurityUtils;
 import com.puff.tech.entity.UserEntity;
+import com.puff.tech.onboarding.repository.UserInfoEntity;
 import com.puff.tech.onboarding.usecase.user.add.AddUserUseCaseRequest;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUseCaseResponse;
 import com.puff.tech.onboarding.usecase.user.update.UpdateUserUseCaseRequest;
@@ -45,21 +46,16 @@ public class UserConvertor {
     }
 
 
-    public static GetUserUseCaseResponse toGetUsers(UserEntity user){
-        return new GetUserUseCaseResponse(
-                user.getUserName(),
-                user.getBranch(),
-                user.getPermission(),
-                user.getParent(),
-                user.getName(),
-                user.getAddress(),
-                user.getCompany(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getPan(),
-                user.getCreatedAt(),
-                user.getUpdatedAt()
-
-        );
+    public static GetUserUseCaseResponse toGetUsers(UserInfoEntity user){
+        return GetUserUseCaseResponse.builder()
+                .userId(user.getId())
+                .userName(user.getUserName())
+                .role(user.getRole())
+                .isActive(user.getEnable())
+                .createdAt(user.getCreatedAt())
+                .createdBy(user.getCreatedBy())
+                .updatedAt(user.getUpdatedAt())
+                .updatedBy(user.getUpdatedBy())
+                .build();
     }
 }

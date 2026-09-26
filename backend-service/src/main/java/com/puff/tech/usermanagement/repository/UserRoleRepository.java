@@ -26,6 +26,9 @@ public interface UserRoleRepository extends ReactorCrudRepository<UserRoleEntity
     // Check if role name already exists for member
     Mono<Boolean> existsByNameAndMemberId(String name, Long memberId);
 
-    @Join(value = "permissions", type = Join.Type.LEFT_FETCH)
+    @Join(value = "permissions", type = Join.Type.LEFT)
     Mono<UserRoleEntity> findByName(String name);
+
+    @Join(value = "permissions", type = Join.Type.LEFT_FETCH)
+    Mono<UserRoleEntity> findById(Integer id);
 }

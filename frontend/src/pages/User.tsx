@@ -61,7 +61,7 @@ export const User = () => {
   }, []);
 
   const handleUserClick = (user: User) => {
-    navigate('/add-user', { 
+    navigate('/add-user', {
       state: { 
         isEdit: true,
         initialValues: {

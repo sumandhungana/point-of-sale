@@ -5,21 +5,21 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Login } from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { POS } from './pages/POS';
-import { Customers } from './pages/Customers';
+import { Customers } from './features/customerpayment/pages/Customers';
 import { AddCustomer } from './pages/AddCustomer';
 import { AddSupplier } from './pages/AddSupplier';
 import { CustomerStatement } from './pages/CustomerStatement';
 import { SupplierStatement } from './pages/SupplierStatement';
 import { EditCustomerStatement } from './pages/EditCustomerStatement';
 import { CustomerProfile } from './pages/CustomerProfile';
-import { CustomerStatements } from './pages/CustomerStatements';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import { CustomerStatements } from '@/features/customerpayment/pages/CustomerStatements';
+import { AuthProvider, useAuth } from './core/auth/AuthContext';
 import { AppSettingsProvider } from './context/AppSettingsContext';
-import { Suppliers } from './pages/Suppliers';
-import { CustomerListReportPdf } from './pages/CustomerListReportPdf';
-import { SupplierListReportPdf } from './pages/SupplierListReportPdf';
-import { CustomerStatementsReport } from './pages/CustomerStatementsReport';
-import { SupplierStatementsReport } from './pages/SupplierStatementsReport';
+import { Suppliers } from './features/supplierpayment/pages/Suppliers';
+import { CustomerListReportPdf } from './features/customerpayment/components/CustomerListReportPdf';
+import { SupplierListReportPdf } from './features/supplierpayment/pages/SupplierListReportPdf';
+import { CustomerStatementsReport } from './features/customerpayment/pages/CustomerStatementsReport';
+import { SupplierStatementsReport } from './features/supplierpayment/pages/SupplierStatementsReport';
 import { DownloadCustomerStatementReport } from './pages/DownloadCustomerStatementReport';
 import { Items } from './pages/Items';
 import { AddItem } from './pages/AddItem';
@@ -43,7 +43,7 @@ import { Role } from './pages/Role';
 import { AddRole } from './pages/AddRole';
 import { Permission } from './pages/Permission';
 import { BillsAndPrintSelling } from './pages/BillsAndPrintSelling';
-import { User } from './pages/User';
+import { UserManagement } from './components/UserManagement';
 import { AddUser } from './pages/AddUser';
 import { RentalItem } from './pages/RentalItem';
 import { AddRentalItem } from './pages/AddRentalItem';
@@ -57,9 +57,9 @@ import { AddPurchase } from './pages/AddPurchase';
 import { AddIncome } from './pages/AddIncome';
 import { AddCashbook } from './pages/AddCashbook';
 import { AddCategory } from './pages/AddCategory';
-import { YouGave } from './pages/YouGave';
-import { YouReceived } from './pages/YouReceived';
-import { SupplierStatements } from './pages/SupplierStatements';
+import { YouGave } from './features/customerpayment/components/YouGave';
+import { YouReceived } from './features/customerpayment/components/YouReceived';
+import { SupplierStatements } from './features/supplierpayment/pages/SupplierStatements';
 import { Branch } from './pages/Branch';
 import './styles/Common.css';
 import './styles/Buttons.css';
@@ -72,6 +72,7 @@ import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Bills } from './pages/Bills';
 import BusinessSetting from './pages/BusinessSetting';
 import {RoleManagement} from "@/pages/RoleManagement";
+import SupplierProfile from "@/pages/SupplierProfile";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -131,6 +132,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/parties/supplier/statements/you-received/:id"
             element={
@@ -249,7 +251,7 @@ const App: React.FC = () => {
             path="/parties/supplier/profile/:id"
             element={
               <PrivateRoute>
-                <CustomerProfile />
+                <SupplierProfile/>
               </PrivateRoute>
             }
           />
@@ -634,7 +636,7 @@ const App: React.FC = () => {
             path="/user" 
             element={
               <PrivateRoute>
-                <User />
+                <UserManagement />
               </PrivateRoute>
             } 
           />
