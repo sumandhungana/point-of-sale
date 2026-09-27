@@ -137,8 +137,12 @@ export interface LoginUserUseCaseResponse {
     userInfo: UserInfo;
 }
 
+export interface LogoutUserUCResponse {
+    message: string;
+}
+
 export interface RestResponse<T> {
-    status?: string;
+    code?: number;
     data?: T;
     message?: string;
     error?: string;

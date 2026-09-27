@@ -714,15 +714,46 @@ button.staff-payment-calendar-date {
    SALARY / PAYMENT HISTORY CARD
 ========================================= */
 
+/* =========================================
+   STAFF PAYMENT HISTORY CARD (MAIN CONTAINER)
+========================================= */
+
 .staff-payment-history-card {
   margin-top: 1rem;
-  padding: 1.25rem;
+  padding: 1.5rem;
 
   background: #ffffff;
-  border: 1px solid #edf0f3;
-  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
 
-  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.staff-payment-history-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+
+  background: linear-gradient(90deg, #3498db, #2ecc71);
+
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.staff-payment-history-card:hover::before {
+  transform: scaleX(1);
+}
+
+.staff-payment-history-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12);
 }
 
 
@@ -731,68 +762,65 @@ button.staff-payment-calendar-date {
 ========================================= */
 
 .staff-payment-history-header {
-  padding-bottom: 0.9rem;
-  margin-bottom: 0.85rem;
+  padding-bottom: 1rem;
+  margin-bottom: 1.25rem;
 
-  border-bottom: 1px solid #edf0f3;
+  border-bottom: 2px solid #e9ecef;
+  position: relative;
 }
-
 
 .staff-payment-history-title {
   display: flex;
   align-items: center;
 
-  gap: 0.65rem;
+  gap: 0.75rem;
 }
-
 
 .staff-payment-history-title > i {
-  font-size: 1.35rem;
-  color: #475569;
+  font-size: 1.5rem;
+  color: #3498db;
 }
-
 
 .staff-payment-history-title h3 {
   margin: 0;
 
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
 
-  color: #1e293b;
+  color: #2c3e50;
 }
-
 
 .staff-payment-history-title span {
   display: block;
 
-  margin-top: 2px;
+  margin-top: 3px;
 
-  font-size: 0.72rem;
+  font-size: 0.8rem;
+  font-weight: 500;
 
-  color: #94a3b8;
+  color: #6c757d;
 }
 
-
-/* Small accent below heading */
+/* Accent Line under Header */
 
 .staff-payment-history-header::after {
   content: "";
 
-  display: block;
+  position: absolute;
+  bottom: -2px;
+  left: 0;
 
-  width: 58px;
-  height: 3px;
+  width: 60px;
+  height: 2px;
 
-  margin-top: 0.65rem;
+  border-radius: 1px;
 
-  border-radius: 10px;
-
-  background: #38a8c7;
+  background: linear-gradient(90deg, #3498db, #2ecc71);
 }
 
 
 /* =========================================
-   PAYMENT ITEM
+   PAYMENT ITEM (TRANSACTION CARD)
 ========================================= */
 
 .staff-payment-history-item {
@@ -804,35 +832,59 @@ button.staff-payment-calendar-date {
 
   gap: 1rem;
 
-  min-height: 105px;
+  padding: 0.75rem 1rem;
 
-  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
 
-  margin-bottom: 0.65rem;
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
 
-  background: #f8fafb;
+  border: 1px solid #e9ecef;
+  border-radius: 12px;
 
-  border: 1px solid #f0f2f4;
-  border-radius: 10px;
+  cursor: pointer;
 
-  transition:
-          background-color 0.2s ease,
-          box-shadow 0.2s ease,
-          transform 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  overflow: hidden;
 }
 
+.staff-payment-history-item::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(
+          135deg,
+          rgba(52, 152, 219, 0.05),
+          rgba(46, 204, 113, 0.05)
+  );
+
+  transform: scaleX(0);
+  transform-origin: left;
+
+  transition: transform 0.3s ease;
+}
+
+.staff-payment-history-item:hover::before {
+  transform: scaleX(1);
+}
 
 .staff-payment-history-item:hover {
-  background: #f5f8fa;
+  border-color: #3498db;
 
-  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.05);
+  transform: translateY(-2px) scale(1.01);
 
-  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 
 /* =========================================
-   DETAILS
+   DETAILS (TRANSACTION INFO)
 ========================================= */
 
 .staff-payment-history-details {
@@ -842,185 +894,236 @@ button.staff-payment-calendar-date {
   flex-direction: column;
 
   gap: 0.35rem;
-}
 
+  position: relative;
+  z-index: 2;
+}
 
 .staff-payment-history-row {
   display: flex;
   align-items: center;
 
-  min-height: 20px;
+  margin-bottom: 0.15rem;
 }
 
-
 .staff-payment-history-label {
-  width: 145px;
+  width: 130px;
 
   display: flex;
   align-items: center;
 
-  gap: 0.4rem;
+  gap: 0.5rem;
 
-  font-size: 0.75rem;
-  font-weight: 500;
+  font-size: 0.875rem;
+  font-weight: 600;
 
-  color: #64748b;
+  color: #6c757d;
 }
 
-
 .staff-payment-history-label i {
-  width: 15px;
+  width: 16px;
 
   text-align: center;
 
   color: #94a3b8;
 }
 
-
 .staff-payment-history-value {
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
 
-  color: #334155;
+  color: #2c3e50;
 }
 
 
 /* =========================================
-   DUE / PAID COLORS
+   PAYMENT STATUS BADGES (DUE / PAID)
 ========================================= */
 
 .staff-payment-due {
-  color: #b42318;
+  display: inline-block;
+
+  padding: 0.25rem 0.75rem;
+
+  border-radius: 8px;
+
+  background: linear-gradient(135deg, #6e3b3b, #ff0101);
+  color: #ffffff !important;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-
 .staff-payment-paid {
-  color: #15803d;
+  display: inline-block;
+
+  padding: 0.25rem 0.75rem;
+
+  border-radius: 8px;
+
+  background: linear-gradient(135deg, #27ae60, #2ecc71);
+  color: #ffffff !important;
+
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 
 /* =========================================
-   RIGHT SIDE AMOUNT
+   RIGHT SIDE AMOUNT (PAYMENT DISPLAY)
 ========================================= */
 
 .staff-payment-history-total {
-  min-width: 90px;
+  position: relative;
+  z-index: 2;
 
-  padding: 0.45rem 0.65rem;
+  padding: 0.35rem 0.75rem;
 
   text-align: center;
 
-  border: 1px solid #cbd5e1;
+  font-size: 1rem;
+  font-weight: 700;
+
   border-radius: 6px;
 
-  background: #ffffff;
+  /* Matches modern current-amount highlight */
+  color: #e74c3c;
+  border: 1px solid #e74c3c;
+  background: rgba(231, 76, 60, 0.1);
 
-  color: #334155;
+  transition: all 0.3s ease;
+}
 
-  font-size: 0.85rem;
-  font-weight: 700;
+/* Paid state styling for total badge */
+.staff-payment-history-item:has(.staff-payment-paid) .staff-payment-history-total {
+  color: #27ae60;
+  border-color: #27ae60;
+  background: rgba(39, 174, 96, 0.1);
 }
 
 
 /* =========================================
-   FOOTER
+   FOOTER & ACTION BUTTONS
 ========================================= */
 
 .staff-payment-history-footer {
   display: flex;
   justify-content: flex-end;
 
-  padding-top: 0.75rem;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
 }
 
-
 .staff-payment-add-payment-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  padding: 0.75rem 1.5rem;
 
-  gap: 0.4rem;
-
-  height: 38px;
-
-  padding: 0 1rem;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #0f9fbd;
+  background: linear-gradient(135deg, #3498db, #2ecc71);
   color: #ffffff;
 
-  font-size: 0.78rem;
+  border: none;
+  border-radius: 12px;
+
+  font-size: 0.875rem;
   font-weight: 600;
 
   cursor: pointer;
 
-  box-shadow: 0 2px 5px rgba(15, 159, 189, 0.18);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 
-  transition:
-          background-color 0.2s ease,
-          box-shadow 0.2s ease,
-          transform 0.15s ease;
+  position: relative;
+  overflow: hidden;
+
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.staff-payment-add-payment-button::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: -100%;
+
+  width: 100%;
+  height: 100%;
+
+  background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+  );
+
+  transition: left 0.5s;
+}
+
+.staff-payment-add-payment-button:hover::before {
+  left: 100%;
+}
 
 .staff-payment-add-payment-button:hover {
-  background: #0c8da9;
+  transform: translateY(-2px);
 
-  box-shadow: 0 4px 10px rgba(15, 159, 189, 0.25);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
 }
 
-
 .staff-payment-add-payment-button:active {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.98);
 }
 
 
 /* =========================================
-   RESPONSIVE
+   RESPONSIVE DESIGN
 ========================================= */
 
-@media (max-width: 700px) {
-
+@media (max-width: 768px) {
   .staff-payment-history-card {
-    padding: 1rem;
+    padding: 1.25rem;
   }
 
   .staff-payment-history-item {
-    align-items: flex-start;
-
     flex-direction: column;
+    align-items: stretch;
 
-    padding: 0.85rem;
-  }
+    gap: 0.75rem;
 
-  .staff-payment-history-details {
-    width: 100%;
+    padding: 1rem;
   }
 
   .staff-payment-history-total {
     align-self: flex-end;
+
+    border-top: 2px solid #e9ecef;
+
+    padding: 0.4rem 0.85rem;
+    width: fit-content;
+  }
+
+  .staff-payment-history-footer {
+    justify-content: center;
+  }
+
+  .staff-payment-add-payment-button {
+    width: 100%;
   }
 }
 
-
 @media (max-width: 480px) {
-
   .staff-payment-history-label {
-    width: 125px;
+    width: 110px;
 
-    font-size: 0.7rem;
+    font-size: 0.8rem;
   }
 
   .staff-payment-history-value {
-    font-size: 0.7rem;
-  }
-
-  .staff-payment-history-total {
-    min-width: 80px;
-
-    font-size: 0.78rem;
+    font-size: 0.8rem;
   }
 }
 

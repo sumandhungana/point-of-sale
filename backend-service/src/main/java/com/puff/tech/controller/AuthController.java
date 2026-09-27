@@ -34,13 +34,13 @@ public class AuthController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 
-    @Post("/logout")
-    public Mono<RestResponse<LogoutUserUseCaseResponse>> logout(@Header(HttpHeaders.AUTHORIZATION)
-                                                                    String authorization){
-        return Mono.justOrEmpty(authorization)
-                .switchIfEmpty(Mono.error(new Throwable("Unauthorized")))
-                .flatMap(logoutUserUseCase::execute)
-                .map(RestResponse::success)
-                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
-    }
+//    @Post("/logout")
+//    public Mono<RestResponse<LogoutUserUseCaseResponse>> logout(@Header(HttpHeaders.AUTHORIZATION)
+//                                                                    String authorization){
+//        return Mono.justOrEmpty(authorization)
+//                .switchIfEmpty(Mono.error(new Throwable("Unauthorized")))
+//                .flatMap(logoutUserUseCase::execute)
+//                .map(RestResponse::success)
+//                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
+//    }
 }

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import {
     getSelectedKhataBook,
     updateKhataBook,
-} from '../services/khataBookService';
+} from '../features/services/khataBookService';
 
 import '../styles/BusinessSetting.css';
 
@@ -20,10 +20,10 @@ const BusinessSetting = () => {
 
     const [formData, setFormData] = useState({
         id: 0,
-        name: '',
-        number: '',
-        address: '',
-        email: '',
+        // name: '',
+        // number: '',
+        // address: '',
+        // email: '',
         companyName: '',
         companyNumber: '',
         companyAddress: '',
@@ -48,26 +48,23 @@ const BusinessSetting = () => {
 
             setFormData({
                 id: data.id,
-                name: data.name || '',
-                number: data.number || '',
-                address: data.address || '',
-                email: data.email || '',
-                companyName: data.companyName || '',
-                companyNumber: data.companyNumber || '',
-                companyAddress: data.companyAddress || '',
-                companyEmail: data.companyEmail || '',
-                businessCategory:
-                    data.businessCategory !== undefined
-                        ? String(data.businessCategory)
-                        : '',
-                businessType:
-                    data.businessType !== undefined
-                        ? String(data.businessType)
-                        : '',
-                taxVat: data.taxVat || false,
-                bookAccount: data.bookAccount || false,
-                kyc: data.kyc || false,
-                imagePath: data.imagePath || '',
+
+                companyName: data.organizationName || '',
+                companyNumber: data.organizationContactNumber || '',
+                companyAddress: data.organizationAddress || '',
+                companyEmail: data.organizationEmail || '',
+                businessCategory: '',
+                    // data.businessCategory !== undefined
+                    //     ? String(data.businessCategory)
+                    //     : '',
+                businessType: data.organizationType,
+                    // data.businessType !== undefined
+                    //     ? String(data.businessType)
+                    //     : '',
+                taxVat: false,
+                bookAccount:  false,
+                kyc:  false,
+                imagePath: '',
             });
         } catch (error) {
             console.error('Error loading KhataBook:', error);
@@ -120,7 +117,7 @@ const BusinessSetting = () => {
     ) => {
         e.preventDefault();
 
-        if (!formData.name.trim()) {
+        if (!formData.companyName.trim()) {
             toast.error('Name is required!');
             return;
         }
@@ -135,10 +132,10 @@ const BusinessSetting = () => {
         try {
             const dataToSend = new FormData();
 
-            dataToSend.append('Name', formData.name);
-            dataToSend.append('Number', formData.number);
-            dataToSend.append('Address', formData.address);
-            dataToSend.append('Email', formData.email);
+            // dataToSend.append('Name', formData.name);
+            // dataToSend.append('Number', formData.number);
+            // dataToSend.append('Address', formData.address);
+            // dataToSend.append('Email', formData.email);
 
             dataToSend.append(
                 'CompanyName',
@@ -288,62 +285,62 @@ const BusinessSetting = () => {
 
                             <div className="update-khata-book-form-grid">
 
-                                <div className="update-khata-book-form-group">
-                                    <label className="update-khata-book-label required">
-                                        Name
-                                    </label>
+                                {/*<div className="update-khata-book-form-group">*/}
+                                {/*    <label className="update-khata-book-label required">*/}
+                                {/*        Name*/}
+                                {/*    </label>*/}
 
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formData.name}
-                                        onChange={handleInputChange}
-                                        className="update-khata-book-input"
-                                        required
-                                    />
-                                </div>
+                                    {/*<input*/}
+                                    {/*    type="text"*/}
+                                    {/*    name="name"*/}
+                                    {/*    value={formData.name}*/}
+                                    {/*    onChange={handleInputChange}*/}
+                                    {/*    className="update-khata-book-input"*/}
+                                    {/*    required*/}
+                                    {/*/>*/}
+                                {/*</div>*/}
 
-                                <div className="update-khata-book-form-group">
-                                    <label className="update-khata-book-label">
-                                        Number
-                                    </label>
+                                {/*<div className="update-khata-book-form-group">*/}
+                                {/*    <label className="update-khata-book-label">*/}
+                                {/*        Number*/}
+                                {/*    </label>*/}
 
-                                    <input
-                                        type="tel"
-                                        name="number"
-                                        value={formData.number}
-                                        onChange={handleInputChange}
-                                        className="update-khata-book-input"
-                                    />
-                                </div>
+                                {/*    <input*/}
+                                {/*        type="tel"*/}
+                                {/*        name="number"*/}
+                                {/*        value={formData.number}*/}
+                                {/*        onChange={handleInputChange}*/}
+                                {/*        className="update-khata-book-input"*/}
+                                {/*    />*/}
+                                {/*</div>*/}
 
-                                <div className="update-khata-book-form-group">
-                                    <label className="update-khata-book-label">
-                                        Address
-                                    </label>
+                                {/*<div className="update-khata-book-form-group">*/}
+                                {/*    <label className="update-khata-book-label">*/}
+                                {/*        Address*/}
+                                {/*    </label>*/}
 
-                                    <input
-                                        type="text"
-                                        name="address"
-                                        value={formData.address}
-                                        onChange={handleInputChange}
-                                        className="update-khata-book-input"
-                                    />
-                                </div>
+                                {/*    <input*/}
+                                {/*        type="text"*/}
+                                {/*        name="address"*/}
+                                {/*        value={formData.address}*/}
+                                {/*        onChange={handleInputChange}*/}
+                                {/*        className="update-khata-book-input"*/}
+                                {/*    />*/}
+                                {/*</div>*/}
 
-                                <div className="update-khata-book-form-group">
-                                    <label className="update-khata-book-label">
-                                        Email
-                                    </label>
+                                {/*<div className="update-khata-book-form-group">*/}
+                                {/*    <label className="update-khata-book-label">*/}
+                                {/*        Email*/}
+                                {/*    </label>*/}
 
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={formData.email}
-                                        onChange={handleInputChange}
-                                        className="update-khata-book-input"
-                                    />
-                                </div>
+                                {/*    <input*/}
+                                {/*        type="email"*/}
+                                {/*        name="email"*/}
+                                {/*        value={formData.email}*/}
+                                {/*        onChange={handleInputChange}*/}
+                                {/*        className="update-khata-book-input"*/}
+                                {/*    />*/}
+                                {/*</div>*/}
 
                             </div>
                         </div>

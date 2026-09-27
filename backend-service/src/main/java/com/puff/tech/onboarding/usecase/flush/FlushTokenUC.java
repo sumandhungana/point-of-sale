@@ -1,16 +1,12 @@
-package com.puff.tech.onboarding.usecase.userlogin;
+package com.puff.tech.onboarding.usecase.flush;
 
 import com.puff.tech.core.usecases.MonoUC;
-import com.puff.tech.core.utils.JwtUtils;
-import com.puff.tech.core.utils.SecurityUtils;
 import com.puff.tech.core.utils.JwtTokenInfo;
-import com.puff.tech.entity.RoleEntity;
-import com.puff.tech.entity.RolePermissionEntity;
+import com.puff.tech.core.utils.JwtUtils;
 import com.puff.tech.onboarding.repository.*;
-import com.puff.tech.repository.RoleRepository;
+import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseResponse;
 import com.puff.tech.security.UseCaseContext;
 import com.puff.tech.usermanagement.repository.UserPermissionEntity;
-import com.puff.tech.usermanagement.repository.UserPermissionRepository;
 import com.puff.tech.usermanagement.repository.UserRoleEntity;
 import com.puff.tech.usermanagement.repository.UserRoleRepository;
 import com.puff.tech.usermanagement.usecase.permissions.payload.GetPermissionsUCResponse;
@@ -23,45 +19,46 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Singleton
-public class LoginUserUseCase implements MonoUC<LoginUserUseCaseRequest,LoginUserUseCaseResponse> {
+public class FlushTokenUC implements MonoUC<FlushTokenUCRequest, LoginUserUseCaseResponse> {
 
     private final UserInfoRepository userInfoRepository;
-    private final UserMemberRepository userMemberRepository;
+    private final MemberRepository memberRepository;
     private final UserRoleRepository userRoleRepository;
 
-    public LoginUserUseCase(UserInfoRepository userInfoRepository,
-                            UserMemberRepository userMemberRepository,
-                            UserRoleRepository userRoleRepository){
+    public FlushTokenUC(UserInfoRepository userInfoRepository,
+                        MemberRepository memberRepository,
+                        UserRoleRepository userRoleRepository) {
         this.userInfoRepository = userInfoRepository;
-        this.userMemberRepository = userMemberRepository;
+        this.memberRepository = memberRepository;
         this.userRoleRepository = userRoleRepository;
     }
 
     @Override
-    public Mono<LoginUserUseCaseResponse> execute(LoginUserUseCaseRequest request, UseCaseContext context) {
-        return userInfoRepository.findByUserId(request.username())
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Invalid username")))
-                .filter(userInfo -> userInfo.getEnable() == true)
-                .switchIfEmpty(Mono.error(new Throwable("User Is not Active. Please contact Administrator")))
-                .filter(userInfoEntity -> SecurityUtils.verifyPassword(request.password(), userInfoEntity.getPassword()))
-                .switchIfEmpty(Mono.error(new IllegalArgumentException("Invalid password")))
-                .flatMap(userInfoEntity ->
-                        // 1. Fetch Member/Organization details
-                        Mono.from(userMemberRepository.findByUser(userInfoEntity))
-                                .map(UserMemberEntity::getMember)
-                                .defaultIfEmpty(new MemberEntity())
-                                .flatMap(member -> {
-                                    Long memberId = Objects.nonNull(member) ? member.getId() : null;
+    public Mono<LoginUserUseCaseResponse> execute(FlushTokenUCRequest request, UseCaseContext context) {
+        String memberId = context.securityContext().memberId().toString();
+        Long userId = Long.parseLong(context.securityContext().userId());
 
-                                    // 2. Fetch UserRoleEntity with joined permissions by role name and memberId
-                                    Mono<UserRoleEntity> roleMono = (memberId != null && userInfoEntity.getRole() != null)
-                                            ? userRoleRepository.findById(Integer.valueOf(userInfoEntity.getRole()))
-                                            .defaultIfEmpty(new UserRoleEntity())
-                                            : Mono.just(new UserRoleEntity());
+        return Mono.from(memberRepository.findById(request.memberId()))
+                .switchIfEmpty(Mono.error(new Throwable("Child Member Not Found")))
+                .filter(member -> Objects.equals(member.getRefMemberId(), memberId))
+                .switchIfEmpty(Mono.error(new Throwable("Invalid Member Id Found for reference member")))
+                .flatMap(member -> {
+                    // 1. Fetch UserInfo by ID
+                    Mono<UserInfoEntity> userInfoMono = Mono.from(userInfoRepository.findById(userId))
+                            .switchIfEmpty(Mono.error(new Throwable("User Not Found")));
 
-                                    return roleMono.map(role -> mapToResponse(userInfoEntity, member, role));
-                                })
-                );
+                    return userInfoMono.flatMap(userInfo -> {
+                        // 2. Fetch UserRoleEntity by role string ID if present
+                        Mono<UserRoleEntity> roleMono = (userInfo.getRole() != null)
+                                ? Mono.from(userRoleRepository.findById(Integer.valueOf(userInfo.getRole())))
+                                .defaultIfEmpty(new UserRoleEntity())
+                                : Mono.just(new UserRoleEntity());
+
+                        // 3. Combine fetched details and construct response
+                        return roleMono.map(role -> mapToResponse(userInfo, member, role));
+                    });
+                });
+
     }
 
     private LoginUserUseCaseResponse mapToResponse(UserInfoEntity user, MemberEntity member, UserRoleEntity role) {
@@ -89,7 +86,7 @@ public class LoginUserUseCase implements MonoUC<LoginUserUseCaseRequest,LoginUse
         String roleName = Objects.nonNull(role.getName()) ? role.getName() : user.getRole();
         return new LoginUserUseCaseResponse(
                 JwtUtils.generateToken(prepareJwtTokenInfo(user, memberId)),
-                "Success Authenticate",
+                "Success Prepare new Token",
                 LoginUserUseCaseResponse.UserInfo.builder()
                         .id(user.getId())
                         .userId(user.getUserId())

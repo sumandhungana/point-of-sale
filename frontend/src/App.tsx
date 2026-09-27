@@ -27,9 +27,9 @@ import { Sales } from './pages/Sales';
 import { AddSalesBill } from './pages/AddSalesBill';
 import { StaffManagement } from './pages/StaffManagement';
 import { AddStaff } from './pages/AddStaff';
-import { StaffPayment } from './pages/StaffPayment';
-import { AddPayments } from './pages/AddPayments';
-import { AddKhataBook } from './pages/AddKhataBook';
+import { StaffPayment } from './features/staffpayment/StaffPayment';
+import { AddPayments } from './features/staffpayment/AddPayments';
+import { AddKhataBook } from './features/member/pages/AddKhataBook';
 import { Service } from './pages/Service';
 import { AddService } from './pages/AddService';
 import { API } from './pages/API';
@@ -112,7 +112,11 @@ const App: React.FC = () => {
             path="/parties/customers/statements/you-gave/:id"
             element={
               <PrivateRoute>
-                <YouGave />
+                <YouGave onSuccess={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } onClose={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } />
               </PrivateRoute> 
             }
           />
@@ -120,7 +124,11 @@ const App: React.FC = () => {
             path="/parties/customers/statements/you-received/:id"
             element={
               <PrivateRoute>
-                <YouReceived />
+                <YouReceived onSuccess={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } onClose={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } />
               </PrivateRoute>
             }
           />
@@ -128,7 +136,11 @@ const App: React.FC = () => {
             path="/parties/supplier/statements/you-gave/:id"
             element={
               <PrivateRoute>
-                <YouGave />
+                <YouGave onSuccess={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } onClose={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } />
               </PrivateRoute>
             }
           />
@@ -137,7 +149,11 @@ const App: React.FC = () => {
             path="/parties/supplier/statements/you-received/:id"
             element={
               <PrivateRoute>
-                <YouReceived />
+                <YouReceived onSuccess={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } onClose={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } />
               </PrivateRoute>
             }
           />
@@ -225,7 +241,9 @@ const App: React.FC = () => {
             path="/staff/payment/add"
             element={
               <PrivateRoute>
-                <AddPayments />
+                <AddPayments isOpen={false} staffId={0} onClose={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } />
               </PrivateRoute>
             }
           />
@@ -315,7 +333,11 @@ const App: React.FC = () => {
             path="/parties/cash-bank/cash"
             element={
               <PrivateRoute>
-                <YouGave />
+                <YouGave onSuccess={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } onClose={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } />
               </PrivateRoute>
             }
           />
@@ -323,7 +345,11 @@ const App: React.FC = () => {
             path="/parties/cash-bank/bank"
             element={
               <PrivateRoute>
-                <YouReceived />
+                <YouReceived onSuccess={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } onClose={function(): void {
+                        throw new Error("Function not implemented.");
+                    } } />
               </PrivateRoute>
             }
           />
@@ -492,6 +518,7 @@ const App: React.FC = () => {
             path="/staff/add"
             element={
               <PrivateRoute>
+                <AddStaff />
                 <AddStaff />
               </PrivateRoute>
             }

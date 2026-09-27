@@ -8,14 +8,20 @@ import java.time.Instant;
 
 @Serdeable
 @Builder
-public record GetAllMemberUseCaseResponse(
+public record GetUserWiseAllMemberUCResponse(
         Long id,
-        String memberId,
+        Long referenceMemberId,
         String organizationName,
         String panVatNumber,
         String organizationType,
         String branch,
         String organizationAddress,
-        String notes
+        String organizationEmail,
+        String organizationContactNumber,
+        String notes,
+        Instant createdAt,
+        String createdBy,
+        Instant updatedAt,
+        String updatedBy
 )implements UCResponse {
 }

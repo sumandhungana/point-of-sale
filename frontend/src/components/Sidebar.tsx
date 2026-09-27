@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePermission } from '@/core/rbac/usePermission';
-import { getKhataBooks, switchKhataBook, getSelectedKhataBook, KhataBook } from '../services/khataBookService';
+import { getKhataBooks, switchKhataBook, getSelectedKhataBook, UserBasedAllMember } from '@/features/services/khataBookService';
 import dashboardIcon from '../assets/dashboard.png';
 import '../styles/Sidebar.css';
 
@@ -113,8 +113,8 @@ export const Sidebar = () => {
 	const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
 		'/parties': true,
 	});
-	const [khataBooks, setKhataBooks] = useState<KhataBook[]>([]);
-	const [currentKhataBook, setCurrentKhataBook] = useState<KhataBook | null>(null);
+	const [khataBooks, setKhataBooks] = useState<UserBasedAllMember[]>([]);
+	const [currentKhataBook, setCurrentKhataBook] = useState<UserBasedAllMember | null>(null);
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const cachedCompanyName = (typeof window !== 'undefined' && localStorage.getItem('companyName')) || '';
@@ -311,11 +311,11 @@ export const Sidebar = () => {
 		navigate('/add-khatabook');
 	};
 
-	const handleKhataBookClick = async (khataBook: KhataBook) => {
+	const handleKhataBookClick = async (khataBook: UserBasedAllMember) => {
 		try {
 			await switchKhataBook(khataBook.id);
 			setCurrentKhataBook(khataBook);
-			localStorage.setItem('companyName', khataBook.companyName);
+			localStorage.setItem('companyName', khataBook.organizationName);
 			localStorage.setItem('selectedKhataBookId', khataBook.id.toString());
 			window.location.reload();
 		} catch (error) {
@@ -334,19 +334,20 @@ export const Sidebar = () => {
 					<div
 						className="avatar"
 						style={{
-							backgroundImage: currentKhataBook?.imagePath
-								? `url(http://localhost:5000${currentKhataBook.imagePath})`
-								: 'linear-gradient(135deg, #3498db, #2980b9)',
+							// backgroundImage: currentKhataBook?.imagePath
+							// 	? `url(http://localhost:5000${currentKhataBook.imagePath})`
+							// 	: 'linear-gradient(135deg, #3498db, #2980b9)',
+							backgroundImage: 'linear-gradient(135deg, #3498db, #2980b9)',
 							backgroundSize: 'cover',
 							backgroundPosition: 'center',
 							backgroundRepeat: 'no-repeat',
 						}}
 					>
-						{!currentKhataBook?.imagePath && '👤'}
+						{ '👤'}
 					</div>
 					<div className="user-info">
 						<p className="user-role">
-							{currentKhataBook?.companyName || cachedCompanyName || 'No KhataBook Selected'}
+							{currentKhataBook?.organizationName || cachedCompanyName || 'No KhataBook Selected'}
 						</p>
 					</div>
 				</div>
@@ -376,16 +377,19 @@ export const Sidebar = () => {
 										onClick={() => handleKhataBookClick(khataBook)}
 									>
 										<div className="user-image">
-											{khataBook.imagePath ? (
-												<img src={khataBook.imagePath} alt={khataBook.name} className="user-image-img" />
-											) : (
+											{(
 												'👤'
 											)}
+											{/*{khataBook.imagePath ? (*/}
+											{/*	<img src={khataBook.imagePath} alt={khataBook.name} className="user-image-img" />*/}
+											{/*) : (*/}
+											{/*	'👤'*/}
+											{/*)}*/}
 										</div>
 										<div className="user-details">
-											<h3 className="company-name">{khataBook.companyName}</h3>
-											<p className="user-info-text">{khataBook.companyNumber}</p>
-											<p className="user-info-text">{khataBook.name}</p>
+											<h3 className="company-name">{khataBook.organizationName}</h3>
+											<p className="user-info-text">{khataBook.organizationContactNumber}</p>
+											{/*<p className="user-info-text">{khataBook.name}</p>*/}
 										</div>
 									</div>
 								))

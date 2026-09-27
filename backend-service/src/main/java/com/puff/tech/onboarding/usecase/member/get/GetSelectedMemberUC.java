@@ -31,14 +31,16 @@ public class GetSelectedMemberUC implements MonoUC<GetSelectedMemberUCRequest, G
     private GetSelectedMemberUCResponse toResponse(UserMemberEntity userMember) {
         return GetSelectedMemberUCResponse.builder()
                 .id(Math.toIntExact(userMember.getMember().getId()))
-                .name(userMember.getUser().getUserName())
-                .number(userMember.getUser().getPhoneNumber())
-                .address(userMember.getMember().getOrganizationAddress())
-                .email(userMember.getUser().getGmail())
-                .companyName(userMember.getMember().getOrganizationName())
-                .taxVat(userMember.getMember().getPanVatNumber())
+                .organizationEmail(userMember.getMember().getOrganizationEmail())
+                .branch(userMember.getMember().getBranch())
+                .organizationName(userMember.getMember().getOrganizationName())
+                .organizationAddress(userMember.getMember().getOrganizationAddress())
+                .panVatNumber(userMember.getMember().getPanVatNumber())
                 .createdAt(userMember.getMember().getCreatedAt())
                 .updatedAt(userMember.getMember().getUpdatedAt())
+                .updatedBy(userMember.getMember().getUpdatedBy())
+                .createdBy(userMember.getMember().getCreatedBy())
+                .organizationType(userMember.getMember().getOrganizationType())
                 .build();
 
     }

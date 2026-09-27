@@ -1,8 +1,15 @@
 package com.puff.tech.onboarding.controller;
 
 import com.puff.tech.core.responses.RestResponse;
-import com.puff.tech.customermanagement.usecase.get.GetAllCustomerUseCaseResponse;
-import com.puff.tech.customermanagement.usecase.get.GetCustomerUseCaseRequest;
+import com.puff.tech.onboarding.controller.converter.UserEnrollmentConverter;
+import com.puff.tech.onboarding.controller.payload.UserRegistrationReqPayload;
+import com.puff.tech.onboarding.usecase.flush.FlushTokenUC;
+import com.puff.tech.onboarding.usecase.flush.FlushTokenUCRequest;
+import com.puff.tech.onboarding.usecase.onbaording.OwnMemberOnboardingUC;
+import com.puff.tech.onboarding.usecase.onbaording.OwnMemberOnboardingUCRequest;
+import com.puff.tech.onboarding.usecase.onbaording.OwnMemberOnboardingUCResponse;
+import com.puff.tech.onboarding.usecase.registration.UserRegistrationUcResponse;
+import com.puff.tech.onboarding.usecase.registration.UserRegistrationUseCase;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUCRequest;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUseCase;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUseCaseResponse;
@@ -10,14 +17,13 @@ import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCase;
 import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseRequest;
 import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseResponse;
 import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCase;
+import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseRequest;
 import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseResponse;
-import com.puff.tech.onboarding.controller.converter.UserEnrollmentConverter;
-import com.puff.tech.onboarding.controller.payload.UserRegistrationReqPayload;
-import com.puff.tech.onboarding.usecase.registration.UserRegistrationUcResponse;
-import com.puff.tech.onboarding.usecase.registration.UserRegistrationUseCase;
 import com.puff.tech.security.Secured;
-import io.micronaut.http.HttpHeaders;
-import io.micronaut.http.annotation.*;
+import io.micronaut.http.annotation.Body;
+import io.micronaut.http.annotation.Controller;
+import io.micronaut.http.annotation.Get;
+import io.micronaut.http.annotation.Post;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
@@ -31,15 +37,21 @@ public class UserEnrollmentController {
     private final LoginUserUseCase loginUserUseCase;
     private final LogoutUserUseCase logoutUserUseCase;
     private final GetUserUseCase getUserUseCase;
+    private final FlushTokenUC flushTokenUC;
+    private final OwnMemberOnboardingUC ownMemberOnboardingUC;
 
     @Inject
     UserEnrollmentController(UserRegistrationUseCase userRegistrationUseCases,
                              LoginUserUseCase loginUserUseCase,
-                             LogoutUserUseCase logoutUserUseCase, GetUserUseCase getUserUseCase) {
+                             LogoutUserUseCase logoutUserUseCase,
+                             GetUserUseCase getUserUseCase,
+                             FlushTokenUC flushTokenUC, OwnMemberOnboardingUC ownMemberOnboardingUC) {
         this.userRegistrationUseCase = userRegistrationUseCases;
         this.loginUserUseCase = loginUserUseCase;
         this.logoutUserUseCase = logoutUserUseCase;
         this.getUserUseCase = getUserUseCase;
+        this.flushTokenUC = flushTokenUC;
+        this.ownMemberOnboardingUC = ownMemberOnboardingUC;
     }
 
     @Post("/register")
@@ -49,37 +61,44 @@ public class UserEnrollmentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(roles = {"Super Admin","ADMIN"}, permissions = {"organization:onboarding"})
-    @Post("/onboarding")
-    public Mono<RestResponse<UserRegistrationUcResponse>> onboarding(@Body UserRegistrationReqPayload payload) {
-        return userRegistrationUseCase.execute(UserEnrollmentConverter.toUcRequest(payload, false, true))
+    @Secured(roles = {"Super Admin", "ADMIN"})
+    @Post("/member-onboarding")
+    public Mono<RestResponse<OwnMemberOnboardingUCResponse>> onboarding(@Body OwnMemberOnboardingUCRequest payload) {
+        return ownMemberOnboardingUC.execute(payload)
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
     @Secured(roles = {"Super Admin"}, permissions = {"organization:view"})
     @Get("list")
-    public Mono<RestResponse<List<GetUserUseCaseResponse>>> getUsers(){
+    public Mono<RestResponse<List<GetUserUseCaseResponse>>> getUsers() {
         return getUserUseCase.execute(new GetUserUCRequest())
                 .collectList()
                 .map(RestResponse::success)
-                .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened:: " +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
 
     @Post("login")
-    public Mono<RestResponse<LoginUserUseCaseResponse>> login(@Body LoginUserUseCaseRequest request){
+    public Mono<RestResponse<LoginUserUseCaseResponse>> login(@Body LoginUserUseCaseRequest request) {
         return loginUserUseCase.execute(request)
                 .map(RestResponse::success)
-                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened:: " +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
 
+    @Secured
     @Post("/logout")
-    public Mono<RestResponse<LogoutUserUseCaseResponse>> logout(@Header(HttpHeaders.AUTHORIZATION)
-                                                                String authorization){
-        return Mono.justOrEmpty(authorization)
-                .switchIfEmpty(Mono.error(new Throwable("Unauthorized")))
-                .flatMap(logoutUserUseCase::execute)
+    public Mono<RestResponse<LogoutUserUseCaseResponse>> logout() {
+        return logoutUserUseCase.execute(new LogoutUserUseCaseRequest())
                 .map(RestResponse::success)
-                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
+    }
+
+
+    @Secured(roles = {"ADMIN", "Super User"})
+    @Get("flush-token")
+    public Mono<RestResponse<LoginUserUseCaseResponse>> flushToken(@Body FlushTokenUCRequest request) {
+        return flushTokenUC.execute(request)
+                .map(RestResponse::success)
+                .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
 }

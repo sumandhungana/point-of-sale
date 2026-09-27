@@ -2,16 +2,13 @@
 package com.puff.tech.onboarding.usecase.registration;
 
 import com.puff.tech.core.usecases.MonoUC;
-import com.puff.tech.core.usecases.UseCases;
 import com.puff.tech.core.utils.JsonUtils;
 import com.puff.tech.onboarding.repository.*;
 import com.puff.tech.security.UseCaseContext;
 import com.puff.tech.security.UserSecurityContext;
 import com.puff.tech.usermanagement.repository.UserPermissionEntity;
-import com.puff.tech.usermanagement.repository.UserPermissionRepository;
 import com.puff.tech.usermanagement.repository.UserRoleEntity;
 import com.puff.tech.usermanagement.repository.UserRoleRepository;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,9 +81,9 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
                                                             .flatMap(nextSeq -> {
                                                                 MemberEntity member = mapToMemberEntity(validReq);
                                                                 if (!validReq.isExternalOnboarding() && validReq.isSelfOrganizationOnboarded())
-                                                                    member.setMemberId(String.valueOf(refMemberId));
+                                                                    member.setRefMemberId(refMemberId);
                                                                 else
-                                                                    member.setMemberId("");
+                                                                    member.setRefMemberId(0L);
                                                                 return Mono.from(memberRepository.save(member));
                                                             })
                                                             .switchIfEmpty(Mono.error(new IllegalStateException("Failed to save organization details")))
@@ -100,12 +97,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
                             );
                 })
                 .doOnError(err -> LOG.error("User registration failed for email {}: ", request != null ? request.gmail() : "N/A", err))
-                .onErrorResume(throwable -> {
-                    String errorMsg = (throwable.getMessage() != null && !throwable.getMessage().isBlank())
-                            ? throwable.getMessage()
-                            : throwable.getClass().getSimpleName() + " occurred";
-                    return Mono.just(UserRegistrationUcResponse.error(errorMsg));
-                });
+                .onErrorResume(Mono::error);
     }
 
     private UserInfoEntity mapToUserEntity(UserRegistrationUcRequest request, UserRoleEntity roleEntity, String createdBy) {
@@ -154,13 +146,6 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
         return member;
     }
 
-    private Mono<MemberEntity> formatAndUpdateMemberId(MemberEntity member) {
-        // Formats ID to zero-padded 3-digit string (e.g., ID 1 -> "001", ID 12 -> "012")
-        String formattedMemberId = String.format("%03d", member.getId());
-        member.setMemberId(formattedMemberId);
-        return Mono.from(memberRepository.update(member));
-    }
-
     private UserMemberEntity mapToUserMemberEntity(UserInfoEntity user, MemberEntity member) {
         UserMemberEntity userMember = new UserMemberEntity();
         userMember.setUser(user);
@@ -175,7 +160,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
                 user.getGmail(),
                 user.getUserName(),
                 member.getOrganizationName(),
-                member.getMemberId() // Returns formatted memberId ("001", "002", etc.)
+                String.valueOf(member.getRefMemberId()) // Returns formatted memberId ("001", "002", etc.)
         );
     }
 }

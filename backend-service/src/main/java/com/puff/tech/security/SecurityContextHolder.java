@@ -8,12 +8,10 @@ public class SecurityContextHolder {
     static final String SECURITY_TOKEN_KEY = "SECURITY_TOKEN";
     static final String SECURITY_CONTEXT_KEY = "USER_SECURITY_CONTEXT";
 
-    public static Context withToken(String token) {
-        return Context.of(SECURITY_TOKEN_KEY, token);
-    }
-
-    public static Context withSecurityContext(Context context, UseCaseContext userSecurityContext) {
-        return context.put(SECURITY_CONTEXT_KEY, userSecurityContext.securityContext());
+    public static Context withSecurityContext(Context context, UseCaseContext useCaseContext) {
+        return context
+                .put(SECURITY_TOKEN_KEY, useCaseContext.token())
+                .put(SECURITY_CONTEXT_KEY, useCaseContext.securityContext());
     }
 
     // Resolves both values safely into a single UseCaseContext

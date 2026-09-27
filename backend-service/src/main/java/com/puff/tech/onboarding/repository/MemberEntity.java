@@ -18,7 +18,7 @@ public class MemberEntity {
     private Long id;
 
     // Unique formatted identifier (e.g., "001", "002", "003")
-    private String memberId;
+    private Long refMemberId;
 
     private String organizationName;
     private String panVatNumber;
@@ -26,6 +26,8 @@ public class MemberEntity {
     private String branch;
     private String organizationAddress;
     private String notes;
+    private String organizationContactNumber;
+    private String organizationEmail;
 
     @DateCreated
     private Instant createdAt;

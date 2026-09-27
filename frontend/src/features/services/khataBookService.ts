@@ -3,25 +3,39 @@ import {apiService} from "@/infrastructure/utils/ApiService";
 // Use relative URLs to work with Vite proxy
 const API_URL = '/api';
 
-export interface KhataBook {
+export interface UserBasedAllMember {
   id: number;
-  name: string;
-  number: string;
-  address: string;
-  email: string;
-  companyName: string;
-  companyNumber: string;
-  companyAddress: string;
-  companyEmail: string;
-  businessCategory: number;
-  businessType: number;
-  taxVat: boolean;
-  bookAccount: boolean;
-  kyc: boolean;
-  imagePath: string;
+  refMemberId: number;
+  organizationName: string;
+  organizationContactNumber: string;
+  organizationAddress: string;
+  organizationEmail: string;
+  organizationType: string;
+  panVatNumber: string;
+  branch: string;
+  notes: string;
   createdAt: string;
   updatedAt: string;
+
 }
+
+
+export interface GetSelectedMember {
+  id: number;
+  refMemberId: number;
+  organizationName: string;
+  organizationContactNumber: string;
+  organizationAddress: string;
+  organizationEmail: string;
+  organizationType: string;
+  panVatNumber: string;
+  branch: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+
+}
+
 
 interface RestResponse<T> {
   code: number;
@@ -31,20 +45,14 @@ interface RestResponse<T> {
 }
 
 export interface CreateKhatBookRequest{
-
-  userName: string;
-  phoneNumber:string;
-  gmail:string;
   organizationName:string;
+  organizationPhoneNumber:string;
+  organizationEmail:string;
   panVatNumber:string;
   branch:string;
   organizationType:string;
   organizationAddress:string;
   notes:string;
-  password:string;
-  userId:string;
-  role:string;
-  isExternalOnboarding:boolean;
 }
 
 export interface CreateKhataBookResponse{
@@ -60,7 +68,7 @@ export interface CreateKhataBookResponse{
 
 export async function createNewKhataBook(formData: CreateKhatBookRequest): Promise<CreateKhataBookResponse | undefined>{
   const res= await apiService.post<RestResponse<CreateKhataBookResponse>>(
-      'api/v1/user/onboarding',
+      'api/v1/user/member-onboarding',
       formData,
       {
         headers:{
@@ -68,9 +76,11 @@ export async function createNewKhataBook(formData: CreateKhatBookRequest): Promi
         },
       }
   );
-  if(res.error){
-    throw new Error(res.error || "Failed to create khatabook");
+  if(res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+    // toast("Failed to create KhataBook")
+    throw  Error("Failed to create KhataBook")
   }
+
   return res?.response?.data;
 }
 
@@ -80,13 +90,22 @@ function getAuthHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export const getKhataBooks = async (): Promise<KhataBook[]> => {
+export const getKhataBooks = async (): Promise<UserBasedAllMember[]> => {
   try {
-    const response = await fetch(`${API_URL}/KhataBook`, { headers: getAuthHeaders() });
-    const data = await response.json();
-    
-    // Return the data as is - the backend migration ensures a default KhataBook exists
-    return data || [];
+    const res= await apiService.get<RestResponse<UserBasedAllMember[]>>(
+        'api/v1/member/user-all-member',
+        {
+          headers:{
+            ...getAuthHeaders()
+          },
+        }
+    );
+    if(res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+      // toast("Failed to create KhataBook")
+      throw  Error("Failed to fetch KhataBook")
+    }
+
+    return res?.response?.data;
   } catch (error) {
     console.error('Error fetching KhataBooks:', error);
     // Return empty array if API call fails
@@ -146,7 +165,7 @@ export async function switchKhataBook(khataBookId: number) {
 export async function getSelectedKhataBook() {
   try {
 
-    const res = await apiService.get<RestResponse<KhataBook>>(
+    const res = await apiService.get<RestResponse<GetSelectedMember>>(
         'api/v1/member/selected-member',
         {
           headers: {

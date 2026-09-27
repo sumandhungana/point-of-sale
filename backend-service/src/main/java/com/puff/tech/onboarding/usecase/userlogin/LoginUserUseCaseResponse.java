@@ -18,7 +18,7 @@ public record LoginUserUseCaseResponse(
 implements UCResponse {
     @Serdeable
     @Builder
-    record UserInfo(
+    public record UserInfo(
             Long id,
             String userId,
             String userName,

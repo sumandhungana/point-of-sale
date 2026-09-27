@@ -11,22 +11,20 @@ import java.time.LocalDateTime;
 @Serdeable
 public record GetSelectedMemberUCResponse(
         Integer id,
-        String name,
-        String number,
-        String address,
-        String email,
-        String companyName,
-        String companyNumber,
-        String companyAddress,
-        String companyEmail,
+        String organizationName,
+        String organizationContactNumber,
+        String organizationAddress,
+        String organizationEmail,
         String businessCategory,
-        String businessType,
-        String taxVat,
-        String bookAccount,
+        String organizationType,
+        String panVatNumber,
+        String branch,
         String kyc,
         String imagePath,
         Boolean isUsed,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        String updatedBy,
+        String createdBy
 ) implements UCResponse {
 }
