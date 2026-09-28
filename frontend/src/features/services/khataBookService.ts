@@ -6,7 +6,7 @@ const API_URL = '/api';
 
 export interface UserBasedAllMember {
   id: number;
-  refMemberId: number;
+  referenceMemberId: number;
   organizationName: string;
   organizationContactNumber: string;
   organizationAddress: string;
@@ -139,40 +139,58 @@ export const getKhataBooks = async (): Promise<UserBasedAllMember[]> => {
   }
 };
 
-export async function createKhataBook(formData: FormData) {
-  try {
-    const response = await fetch(`${API_URL}/KhataBook`, {
-      method: 'POST',
-      headers: {
-        ...getAuthHeaders(),
-        // Do NOT set Content-Type for FormData - browser will set it automatically with boundary
-      },
-      body: formData,
-    });
+// Helper functions to manage full-screen loading overlay directly in DOM
+const showFullPageLoader = () => {
+  if (document.getElementById('khata-global-loader')) return;
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
-    }
+  const overlay = document.createElement('div');
+  overlay.id = 'khata-global-loader';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 99999;
+    color: #ffffff;
+    font-family: sans-serif;
+  `;
 
-    const responseData = await response.json();
-    return responseData;
-  } catch (error) {
-    console.error('Error creating KhataBook:', error);
-    if (error instanceof Error) {
-      throw new Error(`Failed to create KhataBook: ${error.message}`);
-    }
-    throw new Error('Failed to create KhataBook: Unknown error');
+  overlay.innerHTML = `
+    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p style="margin-top: 1rem; font-weight: 600; font-size: 1.1rem;">Switching KhataBook, please wait...</p>
+  `;
+
+  document.body.appendChild(overlay);
+};
+
+const hideFullPageLoader = () => {
+  const overlay = document.getElementById('khata-global-loader');
+  if (overlay) {
+    overlay.remove();
   }
-}
+};
 
-export async function switchKhataBook(memberId: number) {
+export async function switchKhataBook(memberId: number, refMember: number) {
+  showFullPageLoader();
+  let refMemberId = refMember == null ? 0 : refMember
   try {
-    const res= await apiService.get<RestResponse<TokenFlushResponse>>(
-        'api/v1/user/flush-token/'+ memberId,
+    const res = await apiService.get<RestResponse<TokenFlushResponse>>(
+        'api/v1/user/flush-token',
         {
-          headers:{
-            ...getAuthHeaders()
+          headers: {
+            ...getAuthHeaders(),
+          },
+          params: {
+            memberId,
+            refMemberId,
           },
         }
     );
@@ -188,9 +206,10 @@ export async function switchKhataBook(memberId: number) {
       localStorage.removeItem('authToken');
       localStorage.setItem('authToken', newToken);
     }
-
+    window.location.reload();
     return res?.response?.data;
   } catch (error) {
+    hideFullPageLoader();
     console.error('Error switching KhataBook:', error);
     throw error;
   }
@@ -199,7 +218,7 @@ export async function switchKhataBook(memberId: number) {
 export async function getSelectedKhataBook() {
   try {
 
-    const res = await apiService.get<RestResponse<GetSelectedMember>>(
+    const res = await apiService.get<RestResponse<UserBasedAllMember>>(
         'api/v1/member/selected-member',
         {
           headers: {

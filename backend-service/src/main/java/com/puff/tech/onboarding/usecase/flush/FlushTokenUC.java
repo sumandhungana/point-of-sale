@@ -37,10 +37,10 @@ public class FlushTokenUC implements MonoUC<FlushTokenUCRequest, LoginUserUseCas
     public Mono<LoginUserUseCaseResponse> execute(FlushTokenUCRequest request, UseCaseContext context) {
         Long memberId = context.securityContext().memberId();
         Long userId = Long.parseLong(context.securityContext().userId());
-
+        Long refMember = request.refMemberId() == 0 ?  request.memberId(): request.refMemberId();
         return Mono.from(memberRepository.findById(request.memberId()))
                 .switchIfEmpty(Mono.error(new Throwable("Child Member Not Found")))
-                .filter(member -> Objects.equals(member.getRefMemberId(), memberId))
+                .filter(member -> Objects.equals(member.getRefMemberId() == null ? member.getId() : member.getRefMemberId(), refMember))
                 .switchIfEmpty(Mono.error(new Throwable("Invalid Member Id Found for reference member")))
                 .flatMap(member -> {
                     // 1. Fetch UserInfo by ID

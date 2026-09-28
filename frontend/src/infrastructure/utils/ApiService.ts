@@ -1,5 +1,6 @@
 export interface ApiOptions extends RequestInit {
     headers?: Record<string, string>;
+    params?: Record<string, string | number | boolean | undefined | null>;
 }
 
 export interface ApiResponse<T> {
@@ -15,20 +16,46 @@ export class ApiService {
         (typeof process !== 'undefined' && process.env?.REACT_APP_API_BASE_URL) ||
         (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) ||
         'http://localhost:8080';
+    // Helper method to append query parameters to endpoint string
+    private buildUrlWithParams(endpoint: string, params?: Record<string, any>): string {
+        if (!params || Object.keys(params).length === 0) {
+            return endpoint;
+        }
+
+        const queryParams = new URLSearchParams();
+        Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+                queryParams.append(key, String(value));
+            }
+        });
+
+        const queryString = queryParams.toString();
+        if (!queryString) return endpoint;
+
+        const separator = endpoint.includes('?') ? '&' : '?';
+        return `${endpoint}${separator}${queryString}`;
+    }
 
     async request<T>(endpoint: string, options: ApiOptions = {}): Promise<T> {
         try {
-            const url = endpoint.startsWith('http')
-                ? endpoint
-                : `${this.baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
+            // Extract params from options before passing options to fetch
+            const { params, ...fetchOptions } = options;
+            const endpointWithParams = this.buildUrlWithParams(endpoint, params);
+
+            const url = endpointWithParams.startsWith('http')
+                ? endpointWithParams
+                : `${this.baseUrl}${endpointWithParams.startsWith('/') ? '' : '/'}${endpointWithParams}`;
+            // const url = endpoint.startsWith('http')
+            //     ? endpoint
+            //     : `${this.baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
             const response = await fetch(url, {
-                ...options,
+                ...fetchOptions,
                 credentials: 'include',
                 headers: {
                     "Content-Type": "application/json",
                     "X-Requested-With": "XMLHttpRequest",
-                    ...(options.headers || {}),
+                    ...(fetchOptions.headers || {}),
                 },
             });
 
@@ -37,7 +64,6 @@ export class ApiService {
                 throw new Error(`Api Error ${response.status}: ${errorBody}`);
             }
 
-            // Handle HTTP 204 No Content or empty responses
             if (response.status === 204) {
                 return {} as T;
             }

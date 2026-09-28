@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import {
     getSelectedKhataBook,
     updateKhataBook,
-} from '../features/services/khataBookService';
+} from '@/features/services/khataBookService';
 
 import '../styles/BusinessSetting.css';
 

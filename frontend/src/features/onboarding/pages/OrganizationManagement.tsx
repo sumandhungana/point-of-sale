@@ -150,7 +150,7 @@ export const OrganizationManagement: React.FC = () => {
                     {/* Header */}
                     <div className="user-management-header">
                         <div>
-                            <h2>User Management</h2>
+                            <h2>Organization Management</h2>
                             <p>Manage active accounts, onboard self-registered users, and assign roles.</p>
                         </div>
                         {activeTab === 'active' && canAddUser && (

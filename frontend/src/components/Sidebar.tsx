@@ -313,7 +313,7 @@ export const Sidebar = () => {
 
 	const handleKhataBookClick = async (khataBook: UserBasedAllMember) => {
 		try {
-			await switchKhataBook(khataBook.id);
+			await switchKhataBook(khataBook.id, khataBook.referenceMemberId);
 			setCurrentKhataBook(khataBook);
 			localStorage.setItem('companyName', khataBook.organizationName);
 			localStorage.setItem('selectedKhataBookId', khataBook.id.toString());
@@ -394,6 +394,7 @@ export const Sidebar = () => {
 									</div>
 								))
 							)}
+
 						</div>
 						<button className="add-button" onClick={handleAddKhatabook}>
 							Add New Khatabook

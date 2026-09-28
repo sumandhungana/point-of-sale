@@ -18,6 +18,7 @@ public class SecurityDataService {
 private final UserRoleRepository userRoleRepository;
     private final UserPermissionRepository userPermissionRepository;
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final Long ADMIN_ROLE_ID = 1L;
 
     @Inject
     public SecurityDataService(UserRoleRepository userRoleRepository, UserPermissionRepository userPermissionRepository) {
@@ -34,7 +35,7 @@ private final UserRoleRepository userRoleRepository;
         List<Integer> permissionIds = parsePermissionIds(permissionIdsStr);
 
         // 1. Fetch Role Entity from UserRoleRepository
-        Mono<RolePermissionDetails> roleMono = (memberId != null)
+        Mono<RolePermissionDetails> roleMono = (memberId != null && !roleId.equals(ADMIN_ROLE_ID))
                 ? userRoleRepository.findByIdAndMemberId(intRoleId, memberId).map(role -> new RolePermissionDetails(
                 role.getName(),
                 null,

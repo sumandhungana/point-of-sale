@@ -92,9 +92,10 @@ public class UserEnrollmentController {
 
 
     @Secured(roles = {"ADMIN", "Super Admin"})
-    @Get("flush-token/{id}")
-    public Mono<RestResponse<LoginUserUseCaseResponse>> flushToken(@PathVariable Long id) {
-        return flushTokenUC.execute(new FlushTokenUCRequest(id))
+    @Get("flush-token")
+    public Mono<RestResponse<LoginUserUseCaseResponse>> flushToken(@QueryValue("memberId") Long memberId,
+                                                                   @QueryValue("refMemberId") Long refMemberId) {
+        return flushTokenUC.execute(new FlushTokenUCRequest(memberId, refMemberId))
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
