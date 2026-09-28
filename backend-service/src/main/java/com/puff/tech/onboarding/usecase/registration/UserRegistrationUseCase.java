@@ -27,7 +27,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
     private final MemberRepository memberRepository;
     private final UserMemberRepository userMemberRepository;
     private final UserRoleRepository userRoleRepository;
-    private static final String DEFAULT_SELF_ONBOARDING_ROLE = "SELF_ONBOARDING";
+    private static final String DEFAULT_SELF_ONBOARDING_ROLE = "2";
     private static final String SELF_ONBOARDING = "SELF_ONBOARDING";
 
     public UserRegistrationUseCase(UserInfoRepository userInfoRepository,
@@ -68,7 +68,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
                     }
 
                     // Step 0: Fetch Role Entity dynamically
-                    return userRoleRepository.findByName(targetRoleName)
+                    return userRoleRepository.findById(Integer.valueOf(targetRoleName))
                             .switchIfEmpty(Mono.error(new IllegalStateException("Role '" + targetRoleName + "' not found in database")))
                             .flatMap(role ->
                                     // Step 1: Save User
@@ -160,7 +160,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
                 user.getGmail(),
                 user.getUserName(),
                 member.getOrganizationName(),
-                String.valueOf(member.getRefMemberId()) // Returns formatted memberId ("001", "002", etc.)
+                String.valueOf(member.getId())
         );
     }
 }

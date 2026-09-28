@@ -27,7 +27,7 @@ const Navbar: React.FC = () => {
   const [imageError, setImageError] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { logout, user, fetchUserProfile } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,9 +43,9 @@ const Navbar: React.FC = () => {
 
   // Fetch user profile when component mounts
   useEffect(() => {
-    if (user) {
-      fetchUserProfile();
-    }
+    // if (user) {
+    //   fetchUserProfile();
+    // }
   }, []);
 
   // Update profile image URL when user changes

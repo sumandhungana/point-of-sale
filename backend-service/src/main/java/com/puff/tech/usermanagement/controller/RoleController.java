@@ -31,7 +31,7 @@ public class RoleController {
         this.getUserRoleUc = getUserRoleUc;
     }
 
-    @Secured
+    @Secured(roles =  {"Super Admin"})
     @Post("add")
     public Mono<RestResponse<AddUserRoleUCResponse>> addRole(
             @Valid @Body AddUserRoleUCRequest request

@@ -163,6 +163,6 @@ export interface AuthContextType {
     login: (username: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
     updateUser: (userData: Partial<AppUser>) => void;
-    fetchUserProfile: () => Promise<void>;
+    // fetchUserProfile: () => Promise<void>;
     hasPermission?: (permissionName: string) => boolean;
 }

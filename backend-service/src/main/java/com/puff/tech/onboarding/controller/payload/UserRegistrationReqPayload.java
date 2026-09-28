@@ -1,6 +1,7 @@
 package com.puff.tech.onboarding.controller.payload;
 
 import io.micronaut.serde.annotation.Serdeable;
+import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -21,6 +22,11 @@ public record UserRegistrationReqPayload(
 
         @NotBlank(message = "Password is required")
         String password,
+
+        @Nullable
+        String organizationEmail,
+        @Nullable
+        String organizationContactNumber,
 
         @NotBlank(message = "Organization name is required")
         String organizationName,

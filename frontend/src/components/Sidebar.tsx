@@ -81,7 +81,7 @@ const navItems: NavItem[] = [
 			{ title: 'Organization Management', path: '/user', icon: '🌐', module: 'organization'},
 			{ title: 'Backup', path: '/settings/backup', icon: '💾' },
 			{ title: 'Recycle Bin', path: '/settings/recycle-bin', icon: '🗑️' },
-			{ title: 'Role & Permission', path: '/role', icon: '🔒' },
+			{ title: 'Role & Permission', path: '/role', icon: '🔒', module: 'roleAndPermissions' },
 			{ title: 'App Setting', path: '/app-settings', icon: '⚙️' },
 			{ title: 'Bills & Print Selling', path: '/bills-and-print-selling', icon: '📄' },
 			{ title: 'Delete Khata', path: '/settings/delete-khata', icon: '❌' },

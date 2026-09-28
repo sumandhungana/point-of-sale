@@ -79,13 +79,6 @@ export const fetchMembers = async (): Promise<Member[]> => {
     ];
 };
 
-export const fetchRoleOptions = async (): Promise<RoleOption[]> => {
-    return [
-        { id: '1', name: 'Admin' },
-        { id: '2', name: 'Manager' },
-        { id: '5', name: 'Operator' },
-    ];
-};
 
 export const addUser = async (payload: AddUserPayload): Promise<void> => {
     await fetch('/api/users', {

@@ -1,30 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import { Sidebar } from '@/components/Sidebar';
+import React, {useEffect, useState} from 'react';
+import {Sidebar} from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
-import { usePermission } from '@/core/rbac/usePermission';
+import {usePermission} from '@/core/rbac/usePermission';
 import {
     fetchUsers,
     fetchMembers,
-    fetchRoleOptions,
     addUser,
     // updateUserStatus, // Assume API service provides status/role update function
     User,
     Member,
     RoleOption,
 } from '@/services/userService';
-import '../styles/UserManagement.css';
+import '../../../styles/UserManagement.css';
 import {useNavigate} from "react-router-dom";
+import {getRoles} from '@/services/roleService'
 
 type TabType = 'active' | 'onboarding';
 
-export const UserManagement: React.FC = () => {
+export const OrganizationManagement: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [members, setMembers] = useState<Member[]>([]);
     const [roles, setRoles] = useState<RoleOption[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<TabType>('active');
-    const navigate= useNavigate();
-    const { hasPermission } = usePermission();
+    const navigate = useNavigate();
+    const {hasPermission} = usePermission();
     const canAddUser = hasPermission('organization:add');
 
     // State to store custom role dropdown selections for Tab 2 users
@@ -45,15 +45,15 @@ export const UserManagement: React.FC = () => {
     const loadData = async () => {
         setLoading(true);
         try {
-            const [fetchedUsers, fetchedMembers, fetchedRoles] = await Promise.all([
+            const [fetchedUsers, fetchedMembers, getAllRoles] = await Promise.all([
                 fetchUsers(),
                 fetchMembers(),
-                fetchRoleOptions(),
+                getRoles(),
             ]);
             // @ts-ignore
             setUsers(fetchedUsers);
             setMembers(fetchedMembers);
-            setRoles(fetchedRoles);
+            setRoles(getAllRoles);
         } catch (err) {
             console.error('Failed to load user management data', err);
         } finally {
@@ -70,7 +70,7 @@ export const UserManagement: React.FC = () => {
             alert('You do not have permission to add new users.');
             return;
         }
-        navigate('/add-khatabook');
+        navigate('/add-organization');
     };
 
     const handleSubmitUser = async (e: React.FormEvent) => {
@@ -142,9 +142,9 @@ export const UserManagement: React.FC = () => {
 
     return (
         <div className="user-management-page-wrapper">
-            <Sidebar />
+            <Sidebar/>
             <div className="user-management-container">
-                <Navbar />
+                <Navbar/>
 
                 <div className="user-management-content">
                     {/* Header */}
@@ -155,7 +155,7 @@ export const UserManagement: React.FC = () => {
                         </div>
                         {activeTab === 'active' && canAddUser && (
                             <button className="btn-add-user" onClick={handleOpenAddModal}>
-                                + Add New User
+                                + Onboard New Organization
                             </button>
                         )}
                     </div>
@@ -214,7 +214,8 @@ export const UserManagement: React.FC = () => {
                                                 </span>
                                         </td>
                                         <td>
-                                                <span className={`badge-status ${user.isActive ? 'active' : 'inactive'}`}>
+                                                <span
+                                                    className={`badge-status ${user.isActive ? 'active' : 'inactive'}`}>
                                                     {user.isActive ? 'Active' : user.createdBy == 'SELF_ONBOARDING' ? 'Self Onboarding' : 'Inactive'}
                                                 </span>
                                         </td>

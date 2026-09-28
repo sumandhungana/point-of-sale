@@ -29,7 +29,7 @@ import { StaffManagement } from './pages/StaffManagement';
 import { AddStaff } from './pages/AddStaff';
 import { StaffPayment } from './features/staffpayment/StaffPayment';
 import { AddPayments } from './features/staffpayment/AddPayments';
-import { AddKhataBook } from './features/member/pages/AddKhataBook';
+import { AddKhataBook } from './features/onboarding/pages/AddKhataBook';
 import { Service } from './pages/Service';
 import { AddService } from './pages/AddService';
 import { API } from './pages/API';
@@ -43,7 +43,7 @@ import { Role } from './pages/Role';
 import { AddRole } from './pages/AddRole';
 import { Permission } from './pages/Permission';
 import { BillsAndPrintSelling } from './pages/BillsAndPrintSelling';
-import { UserManagement } from './components/UserManagement';
+import { OrganizationManagement } from './features/onboarding/pages/OrganizationManagement';
 import { AddUser } from './pages/AddUser';
 import { RentalItem } from './pages/RentalItem';
 import { AddRentalItem } from './pages/AddRentalItem';
@@ -73,6 +73,7 @@ import { Bills } from './pages/Bills';
 import BusinessSetting from './pages/BusinessSetting';
 import {RoleManagement} from "@/pages/RoleManagement";
 import SupplierProfile from "@/pages/SupplierProfile";
+import {AddOrganization} from "@/features/onboarding/components/AddOrganization";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -547,6 +548,15 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+
+              <Route
+                  path="/add-organization"
+                  element={
+                      <PrivateRoute>
+                          <AddOrganization />
+                      </PrivateRoute>
+                  }
+              />
           <Route
             path="/service"
             element={
@@ -663,7 +673,7 @@ const App: React.FC = () => {
             path="/user" 
             element={
               <PrivateRoute>
-                <UserManagement />
+                <OrganizationManagement />
               </PrivateRoute>
             } 
           />
@@ -694,6 +704,7 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+
           <Route
             path="/reports/purchase"
             element={

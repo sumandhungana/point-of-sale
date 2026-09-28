@@ -35,7 +35,7 @@ public class FlushTokenUC implements MonoUC<FlushTokenUCRequest, LoginUserUseCas
 
     @Override
     public Mono<LoginUserUseCaseResponse> execute(FlushTokenUCRequest request, UseCaseContext context) {
-        String memberId = context.securityContext().memberId().toString();
+        Long memberId = context.securityContext().memberId();
         Long userId = Long.parseLong(context.securityContext().userId());
 
         return Mono.from(memberRepository.findById(request.memberId()))

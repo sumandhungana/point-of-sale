@@ -80,12 +80,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setToken(null);
     setUser(null);
   };
-
+/*
   const fetchUserProfile = async () => {
     try {
       const currentToken = token || localStorage.getItem(TOKEN_KEY);
       if (!currentToken) return;
-
+      console.log("Test Yser is here")
       const response = await ApiClient.getCurrentUser(currentToken);
 
       if (response) {
@@ -116,6 +116,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+
+ */
   const login = async (username: string, password: string) => {
     try {
       const response = await ApiClient.login(username, password);
@@ -142,7 +144,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem(USER_KEY, JSON.stringify(userData));
         setUser(userData);
 
-        await fetchUserProfile();
+        // await fetchUserProfile();
       } else {
         throw new Error('Login failed: Token missing from response');
       }
@@ -190,7 +192,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             login,
             logout,
             updateUser,
-            fetchUserProfile,
+            // fetchUserProfile,
             hasPermission,
           }}
       >

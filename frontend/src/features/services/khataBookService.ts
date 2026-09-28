@@ -1,4 +1,5 @@
 import {apiService} from "@/infrastructure/utils/ApiService";
+import {PermissionResponse} from "@/core/auth/types";
 
 // Use relative URLs to work with Vite proxy
 const API_URL = '/api';
@@ -17,6 +18,31 @@ export interface UserBasedAllMember {
   createdAt: string;
   updatedAt: string;
 
+}
+
+
+export interface UserInfo {
+  id: number;
+  userId: string;
+  userName: string;
+  email: string;
+  enabled: string;
+  imagePath: string;
+  subscriptionType: string;
+  subscriptionStartDate: string;
+  subscriptionEndDate: string;
+  isSubscriptionActive: boolean;
+  hasUsedTrial: boolean;
+  permissionResponse?: PermissionResponse | PermissionResponse[];
+  subscriptionStatus: string;
+  permission: string[];
+  role: string;
+}
+
+export interface TokenFlushResponse {
+  token: string;
+  message: string;
+  userInfo: UserInfo;
 }
 
 
@@ -140,22 +166,30 @@ export async function createKhataBook(formData: FormData) {
   }
 }
 
-export async function switchKhataBook(khataBookId: number) {
+export async function switchKhataBook(memberId: number) {
   try {
-    const response = await fetch(`${API_URL}/KhataBook/switch/${khataBookId}`, {
-      method: 'POST',
-      headers: {
-        ...getAuthHeaders(),
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `HTTP ${response.status}: ${response.statusText}`);
+    const res= await apiService.get<RestResponse<TokenFlushResponse>>(
+        'api/v1/user/flush-token/'+ memberId,
+        {
+          headers:{
+            ...getAuthHeaders()
+          },
+        }
+    );
+    if(res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+      // toast("Failed to create KhataBook")
+      throw  Error("Failed to flush token ")
     }
 
-    return await response.json();
+    const newToken = res?.response?.data?.token;
+
+    if (newToken) {
+      // Remove old token and store the new token
+      localStorage.removeItem('authToken');
+      localStorage.setItem('authToken', newToken);
+    }
+
+    return res?.response?.data;
   } catch (error) {
     console.error('Error switching KhataBook:', error);
     throw error;

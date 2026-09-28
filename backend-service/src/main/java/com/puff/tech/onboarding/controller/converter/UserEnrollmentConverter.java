@@ -26,22 +26,23 @@ public class UserEnrollmentConverter {
     }
 
 
-    public static UserRegistrationUcRequest toUcRequest(UserRegistrationReqPayload payload, boolean isExternalOnboarding, boolean  isSelfOrgOnboarded) {
-        return new UserRegistrationUcRequest(
-                payload.userName(),
-                payload.phoneNumber(),
-                payload.gmail(),
-                payload.organizationName(),
-                payload.panVatNumber(),
-                payload.branch(),
-                payload.organizationType(),
-                payload.organizationAddress(),
-                payload.notes(),
-                payload.password(),
-                payload.gmail(),
-                payload.role(),
-                isExternalOnboarding,
-                isSelfOrgOnboarded
-        );
+    public static UserRegistrationUcRequest toUcRequest(UserRegistrationReqPayload payload, boolean isExternalOnboarding) {
+        return UserRegistrationUcRequest.builder()
+                .userName( payload.userName())
+                .phoneNumber(payload.phoneNumber())
+                .gmail(payload.gmail())
+                .organizationName(payload.organizationName())
+                .panVatNumber(payload.panVatNumber())
+                .branch(payload.branch())
+                .organizationType(payload.organizationType())
+                .organizationAddress(payload.organizationAddress())
+                .notes(payload.notes())
+                .password(payload.password())
+                .organizationEmail(payload.organizationEmail())
+                .organizationContactNumber(payload.organizationContactNumber())
+                .isExternalOnboarding(isExternalOnboarding)
+                .role(payload.role())
+                .userId(payload.gmail())
+                .build();
     }
 }

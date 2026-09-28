@@ -20,10 +20,7 @@ import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCase;
 import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseRequest;
 import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseResponse;
 import com.puff.tech.security.Secured;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
@@ -56,7 +53,7 @@ public class UserEnrollmentController {
 
     @Post("/register")
     public Mono<RestResponse<UserRegistrationUcResponse>> register(@Body UserRegistrationReqPayload payload) {
-        return userRegistrationUseCase.execute(UserEnrollmentConverter.toUcRequest(payload, true, false))
+        return userRegistrationUseCase.execute(UserEnrollmentConverter.toUcRequest(payload, true))
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
@@ -94,10 +91,10 @@ public class UserEnrollmentController {
     }
 
 
-    @Secured(roles = {"ADMIN", "Super User"})
-    @Get("flush-token")
-    public Mono<RestResponse<LoginUserUseCaseResponse>> flushToken(@Body FlushTokenUCRequest request) {
-        return flushTokenUC.execute(request)
+    @Secured(roles = {"ADMIN", "Super Admin"})
+    @Get("flush-token/{id}")
+    public Mono<RestResponse<LoginUserUseCaseResponse>> flushToken(@PathVariable Long id) {
+        return flushTokenUC.execute(new FlushTokenUCRequest(id))
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
