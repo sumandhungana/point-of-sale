@@ -91,7 +91,7 @@ public class FlushTokenUC implements MonoUC<FlushTokenUCRequest, LoginUserUseCas
                         .id(user.getId())
                         .userId(user.getUserId())
                         .userName(user.getUserName())
-                        .email(user.getGmail())
+                        .email(user.getEmail())
                         .memberId(memberId)
                         .organizationName(orgName)
                         .role(roleName)

@@ -27,7 +27,10 @@ ALTER TABLE member ALTER COLUMN updated_by DROP NOT NULL;
 
 -- Rename column
 ALTER TABLE member RENAME COLUMN member_id TO ref_member_id;
-
+ALTER TABLE user_info RENAME COLUMN gmail TO email;
+ALTER TABLE user_info
+    ADD CONSTRAINT uk_users_user_id UNIQUE (user_id),
+    ADD CONSTRAINT uk_users_email UNIQUE (email);
 -- Change column data type (using explicit casting)
 ALTER TABLE member ALTER COLUMN ref_member_id TYPE bigint USING ref_member_id::bigint;
 

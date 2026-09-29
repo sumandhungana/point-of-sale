@@ -23,7 +23,7 @@ public class UserInfoEntity {
     private String userId;
     private String password;
     private String phoneNumber;
-    private String gmail;
+    private String email;
     private Boolean enable = true;
     private String permission = "USER";
     private String role = "ADMIN";

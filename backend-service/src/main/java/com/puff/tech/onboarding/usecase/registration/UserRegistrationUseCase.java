@@ -106,7 +106,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
         user.setUserId(request.userId());
         user.setPassword(hashPassword(request.password()));
         user.setPhoneNumber(request.phoneNumber());
-        user.setGmail(request.gmail());
+        user.setEmail(request.gmail());
 
         // Safe extraction of permission ID to prevent NoSuchElementException
         if (roleEntity.getPermissions() != null && !roleEntity.getPermissions().isEmpty()) {
@@ -157,7 +157,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
     private UserRegistrationUcResponse mapToResponse(UserInfoEntity user, MemberEntity member) {
         return UserRegistrationUcResponse.success(
                 user.getId(),
-                user.getGmail(),
+                user.getEmail(),
                 user.getUserName(),
                 member.getOrganizationName(),
                 String.valueOf(member.getId())

@@ -9,18 +9,17 @@ import {
     // updateUserStatus, // Assume API service provides status/role update function
     User,
     Member,
-    RoleOption,
 } from '@/services/userService';
 import '../../../styles/UserManagement.css';
 import {useNavigate} from "react-router-dom";
-import {getRoles} from '@/services/roleService'
+import {getRoles, RoleResponse} from '@/services/roleService'
 
 type TabType = 'active' | 'onboarding';
 
 export const OrganizationManagement: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [members, setMembers] = useState<Member[]>([]);
-    const [roles, setRoles] = useState<RoleOption[]>([]);
+    const [roles, setRoles] = useState<RoleResponse[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<TabType>('active');
     const navigate = useNavigate();
@@ -130,7 +129,7 @@ export const OrganizationManagement: React.FC = () => {
     };
 
     const getRoleName = (roleId: string) => {
-        const foundRole = roles.find((r) => r.id === roleId);
+        const foundRole = roles.find((r) => r?.id ===Number(roleId));
         return foundRole ? foundRole.name : roleId ? `Role ${roleId}` : 'Not Assigned';
     };
 

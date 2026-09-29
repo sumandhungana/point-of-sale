@@ -4,13 +4,9 @@ import com.puff.tech.core.usecases.MonoUC;
 import com.puff.tech.core.utils.JwtUtils;
 import com.puff.tech.core.utils.SecurityUtils;
 import com.puff.tech.core.utils.JwtTokenInfo;
-import com.puff.tech.entity.RoleEntity;
-import com.puff.tech.entity.RolePermissionEntity;
 import com.puff.tech.onboarding.repository.*;
-import com.puff.tech.repository.RoleRepository;
 import com.puff.tech.security.UseCaseContext;
 import com.puff.tech.usermanagement.repository.UserPermissionEntity;
-import com.puff.tech.usermanagement.repository.UserPermissionRepository;
 import com.puff.tech.usermanagement.repository.UserRoleEntity;
 import com.puff.tech.usermanagement.repository.UserRoleRepository;
 import com.puff.tech.usermanagement.usecase.permissions.payload.GetPermissionsUCResponse;
@@ -94,7 +90,7 @@ public class LoginUserUseCase implements MonoUC<LoginUserUseCaseRequest,LoginUse
                         .id(user.getId())
                         .userId(user.getUserId())
                         .userName(user.getUserName())
-                        .email(user.getGmail())
+                        .email(user.getEmail())
                         .memberId(memberId)
                         .organizationName(orgName)
                         .role(roleName)
