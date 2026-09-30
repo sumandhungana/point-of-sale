@@ -41,7 +41,7 @@ public class MemberController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(roles = {"ADMIN", "Super Admin", "User"}, permissions = {"member:selected"})
+    @Secured(permissions = {"member:selected"})
     @Get("selected-member")
     public Mono<RestResponse<GetSelectedMemberUCResponse>> selectedMember() {
         return getSelectedMemberUC.execute(new GetSelectedMemberUCRequest())

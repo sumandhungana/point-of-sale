@@ -55,7 +55,7 @@ public class CustomerController {
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened while adding customer" +err.getLocalizedMessage())));
     }
 
-    @Secured(roles = {"Super Admin","ADMIN","USER"}, permissions = {"customer:view"})
+    @Secured(permissions = {"customer:list"})
     @Get("all-customers")
     public Mono<RestResponse<List<GetAllCustomerUseCaseResponse>>> getCustomers(){
         return getAllCustomerUseCase.execute(new GetCustomerUseCaseRequest())
@@ -83,7 +83,7 @@ public class CustomerController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened on controller: " +err.getLocalizedMessage())));
     }
 
-    @Secured(roles = {"ADMIN"}, permissions = {"customer:delete"})
+    @Secured(permissions = {"customer:delete"})
     @Delete("{id}")
     public Mono<RestResponse<DeleteCustomerUseCaseResponse>> delete(@PathVariable Integer id){
         var request = new DeleteCustomerUseCaseRequest(id);

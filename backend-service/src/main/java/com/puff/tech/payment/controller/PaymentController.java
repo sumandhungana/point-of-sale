@@ -25,7 +25,7 @@ public class PaymentController {
         this.getPaymentUC = getPaymentUC;
     }
 
-    @Secured(roles = {"Super Admin", "ADMIN", "User"})
+    @Secured(permissions = {"customer:payment", "supplier:payment"})
     @Post("add")
     Mono<RestResponse<AddPaymentUCResponse>> addPayment(@Body AddPaymentUCRequest request) {
         return addPaymentUC.execute(request)
@@ -33,7 +33,7 @@ public class PaymentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(roles = {"Super Admin", "ADMIN", "User"})
+    @Secured()
     @Post("list")
     Mono<RestResponse<List<GetPaymentUCResponse>>> getPayment(@Body GetPaymentUCRequest request) {
         return getPaymentUC.execute(request)

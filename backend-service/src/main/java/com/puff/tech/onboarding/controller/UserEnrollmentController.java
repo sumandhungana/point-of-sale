@@ -58,7 +58,7 @@ public class UserEnrollmentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(roles = {"Super Admin", "ADMIN"})
+    @Secured()
     @Post("/member-onboarding")
     public Mono<RestResponse<OwnMemberOnboardingUCResponse>> onboarding(@Body OwnMemberOnboardingUCRequest payload) {
         return ownMemberOnboardingUC.execute(payload)
@@ -66,7 +66,7 @@ public class UserEnrollmentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(roles = {"Super Admin"}, permissions = {"organization:view"})
+    @Secured(permissions = {"organization:view"})
     @Get("list")
     public Mono<RestResponse<List<GetUserUseCaseResponse>>> getUsers() {
         return getUserUseCase.execute(new GetUserUCRequest())
@@ -91,7 +91,7 @@ public class UserEnrollmentController {
     }
 
 
-    @Secured(roles = {"ADMIN", "Super Admin"})
+    @Secured()
     @Get("flush-token")
     public Mono<RestResponse<LoginUserUseCaseResponse>> flushToken(@QueryValue("memberId") Long memberId,
                                                                    @QueryValue("refMemberId") Long refMemberId) {

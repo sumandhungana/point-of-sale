@@ -11,9 +11,11 @@ public enum Module {
     CUSTOMER("customer", "Customer Management"),
     SUPPLIER("supplier", "Supplier Management"),
     RENTAL("rental","Rental Management"),
-    OWN_KHATA_BOOK("own_khataBook","KhataBook Management"),
+    OWN_KHATA_BOOK("ownKhataBook","KhataBook Management"),
     MEMBER("member", "Member Management"),
-    ORGANIZATION("organization", "Organization Management");
+    STAFF_MANAGEMENT("staffManagement", "Staff Management"),
+    ORGANIZATION("organization", "Organization Management"),
+    ROLE_PERMISSION_MANAGEMENT("roleAndPermissions", "Role And Permission Management");
 
     private final String code;
     private final String displayName;

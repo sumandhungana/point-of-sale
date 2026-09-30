@@ -19,12 +19,28 @@ public enum Permission {
     USER_FIND_ONE(Module.USER, "single"),
     USER_FIND_ALL(Module.USER, "list"),
 
+    // User Module Permissions
+    ROLE_PERMISSION_CREATE(Module.ROLE_PERMISSION_MANAGEMENT, "create"),
+    ROLE_PERMISSION_UPDATE(Module.ROLE_PERMISSION_MANAGEMENT, "update"),
+    ROLE_PERMISSION_DELETE(Module.ROLE_PERMISSION_MANAGEMENT, "delete"),
+    ROLE_PERMISSION_FIND_ONE(Module.ROLE_PERMISSION_MANAGEMENT, "single"),
+    ROLE_PERMISSION_FIND_ALL(Module.ROLE_PERMISSION_MANAGEMENT, "list"),
+
+    //Staff Module Permissions
+    STAFF_CREATE(Module.STAFF_MANAGEMENT, "create"),
+    STAFF_UPDATE(Module.STAFF_MANAGEMENT, "update"),
+    STAFF_DELETE(Module.STAFF_MANAGEMENT, "delete"),
+    STAFF_FIND_ONE(Module.STAFF_MANAGEMENT, "single"),
+    STAFF_FIND_ALL(Module.STAFF_MANAGEMENT, "list"),
+    STAFF_PAYMENT(Module.STAFF_MANAGEMENT, "payment"),
+
     // Customer Module Permissions
     CUSTOMER_CREATE(Module.CUSTOMER, "create"),
     CUSTOMER_UPDATE(Module.CUSTOMER, "update"),
     CUSTOMER_DELETE(Module.CUSTOMER, "delete"),
     CUSTOMER_FIND_ONE(Module.CUSTOMER, "single"),
     CUSTOMER_FIND_ALL(Module.CUSTOMER, "list"),
+    CUSTOMER_PAYMENT(Module.CUSTOMER, "payment"),
 
     //Supplier Module Permissions
     SUPPLIER_CREATE(Module.SUPPLIER, "create"),
@@ -32,11 +48,14 @@ public enum Permission {
     SUPPLIER_DELETE(Module.SUPPLIER, "delete"),
     SUPPLIER_FIND_ONE(Module.SUPPLIER, "single"),
     SUPPLIER_FIND_ALL(Module.SUPPLIER, "list"),
+    SUPPLIER_PAYMENT(Module.SUPPLIER, "payment"),
 
     //Own KhataBook Permissions
     OWN_KHATA_BOOK_ADD(Module.OWN_KHATA_BOOK, "add"),
     OWN_KHATA_BOOK_UPDATE(Module.OWN_KHATA_BOOK, "update"),
+    OWN_KHATA_BOOK_DELETE(Module.OWN_KHATA_BOOK, "delete"),
     OWN_KHATA_BOOK_VIEW(Module.OWN_KHATA_BOOK, "view"),
+    OWN_KHATA_BOOK_SWITCH(Module.OWN_KHATA_BOOK, "switch"),
 
     //Member Permissions
     MEMBER_SELECTED(Module.MEMBER,"selected" ),
