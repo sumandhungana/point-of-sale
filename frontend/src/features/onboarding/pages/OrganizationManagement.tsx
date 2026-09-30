@@ -10,7 +10,7 @@ import {
     User,
     Member,
 } from '@/services/userService';
-import '../../../styles/UserManagement.css';
+import '../../../styles/OrganizationManagement.css';
 import {useNavigate} from "react-router-dom";
 import {getRoles, RoleResponse} from '@/services/roleService'
 

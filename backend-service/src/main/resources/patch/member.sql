@@ -38,3 +38,6 @@ ALTER TABLE member ALTER COLUMN ref_member_id TYPE bigint USING ref_member_id::b
 ALTER TABLE member
     ADD COLUMN organization_contact_number VARCHAR(255),
     ADD COLUMN organization_email VARCHAR(255);
+
+
+alter table user_roles add column  role_order numeric ;

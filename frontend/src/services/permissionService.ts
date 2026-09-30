@@ -1,5 +1,6 @@
 
 import { apiService } from "@/infrastructure/utils/ApiService";
+import {toast} from "react-toastify";
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('authToken');
@@ -65,6 +66,11 @@ export async function addRole(payload: AddRoleRequest): Promise<RestResponse<{
       payload,
       { headers: getAuthHeaders() }
   );
+  debugger
+  if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
+    toast("Role Cannot Added");
+    throw new Error("Role Cannot Added");
+  }
   return res?.response;
 }
 export interface UpdateRoleRequest {

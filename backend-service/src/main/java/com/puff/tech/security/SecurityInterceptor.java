@@ -71,7 +71,7 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
         }
 
         // Fetch permissions from DB and validate reactively
-        Mono<Object> executionMono = securityDataService.fetchSecurityDetails(roleId, permissionIds, memberId)
+        Mono<Object> executionMono = securityDataService.fetchSecurityDetails(roleId, permissionIds, memberId, userId)
                 .switchIfEmpty(Mono.error(new HttpStatusException(HttpStatus.UNAUTHORIZED, "Security record not found")))
                 .flatMap(details -> {
                     if (!details.enabled()) {

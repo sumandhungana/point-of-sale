@@ -38,7 +38,6 @@ import { SMS } from './pages/SMS';
 import { AddSMS } from './pages/AddSMS';
 import { PaymentGateway } from './pages/PaymentGateway';
 import { AddPaymentGateway } from './pages/AddPaymentGateway';
-import { RoleAndPermission } from './pages/RoleAndPermission';
 import { Role } from './pages/Role';
 import { AddRole } from './pages/AddRole';
 import { Permission } from './pages/Permission';
@@ -71,9 +70,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Bills } from './pages/Bills';
 import BusinessSetting from './pages/BusinessSetting';
-import {RoleManagement} from "@/pages/RoleManagement";
+import {RoleManagement} from "@/features/roleAndPermissions/pages/RoleManagement";
 import SupplierProfile from "@/pages/SupplierProfile";
 import {AddOrganization} from "@/features/onboarding/components/AddOrganization";
+import UserManagement from "@/features/user/pages/UserManagement";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -614,14 +614,6 @@ const App: React.FC = () => {
             }
           />
           <Route
-            path="/role-and-permission"
-            element={
-              <PrivateRoute>
-                <RoleAndPermission />
-              </PrivateRoute>
-            }
-          />
-          <Route
             path="/role"
             element={
               <PrivateRoute>
@@ -670,13 +662,21 @@ const App: React.FC = () => {
             } 
           />
           <Route 
-            path="/user" 
+            path="/organization"
             element={
               <PrivateRoute>
                 <OrganizationManagement />
               </PrivateRoute>
             } 
           />
+              <Route
+                  path="/user-management"
+                  element={
+                      <PrivateRoute>
+                          <UserManagement />
+                      </PrivateRoute>
+                  }
+              />
           <Route 
             path="/add-user" 
             element={

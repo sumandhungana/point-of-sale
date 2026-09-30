@@ -35,6 +35,8 @@ public class UserRoleEntity {
 
     private String status; // ACTIVE, INACTIVE
 
+    private Integer roleOrder;
+
     @DateCreated
     private Instant createdAt;
 

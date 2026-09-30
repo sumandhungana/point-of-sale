@@ -38,10 +38,6 @@ export interface Member {
     name: string;
 }
 
-export interface RoleOption {
-    id: string;
-    name: string;
-}
 
 export interface AddUserPayload {
     userName: string;
@@ -87,88 +83,7 @@ export const addUser = async (payload: AddUserPayload): Promise<void> => {
         body: JSON.stringify(payload),
     });
 };
-// export async function fetchUsers() {
-//   const response =
-//     await fetch('/api/User', {
-//       method: 'GET',
-//       headers: {
-//         ...getAuthHeaders(),
-//       },
-//     });
-//
-//   if (!response.ok) {
-//     const errorText =
-//       await response.text();
-//
-//     throw new Error(
-//       errorText ||
-//       'Failed to fetch users'
-//     );
-//   }
-//
-//   const data = await response.json();
 
-  // --------------------------------------------------------
-  // TEMP FIX: backend (likely ASP.NET Core default) may return
-  // PascalCase field names (e.g. "ImagePath") while the rest of
-  // the frontend expects camelCase ("imagePath"). Normalize just
-  // the image field here so it isn't silently undefined.
-  //
-  // Remove this once the backend is configured to return
-  // camelCase JSON globally — in Program.cs:
-  //
-  // builder.Services.AddControllers()
-  //     .AddJsonOptions(options =>
-  //     {
-  //         options.JsonSerializerOptions.PropertyNamingPolicy =
-  //             JsonNamingPolicy.CamelCase;
-  //     });
-  // --------------------------------------------------------
-//   return Array.isArray(data)
-//     ? data.map((u: any) => ({
-//         ...u,
-//         imagePath: u.imagePath ?? u.ImagePath ?? '',
-//       }))
-//     : data;
-// }
-
-// ============================================================
-// GET USER BY ID
-// ============================================================
-
-export async function fetchUserById(
-  id: number
-) {
-  const response =
-    await fetch(
-      `/api/User/${id}`,
-      {
-        method: 'GET',
-        headers: {
-          ...getAuthHeaders(),
-        },
-      }
-    );
-
-  if (!response.ok) {
-    const errorText =
-      await response.text();
-
-    throw new Error(
-      errorText ||
-      'Failed to fetch user'
-    );
-  }
-
-  const data = await response.json();
-
-  // Same normalization as fetchUsers — remove once backend
-  // returns camelCase JSON globally.
-  return {
-    ...data,
-    imagePath: data.imagePath ?? data.ImagePath ?? '',
-  };
-}
 
 // ============================================================
 // CREATE USER

@@ -19,4 +19,6 @@ public interface UserMemberRepository  extends ReactiveStreamsCrudRepository<Use
     @Join(value = "user", type = Join.Type.FETCH)
     @Join(value = "member", type = Join.Type.FETCH)
     Mono<UserMemberEntity> findByUserIdAndMemberId(Long userId, Long memberId);
+
+    Mono<Boolean> existsByUserIdAndMemberId(Long userId, Long memberId);
 }
