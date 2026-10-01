@@ -15,4 +15,6 @@ public interface MemberRepository  extends ReactiveStreamsCrudRepository<MemberE
     Mono<Long> getNextMemberSequence();
 
     Flux<MemberEntity> findByIdIn(List<Long> id);
+
+    Flux<MemberEntity> findByRefMemberIdOrderByCreatedAtDesc(Long refMemberId);
 }

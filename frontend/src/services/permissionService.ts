@@ -83,7 +83,7 @@ export interface UpdateRoleRequest {
 // Update existing role
 export async function updateRole(payload: UpdateRoleRequest): Promise<RestResponse<{ message: string }> | undefined> {
   const res = await apiService.put<RestResponse<{ message: string }>>(
-      `api/v1/role/update/${payload.id}`,
+      `api/v1/role/${payload.id}`,
       payload,
       { headers: getAuthHeaders() }
   );

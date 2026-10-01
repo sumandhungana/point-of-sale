@@ -20,6 +20,7 @@ import com.puff.tech.staffmanagement.usecase.staff.update.UpdateStaffUseCase;
 import com.puff.tech.staffmanagement.usecase.staff.update.UpdateStaffUseCaseRequest;
 import com.puff.tech.staffmanagement.usecase.staff.update.UpdateStaffUseCaseResponse;
 import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUseCaseResponse;
+import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,22 +36,19 @@ public class StaffController {
     private final GetAttendanceUseCase getAttendanceUseCase;
     private final UpdateStaffUseCase updateStaffUseCase;
     private final DeleteStaffUseCase deleteStaffUseCase;
-    private final GetStaffSalaryUseCase getStaffSalaryUseCase;
 
     public StaffController(CreateStaffUseCase createStaffUseCase,
                            GetStaffUseCase getStaffUseCase,
                            GetOneStaffUseCase getOneStaffUseCase,
                            GetAttendanceUseCase getAttendanceUseCase,
                            UpdateStaffUseCase updateStaffUseCase,
-                           DeleteStaffUseCase deleteStaffUseCase,
-                           GetStaffSalaryUseCase getStaffSalaryUseCase) {
+                           DeleteStaffUseCase deleteStaffUseCase ) {
         this.createStaffUseCase = createStaffUseCase;
         this.getStaffUseCase = getStaffUseCase;
         this.getOneStaffUseCase = getOneStaffUseCase;
         this.getAttendanceUseCase = getAttendanceUseCase;
         this.updateStaffUseCase = updateStaffUseCase;
         this.deleteStaffUseCase = deleteStaffUseCase;
-        this.getStaffSalaryUseCase = getStaffSalaryUseCase;
     }
 
     @Secured
@@ -61,7 +59,7 @@ public class StaffController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller " +err.getLocalizedMessage())));
     }
 
-    @Secured
+    @Secured(permissions = {Permission.STAFF_FIND_ALL})
     @Get("/all-staffs")
     public Mono<RestResponse<List<GetStaffUseCaseResponse>>> get(){
         return getStaffUseCase.execute(new GetStaffUCRequest())
@@ -84,6 +82,7 @@ public class StaffController {
                 .onErrorResume(err-> Flux.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
     }
 
+    @Secured(permissions = {Permission.STAFF_FIND_ONE})
     @Get("{id}")
     public Mono<RestResponse<GetStaffUseCaseResponse>> getOne(@PathVariable Integer id){
         var request= new GetOneStaffUseCaseRequest(id);
@@ -92,6 +91,7 @@ public class StaffController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
     }
 
+    @Secured(permissions = {Permission.STAFF_UPDATE})
     @Put("{id}")
     public Mono<RestResponse<UpdateStaffUseCaseResponse>> update(@Body UpdateStaffUseCaseRequest request){
         return updateStaffUseCase.execute(request)
@@ -99,6 +99,7 @@ public class StaffController {
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
     }
 
+    @Secured(permissions = {Permission.STAFF_DELETE})
     @Delete("{id}")
     public Mono<RestResponse<DeleteStaffUseCaseResponse>> delete(@PathVariable Integer id){
         var request= new DeleteStaffUseCaseRequest(id);

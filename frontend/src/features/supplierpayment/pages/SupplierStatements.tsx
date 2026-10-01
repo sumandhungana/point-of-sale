@@ -217,11 +217,11 @@ export const SupplierStatements: React.FC = () => {
                     <div className="supplier-statements-profile-header-grid">
                         <div className="supplier-statements-header-left">
                             <button
-                                className="supplier-statements-back-button"
-                                onClick={handleBack}
+                                className="btn-base btn-primary"
+                                onClick={handleCall}
                             >
-                                <i className="bi bi-arrow-left"></i>
-                                Back
+                                <i className="bi bi-telephone"></i>
+                                Call
                             </button>
                         </div>
 
@@ -270,12 +270,27 @@ export const SupplierStatements: React.FC = () => {
 
                         <div className="supplier-statements-header-right">
                             <button
-                                className="btn-base btn-primary"
-                                onClick={handleCall}
+                                type="button"
+                                className="supplier-statements-close-button"
+                                onClick={handleBack} /* Replace with your close/back function */
+                                aria-label="Close"
                             >
-                                <i className="bi bi-telephone"></i>
-                                Call
+                                {/* SVG cross ensures icon shows up even without Font Awesome */}
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
                             </button>
+
                         </div>
                     </div>
 

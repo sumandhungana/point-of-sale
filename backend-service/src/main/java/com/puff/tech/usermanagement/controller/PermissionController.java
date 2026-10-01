@@ -2,6 +2,7 @@ package com.puff.tech.usermanagement.controller;
 
 import com.puff.tech.core.responses.RestResponse;
 import com.puff.tech.security.Secured;
+import com.puff.tech.usermanagement.enums.Permission;
 import com.puff.tech.usermanagement.usecase.permissions.GetPermissionsUC;
 import com.puff.tech.usermanagement.usecase.permissions.payload.GetPermissionsUCRequest;
 import com.puff.tech.usermanagement.usecase.permissions.payload.GetPermissionsUCResponse;
@@ -20,7 +21,7 @@ public class PermissionController {
         this.getPermissionsUC = getPermissionsUC;
     }
 
-    @Secured
+    @Secured(permissions = {Permission.ROLE_PERMISSION_FIND_ALL})
     @Get("/list")
     public Mono<RestResponse<List<GetPermissionsUCResponse>>> getPermissions() {
         return getPermissionsUC.execute(new GetPermissionsUCRequest())

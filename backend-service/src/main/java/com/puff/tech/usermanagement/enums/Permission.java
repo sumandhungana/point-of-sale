@@ -12,6 +12,8 @@ public enum Permission {
     DASHBOARD_CUSTOMER_VIEW(Module.DASHBOARD, "customer:view"),
     DASHBOARD_SUPPLIER_VIEW(Module.DASHBOARD, "supplier:view"),
 
+    SYSTEM_METRICS(Module.SYSTEM_METRICS, "view"),
+
     // User Module Permissions
     USER_CREATE(Module.USER, "create"),
     USER_UPDATE(Module.USER, "update"),
@@ -51,20 +53,20 @@ public enum Permission {
     SUPPLIER_PAYMENT(Module.SUPPLIER, "payment"),
 
     //Own KhataBook Permissions
-    OWN_KHATA_BOOK_ADD(Module.OWN_KHATA_BOOK, "add"),
+    OWN_KHATA_BOOK_ONBOARDING(Module.OWN_KHATA_BOOK, "onboarding"),
     OWN_KHATA_BOOK_UPDATE(Module.OWN_KHATA_BOOK, "update"),
     OWN_KHATA_BOOK_DELETE(Module.OWN_KHATA_BOOK, "delete"),
     OWN_KHATA_BOOK_VIEW(Module.OWN_KHATA_BOOK, "view"),
     OWN_KHATA_BOOK_SWITCH(Module.OWN_KHATA_BOOK, "switch"),
-
-    //Member Permissions
-    MEMBER_SELECTED(Module.MEMBER,"selected" ),
+    OWN_KHATA_BOOK_ALL_MEMBER(Module.OWN_KHATA_BOOK, "all:member"),
 
     //Organization Permissions
-    ORGANIZATION_USER_VIEW(Module.ORGANIZATION,"view"),
-    ORGANIZATION_USER_ADD(Module.ORGANIZATION, "add"),
-    ORGANIZATION_USER_ACTIVE(Module.ORGANIZATION,"user:active"),
-    ORGANIZATION_USER_ROLE_CHANGE(Module.ORGANIZATION, "user:module_change");
+    ORGANIZATION_List(Module.ORGANIZATION,"list"),
+    ORGANIZATION_SINGLE(Module.ORGANIZATION, "single"),
+    ORGANIZATION_REGISTRATION(Module.ORGANIZATION, "registration"),
+    ORGANIZATION_ACTIVE(Module.ORGANIZATION,"user:active"),
+    ORGANIZATION_SELECTED(Module.ORGANIZATION,"selected" ),
+    ORGANIZATION_ROLE_CHANGE(Module.ORGANIZATION, "user:module_change");
 
     private final Module module;
     private final String action;

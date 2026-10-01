@@ -347,25 +347,6 @@ export const CustomerStatements = () => {
                     <div className="customer-statements-profile-header-grid">
                         <div className="customer-statements-header-left">
                             <button
-                                className="customer-statements-back-button"
-                                onClick={handleBack}
-                                aria-label="Go back to customers"
-                            >
-                                <i className="bi bi-arrow-left"></i>
-                                Back
-                            </button>
-                        </div>
-                        <div className="customer-statements-header-center">
-                            <div
-                                className="customer-statements-profile-image-container"
-                                onClick={handleProfileClick}
-                                title="View customer profile"
-                            >
-                                <CustomerAvatar name={customerData.name} imageSrc={resolvedImage} />
-                            </div>
-                        </div>
-                        <div className="customer-statements-header-right">
-                            <button
                                 className="btn-base btn-primary"
                                 onClick={() => navigate(`/parties/customers/deposit/${activeId}`)}
                                 aria-label="Make a deposit"
@@ -383,6 +364,49 @@ export const CustomerStatements = () => {
                                 <i className="bi bi-telephone"></i>
                                 Call
                             </button>
+
+                        </div>
+                        <div className="customer-statements-header-center">
+                            <div
+                                className="customer-statements-profile-image-container"
+                                onClick={handleProfileClick}
+                                title="View customer profile"
+                            >
+                                <CustomerAvatar name={customerData.name} imageSrc={resolvedImage} />
+                            </div>
+                        </div>
+                        <div className="customer-statements-header-right">
+                            {/*<button*/}
+                            {/*    className="customer-statements-back-button"*/}
+                            {/*    onClick={handleBack}*/}
+                            {/*    aria-label="Go back to customers"*/}
+                            {/*>*/}
+                            {/*    <i className="bi bi-arrow-left"></i>*/}
+                            {/*    Back*/}
+                            {/*</button>*/}
+                            <button
+                                type="button"
+                                className="customer-statements-close-button"
+                                onClick={handleBack} /* Replace with your close/back function */
+                                aria-label="Close"
+                            >
+                                {/* SVG cross ensures icon shows up even without Font Awesome */}
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                            </button>
+
+
                         </div>
                     </div>
                     <div

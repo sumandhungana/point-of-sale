@@ -20,11 +20,14 @@ import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCase;
 import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseRequest;
 import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseResponse;
 import com.puff.tech.security.Secured;
+import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+
+
 
 
 @Controller("/user")
@@ -58,7 +61,7 @@ public class UserEnrollmentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
-    @Secured()
+    @Secured(permissions = {Permission.OWN_KHATA_BOOK_ONBOARDING})
     @Post("/member-onboarding")
     public Mono<RestResponse<OwnMemberOnboardingUCResponse>> onboarding(@Body OwnMemberOnboardingUCRequest payload) {
         return ownMemberOnboardingUC.execute(payload)
@@ -66,7 +69,7 @@ public class UserEnrollmentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {"organization:view"})
+    @Secured(permissions = {Permission.USER_FIND_ALL})
     @Get("list")
     public Mono<RestResponse<List<GetUserUseCaseResponse>>> getUsers() {
         return getUserUseCase.execute(new GetUserUCRequest())
@@ -82,7 +85,7 @@ public class UserEnrollmentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
 
-    @Secured
+    @Secured()
     @Post("/logout")
     public Mono<RestResponse<LogoutUserUseCaseResponse>> logout() {
         return logoutUserUseCase.execute(new LogoutUserUseCaseRequest())
@@ -91,7 +94,7 @@ public class UserEnrollmentController {
     }
 
 
-    @Secured()
+    @Secured(permissions = {Permission.OWN_KHATA_BOOK_SWITCH})
     @Get("flush-token")
     public Mono<RestResponse<LoginUserUseCaseResponse>> flushToken(@QueryValue("memberId") Long memberId,
                                                                    @QueryValue("refMemberId") Long refMemberId) {

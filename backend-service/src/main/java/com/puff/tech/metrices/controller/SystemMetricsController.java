@@ -5,6 +5,7 @@ import com.puff.tech.metrices.usecase.SystemMetricsUC;
 import com.puff.tech.metrices.usecase.SystemMetricsUCRequest;
 import com.puff.tech.metrices.usecase.SystemMetricsUCResponse;
 import com.puff.tech.security.Secured;
+import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Get;
 import reactor.core.publisher.Mono;
@@ -18,7 +19,7 @@ public class SystemMetricsController {
         this.systemMetricsUC = systemMetricsUC;
     }
 
-    @Secured
+    @Secured(permissions = {Permission.SYSTEM_METRICS})
     @Get("system-monitor")
     public Mono<RestResponse<SystemMetricsUCResponse>> metrics() {
         return systemMetricsUC.execute(new SystemMetricsUCRequest())

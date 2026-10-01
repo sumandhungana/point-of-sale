@@ -2,6 +2,7 @@ package com.puff.tech.security;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.aop.MethodInterceptor;
 import io.micronaut.aop.MethodInvocationContext;
 import io.micronaut.core.annotation.AnnotationValue;
@@ -17,6 +18,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Singleton
 public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
@@ -41,8 +43,10 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
         }
 
         String[] requiredRoles = securedAnnotation.stringValues("roles");
-        String[] requiredPermissions = securedAnnotation.stringValues("permissions");
-
+// Extract enum values using enumValues() and map them to their string value
+        Set<String> requiredPermissions = Arrays.stream(securedAnnotation.enumValues("permissions", Permission.class))
+                .map(Permission::getValue)
+                .collect(Collectors.toSet());
         Optional<HttpRequest<Object>> requestOpt = ServerRequestContext.currentRequest();
         if (requestOpt.isEmpty()) {
             return handleSecurityFailure(context, HttpStatus.UNAUTHORIZED, "No request context");
@@ -79,12 +83,12 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
                     }
 
                     // Validate Roles
-                    if (requiredRoles.length > 0 && lacksAccess(Set.of(details.roleName()), requiredRoles)) {
+                    if (requiredRoles.length > 0 && lacksAccess(details.roleName() != null ? Set.of(details.roleName()) : Set.of(), Arrays.asList(requiredRoles))) {
                         return Mono.error(new HttpStatusException(HttpStatus.FORBIDDEN, "Insufficient role privileges"));
                     }
 
                     // Validate Permissions
-                    if (requiredPermissions.length > 0 && lacksAccess(details.permissions(), requiredPermissions)) {
+                    if (!requiredPermissions.isEmpty() && lacksAccess(details.permissions(), requiredPermissions)) {
                         return Mono.error(new HttpStatusException(HttpStatus.FORBIDDEN, "Insufficient permission privileges"));
                     }
 
@@ -118,14 +122,16 @@ public class SecurityInterceptor implements MethodInterceptor<Object, Object> {
         }
         return false;
     }
-    private boolean lacksAccess(Collection<String> userAuthorities, String[] requiredAuthorities) {
-        if (userAuthorities == null || userAuthorities.isEmpty()) return true;
-        for (String required : requiredAuthorities) {
-            if (userAuthorities.contains(required)) {
-                return false; // User has access
-            }
+    private boolean lacksAccess(Collection<String> userAuthorities, Collection<String> requiredAuthorities) {
+        if (requiredAuthorities == null || requiredAuthorities.isEmpty()) {
+            return false; // No requirements means access granted
         }
-        return true; // User lacks all required authorities
+        if (userAuthorities == null || userAuthorities.isEmpty()) {
+            return true; // Requirements exist, but user has no authorities -> access denied
+        }
+
+        // Returns true if user HAS NONE of the required authorities
+        return userAuthorities.stream().noneMatch(requiredAuthorities::contains);
     }
 
     private Object adaptExecutionToReturnType(MethodInvocationContext<Object, Object> context, Mono<Object> executionMono) {

@@ -1,8 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
-import { createSupplier, CreateSupplierRequest } from '../features/services/supplierService';
+import { createSupplier, CreateSupplierRequest } from '@/features/services/supplierService';
 import '../styles/AddSupplier.css';
 
 export const AddSupplier = () => {
@@ -85,7 +85,7 @@ export const AddSupplier = () => {
                 ...formData,
                 name: formData.name.trim(),
                 contactPerson: formData.contactPerson.trim(),
-                profileImage: formData.profileImage || null,
+                profileImage: formData.profileImage || '',
             };
 
             await createSupplier(payload);

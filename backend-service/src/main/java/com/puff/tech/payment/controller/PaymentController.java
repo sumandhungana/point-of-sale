@@ -8,6 +8,7 @@ import com.puff.tech.payment.usecase.get.GetPaymentUC;
 import com.puff.tech.payment.usecase.get.GetPaymentUCRequest;
 import com.puff.tech.payment.usecase.get.GetPaymentUCResponse;
 import com.puff.tech.security.Secured;
+import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
 import io.micronaut.http.annotation.Post;
@@ -25,7 +26,7 @@ public class PaymentController {
         this.getPaymentUC = getPaymentUC;
     }
 
-    @Secured(permissions = {"customer:payment", "supplier:payment"})
+    @Secured(permissions = {Permission.CUSTOMER_PAYMENT, Permission.SUPPLIER_PAYMENT, Permission.STAFF_PAYMENT})
     @Post("add")
     Mono<RestResponse<AddPaymentUCResponse>> addPayment(@Body AddPaymentUCRequest request) {
         return addPaymentUC.execute(request)
@@ -33,7 +34,7 @@ public class PaymentController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
 
-    @Secured()
+    @Secured(permissions = {Permission.CUSTOMER_PAYMENT, Permission.SUPPLIER_PAYMENT, Permission.STAFF_PAYMENT})
     @Post("list")
     Mono<RestResponse<List<GetPaymentUCResponse>>> getPayment(@Body GetPaymentUCRequest request) {
         return getPaymentUC.execute(request)

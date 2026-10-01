@@ -1,4 +1,6 @@
 import {apiService} from "@/infrastructure/utils/ApiService";
+import {toast} from "react-toastify";
+import error = toast.error;
 
 export interface CreateOrganization{
     userName: string;
@@ -14,6 +16,23 @@ export interface CreateOrganization{
     organizationType: string;
     notes: string;
     role: string;
+}
+
+export interface GetAllMember{
+    id:number;
+    referenceMemberId: number;
+    organizationName: string;
+    panVatNumber: string;
+    organizationType: string;
+    branch: string;
+    organizationAddress: string;
+    organizationEmail: string;
+    organizationContactNumber: string;
+    notes: string;
+    createdAt: string;
+    createdBy: string;
+    updatedAt: string;
+    updatedBy: string;
 }
 
 
@@ -48,6 +67,33 @@ export async function createOrganization(formData: CreateOrganization): Promise<
         return  res.response.data;
     }
     throw  new Error("Unable to Register Organization")
+};
+
+
+
+
+export async function getAllOrganization(): Promise<GetAllMember[]>{
+    try{
+        const res= await apiService.get<RestResponse<GetAllMember[]>>(
+            'api/v1/member/organization-list',
+
+            {
+                headers: {
+                    ...getAuthHeaders(),
+                },
+            }
+        );
+
+        if(res.response?.code== -1 || res.response?.message!= 'SUCCESS' ){
+            console.error('Failed to fetch organizations:', res.error);
+            throw error("Failed to fetch organization");
+        }
+        return res?.response?.data;
+    } catch (error) {
+        console.error('Error fetching KhataBooks:', error);
+        // Return empty array if API call fails
+        return [];
+    }
 }
 
 function getAuthHeaders(): Record<string, string> {

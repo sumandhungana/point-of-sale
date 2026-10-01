@@ -7,7 +7,7 @@ interface RestResponse<T>{
 
 }
 export interface CreateSupplierRequest{
-    profileImage?: string | null |'';
+    profileImage?: string;
     name: string;
     phone:string;
     email:string;
@@ -65,6 +65,10 @@ export async function createSupplier(formData: CreateSupplierRequest): Promise <
         }
 
     );
+    if(res?.response?.code== -1 || res?.response?.message!= 'SUCCESS'){
+        throw new Error(res.error || "failed to create supplier");
+
+    }
     if(res.error){
         throw new Error(res.error || "failed to create supplier");
     }else{

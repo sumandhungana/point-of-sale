@@ -14,9 +14,9 @@ import com.puff.tech.customermanagement.usecase.update.UpdateCustomerUseCase;
 import com.puff.tech.customermanagement.usecase.update.UpdateCustomerUseCaseRequest;
 import com.puff.tech.customermanagement.usecase.update.UpdateCustomerUseCaseResponse;
 import com.puff.tech.security.Secured;
+import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -26,7 +26,6 @@ public class CustomerController {
 
     private final AddCustomerUseCase addCustomerUseCase;
     private final GetAllCustomerUseCase getAllCustomerUseCase;
-//    private final GetAllCustomersUseCase getSuppliersUseCase;
     private final DeleteCustomerUseCase deleteCustomerUseCase;
     private final UpdateCustomerUseCase updateCustomerUseCase;
     private final GetSingleCustomerUseCase getSingleCustomerUseCase;
@@ -47,7 +46,7 @@ public class CustomerController {
         this.getSingleCustomerUseCase= getSingleCustomerUseCase;
     }
 
-    @Secured
+    @Secured(permissions = {Permission.CUSTOMER_CREATE})
     @Post()
     public Mono<RestResponse<AddCustomerUseCaseResponse>> post(@Body AddCustomerUseCaseRequest request){
         return addCustomerUseCase.execute(request)
@@ -55,7 +54,7 @@ public class CustomerController {
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened while adding customer" +err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {"customer:list"})
+    @Secured(permissions = {Permission.CUSTOMER_FIND_ALL})
     @Get("all-customers")
     public Mono<RestResponse<List<GetAllCustomerUseCaseResponse>>> getCustomers(){
         return getAllCustomerUseCase.execute(new GetCustomerUseCaseRequest())
@@ -64,7 +63,7 @@ public class CustomerController {
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 
-    @Secured
+    @Secured(permissions = {Permission.CUSTOMER_FIND_ONE})
     @Get("{id}")
     public Mono<RestResponse<GetAllCustomerUseCaseResponse>> getSingleCustomer(@PathVariable("id") Integer id){
         GetSingleCustomerUCRequest request= new GetSingleCustomerUCRequest(id);
@@ -73,17 +72,17 @@ public class CustomerController {
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened" +err.getLocalizedMessage())));
     }
 
-    @Secured
+    @Secured(permissions = {Permission.SUPPLIER_FIND_ALL})
     @Get("suppliers")
     public Mono<RestResponse<List<GetAllCustomerUseCaseResponse>>> getSuppliers(){
-        System.out.println("Calling suppliers from customets");
+        System.out.println("Calling suppliers from customers");
         return getSuppliersUseCase.execute(new GetSupplierUCRequest())
                 .collectList()
                 .map(RestResponse::success)
                 .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected happened on controller: " +err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {"customer:delete"})
+    @Secured(permissions = {Permission.CUSTOMER_DELETE})
     @Delete("{id}")
     public Mono<RestResponse<DeleteCustomerUseCaseResponse>> delete(@PathVariable Integer id){
         var request = new DeleteCustomerUseCaseRequest(id);
@@ -92,7 +91,7 @@ public class CustomerController {
                 .onErrorResume(err->Mono.just(RestResponse.error("Unexpected happened: " +err.getLocalizedMessage())));
     }
 
-    @Secured
+    @Secured(permissions = {Permission.CUSTOMER_UPDATE})
     @Put()
     public Mono<RestResponse<UpdateCustomerUseCaseResponse>> update(@Body UpdateCustomerUseCaseRequest request){
         return updateCustomerUseCase.execute(request)

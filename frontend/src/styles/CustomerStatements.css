@@ -59,61 +59,106 @@
 }
 
 .customer-statements-header-left { 
-  display: flex !important; 
-  justify-content: flex-start !important; 
+  display: flex !important;
+  justify-content: flex-start!important;
+  gap: 0.75rem !important;
 }
 
 .customer-statements-header-center { 
   display: flex !important; 
-  justify-content: center !important; 
+  justify-content: center !important;
  
 }
 
-.customer-statements-header-right { 
-  display: flex !important; 
-  justify-content: flex-end !important; 
-  gap: 0.75rem !important; 
+/*.customer-statements-header-right {*/
+/*  display: flex !important; */
+/*  justify-content: flex-end !important;*/
+
+/*}*/
+
+ /*Back Button - Styled to match supplier back button */
+/*.customer-statements-back-button {*/
+/*  padding: 1rem 2rem !important;*/
+/*  background: linear-gradient(135deg, #6c757d, #495057) !important;*/
+/*  color: #fff !important;*/
+/*  border: none !important;*/
+/*  border-radius: 12px !important;*/
+/*  font-size: 0.875rem !important;*/
+/*  font-weight: 600 !important;*/
+/*  cursor: pointer !important;*/
+/*  display: inline-flex !important;*/
+/*  align-items: center !important;*/
+/*  gap: 0.5rem !important;*/
+/*  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;*/
+/*  position: relative !important;*/
+/*  overflow: hidden !important;*/
+/*  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;*/
+/*}*/
+
+/*.customer-statements-back-button::before {*/
+/*  content: '' !important;*/
+/*  position: absolute !important;*/
+/*  top: 0 !important;*/
+/*  left: -100% !important;*/
+/*  width: 100% !important;*/
+/*  height: 100% !important;*/
+/*  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;*/
+/*  transition: left 0.5s !important;*/
+/*}*/
+
+/*.customer-statements-back-button:hover::before {*/
+/*  left: 100% !important;*/
+/*}*/
+
+/*.customer-statements-back-button:hover {*/
+/*  background: linear-gradient(135deg, #495057, #6c757d) !important;*/
+
+/*  transform: translateY(-2px) !important;*/
+/*  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;*/
+/*}*/
+
+/* Container column alignment */
+.customer-statements-header-right {
+  display: flex !important;
+  justify-content: flex-end !important;
+  align-items: flex-start !important;
+  z-index: 10 !important; /* Ensures button stays clickable above overlays */
 }
 
-/* Back Button - Styled to match supplier back button */
-.customer-statements-back-button {
-  padding: 1rem 2rem !important;
-  background: linear-gradient(135deg, #6c757d, #495057) !important;
-  color: #fff !important;
+/* Close / Cross Button Style */
+.customer-statements-close-button {
+  width: 40px !important;
+  height: 40px !important;
+  padding: 0 !important;
+  background: #f1f3f5 !important;
+  color: #495057 !important;
   border: none !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
+  border-radius: 50% !important;
   cursor: pointer !important;
   display: inline-flex !important;
   align-items: center !important;
-  gap: 0.5rem !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  pointer-events: auto !important; /* Guarantees clickability */
 }
 
-.customer-statements-back-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-  transition: left 0.5s !important;
+.customer-statements-close-button:hover {
+  background: #fee2e2 !important;
+  color: #dc3545 !important;
+  transform: scale(1.08) !important;
 }
 
-.customer-statements-back-button:hover::before {
-  left: 100% !important;
+.customer-statements-close-button:active {
+  transform: scale(0.95) !important;
 }
 
-.customer-statements-back-button:hover {
-  background: linear-gradient(135deg, #495057, #6c757d) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+/* Ensure SVG icon inherits styling correctly */
+.customer-statements-close-button svg {
+  pointer-events: none; /* Passes click directly to button element */
 }
+
+
 
 /* Profile Image Container */
 .customer-statements-profile-image-container {

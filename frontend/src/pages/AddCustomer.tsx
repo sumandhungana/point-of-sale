@@ -1,9 +1,8 @@
 import React, { useState, useRef } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
-import { createCustomer } from '../features/services/customerService';
-import { CreateCustomerRequest } from '../types/customer';
+import { createCustomer , CreateCustomerRequest} from '@/features/services/customerService';
 import '../styles/AddCustomer.css';
 
 export const AddCustomer = () => {
