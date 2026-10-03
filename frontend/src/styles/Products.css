@@ -1,0 +1,306 @@
+/* ==========================================================================
+   Items / Inventory Management CSS
+   Matched precisely with User Management Module layout & structure
+   ========================================================================== */
+
+/* Page Wrapper & Layout Structure */
+.items-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+    box-sizing: border-box;
+
+    /* ADD THIS: Pushes content below fixed top navbar */
+    margin-top: 70px;
+    padding: 24px 28px;
+}
+
+.items-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Page Header Card Container */
+.items-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #ffffff;
+    padding: 20px 24px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.items-page-header h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1d20;
+}
+
+.items-page-header p {
+    margin: 4px 0 0 0;
+    font-size: 14px;
+    color: #6c757d;
+}
+
+/* Search Bar & Controls Row */
+.items-search-container {
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.items-search-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.items-search-input {
+    width: 100%;
+    padding: 9px 12px 9px 36px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #ffffff;
+    transition: border-color 0.15s ease-in-out;
+}
+
+.items-search-input:focus {
+    border-color: #0066cc;
+}
+
+.items-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #adb5bd;
+    font-size: 14px;
+}
+
+.items-filter-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.items-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #495057;
+}
+
+.items-select {
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-size: 13px;
+    background-color: #ffffff;
+    outline: none;
+    color: #212529;
+}
+
+.items-select:focus {
+    border-color: #0066cc;
+}
+
+/* Stat Summary Cards Grid */
+.items-info-card {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.items-info-section {
+    background: #ffffff;
+    padding: 18px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.items-info-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.items-info-icon {
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.items-info-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+}
+
+.items-info-value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #212529;
+    margin-top: 2px;
+}
+
+/* Secondary Action Links Bar */
+.items-action-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 4px;
+}
+
+.items-link-btn {
+    background: transparent;
+    border: none;
+    color: #0066cc;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.items-link-btn:hover {
+    text-decoration: underline;
+}
+
+/* Item List / Row Cards Container */
+.items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Individual Item Row Card */
+.items-item {
+    background: #ffffff;
+    padding: 16px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.items-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.items-details-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.items-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.items-details-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.items-detail-pill {
+    font-size: 12px;
+    font-weight: 600;
+    color: #0066cc;
+    background-color: #e7f5ff;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-block;
+}
+
+.items-price {
+    font-size: 15px;
+    font-weight: 700;
+    color: #212529;
+}
+
+/* Add Item & Primary Action Buttons */
+.items-add-button,
+.btn-add-user {
+    background-color: #0066cc;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 2px 4px rgba(0, 102, 204, 0.2);
+    transition: background-color 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.items-add-button:hover,
+.btn-add-user:hover {
+    background-color: #0052a3;
+}
+
+.items-warning-button {
+    padding: 8px 14px;
+    background-color: #fcc419;
+    color: #212529;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.items-warning-button:hover {
+    background-color: #fab005;
+}
+
+/* Status Messages & States */
+.items-loading-message,
+.items-error-message {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    padding: 40px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+.items-error-message {
+    color: #c92a2a;
+    background-color: #fff5f5;
+}

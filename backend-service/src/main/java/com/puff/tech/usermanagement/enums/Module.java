@@ -16,7 +16,10 @@ public enum Module {
     MEMBER("member", "Member Management"),
     STAFF_MANAGEMENT("staffManagement", "Staff Management"),
     ORGANIZATION("organization", "Organization Management"),
-    ROLE_PERMISSION_MANAGEMENT("roleAndPermissions", "Role And Permission Management");
+    ROLE_PERMISSION_MANAGEMENT("roleAndPermissions", "Role And Permission Management"),
+    INVENTORY_MANAGEMENT("inventory", "Inventory Management"),
+    CATEGORY_MANAGEMENT("category", "Category Management")
+    ;
 
     private final String code;
     private final String displayName;

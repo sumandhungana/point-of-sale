@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate, useParams } from 'react-router-dom';
-import { createCategory } from '../services/categoryService';
+import { createCategory } from '../features/services/categoryService';
 import '../styles/AddCategory.css';
 
 export const AddCategory = () => {

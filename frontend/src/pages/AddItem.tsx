@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { fetchItems, createItem, updateItem } from '../services/itemService';
-import { fetchCategories } from '../services/categoryService';
+import { fetchItems, createItem, updateItem } from '@/services/itemService';
+import { fetchCategories } from '@/features/services/categoryService';
 import '../styles/AddItem.css';
 
 interface Category {

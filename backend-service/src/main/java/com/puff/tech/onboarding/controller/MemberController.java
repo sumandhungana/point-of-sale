@@ -38,6 +38,7 @@ public class MemberController {
         this.getUserWiseAllMemberUC = getUserWiseAllMemberUC;
         this.userRegistrationUseCase = userRegistrationUseCase;
         this.getAllOrganizationUC = getAllOrganizationUC;
+
     }
 
     @Secured(permissions = {Permission.ORGANIZATION_REGISTRATION})
@@ -57,7 +58,7 @@ public class MemberController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.ORGANIZATION_SELECTED})
+    @Secured(permissions = {Permission.OWN_KHATA_BOOK_SELECTED})
     @Get("selected-member")
     public Mono<RestResponse<GetSelectedMemberUCResponse>> selectedMember() {
         return getSelectedMemberUC.execute(new GetSelectedMemberUCRequest())

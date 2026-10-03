@@ -21,7 +21,6 @@ import { SupplierListReportPdf } from './features/supplierpayment/pages/Supplier
 import { CustomerStatementsReport } from './features/customerpayment/pages/CustomerStatementsReport';
 import { SupplierStatementsReport } from './features/supplierpayment/pages/SupplierStatementsReport';
 import { DownloadCustomerStatementReport } from './pages/DownloadCustomerStatementReport';
-import { Items } from './pages/Items';
 import { AddItem } from './pages/AddItem';
 import { Sales } from './pages/Sales';
 import { AddSalesBill } from './pages/AddSalesBill';
@@ -74,6 +73,8 @@ import {RoleManagement} from "@/features/roleAndPermissions/pages/RoleManagement
 import SupplierProfile from "@/pages/SupplierProfile";
 import {AddOrganization} from "@/features/onboarding/components/AddOrganization";
 import UserManagement from "@/features/user/pages/UserManagement";
+import {Products} from "@/features/inventoryManagement/pages/Products";
+import Categories from "@/features/inventoryManagement/pages/Categories";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -158,6 +159,14 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
+              <Route
+                  path="/category"
+                  element={
+                      <PrivateRoute>
+                          <Categories />
+                      </PrivateRoute>
+                  }
+              />
           <Route
             path="/category/add/:pageName"
             element={
@@ -366,7 +375,7 @@ const App: React.FC = () => {
             path="/inventory/items"
             element={
               <PrivateRoute>
-                <Items />
+                <Products />
               </PrivateRoute>
             }
           />

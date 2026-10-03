@@ -59,6 +59,7 @@ public enum Permission {
     OWN_KHATA_BOOK_VIEW(Module.OWN_KHATA_BOOK, "view"),
     OWN_KHATA_BOOK_SWITCH(Module.OWN_KHATA_BOOK, "switch"),
     OWN_KHATA_BOOK_ALL_MEMBER(Module.OWN_KHATA_BOOK, "all:member"),
+    OWN_KHATA_BOOK_SELECTED(Module.OWN_KHATA_BOOK,"selected" ),
 
     //Organization Permissions
     ORGANIZATION_List(Module.ORGANIZATION,"list"),
@@ -66,7 +67,12 @@ public enum Permission {
     ORGANIZATION_REGISTRATION(Module.ORGANIZATION, "registration"),
     ORGANIZATION_ACTIVE(Module.ORGANIZATION,"user:active"),
     ORGANIZATION_SELECTED(Module.ORGANIZATION,"selected" ),
-    ORGANIZATION_ROLE_CHANGE(Module.ORGANIZATION, "user:module_change");
+    ORGANIZATION_ROLE_CHANGE(Module.ORGANIZATION, "user:module_change"),
+
+    //Inventory Permissions
+    INVENTORY_CATEGORY_ALL(Module.CATEGORY_MANAGEMENT, "all"),
+    INVENTORY_CATEGORY_ADD(Module.CATEGORY_MANAGEMENT, "add")
+    ;
 
     private final Module module;
     private final String action;

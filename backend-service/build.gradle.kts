@@ -21,7 +21,6 @@ dependencies {
     implementation("io.micronaut.data:micronaut-data-r2dbc")
     implementation("io.micronaut.reactor:micronaut-reactor")
     implementation("io.micronaut.serde:micronaut-serde-jackson")
-    compileOnly("io.micronaut:micronaut-http-client")
     compileOnly("org.projectlombok:lombok")
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("io.r2dbc:r2dbc-postgresql:0.8.13.RELEASE")
