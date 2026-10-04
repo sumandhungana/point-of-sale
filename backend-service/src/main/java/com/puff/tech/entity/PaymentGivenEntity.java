@@ -1,6 +1,6 @@
 package com.puff.tech.entity;
 
-import com.puff.tech.customermanagement.repository.CustomerEntity;
+import com.puff.tech.customermanagement.repository.OrganizationCustomerEntity;
 import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.*;
@@ -29,7 +29,7 @@ public class PaymentGivenEntity {
     private KhataBookEntity khataBook;
     private Integer partyId;
     @Relation(Relation.Kind.MANY_TO_ONE)
-    private CustomerEntity party;
+    private OrganizationCustomerEntity party;
     private BigDecimal amount;
     private String remarks;
     private LocalDate date;

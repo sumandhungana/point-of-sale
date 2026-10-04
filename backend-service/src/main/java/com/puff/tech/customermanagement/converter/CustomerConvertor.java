@@ -1,6 +1,5 @@
 package com.puff.tech.customermanagement.converter;
 
-import com.puff.tech.customermanagement.repository.CustomerEntity;
 import com.puff.tech.customermanagement.repository.OrganizationCustomerEntity;
 import com.puff.tech.customermanagement.usecase.add.AddCustomerUseCaseRequest;
 import com.puff.tech.customermanagement.usecase.get.GetAllCustomerUseCaseResponse;

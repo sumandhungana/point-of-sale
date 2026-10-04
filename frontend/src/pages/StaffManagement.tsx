@@ -313,12 +313,12 @@ export const StaffManagement = () => {
               <div className="staff-summary-card">
                 <div className="summary-box due">
                   <span className="summary-title">Total Due</span>
-                  <span className="summary-value">₹{totalDue.toLocaleString()}</span>
+                  <span className="summary-value">Rs.{totalDue.toLocaleString()}</span>
                 </div>
 
                 <div className="summary-box advance">
                   <span className="summary-title">Total Advance</span>
-                  <span className="summary-value">₹{totalAdvance.toLocaleString()}</span>
+                  <span className="summary-value">Rs.{totalAdvance.toLocaleString()}</span>
                 </div>
               </div>
 

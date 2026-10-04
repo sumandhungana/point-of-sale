@@ -41,8 +41,7 @@ r2dbc:
       schema-generate: CREATE
       dialect: POSTGRES
       packages:
-        - com.puff.tech.customermanagement.repository
-        - com.puff.tech.suppliermanagement.repository
+        - com.puff.tech.inventorymanagement.repository
       db-type: postgres
       username: postgres
       password: root

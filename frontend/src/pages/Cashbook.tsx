@@ -147,7 +147,7 @@ export const Cashbook = () => {
                                 <div className="cashbook-info-header">
                                     <div className="cashbook-info-title">Total Cashbook</div>
                                 </div>
-                                <div className="cashbook-info-value">₹{totalCashbook.toLocaleString()}</div>
+                                <div className="cashbook-info-value">Rs.{totalCashbook.toLocaleString()}</div>
                                 <button className="cashbook-view-more-button">
                                     <i className="bi bi-eye"></i>
                                     View More
@@ -160,7 +160,7 @@ export const Cashbook = () => {
                                 <div className="cashbook-info-header">
                                     <div className="cashbook-info-title">Pending Amount</div>
                                 </div>
-                                <div className="cashbook-info-value">₹{pendingAmount.toLocaleString()}</div>
+                                <div className="cashbook-info-value">Rs.{pendingAmount.toLocaleString()}</div>
                                 <button className="cashbook-view-more-button">
                                     <i className="bi bi-eye"></i>
                                     View More
@@ -250,7 +250,7 @@ export const Cashbook = () => {
                                         )}
                                     </div>
                                     <div className="cashbook-amount">
-                                        ₹{cashbook.amount.toLocaleString()}
+                                        Rs.{cashbook.amount.toLocaleString()}
                                     </div>
                                 </div>
                             ))

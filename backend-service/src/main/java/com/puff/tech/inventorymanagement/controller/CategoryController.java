@@ -1,12 +1,12 @@
 package com.puff.tech.inventorymanagement.controller;
 
 import com.puff.tech.core.responses.RestResponse;
-import com.puff.tech.inventorymanagement.usecase.add.AddCategoriesUC;
-import com.puff.tech.inventorymanagement.usecase.add.AddCategoriesUCRequest;
-import com.puff.tech.inventorymanagement.usecase.add.AddCategoriesUCResponse;
-import com.puff.tech.inventorymanagement.usecase.getAll.GetAllCategoriesUC;
-import com.puff.tech.inventorymanagement.usecase.getAll.GetAllCategoriesUCRequest;
-import com.puff.tech.inventorymanagement.usecase.getAll.GetAllCategoriesUCResponse;
+import com.puff.tech.inventorymanagement.usecase.category.add.AddCategoriesUC;
+import com.puff.tech.inventorymanagement.usecase.category.add.AddCategoriesUCRequest;
+import com.puff.tech.inventorymanagement.usecase.category.add.AddCategoriesUCResponse;
+import com.puff.tech.inventorymanagement.usecase.category.getAll.GetAllCategoriesUC;
+import com.puff.tech.inventorymanagement.usecase.category.getAll.GetAllCategoriesUCRequest;
+import com.puff.tech.inventorymanagement.usecase.category.getAll.GetAllCategoriesUCResponse;
 import com.puff.tech.security.Secured;
 import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.Body;

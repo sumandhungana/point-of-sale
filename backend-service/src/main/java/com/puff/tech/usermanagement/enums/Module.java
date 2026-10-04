@@ -18,9 +18,12 @@ public enum Module {
     ORGANIZATION("organization", "Organization Management"),
     ROLE_PERMISSION_MANAGEMENT("roleAndPermissions", "Role And Permission Management"),
     INVENTORY_MANAGEMENT("inventory", "Inventory Management"),
-    CATEGORY_MANAGEMENT("category", "Category Management")
+    CATEGORY_MANAGEMENT("category", "Category Management"),
+    PRODUCT_MANAGEMENT("product", "Product Management"),
+    SALES_BILL_MANAGEMENT("salesBill", "Sales Bill Management")
     ;
 
     private final String code;
     private final String displayName;
 }
+

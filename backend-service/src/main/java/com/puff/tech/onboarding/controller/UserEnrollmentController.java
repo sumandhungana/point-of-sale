@@ -12,7 +12,7 @@ import com.puff.tech.onboarding.usecase.registration.UserRegistrationUcResponse;
 import com.puff.tech.onboarding.usecase.registration.UserRegistrationUseCase;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUCRequest;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUseCase;
-import com.puff.tech.onboarding.usecase.user.get.GetUserUseCaseResponse;
+import com.puff.tech.onboarding.usecase.user.get.GetUserUCResponse;
 import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCase;
 import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseRequest;
 import com.puff.tech.onboarding.usecase.userlogin.LoginUserUseCaseResponse;
@@ -71,7 +71,7 @@ public class UserEnrollmentController {
 
     @Secured(permissions = {Permission.USER_FIND_ALL})
     @Get("list")
-    public Mono<RestResponse<List<GetUserUseCaseResponse>>> getUsers() {
+    public Mono<RestResponse<List<GetUserUCResponse>>> getUsers() {
         return getUserUseCase.execute(new GetUserUCRequest())
                 .collectList()
                 .map(RestResponse::success)

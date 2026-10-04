@@ -40,7 +40,7 @@ export const Branch: React.FC = () => {
                   </span>
                   <span className="branch-stat">
                     <i className="bi bi-graph-up"></i>
-                    Sales: ₹45,000
+                    Sales: Rs.45,000
                   </span>
                 </div>
               </div>

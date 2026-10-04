@@ -33,22 +33,7 @@ public class PurchaseConvertor {
     }
 
     public static GetPurchaseUseCaseResponse toResponse(PurchaseEntity purchaseEntity){
-        return new GetPurchaseUseCaseResponse(
-                purchaseEntity.getId(),
-                purchaseEntity.getKhataBookId(),
-                purchaseEntity.getKhataBook(),
-                purchaseEntity.getPurchaseNo(),
-                purchaseEntity.getDate(),
-                purchaseEntity.getCategoryId(),
-                purchaseEntity.getItemId(),
-                purchaseEntity.getPaymentMode(),
-                purchaseEntity.getAmount(),
-                purchaseEntity.getRemarks(),
-                purchaseEntity.getPhotoPath(),
-                purchaseEntity.getCreatedAt(),
-                purchaseEntity.getCategory(),
-                purchaseEntity.getItem()
-        );
+        return null;
     }
 
     public static PurchaseEntity toEntityUpdate(UpdatePurchaseUseCaseRequest request,

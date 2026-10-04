@@ -6,7 +6,7 @@ import { getSuppliers } from '@/features/services/supplierService';
 import { SystemMonitor } from '@/components/SystemMonitor';
 import { getDashboardPaymentTotals } from '@/services/paymentService';
 import { fetchStaff } from '@/services/staffService';
-import { fetchSalesBills } from '@/services/salesBillService';
+import { getAllSalesBill } from '@/features/services/salesBillService';
 import { fetchPurchases } from '@/services/purchaseListService';
 import { fetchExpenses } from '@/services/expensesListService';
 import { fetchIncomes } from '@/services/incomeService';
@@ -57,7 +57,7 @@ const Dashboard: React.FC = () => {
         const staff = await fetchStaff();
         setTotalStaff(staff.length || 0);
 
-        const salesBills = await fetchSalesBills();
+        const salesBills = await getAllSalesBill();
         setTotalSales(salesBills.length || 0);
         console.log('Sales Bills:', salesBills.length);
 

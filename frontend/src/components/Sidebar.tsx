@@ -28,19 +28,19 @@ const navItems: NavItem[] = [
 		],
 	},
 	{
-	    title: 'MGMT INVENTORY',
-	    path: '/inventory',
-	    icon: '📦',
-	    children: [
+		title: 'MGMT INVENTORY',
+		path: '/inventory',
+		icon: '📦',
+		children: [
 			{ title: 'CATEGORIES', path: '/category', icon: '🗃️'},
-	       { title: 'PRODUCTS', path: '/inventory/items', icon: '📦' },
-	       { title: 'SERVICES', path: '/service', icon: '🔧' },
-	       { title: 'Sales', path: '/bills/sales', icon: '💰' },
-	       { title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
-	       { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
-	       { title: 'Income', path: '/bills/income', icon: '💸' },
-	       { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
-	    ],
+			{ title: 'PRODUCTS', path: '/inventory/items', icon: '📦' },
+			{ title: 'SERVICES', path: '/service', icon: '🔧' },
+			{ title: 'Sales', path: '/bills/sales', icon: '💰' },
+			{ title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
+			{ title: 'Expenses', path: '/bills/expenses', icon: '💸' },
+			{ title: 'Income', path: '/bills/income', icon: '💸' },
+			{ title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
+		],
 	},
 	{
 		title: 'OTHERS',
@@ -53,25 +53,25 @@ const navItems: NavItem[] = [
 		],
 	},
 	{
-	    title: 'REPORTS',
-	    path: '/reports',
-	    icon: '📊',
-	    children: [
-	       { title: 'Sales Report', path: '/reports/sales', icon: '💰' },
-	       { title: 'Purchase Report', path: '/reports/purchase', icon: '🛒' },
-	       { title: 'Total Sale Report', path: '/reports/total-sale', icon: '📈' },
-	    ],
+		title: 'REPORTS',
+		path: '/reports',
+		icon: '📊',
+		children: [
+			{ title: 'Sales Report', path: '/reports/sales', icon: '💰' },
+			{ title: 'Purchase Report', path: '/reports/purchase', icon: '🛒' },
+			{ title: 'Total Sale Report', path: '/reports/total-sale', icon: '📈' },
+		],
 	},
 	{
-	    title: 'SYSTEM',
-	    path: '/system',
-	    icon: '⚙',
-	    children: [
-	       { title: 'Multi User Login', path: '/system/multi-user', icon: '👥' },
-	       { title: 'Reminder', path: '/system/reminder', icon: '⏰' },
-	       { title: 'Import Data', path: '/system/import', icon: '📥' },
-	       { title: 'Notis', path: '/system/notis', icon: '🔔' },
-	    ],
+		title: 'SYSTEM',
+		path: '/system',
+		icon: '⚙',
+		children: [
+			{ title: 'Multi User Login', path: '/system/multi-user', icon: '👥' },
+			{ title: 'Reminder', path: '/system/reminder', icon: '⏰' },
+			{ title: 'Import Data', path: '/system/import', icon: '📥' },
+			{ title: 'Notis', path: '/system/notis', icon: '🔔' },
+		],
 	},
 	{
 		title: 'SETTINGS',
@@ -92,16 +92,16 @@ const navItems: NavItem[] = [
 		],
 	},
 	{
-	    title: 'ABOUTS',
-	    path: '/abouts',
-	    icon: 'ℹ️',
-	    children: [
-	       { title: 'Name Of App', path: '/abouts/app-name', icon: '📱' },
-	       { title: 'Backup Info', path: '/abouts/backup-info', icon: '💾' },
-	       { title: 'Privacy Policy', path: '/abouts/privacy', icon: '🔒' },
-	       { title: 'Terms & Conditions', path: '/abouts/terms', icon: '📜' },
-	       { title: 'Version', path: '/abouts/version', icon: '🔄' },
-	    ],
+		title: 'ABOUTS',
+		path: '/abouts',
+		icon: 'ℹ️️',
+		children: [
+			{ title: 'Name Of App', path: '/abouts/app-name', icon: '📱' },
+			{ title: 'Backup Info', path: '/abouts/backup-info', icon: '💾' },
+			{ title: 'Privacy Policy', path: '/abouts/privacy', icon: '🔒' },
+			{ title: 'Terms & Conditions', path: '/abouts/terms', icon: '📜' },
+			{ title: 'Version', path: '/abouts/version', icon: '🔄' },
+		],
 	},
 ];
 
@@ -114,6 +114,9 @@ export const Sidebar = () => {
 	const popupRef = useRef<HTMLDivElement>(null);
 	const sidebarContainerRef = useRef<HTMLDivElement>(null);
 
+	// Track initial load to prevent duplicate requests in React Strict Mode
+	const fetchedRef = useRef(false);
+
 	// Initialize expandedItems from localStorage or fallback
 	const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(() => {
 		const saved = localStorage.getItem('sidebar_expanded_items');
@@ -121,6 +124,8 @@ export const Sidebar = () => {
 	});
 
 	const [khataBooks, setKhataBooks] = useState<UserBasedAllMember[]>([]);
+
+	// Synchronous initial state from localStorage only
 	const [currentKhataBook, setCurrentKhataBook] = useState<UserBasedAllMember | null>(() => {
 		const cachedId = localStorage.getItem('selectedKhataBookId');
 		const cachedName = localStorage.getItem('companyName');
@@ -132,6 +137,7 @@ export const Sidebar = () => {
 		}
 		return null;
 	});
+
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const cachedCompanyName = (typeof window !== 'undefined' && localStorage.getItem('companyName')) || '';
@@ -227,8 +233,11 @@ export const Sidebar = () => {
 		};
 	}, [isPopupOpen]);
 
-	// Fetch currently selected KhataBook on load
+	// Fetch currently selected KhataBook ONCE on mount with Strict Mode guard
 	useEffect(() => {
+		if (fetchedRef.current) return;
+		fetchedRef.current = true;
+
 		let isMounted = true;
 		const fetchCurrentKhataBook = async () => {
 			try {
@@ -283,9 +292,6 @@ export const Sidebar = () => {
 		}));
 	};
 
-	/**
-	 * Recursive filter to check module/permission authorization for navigation items
-	 */
 	const filterAuthorizedNavItems = (items: NavItem[]): NavItem[] => {
 		return items
 			.filter((item) => {

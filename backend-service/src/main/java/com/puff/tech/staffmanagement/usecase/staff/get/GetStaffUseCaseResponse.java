@@ -1,9 +1,7 @@
 package com.puff.tech.staffmanagement.usecase.staff.get;
 
 import com.puff.tech.core.usecases.UCResponse;
-import com.puff.tech.core.usecases.UseCase;
-import com.puff.tech.staffmanagement.repository.StaffAttendanceEntity;
-import com.puff.tech.staffmanagement.repository.StaffSalaryEntity;
+
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.time.Instant;
@@ -23,6 +21,6 @@ public record GetStaffUseCaseResponse(
         List<StaffSalaryResponse> salaryResponses,
         List<StaffAttendanceResponse> attendanceResponses
 )
-implements UCResponse {
+        implements UCResponse {
 }
 

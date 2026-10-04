@@ -21,9 +21,9 @@ import { SupplierListReportPdf } from './features/supplierpayment/pages/Supplier
 import { CustomerStatementsReport } from './features/customerpayment/pages/CustomerStatementsReport';
 import { SupplierStatementsReport } from './features/supplierpayment/pages/SupplierStatementsReport';
 import { DownloadCustomerStatementReport } from './pages/DownloadCustomerStatementReport';
-import { AddItem } from './pages/AddItem';
-import { Sales } from './pages/Sales';
-import { AddSalesBill } from './pages/AddSalesBill';
+import { AddItem } from './features/inventoryManagement/pages/AddItem';
+import { Sales } from './features/inventoryManagement/pages/Sales';
+import { AddSalesBill } from './features/inventoryManagement/pages/AddSalesBill';
 import { StaffManagement } from './pages/StaffManagement';
 import { AddStaff } from './pages/AddStaff';
 import { StaffPayment } from './features/staffpayment/StaffPayment';

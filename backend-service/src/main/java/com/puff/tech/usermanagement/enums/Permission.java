@@ -71,7 +71,13 @@ public enum Permission {
 
     //Inventory Permissions
     INVENTORY_CATEGORY_ALL(Module.CATEGORY_MANAGEMENT, "all"),
-    INVENTORY_CATEGORY_ADD(Module.CATEGORY_MANAGEMENT, "add")
+    INVENTORY_CATEGORY_ADD(Module.CATEGORY_MANAGEMENT, "add"),
+
+    INVENTORY_PRODUCT_ALL(Module.PRODUCT_MANAGEMENT, "all"),
+    INVENTORY_PRODUCT_ADD(Module.PRODUCT_MANAGEMENT, "add"),
+    SALES_BILL_GENERATION(Module.SALES_BILL_MANAGEMENT, "generate"),
+    SALES_BILL_ADD(Module.SALES_BILL_MANAGEMENT, "add"),
+    SALES_BILL_GET_ALL(Module.SALES_BILL_MANAGEMENT, "all"),
     ;
 
     private final Module module;

@@ -1,7 +1,6 @@
 package com.puff.tech.usecase.expenses.getall;
 
 import com.puff.tech.covertor.ExpensesConvertor;
-import com.puff.tech.covertor.KhataBookConvertor;
 import com.puff.tech.repository.ExpensesRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
 import jakarta.inject.Inject;

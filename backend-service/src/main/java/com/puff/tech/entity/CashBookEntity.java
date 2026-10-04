@@ -1,5 +1,6 @@
 package com.puff.tech.entity;
 
+import com.puff.tech.inventorymanagement.repository.CategoriesEntity;
 import io.micronaut.core.annotation.Generated;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.data.annotation.DateCreated;
@@ -37,7 +38,7 @@ public class CashBookEntity {
     @DateCreated
     private Instant createdAt;
     @Relation(Relation.Kind.MANY_TO_ONE)
-    private CategoryEntity category;
+    private CategoriesEntity category;
     @Relation(Relation.Kind.MANY_TO_ONE)
     private ItemEntity item;
 

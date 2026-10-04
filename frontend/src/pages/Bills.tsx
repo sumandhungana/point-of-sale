@@ -39,7 +39,7 @@ export const Bills: React.FC = () => {
               </div>
               <div className="bills-stat-info">
                 <h3>Total Amount</h3>
-                <p className="bills-stat-number">₹2,45,000</p>
+                <p className="bills-stat-number">Rs.2,45,000</p>
                 <span className="bills-stat-change positive">+8% this month</span>
               </div>
             </div>

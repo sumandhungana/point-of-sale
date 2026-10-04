@@ -1,7 +1,6 @@
 package com.puff.tech.usecase.purchase.get;
 
 import com.puff.tech.core.usecases.UseCases;
-import com.puff.tech.entity.CategoryEntity;
 import com.puff.tech.entity.ItemEntity;
 import com.puff.tech.entity.KhataBookEntity;
 import io.micronaut.serde.annotation.Serdeable;
@@ -24,7 +23,6 @@ public record GetPurchaseUseCaseResponse(
             String remarks,
             String photoPath,
             Instant createdAt,
-            CategoryEntity category,
             ItemEntity item
 )
 implements UseCases.UseCaseResponse {

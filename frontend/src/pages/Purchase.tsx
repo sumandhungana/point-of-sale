@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../components/Navbar';
-import { fetchPurchases } from '../services/purchaseListService';
+import { fetchPurchases } from '@/services/purchaseListService';
 import '../styles/Purchase.css';
 
 interface Purchase {
@@ -150,7 +150,7 @@ export const Purchase = () => {
                 <div className="purchase-info-header">
                   <div className="purchase-info-title">Total Purchases</div>
                 </div>
-                <div className="purchase-info-value">₹{totalPurchases.toLocaleString()}</div>
+                <div className="purchase-info-value">Rs.{totalPurchases.toLocaleString()}</div>
                 <button className="purchase-view-more-button">
                   <i className="bi bi-eye"></i>
                   View More
@@ -163,7 +163,7 @@ export const Purchase = () => {
                 <div className="purchase-info-header">
                   <div className="purchase-info-title">Pending Amount</div>
                 </div>
-                <div className="purchase-info-value">₹{pendingAmount.toLocaleString()}</div>
+                <div className="purchase-info-value">Rs.{pendingAmount.toLocaleString()}</div>
                 <button className="purchase-view-more-button">
                   <i className="bi bi-eye"></i>
                   View More
@@ -253,7 +253,7 @@ export const Purchase = () => {
                     )}
                   </div>
                   <div className="purchase-amount">
-                    ₹{purchase.amount.toLocaleString()}
+                    Rs.{purchase.amount.toLocaleString()}
                   </div>
                 </div>
               ))

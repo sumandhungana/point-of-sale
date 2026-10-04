@@ -150,7 +150,7 @@ export const Income = () => {
                 <div className="income-info-header">
                   <div className="income-info-title">Total Income</div>
                 </div>
-                <div className="income-info-value">₹{totalIncome.toLocaleString()}</div>
+                <div className="income-info-value">Rs.{totalIncome.toLocaleString()}</div>
                 <button className="income-view-more-button">
                   <i className="bi bi-eye"></i>
                   View More
@@ -163,7 +163,7 @@ export const Income = () => {
                 <div className="income-info-header">
                   <div className="income-info-title">Pending Amount</div>
                 </div>
-                <div className="income-info-value">₹{pendingAmount.toLocaleString()}</div>
+                <div className="income-info-value">Rs.{pendingAmount.toLocaleString()}</div>
                 <button className="income-view-more-button">
                   <i className="bi bi-eye"></i>
                   View More
@@ -253,7 +253,7 @@ export const Income = () => {
                     )}
                   </div>
                   <div className="income-amount">
-                    ₹{income.amount.toLocaleString()}
+                    Rs.{income.amount.toLocaleString()}
                   </div>
                 </div>
               ))
