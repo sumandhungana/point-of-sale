@@ -20,7 +20,8 @@ public enum Module {
     INVENTORY_MANAGEMENT("inventory", "Inventory Management"),
     CATEGORY_MANAGEMENT("category", "Category Management"),
     PRODUCT_MANAGEMENT("product", "Product Management"),
-    SALES_BILL_MANAGEMENT("salesBill", "Sales Bill Management")
+    SALES_BILL_MANAGEMENT("salesBill", "Sales Bill Management"),
+    PURCHASE_BILL_MANAGEMENT("purchaseBill", "Purchase Bill Management")
     ;
 
     private final String code;

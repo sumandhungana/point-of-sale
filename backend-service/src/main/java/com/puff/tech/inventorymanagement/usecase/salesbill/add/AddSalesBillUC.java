@@ -34,7 +34,7 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
         Long memberId = context.securityContext().memberId();
         return validateRequest(request)
                 .then(salesBillRepository.acquireMemberLock(memberId))
-                .thenMany(processItemsStock(request.items(),memberId))
+                .thenMany(processItemsStock(request.items(), memberId))
                 .collectList()
                 .flatMap(processedItems -> saveSalesBills(request, processedItems, context))
                 .map(this::buildResponse);
@@ -42,9 +42,6 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
 
     // --- Private Helper Methods ---
 
-    /**
-     * Validates input request basic constraints.
-     */
     private Mono<Void> validateRequest(AddSalesBillUCRequest request) {
         if (request == null || request.items() == null || request.items().isEmpty()) {
             return Mono.error(new IllegalArgumentException("Sales bill must contain at least one item."));
@@ -52,18 +49,12 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
         return Mono.empty();
     }
 
-    /**
-     * Processes stock updates for all line items reactively.
-     */
     private Flux<AddSalesBillUCRequest.SalesBillItemRequest> processItemsStock(
             List<AddSalesBillUCRequest.SalesBillItemRequest> items, Long memberId) {
         return Flux.fromIterable(items)
                 .flatMap(item -> decrementAndVerifyStock(item, memberId));
     }
 
-    /**
-     * Atomically decrements stock and verifies sufficient stock was available.
-     */
     private Mono<AddSalesBillUCRequest.SalesBillItemRequest> decrementAndVerifyStock(
             AddSalesBillUCRequest.SalesBillItemRequest item, Long memberId) {
         return productRepository.decrementStock(item.itemId(), memberId, item.quantity())
@@ -76,9 +67,6 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
                 });
     }
 
-    /**
-     * Converts items into SalesBillEntity instances and persists them.
-     */
     private Mono<List<SalesBillEntity>> saveSalesBills(
             AddSalesBillUCRequest request,
             List<AddSalesBillUCRequest.SalesBillItemRequest> items,
@@ -91,9 +79,6 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
         return salesBillRepository.saveAll(entities).collectList();
     }
 
-    /**
-     * Maps a single request item and header info into a SalesBillEntity.
-     */
     private SalesBillEntity createSalesBillEntity(
             AddSalesBillUCRequest request,
             AddSalesBillUCRequest.SalesBillItemRequest item,
@@ -103,13 +88,29 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
         entity.setBillNumber(request.billNumber());
         entity.setBillDate(request.billDate());
         entity.setPaymentMode(request.paymentMode());
-        entity.setAmount(item.totalPrice());
         entity.setRemarks(request.remarks());
         entity.setPhotoPath(request.photoPath());
-        if (request.customerId() != null) {
+
+        // Item level details
+        entity.setQuantity(item.quantity());
+        entity.setUnitPrice(item.unitPrice());
+        entity.setTaxPercentage(item.taxPercentage());
+        entity.setVatPercentage(item.vatPercentage());
+        entity.setTaxAmount(item.taxAmount());
+        entity.setVatAmount(item.vatAmount());
+        entity.setAmount(item.totalPrice());
+
+        // Customer binding logic (handles optional customer/walk-in customer)
+        if (request.customerId() != null && request.customerId() > 0) {
             OrganizationCustomerEntity customer = new OrganizationCustomerEntity();
             customer.setId(Math.toIntExact(request.customerId()));
             entity.setCustomer(customer);
+        } else {
+            entity.setCustomerName(
+                    request.customerName() != null && !request.customerName().isBlank()
+                            ? request.customerName()
+                            : "Walk-in Customer"
+            );
         }
 
         MemberEntity member = new MemberEntity();
@@ -126,9 +127,6 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
         return entity;
     }
 
-    /**
-     * Builds the final UC response.
-     */
     private AddSalesBillUCResponse buildResponse(List<SalesBillEntity> savedBills) {
         String primaryId = savedBills.isEmpty() ? "" : savedBills.getFirst().getId().toString();
         return new AddSalesBillUCResponse(primaryId, "Sales bill added successfully.");

@@ -9,12 +9,9 @@ import {
     AddCategoryRequest
 } from "../../services/categoryService";
 import "../../../styles/Categories.css";
-import { Sidebar } from "@/components/Sidebar";
-import Navbar from "@/components/Navbar";
 
 const CATEGORY_TYPES: CategoryTypeEnum[] = ["GENERAL", "INCOME", "EXPENSE", "PURCHASE", "CASHBOOK"];
 
-// Helper to generate two-letter avatar initials from category name
 const getInitials = (name: string): string => {
     if (!name) return "CAT";
     const words = name.trim().split(" ");
@@ -131,90 +128,78 @@ export const Categories: React.FC = () => {
         : categories.filter(c => c.categoryType === selectedTab);
 
     return (
-        <div className="user-management-page-wrapper">
-            <Sidebar />
-            <div className="user-management-container">
-                <Navbar />
-                <div className="user-management-content">
-                    {/* Header Card */}
-                    <div className="user-management-header">
-                        <div>
-                            <h2>Category Management</h2>
-                            <p>Organize items into income, expenses, purchases, cashbook, or general categories.</p>
-                        </div>
-                        <button className="btn-add-user" onClick={handleOpenAddModal}>
-                            + Add Category
-                        </button>
-                    </div>
+        <div className="category-management-content">
+            {/* Filter Tabs */}
+            <div className="tab-container">
+                <button
+                    className={`tab-btn ${selectedTab === "ALL" ? "active" : ""}`}
+                    onClick={() => setSelectedTab("ALL")}
+                >
+                    All Categories
+                </button>
+                {CATEGORY_TYPES.map(type => (
+                    <button
+                        key={type}
+                        className={`tab-btn ${selectedTab === type ? "active" : ""}`}
+                        onClick={() => setSelectedTab(type)}
+                    >
+                        {type}
+                    </button>
+                ))}
+            </div>
 
-                    {/* Filter Tabs */}
-                    <div className="tab-container">
-                        <button
-                            className={`tab-btn ${selectedTab === "ALL" ? "active" : ""}`}
-                            onClick={() => setSelectedTab("ALL")}
-                        >
-                            All Categories
-                        </button>
-                        {CATEGORY_TYPES.map(type => (
-                            <button
-                                key={type}
-                                className={`tab-btn ${selectedTab === type ? "active" : ""}`}
-                                onClick={() => setSelectedTab(type)}
-                            >
-                                {type}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* List View */}
-                    <div className="category-card-list">
-                        {loading ? (
-                            <div className="loading-container">Loading categories...</div>
-                        ) : filteredCategories.length === 0 ? (
-                            <div className="empty-container">No categories found.</div>
-                        ) : (
-                            filteredCategories.map((cat, index) => (
-                                <div className="category-item-card" key={cat.id || index}>
-                                    <div className="category-card-left">
-                                        <div className={`category-avatar ${cat.categoryType?.toLowerCase()}`}>
-                                            {getInitials(cat.name)}
-                                        </div>
-                                        <div className="category-info">
-                                            <div className="category-title-row">
-                                                <span className="category-name">{cat.name}</span>
-                                                <span className="category-id">#{cat.id ?? (index + 1)}</span>
-                                            </div>
-                                            <div className="category-description">
-                                                {cat.description ? `Description: ${cat.description}` : "No description provided"}
-                                            </div>
-                                        </div>
+            {/* List View */}
+            <div className="category-card-list">
+                {loading ? (
+                    <div className="loading-container">Loading categories...</div>
+                ) : filteredCategories.length === 0 ? (
+                    <div className="empty-container">No categories found.</div>
+                ) : (
+                    filteredCategories.map((cat, index) => (
+                        <div className="category-item-card" key={cat.id || index}>
+                            <div className="category-card-left">
+                                <div className={`category-avatar ${cat.categoryType?.toLowerCase()}`}>
+                                    {getInitials(cat.name)}
+                                </div>
+                                <div className="category-info">
+                                    <div className="category-title-row">
+                                        <span className="category-name">{cat.name}</span>
+                                        <span className="category-id">#{cat.id ?? (index + 1)}</span>
                                     </div>
-
-                                    <div className="category-card-right">
-                                        <span className={`badge-role badge-type-${cat.categoryType?.toLowerCase()}`}>
-                                            {cat.categoryType}
-                                        </span>
-                                        <div className="category-actions">
-                                            <button
-                                                className="btn-action btn-edit"
-                                                onClick={() => handleOpenEditModal(cat)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="btn-action btn-delete"
-                                                onClick={() => handleDelete(cat.id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
+                                    <div className="category-description">
+                                        {cat.description ? `Description: ${cat.description}` : "No description provided"}
                                     </div>
                                 </div>
-                            ))
-                        )}
-                    </div>
-                </div>
+                            </div>
+
+                            <div className="category-card-right">
+                            <span className={`badge-role badge-type-${cat.categoryType?.toLowerCase()}`}>
+                                {cat.categoryType}
+                            </span>
+                                <div className="category-actions">
+                                    <button
+                                        className="btn-action btn-edit"
+                                        onClick={() => handleOpenEditModal(cat)}
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        className="btn-action btn-delete"
+                                        onClick={() => handleDelete(cat.id)}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                )}
             </div>
+
+            {/* Sticky Floating Add Category Button */}
+            <button className="btn-add-category-sticky" onClick={handleOpenAddModal}>
+                + Add Category
+            </button>
 
             {/* Modal Dialog */}
             {isModalOpen && (
@@ -280,5 +265,3 @@ export const Categories: React.FC = () => {
         </div>
     );
 };
-
-export default Categories;

@@ -3,6 +3,7 @@ package com.puff.tech.inventorymanagement.repository;
 import com.puff.tech.customermanagement.repository.OrganizationCustomerEntity;
 import com.puff.tech.onboarding.repository.MemberEntity;
 import io.micronaut.core.annotation.Introspected;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.data.annotation.*;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.Size;
@@ -30,19 +31,40 @@ public class SalesBillEntity {
     @Relation(Relation.Kind.MANY_TO_ONE)
     private ProductEntity product;
 
+    @Nullable
     @Relation(Relation.Kind.MANY_TO_ONE)
     private OrganizationCustomerEntity customer;
+
+    @Nullable
+    private String customerName;
 
     @Relation(Relation.Kind.MANY_TO_ONE)
     private MemberEntity member;
 
-    @Size(max = 10)
+    @Size(max = 20)
     private String paymentMode;
 
-    private BigDecimal amount;
+    private Double quantity;
+
+    private BigDecimal unitPrice;
+
+    @Nullable
+    private Double taxPercentage;
+
+    @Nullable
+    private Double vatPercentage;
+
+    @Nullable
+    private BigDecimal taxAmount;
+
+    @Nullable
+    private BigDecimal vatAmount;
+
+    private BigDecimal amount; // Line item final total price
 
     private String remarks;
 
+    @Nullable
     @Size(max = 255)
     private String photoPath;
 

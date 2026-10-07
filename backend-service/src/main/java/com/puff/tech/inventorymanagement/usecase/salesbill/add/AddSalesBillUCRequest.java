@@ -16,6 +16,7 @@ public record AddSalesBillUCRequest(
         String remarks,
         String photoPath,
         Long customerId,
+        String customerName,
         List<SalesBillItemRequest> items,
         Long id
 ) implements UCRequest {
@@ -27,6 +28,10 @@ public record AddSalesBillUCRequest(
             Double availableStock,
             Double quantity,
             BigDecimal unitPrice,
+            Double taxPercentage,
+            Double vatPercentage,
+            BigDecimal taxAmount,
+            BigDecimal vatAmount,
             BigDecimal totalPrice
     ) {
     }

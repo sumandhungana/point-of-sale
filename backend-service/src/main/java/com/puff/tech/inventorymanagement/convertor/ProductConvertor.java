@@ -49,14 +49,12 @@ public class ProductConvertor {
         }
         productEntity.setItemCount(request.itemCount());
         productEntity.setUnit(request.unit());
-        productEntity.setOpeningStock(request.openingStock());
-        productEntity.setCountStock(productEntity.getOpeningStock());
         productEntity.setLowStockAlert(request.lowStockAlert());
         productEntity.setCreatedBy(userId);
         productEntity.setUpdatedBy(userId);
-        productEntity.setSalesPrice(BigDecimal.ZERO);
+        productEntity.setFixedSellingPrice(request.fixedSellingPrice());
         productEntity.setVatPercentage(request.vatPercentage());
-        productEntity.setVatDate(request.vatDate());
+        productEntity.setTaxPercentage(request.isTaxIncluded() ? request.taxPercentage() : 0);
         productEntity.setTaxIncluded(request.isTaxIncluded());
         productEntity.setImageUrl(request.imageUrl());
 

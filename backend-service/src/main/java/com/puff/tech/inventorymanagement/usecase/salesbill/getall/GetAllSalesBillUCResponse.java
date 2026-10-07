@@ -6,21 +6,32 @@ import lombok.Builder;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @Serdeable
 @Builder
 public record GetAllSalesBillUCResponse(
-        Long id,
-        String billNumber,
-        String productName,
-        String customerName,
-        BigDecimal billAmount,
-        String paymentMode,
-        String remarks,
-        String createdBy,
-        Instant createdAt,
-        String updatedBy,
-        Instant updatedAt
+         Long id,
+         String billNumber,
+          LocalDate billDate,
+         Long customerId,
+         String customerName,
+         Long productId,
+         String productName,
+         Double quantity,
+         BigDecimal unitPrice,
+         Double taxPercentage,
+         Double vatPercentage,
+         BigDecimal taxAmount,
+         BigDecimal vatAmount,
+         BigDecimal amount,
+         String paymentMode,
+         String remarks,
+         String photoPath,
+         Instant createdAt,
+         String createdBy,
+         Instant updatedAt,
+         String updatedBy
 
 ) implements UCResponse {
 }

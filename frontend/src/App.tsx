@@ -46,12 +46,12 @@ import { AddUser } from './pages/AddUser';
 import { RentalItem } from './pages/RentalItem';
 import { AddRentalItem } from './pages/AddRentalItem';
 import { AppSetting } from './pages/AppSetting';
-import { Purchase } from './pages/Purchase';
+import { Purchase } from './features/inventoryManagement/pages/Purchase';
 import { Expenses } from './pages/Expenses';
 import { AddExpenses } from './pages/AddExpenses';
 import { Income } from './pages/Income';
 import { Cashbook } from './pages/Cashbook';
-import { AddPurchase } from './pages/AddPurchase';
+import { AddPurchase } from './features/inventoryManagement/pages/AddPurchase';
 import { AddIncome } from './pages/AddIncome';
 import { AddCashbook } from './pages/AddCashbook';
 import { AddCategory } from './pages/AddCategory';
@@ -74,7 +74,7 @@ import SupplierProfile from "@/pages/SupplierProfile";
 import {AddOrganization} from "@/features/onboarding/components/AddOrganization";
 import UserManagement from "@/features/user/pages/UserManagement";
 import {Products} from "@/features/inventoryManagement/pages/Products";
-import Categories from "@/features/inventoryManagement/pages/Categories";
+// import Categories from "@/features/inventoryManagement/pages/Categories";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -159,14 +159,14 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-              <Route
-                  path="/category"
-                  element={
-                      <PrivateRoute>
-                          <Categories />
-                      </PrivateRoute>
-                  }
-              />
+              {/*<Route*/}
+              {/*    path="/category"*/}
+              {/*    element={*/}
+              {/*        <PrivateRoute>*/}
+              {/*            <Categories />*/}
+              {/*        </PrivateRoute>*/}
+              {/*    }*/}
+              {/*/>*/}
           <Route
             path="/category/add/:pageName"
             element={
@@ -528,7 +528,6 @@ const App: React.FC = () => {
             path="/staff/add"
             element={
               <PrivateRoute>
-                <AddStaff />
                 <AddStaff />
               </PrivateRoute>
             }

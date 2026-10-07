@@ -16,6 +16,10 @@ interface BillItem {
   availableStock: number;
   quantity: number;
   unitPrice: number;
+  taxPercentage: number;
+  vatPercentage: number;
+  taxAmount: number;
+  vatAmount: number;
   totalPrice: number;
 }
 
@@ -27,7 +31,7 @@ interface SalesBill {
   paymentMode: string;
   remarks: string | null;
   photoPath: string | null;
-  customer: Customer;
+  customer?: Customer | null;
   items?: BillItem[];
 }
 
@@ -62,19 +66,21 @@ export const AddSalesBill: React.FC = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImage] = useState<string | null>(null);
 
+  // Calculate bill total on item changes
   useEffect(() => {
     const calculatedTotal = selectedProducts.reduce((sum, item) => sum + item.totalPrice, 0);
-    setFormData(prev => ({ ...prev, amount: calculatedTotal }));
+    setFormData((prev) => ({ ...prev, amount: calculatedTotal }));
   }, [selectedProducts]);
 
+  // Load backend data
   useEffect(() => {
     const loadInitialData = async () => {
       try {
         const [customersData, productsResponse] = await Promise.all([
           getCustomers(),
-          getProduct()
+          getProduct(),
         ]);
 
         setCustomers(customersData || []);
@@ -90,20 +96,21 @@ export const AddSalesBill: React.FC = () => {
             photoPath: initialData.photoPath,
             customerId: initialData.customer?.customerId ?? 0,
           });
-          setSelectedCustomer(initialData.customer);
-          setPartySearch(initialData.customer?.name || '');
-          if (initialData.photoPath) setSelectedImage(initialData.photoPath);
+          if (initialData.customer) {
+            setSelectedCustomer(initialData.customer);
+            setPartySearch(initialData.customer.name || '');
+          }
           if (initialData.items) setSelectedProducts(initialData.items);
         } else {
           const billData = await fetchBillNumber();
-          setFormData(prev => ({
+          setFormData((prev) => ({
             ...prev,
             billNumber: `${salesConfig.billNumber.prefix}${billData.billNumber}`,
             customerId: 0,
           }));
         }
       } catch (err) {
-        setError('Error initializing bill data.');
+        setError('Error initializing billing context data.');
         console.error(err);
       }
     };
@@ -111,29 +118,75 @@ export const AddSalesBill: React.FC = () => {
     loadInitialData();
   }, [isEditMode, initialData]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  // Helper function to calculate item total inclusive of Tax and VAT percentages
+  const calculateItemTotal = (
+      quantity: number,
+      unitPrice: number,
+      taxPct: number,
+      vatPct: number
+  ) => {
+    const subtotal = quantity * unitPrice;
+    const taxAmount = subtotal * (taxPct / 100);
+    const vatAmount = (subtotal + taxAmount) * (vatPct / 100);
+    const totalPrice = subtotal + taxAmount + vatAmount;
+
+    return {
+      taxAmount,
+      vatAmount,
+      totalPrice,
+    };
+  };
+
+  const handleInputChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleAddProduct = (item: Item) => {
-    const existingIndex = selectedProducts.findIndex(p => p.itemId === item.id);
+    const existingIndex = selectedProducts.findIndex((p) => p.itemId === item.id);
+    const taxPct = item.taxPercentage || 0;
+    const vatPct = item.vatPercentage || 0;
+    const unitPrice = item.fixedSellingPrice || 0;
+    const stockCount = item.itemCount || 0;
+
     if (existingIndex > -1) {
       const updated = [...selectedProducts];
       const newQty = updated[existingIndex].quantity + 1;
+      const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
+          newQty,
+          updated[existingIndex].unitPrice,
+          taxPct,
+          vatPct
+      );
+
       updated[existingIndex].quantity = newQty;
-      updated[existingIndex].totalPrice = newQty * updated[existingIndex].unitPrice;
+      updated[existingIndex].taxAmount = taxAmount;
+      updated[existingIndex].vatAmount = vatAmount;
+      updated[existingIndex].totalPrice = totalPrice;
       setSelectedProducts(updated);
     } else {
+      const initialQty = 1;
+      const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
+          initialQty,
+          unitPrice,
+          taxPct,
+          vatPct
+      );
+
       const newItem: BillItem = {
         itemId: item.id,
         name: item.name,
-        sku: item.sku,
-        unit: item.unit || 'Pcs',
-        availableStock: item.openingStock || 0,
-        quantity: 1,
-        unitPrice: item.salesPrice || 0,
-        totalPrice: item.salesPrice || 0,
+        unit: item.unit || 'pcs',
+        availableStock: stockCount,
+        quantity: initialQty,
+        unitPrice: unitPrice,
+        taxPercentage: taxPct,
+        vatPercentage: vatPct,
+        taxAmount,
+        vatAmount,
+        totalPrice,
       };
       setSelectedProducts([...selectedProducts, newItem]);
     }
@@ -143,9 +196,24 @@ export const AddSalesBill: React.FC = () => {
 
   const handleItemChange = (index: number, field: 'quantity' | 'unitPrice', value: number) => {
     const updated = [...selectedProducts];
-    const currentItem = { ...updated[index], [field]: value };
-    currentItem.totalPrice = currentItem.quantity * currentItem.unitPrice;
-    updated[index] = currentItem;
+    const item = updated[index];
+    const qty = field === 'quantity' ? value : item.quantity;
+    const price = field === 'unitPrice' ? value : item.unitPrice;
+
+    const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
+        qty,
+        price,
+        item.taxPercentage,
+        item.vatPercentage
+    );
+
+    updated[index] = {
+      ...item,
+      [field]: value,
+      taxAmount,
+      vatAmount,
+      totalPrice,
+    };
     setSelectedProducts(updated);
   };
 
@@ -154,12 +222,8 @@ export const AddSalesBill: React.FC = () => {
   };
 
   const handleSaveInvoice = async () => {
-    if (!selectedCustomer) {
-      setError('Please select a customer.');
-      return;
-    }
     if (selectedProducts.length === 0) {
-      setError('Please select at least one product.');
+      setError('Please search and select at least one product.');
       return;
     }
 
@@ -170,301 +234,341 @@ export const AddSalesBill: React.FC = () => {
       const requestData = {
         billNumber: formData.billNumber,
         billDate: formData.billDate,
-        customerId: selectedCustomer.customerId,
+        customerId: selectedCustomer ? selectedCustomer.customerId : 0,
+        customerName: partySearch || 'Walk-in Customer',
         paymentMode: formData.paymentMode,
         amount: formData.amount,
         remarks: formData.remarks,
         photoPath: selectedImage,
         items: selectedProducts,
-        id: isEditMode ? initialData?.id : 0
+        id: isEditMode ? initialData?.id : 0,
       };
 
       await addSalesBill(requestData, isEditMode, initialData?.id);
       navigate('/bills/sales');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error saving invoice.');
+      setError(err instanceof Error ? err.message : 'Failed to process sales bill.');
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredCustomers = customers.filter(c =>
+  const filteredCustomers = customers.filter((c) =>
       c.name.toLowerCase().includes(partySearch.toLowerCase())
   );
 
-  const filteredProducts = availableProducts.filter(p =>
-      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-      (p.sku && p.sku.toLowerCase().includes(productSearch.toLowerCase()))
+  const filteredProducts = availableProducts.filter(
+      (p) =>
+          p.name.toLowerCase().includes(productSearch.toLowerCase())
   );
 
   return (
-      <div className="invoice-layout-root">
+      <div className="user-management-page-wrapper">
         <Sidebar />
-        <div className="invoice-page-wrapper">
+        <div className="user-management-container">
           <div className="fixed-navbar-spacer">
             <Navbar />
           </div>
 
-          <div className="invoice-container">
-            {/* Top Header Card */}
-            <div className="invoice-header-card">
-              <div className="invoice-header-title">
-                <div className="invoice-icon-badge">
+          <div className="user-management-content" style={{ paddingBottom: '3rem' }}>
+            {/* Header Bar */}
+            <div className="stat-card" style={{ marginBottom: '1.25rem', justifyContent: 'space-between' }}>
+              <div className="d-flex align-items-center gap-3">
+                <div className="stat-icon-box navy">
                   <i className="bi bi-receipt-cutoff"></i>
                 </div>
                 <div>
-                  <h2>{isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}</h2>
-                  <p>Create, review line items, and adjust payment details.</p>
+                  <h3 className="text-navy m-0 fw-bold">{isEditMode ? 'Edit Sales Invoice' : 'New Sales Invoice'}</h3>
+                  <span className="text-muted small">Manage items, stock quantities, applied VAT/Tax, and final totals.</span>
                 </div>
               </div>
-              <div className="invoice-header-actions">
+              <div className="d-flex gap-2">
                 <button type="button" className="btn-secondary" onClick={() => navigate('/bills/sales')}>
                   Cancel
                 </button>
                 <button
                     type="button"
-                    className="btn-outline-primary"
+                    className="btn-secondary"
+                    style={{ backgroundColor: '#EEF2FF', color: '#255DCE', borderColor: '#C7D2FE' }}
                     onClick={() => setShowPdfModal(true)}
                     disabled={selectedProducts.length === 0}
                 >
-                  <i className="bi bi-file-earmark-pdf"></i> Preview PDF
+                  <i className="bi bi-file-earmark-pdf me-1"></i> Preview PDF
                 </button>
                 <button type="button" className="btn-primary" onClick={handleSaveInvoice} disabled={loading}>
-                  {loading ? <i className="bi bi-arrow-repeat spin"></i> : <i className="bi bi-check2-circle"></i>}
+                  {loading ? <i className="bi bi-arrow-repeat spin me-1"></i> : <i className="bi bi-check2-circle me-1"></i>}
                   {isEditMode ? 'Update Invoice' : 'Save & Print'}
                 </button>
               </div>
             </div>
 
             {error && (
-                <div className="invoice-alert-danger">
-                  <i className="bi bi-exclamation-octagon-fill"></i> {error}
+                <div className="alert alert-danger d-flex align-items-center gap-2 mb-3" role="alert">
+                  <i className="bi bi-exclamation-octagon-fill"></i>
+                  <div>{error}</div>
                 </div>
             )}
 
-            <div className="invoice-grid-main">
-              {/* Left Main Section */}
-              <div className="invoice-column-left">
-                <div className="invoice-card">
-                  <h3 className="invoice-card-title"><i className="bi bi-info-circle"></i> Invoice Details</h3>
-                  <div className="invoice-form-grid">
-                    <div className="input-field-group">
-                      <label>Invoice Number</label>
-                      <div className="input-with-icon">
-                        <i className="bi bi-hash"></i>
-                        <input type="text" value={formData.billNumber} readOnly className="read-only-input" />
-                      </div>
-                    </div>
-
-                    <div className="input-field-group">
-                      <label>Billing Date</label>
-                      <div className="input-with-icon">
-                        <i className="bi bi-calendar3"></i>
-                        <input
-                            type="date"
-                            name="BillDate"
-                            value={formData.billDate}
-                            onChange={handleInputChange}
-                            required
-                        />
-                      </div>
-                    </div>
-
-                    <div className="input-field-group">
-                      <label>Customer Name</label>
-                      <div className="autocomplete-wrapper">
-                        <div className="input-with-icon">
-                          <i className="bi bi-person"></i>
-                          <input
-                              type="text"
-                              value={partySearch}
-                              onChange={(e) => setPartySearch(e.target.value)}
-                              onFocus={() => setShowPartySearch(true)}
-                              onBlur={() => setTimeout(() => setShowPartySearch(false), 200)}
-                              placeholder="Search customer..."
-                              required
-                          />
-                        </div>
-                        {showPartySearch && partySearch && (
-                            <div className="autocomplete-dropdown">
-                              {filteredCustomers.length > 0 ? (
-                                  filteredCustomers.map(c => (
-                                      <div
-                                          key={c.id}
-                                          className="autocomplete-item"
-                                          onClick={() => {
-                                            setPartySearch(c.name);
-                                            setSelectedCustomer(c);
-                                            setShowPartySearch(false);
-                                          }}
-                                      >
-                                        <strong>{c.name}</strong>
-                                      </div>
-                                  ))
-                              ) : (
-                                  <div className="autocomplete-empty">No customer matches found</div>
-                              )}
-                            </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="input-field-group">
-                      <label>Payment Mode</label>
-                      <div className="input-with-icon">
-                        <i className="bi bi-wallet2"></i>
-                        <select name="PaymentMode" value={formData.paymentMode} onChange={handleInputChange}>
-                          <option value="cash">Cash</option>
-                          <option value="card">Credit/Debit Card</option>
-                          <option value="upi">UPI / Digital</option>
-                          <option value="bank">Bank Transfer</option>
-                        </select>
-                      </div>
-                    </div>
+            <div className="row g-3">
+              {/* Left Main Form Area */}
+              <div className="col-lg-8">
+                {/* Invoice Metadata Card */}
+                <div className="filter-controls-card mb-3">
+                  <div className="fw-semibold text-navy mb-3 pb-2 border-bottom d-flex align-items-center gap-2">
+                    <i className="bi bi-file-text"></i> Basic Invoice Info
                   </div>
-                </div>
+                  <div className="row g-3">
+                    <div className="col-md-6">
+                      <label className="form-label text-muted small fw-semibold">Invoice Number</label>
+                      <input type="text" value={formData.billNumber} readOnly className="form-control bg-light" />
+                    </div>
 
-                {/* Product Line Item Entry */}
-                <div className="invoice-card">
-                  <h3 className="invoice-card-title"><i className="bi bi-box-seam"></i> Add Line Items</h3>
-                  <div className="autocomplete-wrapper">
-                    <div className="input-with-icon">
-                      <i className="bi bi-search"></i>
+                    <div className="col-md-6">
+                      <label className="form-label text-muted small fw-semibold">Billing Date</label>
                       <input
-                          type="text"
-                          value={productSearch}
-                          onChange={(e) => {
-                            setProductSearch(e.target.value);
-                            setShowProductDropdown(true);
-                          }}
-                          onFocus={() => setShowProductDropdown(true)}
-                          placeholder="Type product name or scan SKU..."
+                          type="date"
+                          name="billDate"
+                          value={formData.billDate}
+                          onChange={handleInputChange}
+                          className="form-control"
+                          required
                       />
                     </div>
-                    {showProductDropdown && productSearch && (
-                        <div className="autocomplete-dropdown">
-                          {filteredProducts.length > 0 ? (
-                              filteredProducts.map(item => (
-                                  <div key={item.id} className="autocomplete-item-row" onClick={() => handleAddProduct(item)}>
-                                    <div>
-                                      <div className="item-title">{item.name}</div>
-                                      {item.sku && <span className="item-badge">{item.sku}</span>}
+
+                    <div className="col-md-6 position-relative">
+                      <label className="form-label text-muted small fw-semibold">Customer (Optional)</label>
+                      <div className="search-input-wrapper">
+                        <i className="bi bi-person search-icon"></i>
+                        <input
+                            type="text"
+                            value={partySearch}
+                            onChange={(e) => {
+                              setPartySearch(e.target.value);
+                              if (!e.target.value) setSelectedCustomer(null);
+                            }}
+                            onFocus={() => setShowPartySearch(true)}
+                            onBlur={() => setTimeout(() => setShowPartySearch(false), 200)}
+                            placeholder="Search customer name or leave blank..."
+                            className="form-control search-input"
+                        />
+                      </div>
+                      {showPartySearch && partySearch && (
+                          <div className="position-absolute start-0 end-0 mt-1 bg-white border rounded-3 shadow-lg z-3 overflow-hidden" style={{ top: '100%' }}>
+                            {filteredCustomers.length > 0 ? (
+                                filteredCustomers.map((c) => (
+                                    <div
+                                        key={c.id}
+                                        className="p-2 border-bottom hover-bg-light cursor-pointer"
+                                        style={{ cursor: 'pointer' }}
+                                        onMouseDown={() => {
+                                          setPartySearch(c.name);
+                                          setSelectedCustomer(c);
+                                          setShowPartySearch(false);
+                                        }}
+                                    >
+                                      <div className="fw-semibold text-navy">{c.name}</div>
                                     </div>
-                                    <div className="item-meta">
-                                      <span className="item-price">Rs. {item.salesPrice}</span>
-                                      <span className="item-stock">Stock: {item.openingStock} {item.unit || 'Pcs'}</span>
-                                    </div>
-                                  </div>
-                              ))
-                          ) : (
-                              <div className="autocomplete-empty">No products found</div>
-                          )}
-                        </div>
-                    )}
+                                ))
+                            ) : (
+                                <div className="p-2 text-muted small text-center">No existing customer found (Will save as standard entry)</div>
+                            )}
+                          </div>
+                      )}
+                    </div>
+
+                    <div className="col-md-6">
+                      <label className="form-label text-muted small fw-semibold">Payment Mode</label>
+                      <select
+                          name="paymentMode"
+                          value={formData.paymentMode}
+                          onChange={handleInputChange}
+                          className="form-control"
+                      >
+                        <option value="cash">Cash</option>
+                        <option value="card">Credit/Debit Card</option>
+                        <option value="upi">UPI / Digital Payment</option>
+                        <option value="bank">Bank Transfer</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
 
-                {/* Table Card */}
-                <div className="invoice-card no-padding">
-                  <div className="responsive-table-wrapper">
-                    <table className="invoice-table">
-                      <thead>
-                      <tr>
-                        <th>Product Details</th>
-                        <th>Stock</th>
-                        <th style={{ width: '110px' }}>Quantity</th>
-                        <th style={{ width: '130px' }}>Unit Price</th>
-                        <th>Total</th>
-                        <th style={{ width: '50px' }}></th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      {selectedProducts.length > 0 ? (
-                          selectedProducts.map((item, index) => (
-                              <tr key={item.itemId}>
-                                <td>
-                                  <div className="table-item-name">{item.name}</div>
-                                  {item.sku && <span className="item-badge-subtle">{item.sku}</span>}
-                                </td>
-                                <td>
-                                  <span className="stock-pill">{item.availableStock} {item.unit}</span>
-                                </td>
-                                <td>
-                                  <input
-                                      type="number"
-                                      min="1"
-                                      className="table-input"
-                                      value={item.quantity}
-                                      onChange={(e) => handleItemChange(index, 'quantity', Math.max(1, parseFloat(e.target.value) || 1))}
-                                  />
-                                </td>
-                                <td>
-                                  <input
-                                      type="number"
-                                      min="0"
-                                      className="table-input"
-                                      value={item.unitPrice}
-                                      onChange={(e) => handleItemChange(index, 'unitPrice', parseFloat(e.target.value) || 0)}
-                                  />
-                                </td>
-                                <td className="table-total-text">
-                                  Rs. {item.totalPrice.toFixed(2)}
-                                </td>
-                                <td>
-                                  <button
-                                      type="button"
-                                      className="btn-icon-danger"
-                                      onClick={() => handleRemoveProduct(index)}
-                                      title="Remove item"
-                                  >
-                                    <i className="bi bi-trash3"></i>
-                                  </button>
-                                </td>
-                              </tr>
-                          ))
-                      ) : (
-                          <tr>
-                            <td colSpan={6} className="table-empty-state">
-                              <i className="bi bi-cart-dash"></i>
-                              <p>No products added. Search above to populate line items.</p>
-                            </td>
-                          </tr>
-                      )}
-                      </tbody>
-                    </table>
+                {/* Product Search Card */}
+                <div className="filter-controls-card mb-3 position-relative">
+                  <div className="fw-semibold text-navy mb-2 d-flex align-items-center gap-2">
+                    <i className="bi bi-search"></i> Quick Product Search
                   </div>
+                  <div className="search-input-wrapper">
+                    <i className="bi bi-box-seam search-icon"></i>
+                    <input
+                        type="text"
+                        value={productSearch}
+                        onChange={(e) => {
+                          setProductSearch(e.target.value);
+                          setShowProductDropdown(true);
+                        }}
+                        onFocus={() => setShowProductDropdown(true)}
+                        placeholder="Search by product name..."
+                        className="form-control search-input"
+                    />
+                  </div>
+
+                  {showProductDropdown && productSearch && (
+                      <div
+                          className="position-absolute start-0 end-0 mx-3 bg-white border rounded-3 shadow-lg z-3 overflow-auto"
+                          style={{ maxHeight: '240px', top: '100%' }}
+                      >
+                        {filteredProducts.length > 0 ? (
+                            filteredProducts.map((item) => (
+                                <div
+                                    key={item.id}
+                                    className="p-2 border-bottom d-flex align-items-center justify-content-between cursor-pointer"
+                                    style={{ cursor: 'pointer' }}
+                                    onMouseDown={() => handleAddProduct(item)}
+                                >
+                                  <div>
+                                    <div className="fw-semibold text-navy">{item.name}</div>
+                                    <span className="badge-role">{item.category?.name || 'General'}</span>
+                                  </div>
+                                  <div className="text-end">
+                                    <div className="fw-bold" style={{ color: '#255DCE' }}>
+                                      Rs. {(item.fixedSellingPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                    </div>
+                                    <div className="small text-muted">
+                                      Stock: {item.itemCount ?? 0} {item.unit || 'pcs'}
+                                    </div>
+                                  </div>
+                                </div>
+                            ))
+                        ) : (
+                            <div className="p-3 text-muted text-center">No products found matching "{productSearch}"</div>
+                        )}
+                      </div>
+                  )}
+                </div>
+
+                {/* Added Line Items Table */}
+                <div className="user-table-card">
+                  <table className="user-table">
+                    <thead>
+                    <tr>
+                      <th>Product</th>
+                      <th>Available Stock</th>
+                      <th style={{ width: '120px' }}>Qty</th>
+                      <th style={{ width: '140px' }}>Selling Price</th>
+                      <th>Tax / VAT</th>
+                      <th className="text-end">Total Price</th>
+                      <th style={{ width: '50px' }}></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {selectedProducts.length > 0 ? (
+                        selectedProducts.map((item, index) => (
+                            <tr key={item.itemId}>
+                              <td>
+                                <div className="fw-semibold text-navy">{item.name}</div>
+                                {item.sku && <div className="small text-muted">SKU: {item.sku}</div>}
+                              </td>
+                              <td>
+                            <span className="badge-status active">
+                              {item.availableStock} {item.unit}
+                            </span>
+                              </td>
+                              <td>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    className="form-control form-control-sm text-center"
+                                    value={item.quantity === 0 ? '' : item.quantity}
+                                    onFocus={(e) => e.target.select()}
+                                    onChange={(e) =>
+                                        handleItemChange(
+                                            index,
+                                            'quantity',
+                                            Math.max(1, parseFloat(e.target.value) || 0)
+                                        )
+                                    }
+                                />
+                              </td>
+                              <td>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    className="form-control form-control-sm"
+                                    value={item.unitPrice === 0 ? '' : item.unitPrice}
+                                    onFocus={(e) => e.target.select()}
+                                    onChange={(e) =>
+                                        handleItemChange(
+                                            index,
+                                            'unitPrice',
+                                            parseFloat(e.target.value) || 0
+                                        )
+                                    }
+                                />
+                              </td>
+                              <td>
+                                <div className="small text-muted">
+                                  {item.taxPercentage > 0 && <div>Tax: {item.taxPercentage}%</div>}
+                                  {item.vatPercentage > 0 && <div>VAT: {item.vatPercentage}%</div>}
+                                  {item.taxPercentage === 0 && item.vatPercentage === 0 && <span>None</span>}
+                                </div>
+                              </td>
+                              <td className="text-end fw-bold" style={{ color: '#255DCE' }}>
+                                Rs. {item.totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              </td>
+                              <td className="text-center">
+                                <button
+                                    type="button"
+                                    className="btn btn-link text-danger p-0"
+                                    onClick={() => handleRemoveProduct(index)}
+                                    title="Remove line item"
+                                >
+                                  <i className="bi bi-trash3"></i>
+                                </button>
+                              </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                          <td colSpan={7} className="text-center py-4 text-muted">
+                            <i className="bi bi-cart-dash fs-4 d-block mb-1"></i>
+                            No line items selected. Search for a product above to add to bill.
+                          </td>
+                        </tr>
+                    )}
+                    </tbody>
+                  </table>
                 </div>
               </div>
 
               {/* Right Summary Column */}
-              <div className="invoice-column-right">
-                <div className="invoice-card summary-card">
-                  <span className="summary-label">Grand Total Amount</span>
-                  <div className="summary-price-display">
-                    Rs. {formData.amount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              <div className="col-lg-4">
+                <div className="filter-controls-card mb-3" style={{ background: 'linear-gradient(180deg, #1E293B 0%, #0F172A 100%)', color: '#FFFFFF' }}>
+                  <div className="text-uppercase small fw-bold tracking-wider opacity-75 mb-1">Grand Total</div>
+                  <div className="display-6 fw-bold mb-3" style={{ color: '#60A5FA' }}>
+                    Rs. {formData.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </div>
 
-                  <div className="summary-breakdown">
-                    <div className="breakdown-row">
-                      <span>Selected Items</span>
-                      <strong>{selectedProducts.length}</strong>
-                    </div>
-                    <div className="breakdown-row">
-                      <span>Total Quantity</span>
-                      <strong>{selectedProducts.reduce((sum, i) => sum + i.quantity, 0)}</strong>
-                    </div>
+                  <div className="pt-2 border-top border-secondary d-flex justify-content-between small opacity-75 mb-1">
+                    <span>Selected Products</span>
+                    <span>{selectedProducts.length} Items</span>
+                  </div>
+                  <div className="d-flex justify-content-between small opacity-75">
+                    <span>Total Unit Quantity</span>
+                    <span>{selectedProducts.reduce((sum, i) => sum + i.quantity, 0)} Units</span>
                   </div>
                 </div>
 
-                <div className="invoice-card">
-                  <h3 className="invoice-card-title"><i className="bi bi-pencil-square"></i> Remarks & Notes</h3>
+                <div className="filter-controls-card">
+                  <label className="form-label text-navy fw-semibold small">Remarks / Notes</label>
                   <textarea
                       name="remarks"
                       value={formData.remarks}
                       onChange={handleInputChange}
-                      rows={3}
-                      placeholder="Payment notes, delivery conditions, or extra billing details..."
-                      className="invoice-textarea"
+                      rows={4}
+                      placeholder="Additional payment notes, bill remarks, or extra billing information..."
+                      className="form-control"
                   />
                 </div>
               </div>
@@ -472,64 +576,72 @@ export const AddSalesBill: React.FC = () => {
           </div>
         </div>
 
-        {/* PDF Modal Preview */}
+        {/* Printable PDF Modal Preview */}
         {showPdfModal && (
-            <div className="pdf-modal-backdrop" onClick={() => setShowPdfModal(false)}>
-              <div className="pdf-modal-content" onClick={(e) => e.stopPropagation()}>
-                <div className="pdf-modal-header">
-                  <h3><i className="bi bi-file-earmark-pdf-fill"></i> Sales Invoice Preview</h3>
-                  <div className="pdf-modal-actions">
-                    <button className="btn-primary" onClick={() => window.print()}>
-                      <i className="bi bi-printer"></i> Print Invoice
-                    </button>
-                    <button className="btn-secondary" onClick={() => setShowPdfModal(false)}>
+            <div className="modal fade show d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+              <div className="modal-dialog modal-lg modal-dialog-centered">
+                <div className="modal-content">
+                  <div className="modal-header border-bottom">
+                    <h5 className="modal-title text-navy fw-bold">
+                      <i className="bi bi-file-earmark-pdf me-2"></i>Sales Invoice Preview
+                    </h5>
+                    <button type="button" className="btn-close" onClick={() => setShowPdfModal(false)}></button>
+                  </div>
+
+                  <div className="modal-body p-4" id="printable-invoice">
+                    <div className="d-flex justify-content-between pb-3 mb-3 border-bottom">
+                      <div>
+                        <h3 className="text-navy fw-bold mb-1">SALES INVOICE</h3>
+                        <div className="small text-muted">Invoice #: <strong>{formData.billNumber}</strong></div>
+                        <div className="small text-muted">Date: {formData.billDate}</div>
+                      </div>
+                      <div className="text-end">
+                        <h6 className="fw-bold mb-1">Customer Details</h6>
+                        <div className="small">{partySearch || 'Walk-in Customer'}</div>
+                        <div className="small text-muted text-uppercase">Payment: {formData.paymentMode}</div>
+                      </div>
+                    </div>
+
+                    <table className="table table-bordered align-middle">
+                      <thead className="table-light">
+                      <tr>
+                        <th>Product</th>
+                        <th className="text-center">Qty</th>
+                        <th className="text-end">Selling Price</th>
+                        <th className="text-end">Tax/VAT</th>
+                        <th className="text-end">Total</th>
+                      </tr>
+                      </thead>
+                      <tbody>
+                      {selectedProducts.map((p) => (
+                          <tr key={p.itemId}>
+                            <td>{p.name}</td>
+                            <td className="text-center">{p.quantity} {p.unit}</td>
+                            <td className="text-end">Rs. {p.unitPrice.toFixed(2)}</td>
+                            <td className="text-end">Rs. {(p.taxAmount + p.vatAmount).toFixed(2)}</td>
+                            <td className="text-end fw-semibold">Rs. {p.totalPrice.toFixed(2)}</td>
+                          </tr>
+                      ))}
+                      </tbody>
+                    </table>
+
+                    <div className="d-flex justify-content-between pt-3 border-top">
+                      <div className="small text-muted">
+                        {formData.remarks && <div><strong>Remarks:</strong> {formData.remarks}</div>}
+                      </div>
+                      <div className="text-end fw-bold text-navy fs-5">
+                        Total: Rs. {formData.amount.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="modal-footer border-top">
+                    <button type="button" className="btn-secondary" onClick={() => setShowPdfModal(false)}>
                       Close
                     </button>
-                  </div>
-                </div>
-
-                <div className="pdf-printable-area" id="printable-invoice">
-                  <div className="pdf-bill-header">
-                    <div>
-                      <h2>SALES INVOICE</h2>
-                      <p>Invoice #: <strong>{formData.billNumber}</strong></p>
-                      <p>Date: {formData.billDate}</p>
-                    </div>
-                    <div className="pdf-customer-info">
-                      <h4>Billed To:</h4>
-                      <p><strong>{selectedCustomer?.name || 'N/A'}</strong></p>
-                      <p>Payment Mode: <span style={{ textTransform: 'uppercase' }}>{formData.paymentMode}</span></p>
-                    </div>
-                  </div>
-
-                  <table className="pdf-table">
-                    <thead>
-                    <tr>
-                      <th>Item</th>
-                      <th>Qty</th>
-                      <th>Rate</th>
-                      <th>Amount</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {selectedProducts.map(p => (
-                        <tr key={p.itemId}>
-                          <td>{p.name}</td>
-                          <td>{p.quantity} {p.unit}</td>
-                          <td>Rs. {p.unitPrice.toFixed(2)}</td>
-                          <td>Rs. {p.totalPrice.toFixed(2)}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                  </table>
-
-                  <div className="pdf-bill-footer">
-                    <div className="pdf-notes">
-                      {formData.remarks && <p><strong>Notes:</strong> {formData.remarks}</p>}
-                    </div>
-                    <div className="pdf-grand-total">
-                      Total: Rs. {formData.amount.toFixed(2)}
-                    </div>
+                    <button type="button" className="btn-primary" onClick={() => window.print()}>
+                      <i className="bi bi-printer me-1"></i> Print Invoice
+                    </button>
                   </div>
                 </div>
               </div>

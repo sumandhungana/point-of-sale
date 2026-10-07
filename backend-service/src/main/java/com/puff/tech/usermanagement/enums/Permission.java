@@ -78,6 +78,8 @@ public enum Permission {
     SALES_BILL_GENERATION(Module.SALES_BILL_MANAGEMENT, "generate"),
     SALES_BILL_ADD(Module.SALES_BILL_MANAGEMENT, "add"),
     SALES_BILL_GET_ALL(Module.SALES_BILL_MANAGEMENT, "all"),
+    PURCHASE_BILL_ADD(Module.PURCHASE_BILL_MANAGEMENT, "add"),
+    PURCHASE_BILL_GET_ALL(Module.PURCHASE_BILL_MANAGEMENT, "all"),
     ;
 
     private final Module module;

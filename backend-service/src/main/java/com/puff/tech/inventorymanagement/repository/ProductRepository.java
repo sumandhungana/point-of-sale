@@ -13,7 +13,12 @@ public interface ProductRepository extends ReactorCrudRepository<ProductEntity, 
     @Join(value = "category", type = Join.Type.LEFT_FETCH)
     Flux<ProductEntity> findByMemberId(Long memberId);
 
-    @Query("UPDATE products SET count_stock = count_stock - :quantity, updated_at = NOW() " +
-            "WHERE id = :productId AND member_id = :memberId AND count_stock >= :quantity")
+    @Query("""
+        UPDATE products 
+        SET item_count = item_count - :quantity 
+        WHERE id = :productId 
+          AND member_id = :memberId 
+          AND item_count >= :quantity
+    """)
     Mono<Long> decrementStock(Long productId, Long memberId, Double quantity);
 }

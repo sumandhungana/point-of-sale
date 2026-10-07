@@ -7,7 +7,7 @@ import { SystemMonitor } from '@/components/SystemMonitor';
 import { getDashboardPaymentTotals } from '@/services/paymentService';
 import { fetchStaff } from '@/services/staffService';
 import { getAllSalesBill } from '@/features/services/salesBillService';
-import { fetchPurchases } from '@/services/purchaseListService';
+import { fetchPurchases } from '@/features/services/purchaseBillService';
 import { fetchExpenses } from '@/services/expensesListService';
 import { fetchIncomes } from '@/services/incomeService';
 import { fetchCashbooks } from '@/services/cashbookService';

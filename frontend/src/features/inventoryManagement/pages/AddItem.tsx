@@ -18,7 +18,6 @@ interface LocationState {
     id: number;
     name: string;
     salesPrice: number;
-    openingStock: number;
     imageUrl: string;
     category: {
       name: string;
@@ -40,19 +39,23 @@ export const AddItem = () => {
   // Switch between 'gross' and 'perUnit'
   const [priceType, setPriceType] = useState<'gross' | 'perUnit'>('gross');
 
+  // Control state for enabling/disabling Fixed Selling Price input
+  const [isFixedPriceEnabled, setIsFixedPriceEnabled] = useState<boolean>(
+      Boolean(initialValues?.salesPrice && initialValues.salesPrice > 0)
+  );
+
   const [formDataState, setFormDataState] = useState({
     name: initialValues?.name || '',
     itemCount: '',
     unit: 'pcs',
+    lowStockAlert: '',
     categoryId: '',
     salesPrice: initialValues?.salesPrice?.toString() || '',
     grossPurchasePrice: '',
     perUnitPurchasePrice: '',
     isTaxIncluded: false,
-    openingStock: initialValues?.openingStock?.toString() || '',
-    lowStockAlert: '',
-    vatDate: '',
-    vatPercentage: '',
+    taxPercentage: '',
+    vatPercentage: '13',
     imageUrl: initialValues?.imageUrl || '',
   });
 
@@ -100,6 +103,29 @@ export const AddItem = () => {
     };
     fetchItemsData();
   }, []);
+
+  // Toggle Fixed Selling Price state
+  const handleFixedPriceToggle = () => {
+    setIsFixedPriceEnabled(prev => {
+      const nextState = !prev;
+      if (!nextState) {
+        setFormDataState(f => ({ ...f, salesPrice: '' }));
+      }
+      return nextState;
+    });
+  };
+
+  // Toggle Tax Included to enable/disable TAX % field
+  const handleTaxToggle = () => {
+    setFormDataState(prev => {
+      const nextTaxIncluded = !prev.isTaxIncluded;
+      return {
+        ...prev,
+        isTaxIncluded: nextTaxIncluded,
+        taxPercentage: nextTaxIncluded ? (prev.taxPercentage || '13') : ''
+      };
+    });
+  };
 
   // Handle Input Changes & Synchronize Calculated Prices
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -167,6 +193,7 @@ export const AddItem = () => {
           }
         });
         formData.append('priceType', priceType);
+        formData.append('isFixedPriceEnabled', String(isFixedPriceEnabled));
 
         if (selectedFile) {
           formData.append('image', selectedFile);
@@ -180,12 +207,11 @@ export const AddItem = () => {
           unit: formDataState.unit,
           perUnitPurchasePrice: priceType === 'perUnit' ? (parseFloat(formDataState.perUnitPurchasePrice) || 0) : 0,
           grossPurchasePrice: priceType === 'gross' ? (parseFloat(formDataState.grossPurchasePrice) || 0) : 0,
-          salesPrice: parseFloat(formDataState.salesPrice) || 0,
+          fixedSellingPrice: isFixedPriceEnabled ? (parseFloat(formDataState.salesPrice) || 0) : 0,
           isTaxIncluded: formDataState.isTaxIncluded,
-          openingStock: parseFloat(formDataState.openingStock) || 0,
           lowStockAlert: parseFloat(formDataState.lowStockAlert) || 0,
-          vatPercentage: formDataState.vatPercentage ? parseFloat(formDataState.vatPercentage) : undefined,
-          vatDate: formDataState.vatDate,
+          vatPercentage: formDataState.vatPercentage ? parseFloat(formDataState.vatPercentage) : 13,
+          taxPercentage: formDataState.taxPercentage ? parseFloat(formDataState.taxPercentage) : 0,
           imageUrl: formDataState.imageUrl || '',
         };
 
@@ -196,17 +222,17 @@ export const AddItem = () => {
         name: '',
         itemCount: '',
         unit: 'pcs',
+        lowStockAlert: '',
         categoryId: '',
         salesPrice: '',
         grossPurchasePrice: '',
         perUnitPurchasePrice: '',
         isTaxIncluded: false,
-        openingStock: '',
-        lowStockAlert: '',
-        vatDate: '',
-        vatPercentage: '',
+        taxPercentage: '',
+        vatPercentage: '13',
         imageUrl: '',
       });
+      setIsFixedPriceEnabled(false);
       setSelectedFile(null);
       setImagePreview(null);
       navigate('/inventory/items');
@@ -243,13 +269,13 @@ export const AddItem = () => {
     };
   }, [imagePreview]);
 
-  // Derived helper values for Overall Summary display
+  // Derived calculations for summary display
   const itemCountVal = parseFloat(formDataState.itemCount) || 0;
   const grossVal = parseFloat(formDataState.grossPurchasePrice) || 0;
   const perUnitVal = parseFloat(formDataState.perUnitPurchasePrice) || 0;
   const calculatedGrossPrice = priceType === 'gross' ? grossVal : (perUnitVal * itemCountVal);
   const calculatedUnitPrice = priceType === 'perUnit' ? perUnitVal : (itemCountVal > 0 ? grossVal / itemCountVal : 0);
-  const salesPriceVal = parseFloat(formDataState.salesPrice) || 0;
+  const salesPriceVal = isFixedPriceEnabled ? (parseFloat(formDataState.salesPrice) || 0) : 0;
 
   return (
       <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -341,6 +367,23 @@ export const AddItem = () => {
                         </select>
                       </div>
                     </div>
+
+                    <div className="add-item-primary-unit-container">
+                      <label className="add-item-label">
+                        <i className="bi bi-exclamation-triangle"></i>
+                        Low Stock Alert
+                      </label>
+                      <input
+                          type="number"
+                          name="lowStockAlert"
+                          value={formDataState.lowStockAlert}
+                          onChange={handleInputChange}
+                          className="add-item-unit-input"
+                          placeholder="e.g. 5"
+                          required
+                          step="0.01"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -372,8 +415,8 @@ export const AddItem = () => {
                 </div>
 
                 {/* Pricing Mode Selector */}
-                <div className="add-item-price-type-selector" style={{ display: 'flex', gap: '1.5rem', margin: '1rem 0' }}>
-                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 500 }}>
+                <div className="add-item-price-type-selector">
+                  <label>
                     <input
                         type="radio"
                         name="priceType"
@@ -383,7 +426,7 @@ export const AddItem = () => {
                     />
                     Gross Purchase Price Mode
                   </label>
-                  <label style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 500 }}>
+                  <label>
                     <input
                         type="radio"
                         name="priceType"
@@ -396,7 +439,7 @@ export const AddItem = () => {
                 </div>
 
                 {/* Conditional Price Fields */}
-                <div className="add-item-price-container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                <div className="add-item-price-container">
                   <div className="add-item-price-field">
                     <label className="add-item-label">
                       <i className="bi bi-currency-dollar"></i>
@@ -433,136 +476,117 @@ export const AddItem = () => {
                     />
                   </div>
 
+                  {/* Fixed Selling Price Container with Toggle */}
                   <div className="add-item-price-field">
-                    <label className="add-item-label">
-                      <i className="bi bi-tags"></i>
-                      Selling Price (Per Unit)
-                    </label>
+                    <div className="add-item-tax-container" style={{ marginBottom: '6px' }}>
+                      <label className="add-item-label" style={{ marginBottom: 0 }}>
+                        <i className="bi bi-tags"></i>
+                        Enable Fixed Selling Price (Excl. VAT/TAX)
+                      </label>
+                      <div
+                          className={`add-item-slide-button ${isFixedPriceEnabled ? 'active' : ''}`}
+                          onClick={handleFixedPriceToggle}
+                      >
+                        <div className="add-item-slide-circle" />
+                      </div>
+                    </div>
                     <input
                         type="number"
                         name="salesPrice"
                         value={formDataState.salesPrice}
                         onChange={handleInputChange}
                         className="add-item-input"
-                        placeholder="Sales Price"
+                        placeholder={isFixedPriceEnabled ? "Enter Fixed Selling Price" : "Fixed Selling Price Disabled"}
+                        disabled={!isFixedPriceEnabled}
+                        required={isFixedPriceEnabled}
                         step="0.01"
                     />
                   </div>
                 </div>
 
                 {/* Overall Price Breakdown Summary */}
-                <div
-                    style={{
-                      marginTop: '1.25rem',
-                      padding: '1rem',
-                      backgroundColor: '#f1f5f9',
-                      borderRadius: '8px',
-                      borderLeft: '4px solid #3b82f6'
-                    }}
-                >
-                  <h4 style={{ margin: '0 0 0.5rem 0', color: '#1e293b' }}>
-                    <i className="bi bi-calculator" style={{ marginRight: '0.5rem' }}></i>
+                <div className="add-item-summary-box">
+                  <h4 className="add-item-summary-title">
+                    <i className="bi bi-calculator"></i>
                     Overall Financial Summary
                   </h4>
-                  <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', fontSize: '0.95rem' }}>
+                  <div className="add-item-summary-grid">
                     <div>
                       <span style={{ color: '#64748b' }}>Total Overall Purchase Price: </span>
-                      <strong style={{ color: '#0f172a' }}>${calculatedGrossPrice.toFixed(2)}</strong>
+                      <strong style={{ color: '#021861' }}>${calculatedGrossPrice.toFixed(2)}</strong>
                     </div>
                     <div>
                       <span style={{ color: '#64748b' }}>Calculated Unit Cost: </span>
-                      <strong style={{ color: '#0f172a' }}>${calculatedUnitPrice.toFixed(2)}</strong>
+                      <strong style={{ color: '#021861' }}>${calculatedUnitPrice.toFixed(2)}</strong>
                     </div>
                     <div>
                       <span style={{ color: '#64748b' }}>Unit Profit Margin: </span>
-                      <strong style={{ color: salesPriceVal - calculatedUnitPrice >= 0 ? '#16a34a' : '#dc2626' }}>
-                        ${(salesPriceVal - calculatedUnitPrice).toFixed(2)}
+                      <strong style={{ color: salesPriceVal - calculatedUnitPrice >= 0 ? '#255DCE' : '#DE1110' }}>
+                        {isFixedPriceEnabled ? `$${(salesPriceVal - calculatedUnitPrice).toFixed(2)}` : 'N/A (Dynamic)'}
                       </strong>
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* Tax & VAT Section */}
               <div className="add-item-section">
-                <div className="add-item-tax-container">
-                  <h2 className="add-item-tax-label">
-                    <i className="bi bi-percent"></i>
-                    Tax Included
-                  </h2>
-                  <div
-                      className={`add-item-slide-button ${formDataState.isTaxIncluded ? 'active' : ''}`}
-                      onClick={() => setFormDataState(prev => ({ ...prev, isTaxIncluded: !prev.isTaxIncluded }))}
-                  >
-                    <div className="add-item-slide-circle" />
-                  </div>
-                </div>
-                <div className="add-item-stock-container">
-                  <div className="add-item-stock-field">
-                    <label className="add-item-label">
-                      <i className="bi bi-boxes"></i>
-                      Opening Stock
-                    </label>
-                    <input
-                        type="number"
-                        name="openingStock"
-                        value={formDataState.openingStock}
-                        onChange={handleInputChange}
-                        className="add-item-input"
-                        placeholder="Enter count"
-                        required
-                        step="0.01"
-                    />
-                  </div>
-                  <div className="add-item-stock-field">
-                    <label className="add-item-label">
-                      <i className="bi bi-exclamation-triangle"></i>
-                      Low Stock Alert
-                    </label>
-                    <input
-                        type="number"
-                        name="lowStockAlert"
-                        value={formDataState.lowStockAlert}
-                        onChange={handleInputChange}
-                        className="add-item-input"
-                        placeholder="Enter count"
-                        required
-                        step="0.01"
-                    />
-                  </div>
-                </div>
-              </div>
+                <h2 className="add-item-section-title">
+                  <i className="bi bi-receipt"></i>
+                  Tax & VAT Settings
+                </h2>
 
-              <div className="add-item-section">
-                <div className="add-item-vat-container">
+                <div className="add-item-tax-grid">
+                  {/* Always Enabled VAT % Input Field */}
                   <div className="add-item-vat-field">
-                    <div style={{ flex: 1 }}>
+                    <label className="add-item-vat-label">
+                      <i className="bi bi-percent"></i>
+                      VAT Percentage (%)
+                    </label>
+                    <input
+                        type="number"
+                        name="vatPercentage"
+                        value={formDataState.vatPercentage}
+                        onChange={handleInputChange}
+                        className="add-item-input"
+                        placeholder="e.g. 13"
+                        step="0.01"
+                        required
+                    />
+                  </div>
+
+                  {/* Tax Included Toggle and Input Field */}
+                  <div className="add-item-tax-field-wrapper">
+                    <div className="add-item-tax-container">
+                      <label className="add-item-tax-label">
+                        <i className="bi bi-toggle-on"></i>
+                        Tax Included
+                      </label>
+                      <div
+                          className={`add-item-slide-button ${formDataState.isTaxIncluded ? 'active' : ''}`}
+                          onClick={handleTaxToggle}
+                      >
+                        <div className="add-item-slide-circle" />
+                      </div>
+                    </div>
+
+                    <div className="add-item-vat-field">
                       <label className="add-item-vat-label">
                         <i className="bi bi-percent"></i>
-                        VAT Percentage
+                        TAX Percentage (%)
                       </label>
                       <input
                           type="number"
-                          name="vatPercentage"
-                          value={formDataState.vatPercentage}
+                          name="taxPercentage"
+                          value={formDataState.taxPercentage}
                           onChange={handleInputChange}
                           className="add-item-input"
-                          placeholder="VAT %"
+                          placeholder="e.g. 13"
                           step="0.01"
+                          disabled={!formDataState.isTaxIncluded}
+                          required={formDataState.isTaxIncluded}
                       />
                     </div>
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <label className="add-item-label">
-                      <i className="bi bi-calendar"></i>
-                      VAT As of Date
-                    </label>
-                    <input
-                        type="date"
-                        name="vatDate"
-                        value={formDataState.vatDate}
-                        onChange={handleInputChange}
-                        className="add-item-input"
-                    />
                   </div>
                 </div>
               </div>

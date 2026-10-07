@@ -1,12 +1,7 @@
-
-
 .you-gave-page {
     min-height: 100vh;
     background: #f8f9fa;
 }
-
-
-
 
 .you-gave-back-button {
     position: absolute;
@@ -14,7 +9,7 @@
     left: 30px;
     padding: 0.75rem 1.5rem;
 
-    background: linear-gradient(135deg, #6c757d, #495057);
+    background: linear-gradient(135deg, #021861, #010d36); /* Primary Navy Blue */
     color: #fff;
 
     border: 0;
@@ -27,7 +22,7 @@
     align-items: center;
     gap: 0.5rem;
 
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 15px rgba(2, 24, 97, 0.2);
 
     cursor: pointer;
     transition: 0.3s;
@@ -35,17 +30,14 @@
 
 .you-gave-back-button:hover {
     transform: translateY(-2px);
+    background: linear-gradient(135deg, #255DCE, #021861);
+    box-shadow: 0 6px 18px rgba(37, 93, 206, 0.3);
 }
-
-
 
 .you-gave-main-content {
     padding: 1rem 2rem;
     margin-top: 10px;
 }
-
-
-
 
 .you-gave-form-container {
     background: #fff;
@@ -54,23 +46,20 @@
 
     border-radius: 20px;
 
-    /* Increased width */
     max-width: 700px;
     width: 90%;
 
     margin: 0 auto;
 
-    border: 1px solid rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(2, 24, 97, 0.08);
 
-    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08);
 
     position: relative;
     overflow: hidden;
 }
 
-
 /* Top gradient line */
-
 .you-gave-form-container::before {
     content: '';
 
@@ -82,10 +71,11 @@
 
     height: 4px;
 
+    /* Crimson Red to Vibrant Blue Accent Line */
     background: linear-gradient(
-        90deg,
-        #3498db,
-        #2ecc71
+            90deg,
+            #DE1110,
+            #255DCE
     );
 
     transform: scaleX(0);
@@ -97,16 +87,13 @@
     transform: scaleX(1);
 }
 
-
-
-
 .you-gave-form-title {
     text-align: center;
 
     font-size: 1.25rem;
     font-weight: 700;
 
-    color: #2c3e50;
+    color: #021861; /* Primary Navy */
 
     margin-bottom: 1rem;
 
@@ -117,15 +104,9 @@
     gap: 0.5rem;
 }
 
-
-
-
 .you-gave-form-group {
     margin-bottom: 0.75rem;
 }
-
-
-
 
 .you-gave-label {
     display: block;
@@ -135,15 +116,12 @@
     font-size: 0.8rem;
     font-weight: 600;
 
-    color: #495057;
+    color: #021861; /* Primary Navy */
 
     text-transform: uppercase;
 
     letter-spacing: 0.3px;
 }
-
-
-
 
 .you-gave-input,
 .you-gave-textarea {
@@ -157,7 +135,7 @@
 
     background: #fff;
 
-    color: #495057;
+    color: #1f2937;
 
     font-size: 0.875rem;
 
@@ -166,15 +144,9 @@
     box-sizing: border-box;
 }
 
-
-
-
 .you-gave-input {
     height: 38px;
 }
-
-
-
 
 .you-gave-textarea {
     height: 60px;
@@ -184,38 +156,26 @@
     resize: none;
 }
 
-
-
-
 .you-gave-input:focus,
 .you-gave-textarea:focus {
     outline: none;
 
-    border-color: #3498db;
+    border-color: #255DCE; /* Vibrant Blue Focus */
 
-    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+    box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15);
 
     transform: translateY(-1px);
 }
 
-
 /* Hover */
-
 .you-gave-input:hover,
 .you-gave-textarea:hover {
-    border-color: #3498db;
+    border-color: #255DCE;
 }
-
-
-
-   
 
 .you-gave-file-input {
     display: none;
 }
-
-
-
 
 .you-gave-file-button {
     display: inline-flex;
@@ -227,9 +187,9 @@
     padding: 0.45rem 0.9rem;
 
     background: linear-gradient(
-        135deg,
-        #6c757d,
-        #495057
+            135deg,
+            #021861,
+            #010d36
     );
 
     color: #fff;
@@ -248,11 +208,14 @@
 .you-gave-file-button:hover {
     transform: translateY(-1px);
 
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(
+            135deg,
+            #255DCE,
+            #021861
+    );
+
+    box-shadow: 0 4px 12px rgba(37, 93, 206, 0.25);
 }
-
-
-
 
 .you-gave-file-name {
     margin-left: 0.5rem;
@@ -261,9 +224,6 @@
 
     font-size: 0.8rem;
 }
-
-
-
 
 .you-gave-submit-button {
     width: 100%;
@@ -274,10 +234,11 @@
 
     border-radius: 9px;
 
+    /* Crimson Red Gradient for Debit/Outflow Action */
     background: linear-gradient(
-        135deg,
-        #cc4242,
-        #ff0101
+            135deg,
+            #DE1110,
+            #a80b0a
     );
 
     color: #fff;
@@ -296,7 +257,7 @@
 
     gap: 0.5rem;
 
-    box-shadow: 0 4px 15px rgba(255, 15, 15, 0.5);
+    box-shadow: 0 4px 15px rgba(222, 17, 16, 0.3);
 
     transition: 0.3s;
 
@@ -306,15 +267,18 @@
 .you-gave-submit-button:hover {
     transform: translateY(-2px);
 
-    box-shadow: 0 8px 25px rgba(255, 0, 0, 0.5);
+    background: linear-gradient(
+            135deg,
+            #f02423,
+            #DE1110
+    );
+
+    box-shadow: 0 8px 25px rgba(222, 17, 16, 0.45);
 }
 
 .you-gave-submit-button:active {
     transform: translateY(0);
 }
-
-
-
 
 .you-gave-spinner {
     width: 16px;
@@ -329,7 +293,6 @@
     animation: spin 1s linear infinite;
 }
 
-
 @keyframes spin {
     0% {
         transform: rotate(0);
@@ -339,9 +302,6 @@
         transform: rotate(360deg);
     }
 }
-
-
-
 
 .you-gave-form-container {
     max-width: 700px !important;
@@ -414,9 +374,6 @@
     margin-top: 0.25rem;
 }
 
-
-
-
 @media (max-width: 768px) {
 
     .you-gave-main-content {
@@ -457,9 +414,6 @@
         font-size: 0.85rem !important;
     }
 }
-
-
-
 
 @media (max-width: 480px) {
 

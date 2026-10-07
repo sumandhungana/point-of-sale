@@ -1,14 +1,14 @@
-/* Modern Suppliers Page Styles */
+/* Modern Suppliers Page Styles - Palette Aligned */
 .suppliers-page-wrapper {
   min-height: 100vh;
-  background: #f8f9fa;
+  background: #f4f6f9;
 }
 
 .suppliers-main-content {
   overflow: visible !important;
   padding-bottom: 100px !important;
   padding-top: 4rem !important;
-  background: linear-gradient(135deg, #f8f9fa 100%, #e9ecef 100%);
+  background: #f4f6f9;
   min-height: 100vh;
   max-width: 1200px !important;
   margin: 0 auto !important;
@@ -18,11 +18,11 @@
 
 /* Search and Filter Container */
 .suppliers-search-container {
-  background: white !important;
+  background: #ffffff !important;
   padding: 1rem !important;
   border-radius: 20px !important;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08) !important;
+  border: 1px solid #e1e6ef !important;
   margin-bottom: 1.3rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
@@ -36,7 +36,7 @@
   left: 0 !important;
   right: 0 !important;
   height: 4px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   transform: scaleX(0) !important;
   transition: transform 0.3s ease !important;
 }
@@ -46,7 +46,7 @@
 }
 
 .suppliers-search-container:hover {
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 16px 45px rgba(2, 24, 97, 0.12) !important;
 }
 
 .suppliers-search-row {
@@ -66,24 +66,25 @@
 .suppliers-search-input {
   width: 100% !important;
   padding: 0.75rem 1rem 0.75rem 3rem !important;
-  border: 2px solid #e9ecef !important;
+  border: 1px solid #e1e6ef !important;
   border-radius: 12px !important;
   font-size: 0.875rem !important;
-  background: white !important;
-  color: #495057 !important;
+  background: #f8fafc !important;
+  color: #021861 !important;
   transition: all 0.3s ease !important;
   position: relative !important;
 }
 
 .suppliers-search-input:focus {
   outline: none !important;
-  border-color: #3498db !important;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+  border-color: #255DCE !important;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
+  background: #ffffff !important;
   transform: translateY(-1px) !important;
 }
 
 .suppliers-search-input:hover {
-  border-color: #3498db !important;
+  border-color: #255DCE !important;
   transform: translateY(-1px) !important;
 }
 
@@ -92,30 +93,30 @@
   left: 1rem !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  color: #6c757d !important;
+  color: #5a6a85 !important;
   z-index: 2 !important;
 }
 
 .suppliers-filter-select {
   padding: 0.75rem 1rem !important;
-  border: 2px solid #e9ecef !important;
+  border: 1px solid #e1e6ef !important;
   border-radius: 12px !important;
   font-size: 0.875rem !important;
-  background: white !important;
-  color: #495057 !important;
+  background: #ffffff !important;
+  color: #021861 !important;
   transition: all 0.3s ease !important;
   min-width: 150px !important;
 }
 
 .suppliers-filter-select:focus {
   outline: none !important;
-  border-color: #3498db !important;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
+  border-color: #255DCE !important;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
   transform: translateY(-1px) !important;
 }
 
 .suppliers-filter-select:hover {
-  border-color: #3498db !important;
+  border-color: #255DCE !important;
   transform: translateY(-1px) !important;
 }
 
@@ -159,12 +160,11 @@
 
 .suppliers-action-button:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 6px 20px rgba(2, 24, 97, 0.15) !important;
 }
 
 .suppliers-add-button {
   position: fixed !important;
-  /* bottom: 30px !important; */
   right: 2rem !important;
   z-index: 1000 !important;
   padding: 1rem 2rem !important;
@@ -172,10 +172,10 @@
   font-weight: 600 !important;
   border: none !important;
   border-radius: 50px !important;
-  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
-  color: white !important;
+  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+  color: #ffffff !important;
   cursor: pointer !important;
-  box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-width: 160px !important;
   text-align: center !important;
@@ -204,8 +204,8 @@
 }
 
 .suppliers-add-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
-  box-shadow: 0 12px 35px rgba(39, 174, 96, 0.4) !important;
+  background: linear-gradient(135deg, #218838, #1e7e34) !important;
+  box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4) !important;
   transform: translateY(-3px) scale(1.05) !important;
 }
 
@@ -213,37 +213,22 @@
   transform: translateY(-1px) scale(1.02) !important;
 }
 
-.suppliers-add-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-  transition: left 0.5s !important;
-}
-
-.suppliers-add-button:hover::before {
-  left: 100% !important;
-}
-
 .suppliers-reminder-button {
-  background: linear-gradient(135deg, #ffc107, #e0a800) !important;
-  color: #212529 !important;
+  background: linear-gradient(135deg, #255DCE, #1d4bb0) !important;
+  color: #ffffff !important;
 }
 
 .suppliers-reminder-button:hover {
-  background: linear-gradient(135deg, #e0a800, #ffc107) !important;
+  background: linear-gradient(135deg, #1d4bb0, #255DCE) !important;
 }
 
 .suppliers-report-button {
-  background: linear-gradient(135deg, #17a2b8, #138496) !important;
-  color: white !important;
+  background: linear-gradient(135deg, #021861, #0a2580) !important;
+  color: #ffffff !important;
 }
 
 .suppliers-report-button:hover {
-  background: linear-gradient(135deg, #138496, #17a2b8) !important;
+  background: linear-gradient(135deg, #0a2580, #021861) !important;
 }
 
 /* Stats Cards */
@@ -256,11 +241,11 @@
 }
 
 .suppliers-stat-card {
-  background: #f8f9fa !important;
+  background: #ffffff !important;
   padding: 1.5rem !important;
   border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
-  border: 1px solid #e9ecef !important;
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.05) !important;
+  border: 1px solid #e1e6ef !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
@@ -278,7 +263,7 @@
   left: 0 !important;
   right: 0 !important;
   height: 4px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   transform: scaleX(0) !important;
   transition: transform 0.3s ease !important;
 }
@@ -289,7 +274,7 @@
 
 .suppliers-stat-card:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 8px 20px rgba(2, 24, 97, 0.1) !important;
 }
 
 .suppliers-stat-card::after {
@@ -310,17 +295,17 @@
 
 /* Red shade for "You Give" card */
 .suppliers-stat-card:first-child::after {
-  background: linear-gradient(135deg, rgba(220, 53, 69, 0.08), rgba(200, 35, 51, 0.05)) !important;
+  background: rgba(222, 17, 16, 0.04) !important;
 }
 
 /* Green shade for "You Receive" card */
 .suppliers-stat-card:nth-child(2)::after {
-  background: linear-gradient(135deg, rgba(40, 167, 69, 0.08), rgba(32, 201, 151, 0.05)) !important;
+  background: rgba(40, 167, 69, 0.04) !important;
 }
 
-/* Blue shade for "Online Collection" card */
+/* Vibrant Blue shade for "Online Collection" card */
 .suppliers-stat-card:nth-child(3)::after {
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.08), rgba(46, 204, 113, 0.05)) !important;
+  background: rgba(37, 93, 206, 0.04) !important;
 }
 
 .suppliers-stat-icon {
@@ -332,48 +317,47 @@
   justify-content: center !important;
   margin: 0 !important;
   font-size: 1.2rem !important;
-  color: white !important;
+  color: #ffffff !important;
   transition: all 0.3s ease !important;
   flex-shrink: 0 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 4px 16px rgba(2, 24, 97, 0.15) !important;
 }
 
 .suppliers-stat-card:hover .suppliers-stat-icon {
   transform: scale(1.1) rotate(5deg) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 6px 20px rgba(2, 24, 97, 0.2) !important;
 }
 
 .suppliers-stat-given-icon {
-  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  background: linear-gradient(135deg, #DE1110, #b80d0c) !important;
 }
 
 .suppliers-stat-received-icon {
-  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
 }
 
 .suppliers-stat-online-icon {
-  background: linear-gradient(135deg, #17a2b8, #138496) !important;
+  background: linear-gradient(135deg, #021861, #255DCE) !important;
 }
 
 .suppliers-stat-label {
   font-size: 0.875rem !important;
-  color: #6c757d !important;
-  font-weight: 500 !important;
+  color: #5a6a85 !important;
+  font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
-  /* flex: 1 !important; */
   text-align: center !important;
 }
 
 .suppliers-stat-value {
   font-size: 1.75rem !important;
   font-weight: 700 !important;
-  color: #212529 !important;
+  color: #021861 !important;
 }
 
 /* Red color for "You Give" card amount */
 .suppliers-stat-card:first-child .suppliers-stat-value {
-  color: #dc3545 !important;
+  color: #DE1110 !important;
 }
 
 /* Green color for "You Receive" card amount */
@@ -383,19 +367,19 @@
 
 /* Default color for "Online Collection" card amount */
 .suppliers-stat-card:nth-child(3) .suppliers-stat-value {
-  color: #212529 !important;
+  color: #021861 !important;
 }
 
 /* Suppliers List */
 .suppliers-customer-card {
-  background: white !important;
+  background: #ffffff !important;
   padding: 0.9rem !important;
   border-radius: 16px !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.05) !important;
   margin-bottom: 0.75rem !important;
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #e1e6ef !important;
   position: relative !important;
   overflow: hidden !important;
 }
@@ -407,7 +391,7 @@
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(46, 204, 113, 0.05)) !important;
+  background: rgba(37, 93, 206, 0.03) !important;
   transform: scaleX(0) !important;
   transform-origin: left !important;
   transition: transform 0.3s ease !important;
@@ -418,9 +402,9 @@
 }
 
 .suppliers-customer-card:hover {
-  transform: translateY(-4px) scale(1.02) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
-  border-color: rgba(52, 152, 219, 0.2) !important;
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 8px 25px rgba(2, 24, 97, 0.12) !important;
+  border-color: #255DCE !important;
 }
 
 .suppliers-customer-info {
@@ -436,20 +420,20 @@
   height: 50px !important;
   border-radius: 50% !important;
   object-fit: cover !important;
-  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(135deg, #021861, #255DCE) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   font-size: 1.25rem !important;
-  color: white !important;
+  color: #ffffff !important;
   font-weight: 600 !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.2) !important;
 }
 
 .suppliers-customer-card:hover .suppliers-profile-image {
   transform: scale(1.1) rotate(5deg) !important;
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.3) !important;
 }
 
 .suppliers-customer-details {
@@ -459,18 +443,18 @@
 .suppliers-customer-name {
   font-size: 1.1rem !important;
   font-weight: 700 !important;
-  color: #2c3e50 !important;
+  color: #021861 !important;
   margin-bottom: 0.25rem !important;
   transition: color 0.3s ease !important;
 }
 
 .suppliers-customer-card:hover .suppliers-customer-name {
-  color: #3498db !important;
+  color: #255DCE !important;
 }
 
 .suppliers-working-hours {
   font-size: 0.875rem !important;
-  color: #6c757d !important;
+  color: #5a6a85 !important;
   margin: 0 !important;
 }
 
@@ -478,7 +462,7 @@
   font-size: 1.25rem !important;
   font-weight: 700 !important;
   padding-left: 1.25rem !important;
-  border-left: 3px solid #e9ecef !important;
+  border-left: 3px solid #e1e6ef !important;
   height: 100% !important;
   display: flex !important;
   align-items: center !important;
@@ -490,28 +474,31 @@
 }
 
 .suppliers-customer-amount.balance-negative {
-  color: #dc3545 !important;
+  color: #DE1110 !important;
 }
 
 .suppliers-customer-amount.balance-zero {
-  color: #212529 !important;
+  color: #021861 !important;
 }
 
 .suppliers-customer-card:hover .suppliers-customer-amount {
-  border-left-color: #3498db !important;
+  border-left-color: #255DCE !important;
 }
 
 /* Checkbox Container */
 .suppliers-checkbox-container {
-  background: white !important;
+  background: #ffffff !important;
   padding: 1rem !important;
   border-radius: 20px !important;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08) !important;
+  border: 1px solid #e1e6ef !important;
   margin-bottom: 1rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
+  display: flex !important;
+  gap: 1rem !important;
+  flex-wrap: wrap !important;
 }
 
 .suppliers-checkbox-container::before {
@@ -521,7 +508,7 @@
   left: 0 !important;
   right: 0 !important;
   height: 4px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   transform: scaleX(0) !important;
   transition: transform 0.3s ease !important;
 }
@@ -531,13 +518,7 @@
 }
 
 .suppliers-checkbox-container:hover {
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
-}
-
-.suppliers-checkbox-container {
-  display: flex !important;
-  gap: 1rem !important;
-  flex-wrap: wrap !important;
+  box-shadow: 0 16px 45px rgba(2, 24, 97, 0.12) !important;
 }
 
 .suppliers-checkbox-item {
@@ -546,16 +527,16 @@
   display: flex !important;
   align-items: center !important;
   padding: 0.75rem 1.25rem !important;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  background: #f8fafc !important;
   border-radius: 12px !important;
-  border: 2px solid #e9ecef !important;
+  border: 1px solid #e1e6ef !important;
   transition: all 0.3s ease !important;
 }
 
 .suppliers-checkbox-item:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-  border-color: #3498db !important;
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.08) !important;
+  border-color: #255DCE !important;
 }
 
 .suppliers-checkbox-group {
@@ -568,7 +549,7 @@
   width: 18px !important;
   height: 18px !important;
   cursor: pointer !important;
-  accent-color: #3498db !important;
+  accent-color: #255DCE !important;
   transition: all 0.3s ease !important;
 }
 
@@ -578,14 +559,14 @@
 
 .suppliers-checkbox-label {
   font-size: 0.875rem !important;
-  color: #495057 !important;
+  color: #021861 !important;
   cursor: pointer !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   transition: color 0.3s ease !important;
 }
 
 .suppliers-checkbox-label:hover {
-  color: #3498db !important;
+  color: #255DCE !important;
 }
 
 .suppliers-list-container::before {
@@ -595,7 +576,7 @@
   left: 0 !important;
   right: 0 !important;
   height: 4px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   transform: scaleX(0) !important;
   transition: transform 0.3s ease !important;
 }
@@ -605,16 +586,16 @@
 }
 
 .suppliers-list-container:hover {
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 16px 45px rgba(2, 24, 97, 0.12) !important;
 }
 
 .suppliers-list-title {
   font-size: 1.5rem !important;
   font-weight: 700 !important;
-  color: #2c3e50 !important;
+  color: #021861 !important;
   margin-bottom: 2rem !important;
   padding-bottom: 1rem !important;
-  border-bottom: 2px solid #e9ecef !important;
+  border-bottom: 2px solid #e1e6ef !important;
   position: relative !important;
   display: flex !important;
   align-items: center !important;
@@ -628,7 +609,7 @@
   left: 0 !important;
   width: 60px !important;
   height: 2px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   border-radius: 1px !important;
 }
 
@@ -637,10 +618,10 @@
   display: flex !important;
   align-items: center !important;
   padding: 1.5rem !important;
-  border: 2px solid #e9ecef !important;
+  border: 1px solid #e1e6ef !important;
   border-radius: 16px !important;
   margin-bottom: 1rem !important;
-  background: white !important;
+  background: #ffffff !important;
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
@@ -654,7 +635,7 @@
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(135deg, rgba(52, 152, 219, 0.05), rgba(46, 204, 113, 0.05)) !important;
+  background: rgba(37, 93, 206, 0.03) !important;
   transform: scaleX(0) !important;
   transform-origin: left !important;
   transition: transform 0.3s ease !important;
@@ -665,9 +646,9 @@
 }
 
 .suppliers-card:hover {
-  border-color: #3498db !important;
-  transform: translateY(-4px) scale(1.02) !important;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15) !important;
+  border-color: #255DCE !important;
+  transform: translateY(-4px) scale(1.01) !important;
+  box-shadow: 0 8px 25px rgba(2, 24, 97, 0.12) !important;
 }
 
 .suppliers-profile-image {
@@ -676,33 +657,33 @@
   border-radius: 50% !important;
   object-fit: cover !important;
   margin-right: 1rem !important;
-  border: 3px solid #3498db !important;
+  border: 3px solid #255DCE !important;
   transition: all 0.3s ease !important;
 }
 
 .suppliers-card:hover .suppliers-profile-image {
   transform: scale(1.1) !important;
-  border-color: #2ecc71 !important;
+  border-color: #021861 !important;
 }
 
 .suppliers-profile-placeholder {
   width: 60px !important;
   height: 60px !important;
   border-radius: 50% !important;
-  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(135deg, #021861, #255DCE) !important;
   margin-right: 1rem !important;
-  border: 3px solid #3498db !important;
+  border: 3px solid #255DCE !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
   font-size: 1.5rem !important;
-  color: white !important;
+  color: #ffffff !important;
   transition: all 0.3s ease !important;
 }
 
 .suppliers-card:hover .suppliers-profile-placeholder {
   transform: scale(1.1) !important;
-  border-color: #2ecc71 !important;
+  border-color: #021861 !important;
 }
 
 .suppliers-info {
@@ -714,18 +695,18 @@
 .suppliers-name {
   font-size: 1.1rem !important;
   font-weight: 600 !important;
-  color: #2c3e50 !important;
+  color: #021861 !important;
   margin-bottom: 0.25rem !important;
   transition: all 0.3s ease !important;
 }
 
 .suppliers-card:hover .suppliers-name {
-  color: #3498db !important;
+  color: #255DCE !important;
 }
 
 .suppliers-details {
   font-size: 0.875rem !important;
-  color: #6c757d !important;
+  color: #5a6a85 !important;
   margin-bottom: 0.25rem !important;
 }
 
@@ -740,55 +721,37 @@
 }
 
 .suppliers-balance-positive {
-  color: #27ae60 !important;
-  background: rgba(39, 174, 96, 0.1) !important;
-  border: 2px solid #27ae60 !important;
+  color: #28a745 !important;
+  background: rgba(40, 167, 69, 0.1) !important;
+  border: 1px solid #28a745 !important;
 }
 
 .suppliers-balance-negative {
-  color: #6c757d !important;
-  background: rgba(108, 117, 125, 0.1) !important;
-  border: 2px solid #6c757d !important;
+  color: #DE1110 !important;
+  background: rgba(222, 17, 16, 0.1) !important;
+  border: 1px solid #DE1110 !important;
 }
 
 .suppliers-balance-zero {
-  color: #2c3e50 !important;
-  background: rgba(44, 62, 80, 0.1) !important;
-  border: 2px solid #2c3e50 !important;
+  color: #021861 !important;
+  background: rgba(2, 24, 97, 0.08) !important;
+  border: 1px solid #021861 !important;
 }
 
 /* Loading and Error States */
-.suppliers-loading {
-  text-align: center !important;
-  padding: 3rem !important;
-  color: #6c757d !important;
-  font-size: 1.1rem !important;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-  border-radius: 16px !important;
-  border: 2px dashed #dee2e6 !important;
-}
-
-.suppliers-error {
-  text-align: center !important;
-  padding: 3rem !important;
-  color: #6c757d !important;
-  font-size: 1.1rem !important;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
-  border-radius: 16px !important;
-  border: 2px dashed #dee2e6 !important;
-}
-
+.suppliers-loading,
+.suppliers-error,
 .suppliers-no-suppliers {
   text-align: center !important;
   padding: 3rem !important;
-  color: #6c757d !important;
+  color: #5a6a85 !important;
   font-size: 1.1rem !important;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  background: #f8fafc !important;
   border-radius: 16px !important;
-  border: 2px dashed #dee2e6 !important;
+  border: 2px dashed #e1e6ef !important;
 }
 
-/* Responsive Button Positioning - 50px Intervals */
+/* Responsive Button Positioning */
 @media (min-width: 1500px) and (max-width: 1549px) {
   .suppliers-add-button {
     right: 3rem !important;
@@ -876,7 +839,7 @@
   .suppliers-stat-card {
     padding: 1rem !important;
     border-right: none !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-bottom: 1px solid #e1e6ef !important;
     margin-bottom: 0.5rem !important;
   }
 
@@ -923,7 +886,7 @@
     font-size: 1.25rem !important;
     padding-left: 0 !important;
     border-left: none !important;
-    border-top: 2px solid #e9ecef !important;
+    border-top: 2px solid #e1e6ef !important;
     padding-top: 0.5rem !important;
     margin-top: 0.5rem !important;
     justify-content: center !important;
@@ -935,11 +898,11 @@
   }
 
   .suppliers-customer-amount.balance-negative {
-    color: #dc3545 !important;
+    color: #DE1110 !important;
   }
 
   .suppliers-customer-amount.balance-zero {
-    color: #212529 !important;
+    color: #021861 !important;
   }
 
   .suppliers-add-button {
@@ -976,12 +939,12 @@
   }
 }
 
-/* Smooth transitions for all elements */
+/* Transitions */
 * {
   transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
-} 
+}
 
-/* Actions row inside main container to right-align add button */
+/* Actions row inside main container */
 .suppliers-actions {
   display: flex !important;
   justify-content: flex-end !important;

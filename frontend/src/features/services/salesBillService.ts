@@ -22,19 +22,28 @@ export interface AddSalesBillResponse {
   id?: number;
   message?: string;
 }
-
 export interface GetAllSalesBillResponse {
-  id?: number;
-  billNumber?: string;
-  productName?: string;
-  customerName?: string;
-  billAmount?: number;
-  paymentMode?: string;
-  remarks?: string;
-  createdBy?: string;
-  createdAt?: string;
-  updatedBy?: string;
-  updatedAt?: string;
+    id?: number;
+    billNumber?: string;
+    billDate?: string;
+    productId?: number;
+    productName?: string;
+    customerId?: number;
+    customerName?: string;
+    quantity?: number;
+    unitPrice?: number;
+    taxPercentage?: number;
+    vatPercentage?: number;
+    taxAmount?: number;
+    vatAmount?: number;
+    amount?: number;
+    paymentMode?: string;
+    remarks?: string;
+    photoPath?: string;
+    createdBy?: string;
+    createdAt?: string;
+    updatedBy?: string;
+    updatedAt?: string;
 }
 
 //fetch Bill Number

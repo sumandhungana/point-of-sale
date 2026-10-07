@@ -1,10 +1,10 @@
 package com.puff.tech.inventorymanagement.usecase.product.get;
 
 import com.puff.tech.core.usecases.MonoUC;
-import com.puff.tech.inventorymanagement.repository.ProductEntity;
-import com.puff.tech.inventorymanagement.repository.ProductRepository;
+import com.puff.tech.inventorymanagement.repository.*;
 import com.puff.tech.security.UseCaseContext;
 import jakarta.inject.Singleton;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -14,41 +14,78 @@ import java.util.List;
 public class GetAllProductUC implements MonoUC<GetAllProductUCRequest, GetAllProductUCResponse> {
 
     private final ProductRepository productRepository;
+    private final SalesBillRepository salesBillRepository;
+    private final PurchaseBillRepository purchaseBillRepository;
 
-    public GetAllProductUC(ProductRepository productRepository) {
+    public GetAllProductUC(ProductRepository productRepository,
+                           SalesBillRepository salesBillRepository,
+                           PurchaseBillRepository purchaseBillRepository) {
         this.productRepository = productRepository;
+        this.salesBillRepository = salesBillRepository;
+        this.purchaseBillRepository = purchaseBillRepository;
     }
 
     @Override
     public Mono<GetAllProductUCResponse> execute(GetAllProductUCRequest request, UseCaseContext context) {
         Long memberId = context.securityContext().memberId();
+
         return productRepository.findByMemberId(memberId)
                 .collectList()
                 .flatMap(products -> {
-                    // Map entities to ItemDto records
-                    List<GetAllProductUCResponse.ItemDto> itemDtos = products.stream()
-                            .map(this::mapToItemDto)
-                            .toList();
+                    if (products.isEmpty()) {
+                        return Mono.just(new GetAllProductUCResponse(List.of(), BigDecimal.ZERO, 0L));
+                    }
 
-                    // Calculate total sales valuation: Sum of (salesPrice * openingStock)
-                    BigDecimal totalSalesPrice = products.stream()
-                            .filter(p -> p.getSalesPrice() != null && p.getOpeningStock() != null)
-                            .map(p -> p.getSalesPrice().multiply(BigDecimal.valueOf(p.getOpeningStock())))
-                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                    // Process each product concurrently to map DTOs with calculated purchase & sales amounts
+                    return Flux.fromIterable(products)
+                            .flatMap(product -> calculateProductFinancials(product, memberId))
+                            .collectList()
+                            .map(itemDtos -> {
+                                // Total Actual Sales Revenue: Sum of actual sales recorded in sales_bill across all items
+                                BigDecimal totalActualSalesAmount = itemDtos.stream()
+                                        .map(GetAllProductUCResponse.ItemDto::totalSalesAmount)
+                                        .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                    long totalItems = products.size();
-
-                    GetAllProductUCResponse response = new GetAllProductUCResponse(
-                            itemDtos,
-                            totalSalesPrice,
-                            totalItems
-                    );
-
-                    return Mono.just(response);
+                                return new GetAllProductUCResponse(
+                                        itemDtos,
+                                        totalActualSalesAmount,
+                                        (long) itemDtos.size()
+                                );
+                            });
                 });
     }
 
-    private GetAllProductUCResponse.ItemDto mapToItemDto(ProductEntity entity) {
+    private Mono<GetAllProductUCResponse.ItemDto> calculateProductFinancials(ProductEntity product, Long memberId) {
+        // Fetch actual sum from purchase_bill for this product
+        Mono<BigDecimal> purchaseBillTotalMono = purchaseBillRepository.findTotalAmountByProductIdAndMemberId(product.getId(), memberId)
+                .defaultIfEmpty(BigDecimal.ZERO);
+
+        // Fetch actual sum from sales_bill for this product
+        Mono<BigDecimal> salesBillTotalMono = salesBillRepository.findTotalAmountByProductIdAndMemberId(product.getId(), memberId)
+                .defaultIfEmpty(BigDecimal.ZERO);
+
+        return Mono.zip(purchaseBillTotalMono, salesBillTotalMono)
+                .map(tuple -> {
+                    BigDecimal additionalPurchases = tuple.getT1();
+                    BigDecimal actualSalesAmount = tuple.getT2();
+
+                    // Initial inventory gross purchase price
+                    BigDecimal initialGross = product.getGrossPurchasePrice() != null
+                            ? product.getGrossPurchasePrice()
+                            : BigDecimal.ZERO;
+
+                    // Combined Purchase Amount = Initial Gross Purchase + Cumulative Purchase Bills
+                    BigDecimal totalPurchaseAmount = initialGross.add(additionalPurchases);
+
+                    return mapToItemDto(product, totalPurchaseAmount, actualSalesAmount);
+                });
+    }
+
+    private GetAllProductUCResponse.ItemDto mapToItemDto(
+            ProductEntity entity,
+            BigDecimal totalPurchaseAmount,
+            BigDecimal actualSalesAmount
+    ) {
         GetAllProductUCResponse.CategoryDto categoryDto = null;
         if (entity.getCategory() != null) {
             categoryDto = new GetAllProductUCResponse.CategoryDto(
@@ -62,10 +99,12 @@ public class GetAllProductUC implements MonoUC<GetAllProductUCRequest, GetAllPro
                 entity.getName(),
                 entity.getItemCount(),
                 entity.getUnit(),
-                entity.getSalesPrice() != null ? entity.getSalesPrice() : BigDecimal.ZERO,
+                entity.getFixedSellingPrice() != null ? entity.getFixedSellingPrice() : BigDecimal.ZERO, // Fixed Unit Selling Price metadata
                 entity.getPerUnitPurchasePrice(),
-                entity.getGrossPurchasePrice(),
-                entity.getOpeningStock() != null ? entity.getOpeningStock() : 0.0,
+                totalPurchaseAmount, // Initial gross + additional purchase_bill amounts
+                actualSalesAmount,   // Actual tracked revenue strictly from sales_bill
+                entity.getTaxPercentage(),
+                entity.getVatPercentage(),
                 entity.getImageUrl(),
                 categoryDto,
                 entity.getCreatedAt(),

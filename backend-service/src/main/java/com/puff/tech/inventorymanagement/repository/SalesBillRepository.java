@@ -8,6 +8,8 @@ import io.micronaut.data.repository.reactive.ReactorCrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigDecimal;
+
 @R2dbcRepository(dialect = Dialect.POSTGRES)
 public interface SalesBillRepository  extends ReactorCrudRepository<SalesBillEntity, Long> {
     /**
@@ -24,4 +26,7 @@ public interface SalesBillRepository  extends ReactorCrudRepository<SalesBillEnt
     @Join(value = "customer", type = Join.Type.LEFT_FETCH)
     @Join(value = "product", type = Join.Type.LEFT_FETCH)
     Flux<SalesBillEntity> findByMemberId(Long memberId);
+
+    @Query("SELECT COALESCE(SUM(sb.amount), 0) FROM sales_bill sb WHERE sb.product_id = :productId AND sb.member_id = :memberId")
+    Mono<BigDecimal> findTotalAmountByProductIdAndMemberId(Long productId, Long memberId);
 }

@@ -17,12 +17,11 @@ export interface AddProductRequest {
     unit: string;
     perUnitPurchasePrice: number;
     grossPurchasePrice: number;
-    salesPrice: number;
+    fixedSellingPrice: number;
     isTaxIncluded?: boolean;
-    openingStock: number;
     lowStockAlert: number;
     vatPercentage?: number;
-    vatDate: string;
+    taxPercentage?: number;
     imageUrl: string;
 }
 
@@ -31,31 +30,32 @@ export interface ItemCategory {
     name?: string;
 }
 
+export interface GetAllProductUCResponse {
+    items: Item[];
+    totalSalesPrice: number;
+    totalItems: number;
+}
 export interface Item {
     id: number;
-    sku?: string;
     name: string;
     itemCount: number;
-    unit: string;
-    salesPrice: number;
-    perUnitPurchasePrice: number;
-    grossPurchasePrice: number;
-    openingStock: number;
-    category?: ItemCategory;
+    unit?: string;
+    fixedSellingPrice?: number;
+    perUnitPurchasePrice?: number;
+    grossPurchasePrice?: number;
+    totalSalesAmount?: number;
+    taxPercentage?: number;
+    vatPercentage?: number;
     imageUrl?: string;
+    category?: CategoryDto;
     createdAt?: string;
     updatedAt?: string;
     createdBy?: string;
     updatedBy?: string;
-
-    /** @deprecated Use perUnitPurchasePrice instead */
-    purchasePrice?: number;
 }
-
-export interface ItemsResponse {
-    items: Item[];
-    totalSalesPrice: number;
-    totalItems: number;
+export interface CategoryDto {
+    id: number;
+    name: string;
 }
 
 export interface AddProductResponse {
@@ -88,9 +88,9 @@ export async function addProduct(formData: AddProductRequest): Promise<AddProduc
 }
 
 // Updated to return a single ItemsResponse by unwrapping the array
-export async function getProduct(): Promise<ItemsResponse | undefined> {
+export async function getProduct(): Promise<GetAllProductUCResponse | undefined> {
     try {
-        const res = await apiService.get<any>('api/v1/product/all-products', {
+        const res = await apiService.get<RestResponse<GetAllProductUCResponse>>('api/v1/product/all-products', {
             headers: {
                 ...getAuthHeaders()
             },
@@ -102,36 +102,13 @@ export async function getProduct(): Promise<ItemsResponse | undefined> {
 
 
         // Check response success code
-        if (res?.response.code !== 0 || res?.response?.message !== 'SUCCESS') {
+        if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
             error("Failed to fetch products");
             throw new Error(res?.error || res?.response?.message || "Failed to fetch products");
         }
 
-        const responseData = res?.response?.data;
+        return  res?.response?.data;
 
-        // If backend returns data object directly: { items: [...], totalSalesPrice: 0, totalItems: 2 }
-        if (responseData && !Array.isArray(responseData)) {
-            return {
-                items: responseData.items || [],
-                totalSalesPrice: responseData.totalSalesPrice || 0,
-                totalItems: responseData.totalItems || 0
-            };
-        }
-
-        // Fallback if data is wrapped inside an array
-        if (Array.isArray(responseData) && responseData.length > 0) {
-            return {
-                items: responseData[0].items || [],
-                totalSalesPrice: responseData[0].totalSalesPrice || 0,
-                totalItems: responseData[0].totalItems || 0
-            };
-        }
-
-        return {
-            items: [],
-            totalSalesPrice: 0,
-            totalItems: 0
-        };
     } catch (err) {
         console.error("Error inside getProduct service:", err);
         throw err;

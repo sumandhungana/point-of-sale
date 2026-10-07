@@ -1,7 +1,8 @@
-/* CustomerListReportPdf Page Styles */
+/* CustomerListReportPdf Page Styles - Palette Aligned */
+
 .customer-report-container {
   min-height: 100vh;
-  background: #f8f9fa;
+  background: #f4f6f9;
 }
 
 .customer-report-main-content {
@@ -13,65 +14,68 @@
 }
 
 .customer-report-content-container {
-  background: white;
+  background: #ffffff;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08);
+  border: 1px solid #e1e6ef;
 }
 
+/* Action Buttons */
 .customer-report-back-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: linear-gradient(135deg, #6c757d, #5a6268);
-  color: white;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #5a6a85, #021861);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.1);
 }
 
 .customer-report-back-button:hover {
-  background: linear-gradient(135deg, #5a6268, #495057);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #424e63, #011043);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(2, 24, 97, 0.2);
 }
 
 .customer-report-generate-button {
   padding: 0.75rem 1.5rem;
-  background: linear-gradient(135deg, #dc4c39, #c82333);
-  color: white;
+  background: linear-gradient(135deg, #255DCE, #021861);
+  color: #ffffff;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.25);
 }
 
 .customer-report-generate-button:hover {
-  background: linear-gradient(135deg, #c82333, #bd2130);
-  transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  background: linear-gradient(135deg, #1f4cb0, #011043);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(37, 93, 206, 0.35);
 }
 
 .customer-report-generate-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
+  box-shadow: none;
 }
 
 .customer-report-generate-button:disabled:hover {
   transform: none;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: none;
 }
 
 .spin {
@@ -90,18 +94,20 @@
 }
 
 .customer-report-content {
-  background: white;
+  background: #ffffff;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(2, 24, 97, 0.06);
+  border: 1px solid #e1e6ef;
   margin-bottom: 1rem;
 }
 
+/* Logo Section */
 .customer-report-logo-section {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .customer-report-logo-container {
@@ -113,20 +119,20 @@
 .customer-report-logo-image {
   width: 50px;
   height: 50px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #dc4c39, #c82333);
+  border-radius: 12px;
+  background: linear-gradient(135deg, #255DCE, #021861);
   display: flex;
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
-  color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 93, 206, 0.25);
 }
 
 .customer-report-company-name {
   font-size: 1.25rem;
-  font-weight: bold;
-  color: #dc4c39;
+  font-weight: 700;
+  color: #021861;
 }
 
 .customer-report-print-option {
@@ -138,72 +144,77 @@
 .customer-report-print-option input[type="checkbox"] {
   width: 18px;
   height: 18px;
-  accent-color: #dc4c39;
+  accent-color: #255DCE;
 }
 
 .customer-report-print-option label {
-  font-weight: 500;
-  color: #495057;
+  font-weight: 600;
+  color: #021861;
 }
 
 .customer-report-title {
   font-size: 1.5rem;
-  font-weight: bold;
-  color: #212529;
+  font-weight: 800;
+  color: #021861;
   text-align: center;
   margin-bottom: 0.5rem;
-  border-bottom: 2px solid #dc4c39;
+  border-bottom: 3px solid #255DCE;
   padding-bottom: 0.5rem;
 }
 
 .customer-report-date {
-  color: #161616;
+  color: #5a6a85;
   font-weight: 700;
   text-align: center;
   margin-bottom: 1.5rem;
 }
 
+/* Summary Cards */
 .customer-report-summary-section {
   display: flex;
   justify-content: space-around;
   padding: 1.5rem;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 8px;
+  background: #f8fafc;
+  border-radius: 16px;
   margin-bottom: 1.5rem;
-  border: 1px solid #dee2e6;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  gap: 12px
+  border: 1px solid #e1e6ef;
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.04);
+  gap: 12px;
 }
 
 .customer-report-summary-item {
-  
-    flex: 1;
-    padding: 12px 16px;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 15px;
-    text-align: center;
+  flex: 1;
+  padding: 12px 16px;
+  background: #ffffff;
+  border: 1px solid #e1e6ef;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(2, 24, 97, 0.04);
 }
 
 .customer-report-summary-item-title-gave {
-  color: #d61727;
+  color: #DE1110;
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
 }
 
 .customer-report-summary-item-title-received {
-  color: #12c95e;
+  color: #28a745;
   margin-bottom: 0.5rem;
-  font-weight: 500;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
 }
 
 .customer-report-summary-item-value {
-  font-size: 1.25rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 800;
 }
 
 .customer-report-gave-value {
-  color: #dc3545;
+  color: #DE1110;
 }
 
 .customer-report-received-value {
@@ -211,203 +222,167 @@
 }
 
 .customer-report-net-value {
-  color: #17a2b8;
+  color: #255DCE;
 }
 
 .customer-report-summary-divider {
   width: 1px;
-  background: #dee2e6;
+  background: #e1e6ef;
   margin: 0 1rem;
   display: none;
 }
 
 .customer-report-customer-count {
-  color: #0b85f0;
+  color: #021861;
   margin-bottom: 1rem;
   padding: 0.75rem;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 6px;
+  background: #f8fafc;
+  border-radius: 12px;
   text-align: center;
   font-weight: 700;
-  border-left: 4px solid #dc4c39;
+  border-left: 4px solid #255DCE;
+  border-top: 1px solid #e1e6ef;
+  border-right: 1px solid #e1e6ef;
+  border-bottom: 1px solid #e1e6ef;
 }
 
-/* .customer-report-table-container {
+/* Table Styles */
+.customer-report-table-container {
+  width: 100%;
   overflow-x: auto;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.06);
+  border: 1px solid #e1e6ef;
 }
 
 .customer-report-table {
   width: 100%;
   border-collapse: collapse;
-  background: white;
-} */
-
-.customer-report-table-container {
-    width: 100%;
-    overflow-x: auto;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.customer-report-table {
-    width: 100%;
-    border-collapse: collapse;
-    background: white;
-    table-layout: fixed;
-    border: 1px solid #ddd;
+  background: #ffffff;
+  table-layout: fixed;
 }
 
 .customer-report-table th,
 .customer-report-table td {
-    width: 20%;
-    padding: 12px;
-    text-align: left;
+  width: 20%;
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
 }
 
+/* Specific Header Variants */
 .customer-report-table-header {
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  background: #f8fafc;
   padding: 1rem 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid #dee2e6;
-  color: #212529;
-  font-weight: bold;
+  border-bottom: 2px solid #e1e6ef;
+  color: #021861;
+  font-weight: 700;
   font-size: 0.9rem;
-  text-align: center;
-  vertical-align: middle;
 }
 
-.customer-report-table-header-gave {
-  background: linear-gradient(135deg, #eb7b8a, #e9ecef);
+.customer-report-table-header-name {
+  background: linear-gradient(135deg, #021861, #1a2f78);
   padding: 1rem 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid #dee2e6;
-  color: #110d0d;
-  font-weight: bold;
+  border-bottom: 2px solid #e1e6ef;
+  color: #ffffff;
+  font-weight: 700;
   font-size: 0.9rem;
-  text-align: center;
-  vertical-align: middle;
-  
-
 }
 
 .customer-report-table-header-phone {
-  background: linear-gradient(135deg, #0d6efd, #e9ecef);
+  background: linear-gradient(135deg, #255DCE, #1f4cb0);
   padding: 1rem 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid #dee2e6;
-  color: #110d0d;
-  font-weight: bold;
+  border-bottom: 2px solid #e1e6ef;
+  color: #ffffff;
+  font-weight: 700;
   font-size: 0.9rem;
-  text-align: center;
-  vertical-align: middle;
 }
 
-
-.customer-report-table-header-name {
-  background: linear-gradient(135deg, #363c43, #e9ecef);
+.customer-report-table-header-gave {
+  background: linear-gradient(135deg, #DE1110, #b50d0c);
   padding: 1rem 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid #dee2e6;
-  color: #110d0d;
-  font-weight: bold;
+  border-bottom: 2px solid #e1e6ef;
+  color: #ffffff;
+  font-weight: 700;
   font-size: 0.9rem;
-  text-align: center;
-  vertical-align: middle;
 }
+
 .customer-report-table-header-received {
-  background: linear-gradient(135deg, #74f09d, #e9ecef);
+  background: linear-gradient(135deg, #28a745, #1e7e34);
   padding: 1rem 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid #dee2e6;
-  color: #110d0d;
-  font-weight: bold;
+  border-bottom: 2px solid #e1e6ef;
+  color: #ffffff;
+  font-weight: 700;
   font-size: 0.9rem;
-  text-align: center;
-  vertical-align: middle;
 }
 
 .customer-report-table-header-collection-date {
-  background: linear-gradient(135deg, #e0e41d, #e9ecef);
+  background: linear-gradient(135deg, #5a6a85, #021861);
   padding: 1rem 0.75rem;
-  text-align: left;
-  border-bottom: 2px solid #dee2e6;
-  color: #110d0d;
-  font-weight: bold;
+  border-bottom: 2px solid #e1e6ef;
+  color: #ffffff;
+  font-weight: 700;
   font-size: 0.9rem;
-  text-align: center;
-  vertical-align: middle;
 }
 
+/* Cells */
 .customer-report-table-cell {
   padding: 0.75rem;
-  border-bottom: 1px solid #dee2e6;
+  border-bottom: 1px solid #e1e6ef;
   font-size: 0.9rem;
   text-align: center;
   vertical-align: middle;
-  border: 1px solid #ddd;
+  border-right: 1px solid #e1e6ef;
+  color: #021861;
 }
 
 .customer-report-table tbody tr:hover {
-  background: #f8f9fa;
-}
-
-.customer-report-gave-cell {
-  /* background: linear-gradient(135deg, #edd9da, #e9ecef); */
-  color: #f50505;
-  font-weight: 500;
-  text-align: center;
-  vertical-align: middle;
-
+  background: rgba(37, 93, 206, 0.03);
 }
 
 .customer-report-name-cell {
-  /* background: linear-gradient(135deg, #b1b2b4, #e9ecef); */
-  font-weight: 500;
-  text-align: center;
-  vertical-align: middle;
+  font-weight: 600;
+  color: #021861;
 }
 
 .customer-report-phone-cell {
-  /* background: linear-gradient(135deg, #b2caec, #e9ecef); */
-
   font-weight: 500;
-  text-align: center;
-  vertical-align: middle;
+  color: #5a6a85;
+}
+
+.customer-report-gave-cell {
+  color: #DE1110;
+  font-weight: 700;
 }
 
 .customer-report-received-cell {
-  /* background: linear-gradient(135deg, #e2f4e8, #e9ecef); */
-  color:  #218535;
-  font-weight: 500;
-  text-align: center;
-  vertical-align: middle;
+  color: #28a745;
+  font-weight: 700;
 }
 
 .customer-report-collection-cell {
-  /* background: linear-gradient(135deg, #faf9cf, #fafaf6); */
-  color:  #161212;
+  color: #021861;
   font-weight: 500;
-  text-align: center;
-  vertical-align: middle;
 }
 
 .customer-report-total-row {
-    text-align: center;
+  text-align: center;
   vertical-align: middle;
-   background: linear-gradient(135deg, #cffaee, #fafaf6);
+  background: #f8fafc;
+  font-weight: 800;
+  border-top: 2px solid #255DCE;
 }
 
+/* Footer & Feedback Messages */
 .customer-report-footer {
   text-align: center;
-  color: #6c757d;
+  color: #5a6a85;
   margin-top: 2rem;
   padding: 1rem;
-  border-top: 1px solid #dee2e6;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 6px;
-  font-weight: 500;
+  border: 1px solid #e1e6ef;
+  background: #f8fafc;
+  border-radius: 12px;
+  font-weight: 600;
 }
 
 .customer-report-loading {
@@ -415,19 +390,20 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: #6c757d;
-  font-weight: 500;
+  color: #255DCE;
+  font-weight: 600;
 }
 
 .customer-report-error {
-  color: #dc3545;
+  color: #DE1110;
   padding: 1rem;
-  background: #f8d7da;
-  border: 1px solid #f5c6cb;
-  border-radius: 6px;
+  background: rgba(222, 17, 16, 0.05);
+  border: 1px solid rgba(222, 17, 16, 0.2);
+  border-radius: 12px;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-weight: 600;
 }
 
 /* Responsive Design */
@@ -436,12 +412,12 @@
     max-width: 100%;
     margin-right: 0;
   }
-  
+
   .customer-report-summary-section {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .customer-report-summary-divider {
     width: 100%;
     height: 1px;
@@ -453,35 +429,37 @@
   .customer-report-main-content {
     padding: 1rem;
     margin-top: 20px;
+    margin-left: 0;
+    max-width: 100%;
   }
-  
+
   .customer-report-content-container {
     padding: 1rem;
   }
-  
+
   .customer-report-button-container {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .customer-report-logo-section {
     flex-direction: column;
     gap: 1rem;
     text-align: center;
   }
-  
+
   .customer-report-title {
     font-size: 1.25rem;
   }
-  
+
   .customer-report-summary-item-value {
     font-size: 1.1rem;
   }
-  
+
   .customer-report-table-container {
     font-size: 0.8rem;
   }
-  
+
   .customer-report-table-header,
   .customer-report-table-cell {
     padding: 0.5rem;
@@ -492,27 +470,31 @@
   .customer-report-main-content {
     padding: 0.5rem;
   }
-  
+
   .customer-report-content-container {
     padding: 0.75rem;
   }
-  
+
   .customer-report-title {
     font-size: 1.1rem;
   }
-  
+
   .customer-report-summary-section {
     padding: 1rem;
   }
-  
+
   .customer-report-summary-item-value {
     font-size: 1rem;
   }
-  
+
   .customer-report-table-header,
   .customer-report-table-cell {
     padding: 0.25rem;
     font-size: 0.75rem;
   }
-  /* New */
-} 
+}
+
+/* Smooth transitions */
+* {
+  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+}

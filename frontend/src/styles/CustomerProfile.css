@@ -1,10 +1,11 @@
-/* Modern Customer Profile Page Styles */
+/* Modern Customer Profile Page Styles - Palette Aligned */
+
 .customer-profile-main-content {
   overflow: visible !important;
   padding-bottom: 2rem !important;
   padding-top: 3rem !important;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  min-height: 100vh;
+  background: #f4f6f9 !important;
+  min-height: 100vh !important;
   max-width: 1200px !important;
   margin: 0 auto !important;
   padding-left: 2rem !important;
@@ -17,8 +18,8 @@
   align-items: center !important;
   gap: 0.5rem !important;
   padding: 0.75rem 1.5rem !important;
-  background: linear-gradient(135deg, #6c757d, #495057) !important;
-  color: white !important;
+  background: linear-gradient(135deg, #5a6a85, #021861) !important;
+  color: #ffffff !important;
   border: none !important;
   border-radius: 12px !important;
   font-size: 0.875rem !important;
@@ -28,34 +29,28 @@
   top: 5rem !important;
   left: 2rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.1) !important;
   z-index: 10 !important;
-  
-  
 }
 
-
-
-
 .customer-profile-back-button:hover {
-  background: linear-gradient(135deg, #495057, #343a40) !important;
+  background: linear-gradient(135deg, #424e63, #011043) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(2, 24, 97, 0.2) !important;
 }
 
 /* Profile Container */
 .customer-profile-container {
-  background: white !important;
+  background: #ffffff !important;
   padding: 3rem !important;
   border-radius: 20px !important;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08) !important;
+  border: 1px solid #e1e6ef !important;
   max-width: 900px !important;
   margin: 0 auto !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
-
 }
 
 .customer-profile-container::before {
@@ -65,7 +60,7 @@
   left: 0 !important;
   right: 0 !important;
   height: 4px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   transform: scaleX(0) !important;
   transition: transform 0.3s ease !important;
 }
@@ -75,118 +70,77 @@
 }
 
 .customer-profile-container:hover {
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 16px 45px rgba(37, 93, 206, 0.12) !important;
 }
 
 /* Image Container */
 .customer-profile-image-container {
-  /* display: flex !important;
+  display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
-  margin-bottom: 2.5rem !important;
-  position: relative !important; */
-/* change */
-   /* width: 140px !important;
-  height: 140px !important;
-   margin: 0 auto 2.5rem auto !important; */
-
-   display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-
   position: relative !important;
-
   width: 110px !important;
   height: 110px !important;
-
   aspect-ratio: 1 / 1 !important;
-
   margin: 0 auto 2.5rem auto !important;
-
   border-radius: 50% !important;
-  
 }
 
 .customer-profile-image {
-  /* width: 180px !important;
-  height: 180px !important;
-  border-radius: 50% !important;
-  object-fit: cover !important;
-  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
-  margin-bottom: 1.5rem !important;
-  border: 4px solid #3498db !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3) !important;
-  position: relative !important;
-  overflow: hidden !important; */
-   width: 110px !important;
+  width: 110px !important;
   height: 110px !important;
   min-width: 110px !important;
   min-height: 110px !important;
-
   aspect-ratio: 1 / 1 !important;
   box-sizing: border-box !important;
-
   border-radius: 50% !important;
   object-fit: cover !important;
-
-  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
-
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
   margin-bottom: 0 !important;
-
-  border: 3px solid #3498db !important;
+  border: 3px solid #255DCE !important;
   cursor: pointer !important;
-
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 6px 18px rgba(52, 152, 219, 0.3) !important;
-
+  box-shadow: 0 6px 18px rgba(37, 93, 206, 0.25) !important;
   overflow: hidden !important;
-
-  
 }
 
 .customer-profile-image:hover {
   transform: scale(1.05) rotate(5deg) !important;
-  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+  box-shadow: 0 12px 35px rgba(37, 93, 206, 0.35) !important;
 }
 
 .customer-profile-image-placeholder {
-
-  width: 140px !important;
-  height: 140px !important;
+  width: 110px !important;
+  height: 110px !important;
   border-radius: 50% !important;
-  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
-  /* Remove this because button is now inside */
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
   margin-bottom: 0 !important;
-  border: 3px solid #3498db !important;
+  border: 3px solid #255DCE !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 3rem !important;
-  color: white !important;
+  font-size: 2.5rem !important;
+  color: #ffffff !important;
   cursor: pointer !important;
   overflow: hidden !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 6px 18px rgba(52, 152, 219, 0.3) !important;
-   
+  box-shadow: 0 6px 18px rgba(37, 93, 206, 0.25) !important;
 }
 
 .customer-profile-image-placeholder:hover {
   transform: scale(1.05) rotate(5deg) !important;
-  box-shadow: 0 12px 35px rgba(52, 152, 219, 0.4) !important;
+  box-shadow: 0 12px 35px rgba(37, 93, 206, 0.35) !important;
 }
 
 /* Add Photo Button */
 .customer-profile-add-photo-button {
-  
   position: absolute !important;
-  bottom: 8px !important;
+  bottom: 4px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   padding: 6px 10px !important;
-  background: rgba(0, 0, 0, 0.65) !important;
-  color: white !important;
+  background: rgba(2, 24, 97, 0.8) !important;
+  color: #ffffff !important;
   border: none !important;
   border-radius: 20px !important;
   font-size: 0.7rem !important;
@@ -198,13 +152,11 @@
   margin: 0 !important;
   z-index: 10 !important;
   transition: all 0.3s ease !important;
-  
 }
 
 .customer-profile-add-photo-button:hover {
-  background: rgba(0, 0, 0, 0.85) !important;
+  background: #021861 !important;
   transform: translateX(-50%) scale(1.05) !important;
-  
 }
 
 .customer-profile-file-input {
@@ -221,20 +173,20 @@
   margin-bottom: 2.5rem !important;
   gap: 1rem !important;
   padding: 1.5rem !important;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  background: #f8fafc !important;
   border-radius: 16px !important;
-  border: 2px solid #e9ecef !important;
+  border: 1px solid #e1e6ef !important;
   transition: all 0.3s ease !important;
 }
 
 .customer-profile-party-type-container:hover {
-  border-color: #3498db !important;
+  border-color: #255DCE !important;
   transform: translateY(-1px) !important;
 }
 
 .customer-profile-party-type-label {
   font-size: 1rem !important;
-  color: #495057 !important;
+  color: #021861 !important;
   font-weight: 600 !important;
 }
 
@@ -245,13 +197,13 @@
 
 .customer-profile-party-type-button {
   padding: 0.75rem 1.5rem !important;
-  border: 2px solid #e9ecef !important;
+  border: 2px solid #e1e6ef !important;
   border-radius: 12px !important;
   font-size: 0.875rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  background: white !important;
-  color: #495057 !important;
+  background: #ffffff !important;
+  color: #5a6a85 !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
   overflow: hidden !important;
@@ -264,7 +216,7 @@
   left: -100% !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(52, 152, 219, 0.1), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(37, 93, 206, 0.1), transparent) !important;
   transition: left 0.5s !important;
 }
 
@@ -273,27 +225,28 @@
 }
 
 .customer-profile-party-type-button:hover {
-  border-color: #3498db !important;
+  border-color: #255DCE !important;
+  color: #255DCE !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.2) !important;
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.15) !important;
 }
 
 .customer-profile-active-party-type-button {
-  background: linear-gradient(135deg, #3498db, #2ecc71) !important;
-  color: white !important;
-  border: 2px solid #3498db !important;
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3) !important;
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
+  color: #ffffff !important;
+  border: 2px solid #255DCE !important;
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.25) !important;
 }
 
 .customer-profile-active-party-type-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #3498db) !important;
+  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4) !important;
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.35) !important;
 }
 
 /* Section Divider */
 .customer-profile-section-divider {
-  border-top: 2px solid #e9ecef !important;
+  border-top: 2px solid #e1e6ef !important;
   margin: 2.5rem 0 !important;
   position: relative !important;
 }
@@ -301,24 +254,24 @@
 .customer-profile-section-divider::after {
   content: '' !important;
   position: absolute !important;
-  top: -1px !important;
+  top: -2px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 60px !important;
-  height: 2px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
-  border-radius: 1px !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
+  border-radius: 2px !important;
 }
 
 /* Section Title */
 .customer-profile-section-title {
   font-size: 1.5rem !important;
   font-weight: 700 !important;
-  color: #2c3e50 !important;
+  color: #021861 !important;
   margin-bottom: 2rem !important;
   text-align: center !important;
   padding-bottom: 1rem !important;
-  border-bottom: 2px solid #e9ecef !important;
+  border-bottom: 2px solid #e1e6ef !important;
   line-height: 1.5 !important;
   display: flex !important;
   align-items: center !important;
@@ -333,9 +286,9 @@
   left: 50% !important;
   transform: translateX(-50%) !important;
   width: 60px !important;
-  height: 2px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
-  border-radius: 1px !important;
+  height: 3px !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
+  border-radius: 2px !important;
 }
 
 /* Form Row */
@@ -356,35 +309,38 @@
   display: block !important;
   margin-bottom: 0.75rem !important;
   font-size: 0.875rem !important;
-  color: #495057 !important;
+  color: #5a6a85 !important;
   font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
 }
 
+.customer-profile-form-group:focus-within .customer-profile-label {
+  color: #255DCE !important;
+}
+
 /* Input */
 .customer-profile-input {
   width: 100% !important;
-  padding: 0.75rem 1rem !important;
-  border: 2px solid #e9ecef !important;
+  padding: 0.875rem 1.25rem !important;
+  border: 2px solid #e1e6ef !important;
   border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  background: white !important;
-  color: #495057 !important;
-  transition: all 0.3s ease !important;
+  font-size: 0.95rem !important;
+  background: #ffffff !important;
+  color: #021861 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
 }
 
 .customer-profile-input:focus {
   outline: none !important;
-  border-color: #3498db !important;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
-  transform: translateY(-1px) !important;
+  border-color: #255DCE !important;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
+  transform: translateY(-2px) !important;
 }
 
 .customer-profile-input:hover {
-  border-color: #3498db !important;
-  transform: translateY(-1px) !important;
+  border-color: #255DCE !important;
 }
 
 /* Checkbox Container */
@@ -393,31 +349,31 @@
   align-items: center !important;
   margin-bottom: 1rem !important;
   padding: 1rem !important;
-  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  background: #f8fafc !important;
   border-radius: 12px !important;
-  border: 2px solid #e9ecef !important;
+  border: 2px solid #e1e6ef !important;
   transition: all 0.3s ease !important;
   cursor: pointer !important;
 }
 
 .customer-profile-checkbox-container:hover {
-  border-color: #3498db !important;
+  border-color: #255DCE !important;
   transform: translateY(-1px) !important;
-  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1) !important;
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.08) !important;
 }
 
 .customer-profile-checkbox {
   margin-right: 0.75rem !important;
   width: 18px !important;
   height: 18px !important;
-  accent-color: #3498db !important;
+  accent-color: #255DCE !important;
   cursor: pointer !important;
 }
 
 .customer-profile-checkbox-label {
   font-size: 0.875rem !important;
-  color: #495057 !important;
-  font-weight: 500 !important;
+  color: #021861 !important;
+  font-weight: 600 !important;
   cursor: pointer !important;
   flex: 1 !important;
 }
@@ -432,16 +388,16 @@
 
 /* Save Button */
 .customer-profile-save-button {
-  padding: 0.75rem 2rem !important;
-  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
-  color: white !important;
+  padding: 1rem 2rem !important;
+  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+  color: #ffffff !important;
   border: none !important;
   border-radius: 12px !important;
-  font-size: 0.875rem !important;
+  font-size: 1rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.25) !important;
   display: flex !important;
   align-items: center !important;
   gap: 0.5rem !important;
@@ -456,7 +412,7 @@
   left: -100% !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
   transition: left 0.5s !important;
 }
 
@@ -465,23 +421,23 @@
 }
 
 .customer-profile-save-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4) !important;
+  background: linear-gradient(135deg, #218838, #19692c) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.35) !important;
 }
 
 /* Delete Button */
 .customer-profile-delete-button {
-  padding: 0.75rem 2rem !important;
-  background: linear-gradient(135deg, #6e3b3b, #ff0101) !important;
-  color: white !important;
+  padding: 1rem 2rem !important;
+  background: linear-gradient(135deg, #DE1110, #9e0b0a) !important;
+  color: #ffffff !important;
   border: none !important;
   border-radius: 12px !important;
-  font-size: 0.875rem !important;
+  font-size: 1rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(255, 1, 1, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(222, 17, 16, 0.25) !important;
   display: flex !important;
   align-items: center !important;
   gap: 0.5rem !important;
@@ -496,7 +452,7 @@
   left: -100% !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
   transition: left 0.5s !important;
 }
 
@@ -505,9 +461,9 @@
 }
 
 .customer-profile-delete-button:hover {
-  background: linear-gradient(135deg, #ff0101, #6e3b3b) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(255, 1, 1, 0.4) !important;
+  background: linear-gradient(135deg, #c40e0d, #7d0807) !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 25px rgba(222, 17, 16, 0.35) !important;
 }
 
 /* Mobile Responsive */
@@ -572,10 +528,13 @@
     padding: 1rem !important;
   }
 
+  .customer-profile-image-container,
   .customer-profile-image,
   .customer-profile-image-placeholder {
-    width: 120px !important;
-    height: 120px !important;
+    width: 100px !important;
+    height: 100px !important;
+    min-width: 100px !important;
+    min-height: 100px !important;
   }
 
   .customer-profile-section-title {
@@ -583,7 +542,7 @@
   }
 }
 
-/* Smooth transitions for all elements */
+/* Smooth transitions */
 * {
   transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
-} 
+}

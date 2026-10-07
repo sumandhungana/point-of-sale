@@ -23,19 +23,43 @@ public class GetAllSalesBillUC implements FluxUC<GetAllSalesBillUCRequest, GetAl
     public Flux<GetAllSalesBillUCResponse> execute(GetAllSalesBillUCRequest request, UseCaseContext context) {
         Long memberId = context.securityContext().memberId();
         return this.salesBillRepository.findByMemberId(memberId)
-                .switchIfEmpty(Mono.empty())
                 .map(this::prepareSalesBillResponse);
     }
 
     private GetAllSalesBillUCResponse prepareSalesBillResponse(SalesBillEntity entity) {
+        // Resolve customer name safely for walk-in or registered customers
+        String customerName = "Walk-in Customer";
+        Long customerId = null;
+
+        if (entity.getCustomer() != null) {
+            customerId = (long) entity.getCustomer().getId();
+            customerName = entity.getCustomer().getName();
+        } else if (entity.getCustomerName() != null && !entity.getCustomerName().isBlank()) {
+            customerName = entity.getCustomerName();
+        }
+
+        // Resolve product name and ID
+        String productName = entity.getProduct() != null ? entity.getProduct().getName() : "N/A";
+        Long productId = entity.getProduct() != null ? entity.getProduct().getId() : null;
+
         return GetAllSalesBillUCResponse.builder()
                 .id(entity.getId())
                 .billNumber(entity.getBillNumber())
-                .customerName(entity.getCustomer().getName())
-                .productName(entity.getProduct().getName())
-                .billAmount(entity.getAmount())
+                .billDate(entity.getBillDate())
+                .customerId(customerId)
+                .customerName(customerName)
+                .productId(productId)
+                .productName(productName)
+                .quantity(entity.getQuantity())
+                .unitPrice(entity.getUnitPrice())
+                .taxPercentage(entity.getTaxPercentage())
+                .vatPercentage(entity.getVatPercentage())
+                .taxAmount(entity.getTaxAmount())
+                .vatAmount(entity.getVatAmount())
+                .amount(entity.getAmount())
                 .paymentMode(entity.getPaymentMode())
                 .remarks(entity.getRemarks())
+                .photoPath(entity.getPhotoPath())
                 .createdAt(entity.getCreatedAt())
                 .createdBy(entity.getCreatedBy())
                 .updatedAt(entity.getUpdatedAt())

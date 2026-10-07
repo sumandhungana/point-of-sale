@@ -34,9 +34,6 @@ public class ProductEntity {
     private MemberEntity member;
 
     @Relation(Relation.Kind.MANY_TO_ONE)
-    private OrganizationCustomerEntity customer;
-
-    @Relation(Relation.Kind.MANY_TO_ONE)
     private SupplierEntity supplier;
 
     private Double itemCount;
@@ -47,20 +44,17 @@ public class ProductEntity {
 
     private BigDecimal grossPurchasePrice;
 
-    private BigDecimal salesPrice;
+    private BigDecimal fixedSellingPrice;
     @Nullable
     @MappedProperty(value = "is_tax_included")
     private boolean taxIncluded;
-    @Nullable
-    private Double openingStock;
-    @Nullable
-    private Double countStock;
+
     @Nullable
     private Double lowStockAlert;
     @Nullable
     private Double vatPercentage;
     @Nullable
-    private LocalDate vatDate;
+    private Double taxPercentage;
     @Nullable
     private String imageUrl;
 

@@ -1,15 +1,16 @@
-/* Modern Add Customer Page Styles */
+/* Modern Add Customer Page Styles - Palette Aligned */
+
 .add-customer-page-wrapper {
   min-height: 100vh;
-  background: #f8f9fa;
+  background: #f4f6f9;
 }
 
 .add-customer-main-content {
   overflow: visible !important;
   padding-bottom: 100px !important;
   padding-top: 6rem !important;
-  background: linear-gradient(135deg, #f8f9fa 100%, #e9ecef 100%);
-  min-height: 100vh;
+  background: #f4f6f9 !important;
+  min-height: 100vh !important;
   max-width: 1200px !important;
   margin: 0 auto !important;
   padding-left: 2rem !important;
@@ -18,11 +19,11 @@
 
 /* Form Container */
 .add-customer-form-container {
-  background: white !important;
+  background: #ffffff !important;
   padding: 2.5rem !important;
   border-radius: 20px !important;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08) !important;
-  border: 1px solid rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08) !important;
+  border: 1px solid #e1e6ef !important;
   margin-bottom: 2rem !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
@@ -36,7 +37,7 @@
   left: 0 !important;
   right: 0 !important;
   height: 4px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   transform: scaleX(0) !important;
   transition: transform 0.3s ease !important;
 }
@@ -47,14 +48,14 @@
 
 .add-customer-form-container:hover {
   transform: translateY(-4px) !important;
-  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.12) !important;
+  box-shadow: 0 16px 45px rgba(37, 93, 206, 0.12) !important;
 }
 
 /* Form Title */
 .add-customer-form-title {
   font-size: 2rem !important;
   font-weight: 700 !important;
-  color: #2c3e50 !important;
+  color: #021861 !important;
   margin-bottom: 2rem !important;
   text-align: center !important;
   position: relative !important;
@@ -68,7 +69,7 @@
   transform: translateX(-50%) !important;
   width: 60px !important;
   height: 3px !important;
-  background: linear-gradient(90deg, #3498db, #2ecc71) !important;
+  background: linear-gradient(90deg, #021861, #255DCE) !important;
   border-radius: 2px !important;
 }
 
@@ -90,7 +91,7 @@
   display: block !important;
   margin-bottom: 0.75rem !important;
   font-size: 0.875rem !important;
-  color: #495057 !important;
+  color: #5a6a85 !important;
   font-weight: 600 !important;
   text-transform: uppercase !important;
   letter-spacing: 0.5px !important;
@@ -98,49 +99,49 @@
 }
 
 .add-customer-form-group:focus-within .add-customer-label {
-  color: #3498db !important;
+  color: #255DCE !important;
 }
 
 /* Input Fields */
 .add-customer-input {
   width: 100% !important;
   padding: 1rem 1.25rem !important;
-  border: 2px solid #e9ecef !important;
+  border: 2px solid #e1e6ef !important;
   border-radius: 12px !important;
   font-size: 1rem !important;
-  background: #f8f9fa !important;
-  color: #495057 !important;
+  background: #ffffff !important;
+  color: #021861 !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
 }
 
 .add-customer-input:focus {
   outline: none !important;
-  border-color: #3498db !important;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
-  background: white !important;
+  border-color: #255DCE !important;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
+  background: #ffffff !important;
   transform: translateY(-2px) !important;
 }
 
 .add-customer-input::placeholder {
-  color: #6c757d !important;
-  opacity: 0.7 !important;
+  color: #8fa0b5 !important;
+  opacity: 0.8 !important;
 }
 
 .add-customer-input:hover {
-  border-color: #3498db !important;
-  background: white !important;
+  border-color: #255DCE !important;
+  background: #ffffff !important;
 }
 
 /* Textarea */
 .add-customer-textarea {
   width: 100% !important;
   padding: 1rem 1.25rem !important;
-  border: 2px solid #e9ecef !important;
+  border: 2px solid #e1e6ef !important;
   border-radius: 12px !important;
   font-size: 1rem !important;
-  background: #f8f9fa !important;
-  color: #495057 !important;
+  background: #ffffff !important;
+  color: #021861 !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   resize: vertical !important;
   min-height: 100px !important;
@@ -149,15 +150,15 @@
 
 .add-customer-textarea:focus {
   outline: none !important;
-  border-color: #3498db !important;
-  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1) !important;
-  background: white !important;
+  border-color: #255DCE !important;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
+  background: #ffffff !important;
   transform: translateY(-2px) !important;
 }
 
 .add-customer-textarea:hover {
-  border-color: #3498db !important;
-  background: white !important;
+  border-color: #255DCE !important;
+  background: #ffffff !important;
 }
 
 /* Button Container */
@@ -170,8 +171,8 @@
 
 /* Submit Button */
 .add-customer-submit-button {
-  background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
-  color: white !important;
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
+  color: #ffffff !important;
   padding: 1rem 2rem !important;
   border: none !important;
   border-radius: 12px !important;
@@ -195,7 +196,7 @@
   left: -100% !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
   transition: left 0.5s !important;
 }
 
@@ -204,9 +205,9 @@
 }
 
 .add-customer-submit-button:hover {
-  background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
   transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(39, 174, 96, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(37, 93, 206, 0.35) !important;
 }
 
 .add-customer-submit-button:active {
@@ -214,7 +215,7 @@
 }
 
 .add-customer-submit-button:disabled {
-  background: linear-gradient(135deg, #6c757d, #495057) !important;
+  background: linear-gradient(135deg, #8fa0b5, #5a6a85) !important;
   cursor: not-allowed !important;
   transform: none !important;
   box-shadow: none !important;
@@ -227,8 +228,8 @@
 
 /* Cancel Button */
 .add-customer-cancel-button {
-  background: linear-gradient(135deg, #6c757d, #495057) !important;
-  color: white !important;
+  background: linear-gradient(135deg, #DE1110, #9e0b0a) !important;
+  color: #ffffff !important;
   padding: 1rem 2rem !important;
   border: none !important;
   border-radius: 12px !important;
@@ -252,7 +253,7 @@
   left: -100% !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
   transition: left 0.5s !important;
 }
 
@@ -261,9 +262,9 @@
 }
 
 .add-customer-cancel-button:hover {
-  background: linear-gradient(135deg, #495057, #343a40) !important;
+  background: linear-gradient(135deg, #c40e0d, #7d0807) !important;
   transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(108, 117, 125, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(222, 17, 16, 0.35) !important;
 }
 
 .add-customer-cancel-button:active {
@@ -277,7 +278,7 @@
   height: 16px !important;
   border: 2px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 50% !important;
-  border-top-color: white !important;
+  border-top-color: #ffffff !important;
   animation: spin 1s ease-in-out infinite !important;
 }
 
@@ -287,15 +288,15 @@
 
 /* Form Validation Styles */
 .add-customer-input:invalid {
-  border-color: #6c757d !important;
+  border-color: #DE1110 !important;
 }
 
 .add-customer-input:invalid:focus {
-  box-shadow: 0 0 0 3px rgba(108, 117, 125, 0.1) !important;
+  box-shadow: 0 0 0 3px rgba(222, 17, 16, 0.15) !important;
 }
 
 .add-customer-error-message {
-  color: #6c757d !important;
+  color: #DE1110 !important;
   font-size: 0.875rem !important;
   margin-top: 0.5rem !important;
   display: flex !important;
@@ -383,4 +384,4 @@
 /* Smooth transitions for all elements */
 * {
   transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
-} 
+}

@@ -22,7 +22,7 @@
     min-width: 0; /* Prevents flex children from stretching page width */
     width: 100%;
     margin-left: 100px;
-    margin-right:100px;
+    margin-right: 100px;
     padding-top: 40px;
     overflow-x: hidden;
     position: relative;
@@ -53,7 +53,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 3px rgba(2, 24, 97, 0.05);
     width: 100%;
     box-sizing: border-box;
     position: relative;
@@ -64,7 +64,7 @@
     margin: 0;
     font-size: 20px;
     font-weight: 700;
-    color: #0f172a;
+    color: #021861;
 }
 
 .user-page-header p {
@@ -91,7 +91,7 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 1px 2px rgba(2, 24, 97, 0.04);
 }
 
 .stat-icon-box {
@@ -105,9 +105,9 @@
     flex-shrink: 0;
 }
 
-.blue-bg { background-color: #eff6ff; }
-.green-bg { background-color: #f0fdf4; }
-.teal-bg { background-color: #f0fdfa; }
+.blue-bg { background-color: rgba(37, 93, 206, 0.08); }
+.green-bg { background-color: rgba(2, 24, 97, 0.06); }
+.teal-bg { background-color: rgba(222, 17, 16, 0.08); }
 
 .stat-info {
     display: flex;
@@ -127,9 +127,9 @@
     margin-top: 2px;
 }
 
-.blue-text { color: #2563eb; }
-.green-text { color: #16a34a; }
-.teal-text { color: #0d9488; }
+.blue-text { color: #255DCE; }
+.green-text { color: #021861; }
+.teal-text { color: #DE1110; }
 
 /* ==========================================================================
    USER MANAGEMENT DETAILS & MODAL STYLES
@@ -156,7 +156,7 @@
     margin: 0;
     font-size: 16px;
     font-weight: 700;
-    color: #0f172a;
+    color: #021861;
 }
 
 .user-summary-text p {
@@ -174,13 +174,13 @@
 }
 
 .user-status-pill.active {
-    background-color: #e6fcf5;
-    color: #099268;
+    background-color: rgba(37, 93, 206, 0.1);
+    color: #255DCE;
 }
 
 .user-status-pill.inactive {
-    background-color: #fff5f5;
-    color: #e03131;
+    background-color: rgba(222, 17, 16, 0.1);
+    color: #DE1110;
 }
 
 .user-info-row {
@@ -205,7 +205,7 @@
 .info-value {
     font-size: 13px;
     font-weight: 600;
-    color: #0f172a;
+    color: #021861;
     word-break: break-word;
 }
 
@@ -219,7 +219,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: rgba(15, 23, 42, 0.6);
+    background-color: rgba(2, 24, 97, 0.6);
     backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
@@ -235,7 +235,7 @@
     max-width: 520px;
     max-height: 90vh;
     border-radius: 16px;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 25px -5px rgba(2, 24, 97, 0.1), 0 8px 10px -6px rgba(2, 24, 97, 0.1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -269,7 +269,7 @@
     margin: 0;
     font-size: 18px;
     font-weight: 700;
-    color: #0f172a;
+    color: #021861;
     line-height: 1.3;
 }
 
@@ -294,7 +294,7 @@
 
 .modal-close-icon:hover {
     background-color: #f1f5f9;
-    color: #0f172a;
+    color: #021861;
 }
 
 /* Form Body */
@@ -326,11 +326,11 @@
 .form-label {
     font-size: 13px;
     font-weight: 600;
-    color: #334155;
+    color: #021861;
 }
 
 .required-star {
-    color: #ef4444;
+    color: #DE1110;
     margin-left: 2px;
 }
 
@@ -338,7 +338,7 @@
     width: 100%;
     padding: 10px 14px;
     font-size: 14px;
-    color: #0f172a;
+    color: #021861;
     background-color: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
@@ -352,8 +352,8 @@
 }
 
 .form-input:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    border-color: #255DCE;
+    box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15);
 }
 
 select.form-input {
@@ -391,7 +391,7 @@ select.form-input {
 
 .btn-modal-cancel:hover {
     background-color: #f1f5f9;
-    color: #0f172a;
+    color: #021861;
 }
 
 .btn-modal-submit {
@@ -399,16 +399,16 @@ select.form-input {
     font-size: 14px;
     font-weight: 600;
     color: #ffffff;
-    background-color: #2563eb;
+    background-color: #255DCE;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.2);
+    box-shadow: 0 1px 2px rgba(37, 93, 206, 0.2);
     transition: all 0.15s ease;
 }
 
 .btn-modal-submit:hover {
-    background-color: #1d4ed8;
+    background-color: #021861;
 }
 
 .btn-modal-submit:disabled,
@@ -425,6 +425,7 @@ select.form-input {
 @media screen and (max-width: 1024px) {
     .user-container {
         margin-left: 0;
+        margin-right: 0;
         padding-top: 20px;
     }
 

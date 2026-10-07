@@ -28,18 +28,18 @@ const navItems: NavItem[] = [
 		],
 	},
 	{
-		title: 'MGMT INVENTORY',
+		title: 'Inventory Management',
 		path: '/inventory',
 		icon: '📦',
 		children: [
-			{ title: 'CATEGORIES', path: '/category', icon: '🗃️'},
-			{ title: 'PRODUCTS', path: '/inventory/items', icon: '📦' },
-			{ title: 'SERVICES', path: '/service', icon: '🔧' },
+			// { title: 'CATEGORIES', path: '/category', icon: '🗃️'},
+			{ title: 'Inventory', path: '/inventory/items', icon: '📦' },
+			// { title: 'SERVICES', path: '/service', icon: '🔧' },
 			{ title: 'Sales', path: '/bills/sales', icon: '💰' },
 			{ title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
-			{ title: 'Expenses', path: '/bills/expenses', icon: '💸' },
-			{ title: 'Income', path: '/bills/income', icon: '💸' },
-			{ title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
+			// { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
+			// { title: 'Income', path: '/bills/income', icon: '💸' },
+			// { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
 		],
 	},
 	{
@@ -67,7 +67,7 @@ const navItems: NavItem[] = [
 		path: '/system',
 		icon: '⚙',
 		children: [
-			{ title: 'Multi User Login', path: '/system/multi-user', icon: '👥' },
+			// { title: 'Multi User Login', path: '/system/multi-user', icon: '👥' },
 			{ title: 'Reminder', path: '/system/reminder', icon: '⏰' },
 			{ title: 'Import Data', path: '/system/import', icon: '📥' },
 			{ title: 'Notis', path: '/system/notis', icon: '🔔' },
@@ -86,23 +86,23 @@ const navItems: NavItem[] = [
 			{ title: 'Role & Permission', path: '/role', icon: '🔒', module: 'roleAndPermissions' },
 			{ title: 'App Setting', path: '/app-settings', icon: '⚙️' },
 			{ title: 'Bills & Print Selling', path: '/bills-and-print-selling', icon: '📄' },
-			{ title: 'Delete Khata', path: '/settings/delete-khata', icon: '❌' },
+			// { title: 'Delete Khata', path: '/settings/delete-khata', icon: '❌' },
 			{ title: 'Business Setting', path: '/settings/business', icon: '🏢' },
 			{ title: 'Dashboard Setting', path: '/settings/dashboard', icon: '📊' },
 		],
 	},
-	{
-		title: 'ABOUTS',
-		path: '/abouts',
-		icon: 'ℹ️️',
-		children: [
-			{ title: 'Name Of App', path: '/abouts/app-name', icon: '📱' },
-			{ title: 'Backup Info', path: '/abouts/backup-info', icon: '💾' },
-			{ title: 'Privacy Policy', path: '/abouts/privacy', icon: '🔒' },
-			{ title: 'Terms & Conditions', path: '/abouts/terms', icon: '📜' },
-			{ title: 'Version', path: '/abouts/version', icon: '🔄' },
-		],
-	},
+	// {
+	// 	title: 'ABOUTS',
+	// 	path: '/abouts',
+	// 	icon: 'ℹ️️',
+	// 	children: [
+	// 		{ title: 'Name Of App', path: '/abouts/app-name', icon: '📱' },
+	// 		{ title: 'Backup Info', path: '/abouts/backup-info', icon: '💾' },
+	// 		{ title: 'Privacy Policy', path: '/abouts/privacy', icon: '🔒' },
+	// 		{ title: 'Terms & Conditions', path: '/abouts/terms', icon: '📜' },
+	// 		{ title: 'Version', path: '/abouts/version', icon: '🔄' },
+	// 	],
+	// },
 ];
 
 export const Sidebar = () => {

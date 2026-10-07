@@ -12,7 +12,7 @@
   flex: 1;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 100px 2rem 120px 2rem;   /* 👈 top padding clears the fixed navbar */
+  padding: 100px 2rem 120px 2rem;   /* Clears fixed navbar */
   min-height: 100vh;
   overflow: visible;
 }
@@ -284,10 +284,15 @@
   cursor: pointer;
   color: #64748b;
   transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.clear-btn:hover {
+.clear-btn:hover,
+.clear-btn:focus-visible {
   color: #ef4444;
+  outline: none;
 }
 
 .toolbar-info {
@@ -317,7 +322,7 @@
 }
 
 /* ==========================================================================
-   Staff Card — clean and simple
+   Staff Card
    ========================================================================== */
 
 .staff-management-staff-card {
@@ -397,17 +402,8 @@
   line-height: 1.3;
 }
 
-.staff-management-staff-contact {
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #64748b;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-/* Salary start date badge */
-.staff-management-staff-lastpaid { 
+.staff-management-staff-contact,
+.staff-management-staff-lastpaid {
   font-size: 0.85rem;
   font-weight: 500;
   color: #64748b;
@@ -427,7 +423,6 @@
   justify-content: center;
   gap: 0.65rem;
   flex: 0 0 auto;
-  margin: 0 auto;
 }
 
 .staff-management-permission-btn {
@@ -590,8 +585,10 @@
   padding: 0;
 }
 
-.modal-close-btn:hover {
+.modal-close-btn:hover,
+.modal-close-btn:focus-visible {
   color: #ef4444;
+  outline: none;
 }
 
 .permission-input-group {
@@ -728,7 +725,7 @@
 }
 
 /* ==========================================================================
-   Loading / Empty / Error
+   Loading / Empty / Error States
    ========================================================================== */
 
 .staff-management-loading,
@@ -810,15 +807,11 @@
     font-size: 0.85rem;
   }
 
-  .staff-summary-container {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
+  .staff-summary-container,
   .staff-summary-card {
     flex-direction: column;
-    width: 100%;
     gap: 0.75rem;
+    width: 100%;
   }
 
   .summary-box {
@@ -867,8 +860,10 @@
     order: 0;
   }
 
-  .toolbar-search input {
-    font-size: 16px;
+  .toolbar-search input,
+  .permission-input-group input,
+  .staff-management-permission-field {
+    font-size: 16px; /* Prevents auto-zoom in iOS Safari */
   }
 
   .toolbar-info {

@@ -1,4 +1,6 @@
-
+/* =========================================================
+   USER CONTAINER & CARD
+   ========================================================= */
 
 .user-container {
     flex: 1;
@@ -25,6 +27,9 @@
     transition: none !important;
 }
 
+/* =========================================================
+   SEARCH & FILTER BAR
+   ========================================================= */
 
 .user-search-container {
     width: 100%;
@@ -42,14 +47,13 @@
     border: 1px solid #e5e7eb;
     border-radius: 10px;
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 6px rgba(2, 24, 97, 0.05);
 
     box-sizing: border-box;
 
     transform: none !important;
     transition: none !important;
 }
-
 
 .user-left-section {
     display: flex;
@@ -60,7 +64,6 @@
     min-width: 0;
 }
 
-
 .user-right-section {
     display: flex;
     align-items: center;
@@ -68,8 +71,6 @@
 
     flex-shrink: 0;
 }
-
-
 
 .user-search-field {
     width: 260px;
@@ -81,7 +82,7 @@
     border-radius: 7px;
 
     background: #f8f9fa;
-    color: #212529;
+    color: #021861;
 
     font-size: 14px;
 
@@ -89,9 +90,9 @@
     box-sizing: border-box;
 
     transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background-color 0.2s ease;
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            background-color 0.2s ease;
 
     transform: none !important;
 }
@@ -102,20 +103,18 @@
 
 .user-search-field:focus {
     background: #ffffff;
-    border-color: #86b7fe;
+    border-color: #255DCE;
 
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+    box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15);
 
     transform: none !important;
 }
-
 
 .user-dropdown-row {
     display: flex;
     align-items: center;
     gap: 10px;
 }
-
 
 .user-dropdown {
     width: 125px;
@@ -127,7 +126,7 @@
     border-radius: 7px;
 
     background: #ffffff;
-    color: #495057;
+    color: #021861;
 
     font-size: 14px;
 
@@ -137,24 +136,23 @@
     box-sizing: border-box;
 
     transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease;
+            border-color 0.2s ease,
+            box-shadow 0.2s ease;
 
     transform: none !important;
 }
 
 .user-dropdown:hover {
-    border-color: #adb5bd;
+    border-color: #255DCE;
     transform: none !important;
 }
 
 .user-dropdown:focus {
-    border-color: #86b7fe;
-    box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.10);
+    border-color: #255DCE;
+    box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15);
 
     transform: none !important;
 }
-
 
 .user-reminder-button {
     height: 42px;
@@ -169,7 +167,7 @@
     border: none;
     border-radius: 7px;
 
-    background: #6c757d;
+    background: #255DCE;
     color: #ffffff;
 
     font-size: 14px;
@@ -181,28 +179,21 @@
 
     outline: none;
 
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.10);
+    box-shadow: 0 2px 4px rgba(37, 93, 206, 0.20);
 
-    /*
-       IMPORTANT:
-       No transform here.
-    */
     transform: none !important;
 
     transition:
-        background-color 0.2s ease,
-        box-shadow 0.2s ease;
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
 }
 
 .user-reminder-button:hover {
-    background: #5c636a;
+    background: #021861;
 
-    /*
-       NEVER use translateY here.
-    */
     transform: none !important;
 
-    box-shadow: 0 3px 7px rgba(0, 0, 0, 0.13);
+    box-shadow: 0 3px 7px rgba(2, 24, 97, 0.25);
 }
 
 .user-reminder-button:active {
@@ -214,6 +205,9 @@
     transform: none !important;
 }
 
+/* =========================================================
+   TABLE CONTAINER & STYLES
+   ========================================================= */
 
 .user-table-container {
     width: 100%;
@@ -223,7 +217,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 10px;
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 6px rgba(2, 24, 97, 0.05);
 
     overflow-x: auto;
     overflow-y: hidden;
@@ -236,7 +230,6 @@
     transition: none !important;
 }
 
-
 /* Scrollbar */
 
 .user-table-container::-webkit-scrollbar {
@@ -248,12 +241,12 @@
 }
 
 .user-table-container::-webkit-scrollbar-thumb {
-    background: #ced4da;
+    background: #cbd5e1;
     border-radius: 10px;
 }
 
 .user-table-container::-webkit-scrollbar-thumb:hover {
-    background: #adb5bd;
+    background: #94a3b8;
 }
 
 .user-table {
@@ -266,23 +259,21 @@
     table-layout: auto;
 
     transform: none !important;
-
 }
-
 
 .user-table-header {
     padding: 14px 15px;
 
-    background: #b3cde8;
+    background: rgba(2, 24, 97, 0.06);
 
-    border: 1px solid #dee2e6;
+    border: 1px solid #e2e8f0;
 
     text-align: left;
 
-    color: #495057;
+    color: #021861;
 
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 700;
 
     text-transform: uppercase;
     letter-spacing: 0.4px;
@@ -294,9 +285,8 @@
 
 .user-table-header i {
     margin-right: 7px;
-    color: #6c757d;
+    color: #255DCE;
 }
-
 
 .user-table-row {
     cursor: pointer;
@@ -307,21 +297,17 @@
 }
 
 .user-table-row:hover {
-    background-color: #f8fafc;
+    background-color: rgba(37, 93, 206, 0.04);
 
-    /*
-       DO NOT MOVE ROW
-    */
     transform: none !important;
 }
-
 
 .user-table-cell {
     padding: 14px 15px;
 
     border: 1px solid #edf0f2;
 
-    color: #495057;
+    color: #021861;
 
     font-size: 14px;
 
@@ -338,7 +324,9 @@
     transform: none !important;
 }
 
-
+/* =========================================================
+   STATUS BADGES
+   ========================================================= */
 
 .user-status-badge {
     display: inline-flex;
@@ -358,17 +346,20 @@
 }
 
 .user-status-active {
-    background: #e8f7ee;
-    color: #198754;
-    border: 1px solid #c9eed8;
+    background: rgba(37, 93, 206, 0.1);
+    color: #255DCE;
+    border: 1px solid rgba(37, 93, 206, 0.25);
 }
 
 .user-status-inactive {
-    background: #fcebec;
-    color: #dc3545;
-    border: 1px solid #f5c2c7;
+    background: rgba(222, 17, 16, 0.1);
+    color: #DE1110;
+    border: 1px solid rgba(222, 17, 16, 0.25);
 }
 
+/* =========================================================
+   FLOATING ACTION BUTTON
+   ========================================================= */
 
 .user-add-button-container {
     position: fixed;
@@ -387,8 +378,6 @@
     transition: none !important;
 }
 
-
-
 .user-add-button {
     height: 46px;
 
@@ -402,7 +391,7 @@
     border: none;
     border-radius: 8px;
 
-    background: #198754;
+    background: #255DCE;
     color: #ffffff;
 
     font-size: 14px;
@@ -412,19 +401,19 @@
 
     outline: none;
 
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+    box-shadow: 0 4px 12px rgba(37, 93, 206, 0.3);
     transform: none !important;
 
     transition:
-        background-color 0.2s ease,
-        box-shadow 0.2s ease;
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
 }
 
 .user-add-button:hover {
-    background: #157347;
+    background: #021861;
     transform: none !important;
 
-    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.17);
+    box-shadow: 0 6px 16px rgba(2, 24, 97, 0.35);
 }
 
 .user-add-button:active {
@@ -442,6 +431,9 @@
     transform: none !important;
 }
 
+/* =========================================================
+   STATE MESSAGES
+   ========================================================= */
 
 .user-loading-message {
     margin: 30px;
@@ -450,7 +442,7 @@
 
     text-align: center;
 
-    color: #6c757d;
+    color: #255DCE;
 
     font-size: 16px;
 
@@ -459,7 +451,7 @@
     border: 1px solid #e5e7eb;
     border-radius: 10px;
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 6px rgba(2, 24, 97, 0.05);
 
     transform: none !important;
 }
@@ -468,9 +460,6 @@
     margin-right: 8px;
 }
 
-
-
-
 .user-error-message {
     margin: 30px;
 
@@ -478,18 +467,18 @@
 
     text-align: center;
 
-    color: #dc3545;
+    color: #DE1110;
 
     font-size: 16px;
 
     background: #ffffff;
 
-    border: 1px solid #f5c2c7;
-    border-left: 4px solid #dc3545;
+    border: 1px solid rgba(222, 17, 16, 0.3);
+    border-left: 4px solid #DE1110;
 
     border-radius: 10px;
 
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 2px 6px rgba(222, 17, 16, 0.08);
 
     transform: none !important;
 }
@@ -498,7 +487,7 @@
     margin-right: 8px;
 }
 
-
+/* Prevent unwanted transformation rules */
 
 .user-container,
 .user-container *,
@@ -507,18 +496,12 @@
     transform-origin: center center;
 }
 
-
-/* Main containers */
-
 .user-container:hover,
 .user-card:hover,
 .user-search-container:hover,
 .user-table-container:hover {
     transform: none !important;
 }
-
-
-/* All interactive elements */
 
 .user-container button:hover,
 .user-container input:hover,
@@ -527,13 +510,11 @@
     transform: none !important;
 }
 
-
 /* =========================================================
-   TABLET
+   RESPONSIVE BREAKPOINTS
    ========================================================= */
 
 @media (max-width: 1100px) {
-
     .user-search-container {
         flex-wrap: wrap;
         align-items: center;
@@ -552,13 +533,7 @@
     }
 }
 
-
-/* =========================================================
-   MOBILE
-   ========================================================= */
-
 @media (max-width: 768px) {
-
     .user-container {
         padding-top: 55px;
     }
@@ -619,13 +594,7 @@
     }
 }
 
-
-/* =========================================================
-   SMALL MOBILE
-   ========================================================= */
-
 @media (max-width: 480px) {
-
     .user-card {
         padding: 10px 8px 85px;
     }
@@ -658,29 +627,3 @@
         padding: 0 14px;
     }
 }
-
-#!/bin/bash
-
-echo "Starting ISP System..."
-
-# Start .NET backend
-gnome-terminal -- bash -c '
-cd ~/repository/ISP-Sys/Backend &&
-dotnet run --urls "http://0.0.0.0:8080";
-exec bash
-'
-
-# Start frontend
-gnome-terminal -- bash -c '
-cd ~/repository/ISP-Sys/front &&
-npm run dev -- --host 0.0.0.0;
-exec bash
-'
-
-echo ""
-echo "======================================"
-echo " ISP System Started"
-echo "======================================"
-echo "Backend:  http://YOUR_PUBLIC_IP:8080"
-echo "Frontend: http://YOUR_PUBLIC_IP:5173"
-echo "======================================"
