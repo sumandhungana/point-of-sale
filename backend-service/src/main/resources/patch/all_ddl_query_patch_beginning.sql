@@ -84,9 +84,15 @@ CREATE INDEX IF NOT EXISTS idx_sales_bill_product_id ON sales_bill(product_id);
 -- Optional: Speeds up querying member bill numbers (BILL-{memberId}-{seq})
 CREATE INDEX IF NOT EXISTS idx_sales_bill_member_bill_number ON sales_bill(member_id, bill_number);
 
+CREATE SEQUENCE IF NOT EXISTS purchase_bill_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
 -- Purchase Bill
 CREATE TABLE purchase_bill (
-                               id SERIAL PRIMARY KEY,
+                               id BIGINT PRIMARY KEY DEFAULT nextval('purchase_bill_seq'),
                                product_id BIGINT,
                                supplier_id BIGINT,
                                supplier_name VARCHAR(255),

@@ -7,6 +7,9 @@ import com.puff.tech.inventorymanagement.usecase.purchasebill.add.AddPurchaseBil
 import com.puff.tech.inventorymanagement.usecase.purchasebill.getall.GetAllPurchaseBillUC;
 import com.puff.tech.inventorymanagement.usecase.purchasebill.getall.GetAllPurchaseBillUCRequest;
 import com.puff.tech.inventorymanagement.usecase.purchasebill.getall.GetAllPurchaseBillUCResponse;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.purchasenumber.GetPurchaseNumberUC;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.purchasenumber.GetPurchaseNumberUCRequest;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.purchasenumber.GetPurchaseNumberUCResponse;
 import com.puff.tech.security.Secured;
 import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.Body;
@@ -23,16 +26,28 @@ public class PurchaseBillController {
 
     private final AddPurchaseBillUC addPurchaseBillUC;
     private final GetAllPurchaseBillUC getAllPurchaseBillUC;
+    private final GetPurchaseNumberUC getPurchaseNumberUC;
 
-    public PurchaseBillController(AddPurchaseBillUC addPurchaseBillUC, GetAllPurchaseBillUC getAllPurchaseBillUC) {
+    public PurchaseBillController(AddPurchaseBillUC addPurchaseBillUC,
+                                  GetAllPurchaseBillUC getAllPurchaseBillUC,
+                                  GetPurchaseNumberUC getPurchaseNumberUC) {
         this.addPurchaseBillUC = addPurchaseBillUC;
         this.getAllPurchaseBillUC = getAllPurchaseBillUC;
+        this.getPurchaseNumberUC = getPurchaseNumberUC;
     }
 
     @Secured(permissions = {Permission.PURCHASE_BILL_ADD})
     @Post()
     public Mono<RestResponse<AddPurchaseBillUCResponse>> addPurchaseBill(@Valid @Body AddPurchaseBillUCRequest request) {
         return addPurchaseBillUC.execute(request)
+                .map(RestResponse::success)
+                .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
+    }
+
+    @Secured(permissions = {Permission.PURCHASE_BILL_GENERATION})
+    @Get("bill-number")
+    public Mono<RestResponse<GetPurchaseNumberUCResponse>> getSalesBillNumber() {
+        return getPurchaseNumberUC.execute(new GetPurchaseNumberUCRequest())
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
