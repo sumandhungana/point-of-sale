@@ -49,7 +49,7 @@ button.btn-primary,
 .btn-primary,
 button.btn.btn-primary,
 .btn.btn-primary {
-  background: linear-gradient(135deg, #3498db, #2980b9) !important;
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
   color: white !important;
   border: none !important;
   border-radius: 8px !important;
@@ -65,16 +65,16 @@ button.btn.btn-primary,
   text-decoration: none !important;
   position: relative !important;
   overflow: hidden !important;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.35) !important;
 }
 
 button.btn-primary:hover,
 .btn-primary:hover,
 button.btn.btn-primary:hover,
 .btn.btn-primary:hover {
-  background: linear-gradient(135deg, #2980b9, #3498db) !important;
+  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.45) !important;
 }
 
 /* Success Buttons */
@@ -335,7 +335,7 @@ button.btn.btn-green:hover,
 
 /* Add Button Style */
 .btn-add {
-  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
   color: white !important;
   padding: 1rem 2rem !important;
   border: none !important;
@@ -347,13 +347,13 @@ button.btn.btn-green:hover,
   align-items: center !important;
   gap: 0.5rem !important;
   transition: all 0.3s ease !important;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.35) !important;
 }
 
 .btn-add:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
-  background: linear-gradient(135deg, #00c12b, #1ea085) !important;
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.45) !important;
+  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
 }
 
 /* Floating Action Button */
@@ -364,7 +364,7 @@ button.btn.btn-green:hover,
   width: 60px !important;
   height: 60px !important;
   border-radius: 50% !important;
-  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
   color: white !important;
   border: none !important;
   font-size: 1.5rem !important;
@@ -372,15 +372,15 @@ button.btn.btn-green:hover,
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3) !important;
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.35) !important;
   transition: all 0.3s ease !important;
   z-index: 1000 !important;
 }
 
 .btn-floating:hover {
   transform: translateY(-2px) scale(1.1) !important;
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
-  background: linear-gradient(135deg, #00c12b, #1ea085) !important;
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.45) !important;
+  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
 }
 
 /* Small Buttons */

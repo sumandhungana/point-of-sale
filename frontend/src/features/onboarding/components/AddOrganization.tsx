@@ -130,6 +130,30 @@ export const AddOrganization = () => {
             <div className="add-khatabook-page-main">
                 <Navbar />
                 <div className="add-khata-book-container">
+                    {/* Header with Title and Top-Right Cross Button */}
+                    <div className="form-card-header">
+                        <div className="form-card-header-left">
+                            <div className="form-header-icon-wrap">
+                                <i className="bi bi-building-add" />
+                            </div>
+                            <div>
+                                <h1 className="form-header-title">Onboard New Organization</h1>
+                                <p className="form-header-subtitle">Register organization profile, branches, and administrator access</p>
+                            </div>
+                        </div>
+
+                        {/* Top Right Cross Button */}
+                        <button
+                            type="button"
+                            className="form-close-btn"
+                            onClick={() => navigate(-1)}
+                            aria-label="Close"
+                            title="Close"
+                        >
+                            <i className="bi bi-x-lg" />
+                        </button>
+                    </div>
+
                     <form onSubmit={handleSubmit}>
                         {/*/!* User Credentials & Personal Info *!/*/}
                         {/*<div className="add-khata-book-section mb-4">*/}
@@ -491,23 +515,32 @@ export const AddOrganization = () => {
                             </div>
                         </div>
 
-                        <button
-                            type="submit"
-                            className="add-khata-book-save-button mt-4"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? (
-                                <>
-                                    <i className="bi bi-arrow-clockwise spin me-2"></i>
-                                    Onboarding...
-                                </>
-                            ) : (
-                                <>
-                                    <i className="bi bi-check-circle me-2"></i>
-                                    Onboard Organization
-                                </>
-                            )}
-                        </button>
+                        <div className="add-organization-action-buttons">
+                            <button
+                                type="button"
+                                className="add-khata-book-cancel-button"
+                                onClick={() => navigate(-1)}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                className="add-khata-book-save-button"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <i className="bi bi-arrow-clockwise spin me-2"></i>
+                                        Onboarding...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="bi bi-check-circle me-2"></i>
+                                        Onboard Organization
+                                    </>
+                                )}
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>

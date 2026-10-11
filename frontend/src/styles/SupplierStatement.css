@@ -48,11 +48,10 @@
 
 .supplier-statement-main-content {
   padding: 2rem;
-  margin-top: 64px;
-  max-width: calc(100% - 500px);
-  margin-right: 500px;
+  max-width: 1200px;
   width: 100%;
-  margin-left: 16rem;
+  margin: 1rem auto 3rem;
+  box-sizing: border-box;
 }
 
 .supplier-statement-form-container {

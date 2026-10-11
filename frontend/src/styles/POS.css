@@ -1,8 +1,10 @@
 /* POS Page Styles */
 .pos-container {
   display: flex;
-  height: 100vh;
+  min-height: 100vh;
   background: #f8f9fa;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .pos-left-panel {
@@ -56,7 +58,7 @@
 }
 
 .pos-add-button {
-  background: linear-gradient(135deg, #dc4c39, #c0392b);
+  background: linear-gradient(135deg, #255DCE, #021861);
   color: white;
   border: none;
   padding: 0.75rem 1rem;
@@ -65,13 +67,13 @@
   width: 100%;
   font-weight: 500;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.3);
 }
 
 .pos-add-button:hover {
-  background: linear-gradient(135deg, #c0392b, #a93226);
+  background: linear-gradient(135deg, #1f4cb0, #011043);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.4);
 }
 
 .pos-cart-items {
@@ -168,19 +170,23 @@
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .pos-container {
     flex-direction: column;
+    height: auto;
+    min-height: 100vh;
   }
   
   .pos-left-panel {
-    flex: 1;
+    flex: none;
     border-right: none;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 2px solid #dee2e6;
+    max-height: 55vh;
   }
   
   .pos-right-panel {
-    flex: 1;
+    flex: none;
+    min-height: 45vh;
   }
   
   .pos-menu-grid {

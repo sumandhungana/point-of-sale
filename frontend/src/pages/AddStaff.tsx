@@ -72,8 +72,12 @@ export const AddStaff: React.FC = () => {
      HANDLERS
      ========================= */
 
+  const handleCancel = () => {
+    navigate('/staff');
+  };
+
   const handleBack = () => {
-    navigate(-1);
+    navigate('/staff');
   };
 
   const handleDateSelect = (date: Date) => {
@@ -196,76 +200,107 @@ export const AddStaff: React.FC = () => {
           <Navbar />
 
           <div className="add-staff-content">
-            <button
-                type="button"
-                className="add-staff-back-button"
-                onClick={handleBack}
-            >
-              <i className="bi bi-arrow-left"></i>
-              <span>Back</span>
-            </button>
+            <div className="add-staff-main-card">
+              {/* Header with Title and Top-Right Cross Button */}
+              <div className="add-staff-header">
+                <div className="add-staff-header-left">
+                  <div className="add-staff-header-icon-wrap">
+                    <i className="bi bi-person-badge-fill" />
+                  </div>
 
-            <form className="add-staff-form" onSubmit={handleSubmit}>
-              {/* =========================
-                STAFF INFORMATION
-                ========================= */}
-              <div className="add-staff-card">
-                <div className="add-staff-sections">
-                  {/* PHOTO */}
-                  <div className="add-staff-section add-staff-photo-section">
-                    <div className="add-staff-image-upload">
-                      <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          className="add-staff-file-input"
-                          onChange={handleImageChange}
-                      />
+                  <div>
+                    <h1 className="add-staff-title">Add New Staff</h1>
+                    <p className="add-staff-subtitle">Register staff member profile and configure salary settings</p>
+                  </div>
+                </div>
 
+                {/* Cross button on Top Right */}
+                <button
+                    type="button"
+                    className="add-staff-close-btn"
+                    onClick={handleCancel}
+                    aria-label="Close"
+                    title="Close"
+                >
+                  <i className="bi bi-x-lg" />
+                </button>
+              </div>
+
+              <form className="add-staff-form" onSubmit={handleSubmit}>
+                {/* Interactive Avatar Upload Card */}
+                <div className="avatar-card-banner">
+                  <div
+                      className="avatar-preview-wrapper"
+                      onClick={() => fileInputRef.current?.click()}
+                      role="button"
+                      tabIndex={0}
+                  >
+                    <div className="avatar-display-frame">
+                      {imagePreview ? (
+                          <img
+                              src={imagePreview}
+                              alt="Staff Preview"
+                              className="avatar-img-preview"
+                          />
+                      ) : (
+                          <div className="avatar-icon-fallback">
+                            <i className="bi bi-person-fill" />
+                          </div>
+                      )}
+                      <div className="avatar-hover-overlay">
+                        <i className="bi bi-camera-fill" />
+                        <span>Change</span>
+                      </div>
+                    </div>
+                    <div className="avatar-camera-badge" title="Upload Photo">
+                      <i className="bi bi-camera-fill" />
+                    </div>
+                  </div>
+
+                  <div className="avatar-meta-info">
+                    <h3 className="avatar-meta-title">Staff Photo</h3>
+                    <p className="avatar-meta-hint">Upload a high-resolution JPG, PNG or WEBP image (max 5MB)</p>
+                    <div className="avatar-action-buttons">
                       <button
                           type="button"
-                          className={`add-staff-image-placeholder ${
-                              imagePreview ? 'has-image' : ''
-                          }`}
-                          onClick={handleImageClick}
+                          className="btn-upload-avatar"
+                          onClick={() => fileInputRef.current?.click()}
                       >
-                        {imagePreview ? (
-                            <img
-                                src={imagePreview}
-                                alt="Staff preview"
-                                className="add-staff-image-preview"
-                            />
-                        ) : (
-                            <>
-                              <i className="bi bi-person"></i>
-                              <span className="add-staff-upload-text">
-                            Upload Photo
-                          </span>
-                              <small>JPG, PNG up to 5MB</small>
-                            </>
-                        )}
+                        <i className="bi bi-cloud-arrow-up me-1" />
+                        {imagePreview ? 'Replace Photo' : 'Choose Photo'}
                       </button>
-
                       {imagePreview && (
                           <button
                               type="button"
-                              className="add-staff-image-remove"
+                              className="btn-remove-avatar"
                               onClick={handleRemoveImage}
                           >
-                            <i className="bi bi-trash"></i>
-                            Remove Photo
+                            <i className="bi bi-trash3 me-1" />
+                            Remove
                           </button>
                       )}
                     </div>
                   </div>
 
-                  {/* NAME + ADDRESS */}
-                  <div className="add-staff-section">
-                    <div className="add-staff-form-group">
-                      <label className="add-staff-label">
-                        <i className="bi bi-person"></i>
-                        Staff Name
-                      </label>
+                  <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageChange}
+                      style={{ display: 'none' }}
+                  />
+                </div>
+
+                {/* =========================
+                  STAFF DETAILS GRID
+                  ========================= */}
+                <div className="add-staff-form-grid">
+                  <div className="add-staff-form-group">
+                    <label className="add-staff-label">
+                      Staff Name <span className="add-staff-required">*</span>
+                    </label>
+                    <div className="add-staff-input-with-icon">
+                      <i className="bi bi-person add-staff-field-icon" />
                       <input
                           type="text"
                           name="name"
@@ -273,15 +308,15 @@ export const AddStaff: React.FC = () => {
                           onChange={handleInputChange}
                           className="add-staff-input"
                           required
-                          placeholder="Enter staff name"
+                          placeholder="Enter staff full name"
                       />
                     </div>
+                  </div>
 
-                    <div className="add-staff-form-group">
-                      <label className="add-staff-label">
-                        <i className="bi bi-geo-alt"></i>
-                        Address
-                      </label>
+                  <div className="add-staff-form-group">
+                    <label className="add-staff-label">Address</label>
+                    <div className="add-staff-input-with-icon">
+                      <i className="bi bi-geo-alt add-staff-field-icon" />
                       <input
                           type="text"
                           name="address"
@@ -293,28 +328,25 @@ export const AddStaff: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* PHONE + EMAIL */}
-                  <div className="add-staff-section">
-                    <div className="add-staff-form-group">
-                      <label className="add-staff-label">
-                        <i className="bi bi-telephone"></i>
-                        Phone Number
-                      </label>
+                  <div className="add-staff-form-group">
+                    <label className="add-staff-label">Phone Number</label>
+                    <div className="add-staff-input-with-icon">
+                      <i className="bi bi-telephone add-staff-field-icon" />
                       <input
                           type="tel"
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
                           className="add-staff-input"
-                          placeholder="Enter phone number"
+                          placeholder="Enter contact phone number"
                       />
                     </div>
+                  </div>
 
-                    <div className="add-staff-form-group">
-                      <label className="add-staff-label">
-                        <i className="bi bi-envelope"></i>
-                        Email
-                      </label>
+                  <div className="add-staff-form-group">
+                    <label className="add-staff-label">Email Address</label>
+                    <div className="add-staff-input-with-icon">
+                      <i className="bi bi-envelope add-staff-field-icon" />
                       <input
                           type="email"
                           name="email"
@@ -325,34 +357,32 @@ export const AddStaff: React.FC = () => {
                       />
                     </div>
                   </div>
+
+                  <div className="add-staff-form-group add-staff-full-width">
+                    <label className="add-staff-label">Remarks</label>
+                    <div className="add-staff-input-with-icon">
+                      <i className="bi bi-chat-text add-staff-field-icon add-staff-textarea-icon" />
+                      <textarea
+                          name="remarks"
+                          value={formData.remarks}
+                          onChange={handleInputChange}
+                          className="add-staff-textarea"
+                          placeholder="Enter any additional remarks..."
+                          rows={3}
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                {/* REMARKS */}
-                <div className="add-staff-form-group">
-                  <label className="add-staff-label">
-                    <i className="bi bi-chat-text"></i>
-                    Remarks
-                  </label>
-                  <textarea
-                      name="remarks"
-                      value={formData.remarks}
-                      onChange={handleInputChange}
-                      className="add-staff-textarea"
-                      placeholder="Enter any additional remarks..."
-                  />
-                </div>
-              </div>
-
-              {/* =========================
-                SALARY MANAGEMENT
-                ========================= */}
-              <div className="add-staff-salary-management-section">
-                <h2 className="add-staff-salary-heading">
-                  <i className="bi bi-currency-rupee"></i>
-                  Manage Salary
-                </h2>
-
+                {/* =========================
+                  SALARY MANAGEMENT
+                  ========================= */}
                 <div className="add-staff-salary-card">
+                  <h2 className="add-staff-salary-heading">
+                    <i className="bi bi-currency-rupee" />
+                    Manage Salary & Schedule
+                  </h2>
+
                   <div className="add-staff-salary-sections">
                     {/* CALENDAR */}
                     <div className="add-staff-salary-section">
@@ -408,7 +438,7 @@ export const AddStaff: React.FC = () => {
                                   <div
                                       key={`empty-${index}`}
                                       className="add-staff-calendar-date empty"
-                                  ></div>
+                                  />
                               )
                           )}
 
@@ -454,13 +484,14 @@ export const AddStaff: React.FC = () => {
                                 isSlideOn ? 'active' : ''
                             }`}
                             onClick={() => setIsSlideOn(!isSlideOn)}
+                            aria-label="Toggle Auto-Deduction"
                         >
-                          <div className="add-staff-slide-circle"></div>
+                          <div className="add-staff-slide-circle" />
                         </button>
 
                         <span className="add-staff-slide-status">
-                        {isSlideOn ? 'Enabled' : 'Disabled'}
-                      </span>
+                          {isSlideOn ? 'Enabled' : 'Disabled'}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -469,97 +500,120 @@ export const AddStaff: React.FC = () => {
                   <div className="add-staff-salary-fields">
                     <div className="add-staff-field-group">
                       <label className="add-staff-field-label">
-                        <i className="bi bi-calendar"></i>
                         Salary Start Date
                       </label>
-                      <input
-                          type="date"
-                          name="salaryStartDate"
-                          value={formData.salaryStartDate}
-                          onChange={handleInputChange}
-                          className="add-staff-field-input"
-                      />
+                      <div className="add-staff-input-with-icon">
+                        <i className="bi bi-calendar3 add-staff-field-icon" />
+                        <input
+                            type="date"
+                            name="salaryStartDate"
+                            value={formData.salaryStartDate}
+                            onChange={handleInputChange}
+                            className="add-staff-field-input"
+                        />
+                      </div>
                     </div>
 
                     <div className="add-staff-field-group">
                       <label className="add-staff-field-label">
-                        <i className="bi bi-clock"></i>
                         Salary Type
                       </label>
-                      <select
-                          name="salaryType"
-                          value={salaryData.salaryType}
-                          onChange={handleSalaryInputChange}
-                          className="add-staff-select"
-                      >
-                        <option value="monthly">Monthly</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="daily">Daily</option>
-                      </select>
+                      <div className="add-staff-input-with-icon">
+                        <i className="bi bi-clock-history add-staff-field-icon" />
+                        <select
+                            name="salaryType"
+                            value={salaryData.salaryType}
+                            onChange={handleSalaryInputChange}
+                            className="add-staff-select"
+                        >
+                          <option value="monthly">Monthly</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="daily">Daily</option>
+                        </select>
+                      </div>
                     </div>
 
                     <div className="add-staff-field-group">
                       <label className="add-staff-field-label">
-                        <i className="bi bi-currency-rupee"></i>
-                        Salary Amount
+                        Salary Amount <span className="add-staff-required">*</span>
                       </label>
-                      <input
-                          type="number"
-                          name="amount"
-                          value={salaryData.amount}
-                          onChange={handleSalaryInputChange}
-                          className="add-staff-field-input"
-                          placeholder="Enter amount"
-                          min="0"
-                          required
-                      />
+                      <div className="add-staff-input-with-icon">
+                        <i className="bi bi-currency-rupee add-staff-field-icon" />
+                        <input
+                            type="number"
+                            name="amount"
+                            value={salaryData.amount}
+                            onChange={handleSalaryInputChange}
+                            className="add-staff-field-input"
+                            placeholder="Enter amount"
+                            min="0"
+                            required
+                        />
+                      </div>
                     </div>
 
                     <div className="add-staff-field-group">
                       <label className="add-staff-field-label">
-                        <i className="bi bi-shield-check"></i>
                         Permission
                       </label>
-                      <select
-                          name="permission"
-                          value={salaryData.permission}
-                          onChange={handleSalaryInputChange}
-                          className="add-staff-select"
-                      >
-                        <option value="full">Full Access</option>
-                        <option value="limited">Limited Access</option>
-                        <option value="restricted">Restricted Access</option>
-                      </select>
+                      <div className="add-staff-input-with-icon">
+                        <i className="bi bi-shield-lock add-staff-field-icon" />
+                        <select
+                            name="permission"
+                            value={salaryData.permission}
+                            onChange={handleSalaryInputChange}
+                            className="add-staff-select"
+                        >
+                          <option value="full">Full Access</option>
+                          <option value="limited">Limited Access</option>
+                          <option value="restricted">Restricted Access</option>
+                        </select>
+                      </div>
                     </div>
                   </div>
                 </div>
 
                 {error && (
                     <div className="add-staff-error">
-                      <i className="bi bi-exclamation-triangle"></i>
+                      <i className="bi bi-exclamation-triangle" />
                       <span>{error}</span>
                     </div>
                 )}
 
-                <button
-                    type="submit"
-                    className="add-staff-save-button"
-                    disabled={loading}
-                >
-                  {loading ? (
-                      <>
-                        <div className="add-staff-spinner"></div>
-                        Saving...
-                      </>
-                  ) : (
-                      <>
-                        <i className="bi bi-check-circle"></i>
-                        Save Staff
-                      </>
-                  )}
-                </button>
-              </div>
-            </form>
+                {/* =========================
+                  FOOTER ACTION BUTTONS (CANCEL + SAVE)
+                  ========================= */}
+                <div className="add-staff-action-footer">
+                  <button
+                      type="button"
+                      className="add-staff-cancel-button"
+                      onClick={handleCancel}
+                      disabled={loading}
+                  >
+                    <i className="bi bi-x-circle me-1" />
+                    Cancel
+                  </button>
+
+                  <button
+                      type="submit"
+                      className="add-staff-save-button"
+                      disabled={loading}
+                  >
+                    {loading ? (
+                        <>
+                          <div className="add-staff-spinner" />
+                          Saving...
+                        </>
+                    ) : (
+                        <>
+                          <i className="bi bi-check2-circle me-1" />
+                          Save Staff
+                        </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>

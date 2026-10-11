@@ -5,9 +5,10 @@
 
 .cashbook-container {
   padding: 2rem !important;
-  max-width: calc(100% - 500px) !important;
-  margin-left: 250px !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
   width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .cashbook-card {

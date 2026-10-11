@@ -2,18 +2,20 @@
 
 .app-setting-container {
   display: flex;
-  max-width: calc(100% - 500px);
-  margin-right: 500px;
+  max-width: 1200px;
+  margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .app-setting-main {
-  margin-left: 280px;
   flex: 1;
   padding: 2rem;
-  padding-top: 80px;
+  padding-top: 40px;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .app-setting-section {

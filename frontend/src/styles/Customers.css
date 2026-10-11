@@ -47,10 +47,10 @@
 
 .customers-search-row {
   display: flex !important;
-  gap: 2.75rem !important;
+  gap: 1.5rem !important;
   margin-bottom: 0 !important;
   align-items: center !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   justify-content: space-between !important;
 }
 

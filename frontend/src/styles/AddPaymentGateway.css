@@ -1,17 +1,18 @@
 /* AddPaymentGateway Page Styles */
 .add-payment-gateway-container {
   flex: 1;
-  padding-top: 40px;
-  margin-left: 300px;
+  padding: 1.5rem;
   min-height: 100vh;
   background: #f8f9fa;
+  box-sizing: border-box;
 }
 
 .add-payment-gateway-card {
-  padding: 2rem;
-  max-width: calc(100% - 500px);
-  margin-right: 500px;
+  padding: 1rem 0;
+  max-width: 1000px;
+  margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .add-payment-gateway-form-card {
@@ -225,8 +226,8 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .add-payment-gateway-card {
-    max-width: calc(100% - 300px);
-    margin-right: 300px;
+    max-width: 100%;
+    margin: 0 auto;
   }
 }
 

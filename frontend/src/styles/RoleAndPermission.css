@@ -2,6 +2,66 @@
    1. PAGE LAYOUT & CONTAINER STYLES
    ========================================================================== */
 
+.role-permission-page-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f4f6f9;
+    width: 100%;
+    position: relative;
+}
+
+.role-permission-container {
+    flex: 1;
+    margin-left: 300px; /* Clears fixed sidebar */
+    min-height: 100vh;
+    width: calc(100% - 300px);
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.role-permission-content {
+    flex: 1;
+    padding: 84px 24px 40px 24px; /* Clears fixed navbar */
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.role-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.role-page-header h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #021861;
+    margin: 0 0 4px 0;
+}
+
+.role-page-header p {
+    font-size: 0.9rem;
+    color: #64748b;
+    margin: 0;
+}
+
+@media (max-width: 1024px) {
+    .role-permission-container {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .role-permission-content {
+        padding: 80px 16px 32px 16px;
+    }
+}
+
 /* ==========================================================================
    STAT CARDS (TOP SUMMARY BANNER)
    ========================================================================== */
@@ -323,17 +383,18 @@
 
 .role-permission-container {
     flex: 1;
-    padding-top: 40px;
-    margin-left: 300px;
+    padding: 1.5rem;
     min-height: 100vh;
     background: #f8f9fa;
+    box-sizing: border-box;
 }
 
 .role-permission-card {
-    padding: 2rem;
-    max-width: calc(100% - 500px);
-    margin-right: 500px;
+    padding: 1rem 0;
+    max-width: 1200px;
+    margin: 0 auto;
     width: 100%;
+    box-sizing: border-box;
 }
 
 .role-permission-form-card {
@@ -722,21 +783,37 @@
     color: #64748b;
 }
 
-.modal-close-icon {
-    background: transparent;
-    border: none;
-    font-size: 22px;
-    color: #94a3b8;
+/* Top Right Cross Button */
+.modal-close-icon,
+.form-close-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    padding: 0;
     line-height: 1;
-    padding: 4px;
-    border-radius: 6px;
-    transition: all 0.15s ease;
 }
 
-.modal-close-icon:hover {
-    background-color: #f1f5f9;
-    color: #021861;
+.modal-close-icon:hover,
+.form-close-btn:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+    transform: scale(1.05);
+}
+
+.modal-close-icon:active,
+.form-close-btn:active {
+    transform: scale(0.95);
 }
 
 /* FIX 4: modal-body absorbs available space and scrolls independently */

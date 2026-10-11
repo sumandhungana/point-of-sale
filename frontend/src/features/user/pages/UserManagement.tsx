@@ -663,8 +663,14 @@ export const UserManagement: React.FC = () => {
                             <h3 className="modal-title">{editingUserId ? 'Edit User' : 'Create New User'}</h3>
                             <p className="modal-subtitle">Provide account details and assign administrative privileges</p>
                         </div>
-                        <button className="modal-close-icon" onClick={() => setIsModalOpen(false)}>
-                            &times;
+                        <button
+                            type="button"
+                            className="form-close-btn"
+                            onClick={() => setIsModalOpen(false)}
+                            aria-label="Close"
+                            title="Close"
+                        >
+                            <i className="bi bi-x-lg" />
                         </button>
                     </div>
 

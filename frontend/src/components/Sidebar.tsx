@@ -32,14 +32,9 @@ const navItems: NavItem[] = [
 		path: '/inventory',
 		icon: '📦',
 		children: [
-			// { title: 'CATEGORIES', path: '/category', icon: '🗃️'},
 			{ title: 'Inventory', path: '/inventory/items', icon: '📦' },
-			// { title: 'SERVICES', path: '/service', icon: '🔧' },
 			{ title: 'Sales', path: '/bills/sales', icon: '💰' },
 			{ title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
-			// { title: 'Expenses', path: '/bills/expenses', icon: '💸' },
-			// { title: 'Income', path: '/bills/income', icon: '💸' },
-			// { title: 'Cashbook', path: '/bills/cashbook', icon: '📒' },
 		],
 	},
 	{
@@ -47,7 +42,7 @@ const navItems: NavItem[] = [
 		path: '/others',
 		icon: '📦',
 		children: [
-			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼', module: 'staff' },
+			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼', module: 'staffManagement' },
 			{ title: 'Rental Items', path: '/rental-items', icon: '📦' },
 			{ title: 'Note', path: '/others/note', icon: '📝' },
 		],
@@ -67,7 +62,6 @@ const navItems: NavItem[] = [
 		path: '/system',
 		icon: '⚙',
 		children: [
-			// { title: 'Multi User Login', path: '/system/multi-user', icon: '👥' },
 			{ title: 'Reminder', path: '/system/reminder', icon: '⏰' },
 			{ title: 'Import Data', path: '/system/import', icon: '📥' },
 			{ title: 'Notis', path: '/system/notis', icon: '🔔' },
@@ -86,23 +80,10 @@ const navItems: NavItem[] = [
 			{ title: 'Role & Permission', path: '/role', icon: '🔒', module: 'roleAndPermissions' },
 			{ title: 'App Setting', path: '/app-settings', icon: '⚙️' },
 			{ title: 'Bills & Print Selling', path: '/bills-and-print-selling', icon: '📄' },
-			// { title: 'Delete Khata', path: '/settings/delete-khata', icon: '❌' },
 			{ title: 'Business Setting', path: '/settings/business', icon: '🏢' },
 			{ title: 'Dashboard Setting', path: '/settings/dashboard', icon: '📊' },
 		],
 	},
-	// {
-	// 	title: 'ABOUTS',
-	// 	path: '/abouts',
-	// 	icon: 'ℹ️️',
-	// 	children: [
-	// 		{ title: 'Name Of App', path: '/abouts/app-name', icon: '📱' },
-	// 		{ title: 'Backup Info', path: '/abouts/backup-info', icon: '💾' },
-	// 		{ title: 'Privacy Policy', path: '/abouts/privacy', icon: '🔒' },
-	// 		{ title: 'Terms & Conditions', path: '/abouts/terms', icon: '📜' },
-	// 		{ title: 'Version', path: '/abouts/version', icon: '🔄' },
-	// 	],
-	// },
 ];
 
 export const Sidebar = () => {
@@ -110,14 +91,28 @@ export const Sidebar = () => {
 	const navigate = useNavigate();
 	const { hasModule, hasPermission } = usePermission();
 
+	const [isMobileOpen, setIsMobileOpen] = useState(false);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
 	const popupRef = useRef<HTMLDivElement>(null);
 	const sidebarContainerRef = useRef<HTMLDivElement>(null);
 
-	// Track initial load to prevent duplicate requests in React Strict Mode
-	const fetchedRef = useRef(false);
+	useEffect(() => {
+		const handleToggle = () => setIsMobileOpen((prev) => !prev);
+		const handleClose = () => setIsMobileOpen(false);
 
-	// Initialize expandedItems from localStorage or fallback
+		window.addEventListener('toggle-sidebar', handleToggle);
+		window.addEventListener('close-sidebar', handleClose);
+
+		return () => {
+			window.removeEventListener('toggle-sidebar', handleToggle);
+			window.removeEventListener('close-sidebar', handleClose);
+		};
+	}, []);
+
+	useEffect(() => {
+		setIsMobileOpen(false);
+	}, [location.pathname]);
+
 	const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(() => {
 		const saved = localStorage.getItem('sidebar_expanded_items');
 		return saved ? JSON.parse(saved) : { '/parties': true };
@@ -125,7 +120,6 @@ export const Sidebar = () => {
 
 	const [khataBooks, setKhataBooks] = useState<UserBasedAllMember[]>([]);
 
-	// Synchronous initial state from localStorage only
 	const [currentKhataBook, setCurrentKhataBook] = useState<UserBasedAllMember | null>(() => {
 		const cachedId = localStorage.getItem('selectedKhataBookId');
 		const cachedName = localStorage.getItem('companyName');
@@ -140,9 +134,13 @@ export const Sidebar = () => {
 
 	const [loading, setLoading] = useState(false);
 	const [error, setError] = useState<string | null>(null);
-	const cachedCompanyName = (typeof window !== 'undefined' && localStorage.getItem('companyName')) || '';
 
-	// Restore scroll position on initial render/mount
+	// Guaranteed fallback display name chain
+	const displayCompanyName =
+		currentKhataBook?.organizationName ||
+		(typeof window !== 'undefined' && localStorage.getItem('companyName')) ||
+		'Select KhataBook';
+
 	useEffect(() => {
 		const savedScroll = sessionStorage.getItem('sidebar_scroll_position');
 		if (sidebarContainerRef.current && savedScroll !== null) {
@@ -150,21 +148,18 @@ export const Sidebar = () => {
 		}
 	}, []);
 
-	// Save scroll position when the user scrolls
 	const handleSidebarScroll = () => {
 		if (sidebarContainerRef.current) {
 			sessionStorage.setItem('sidebar_scroll_position', sidebarContainerRef.current.scrollTop.toString());
 		}
 	};
 
-	// Save expanded states to localStorage on state changes
 	useEffect(() => {
 		localStorage.setItem('sidebar_expanded_items', JSON.stringify(expandedItems));
 	}, [expandedItems]);
 
 	const findParentPaths = (items: NavItem[], currentPath: string): string[] => {
 		const parentPaths: string[] = [];
-
 		const findParents = (items: NavItem[], path: string): boolean => {
 			for (const item of items) {
 				if (item.children) {
@@ -180,7 +175,6 @@ export const Sidebar = () => {
 			}
 			return false;
 		};
-
 		findParents(items, currentPath);
 		return parentPaths;
 	};
@@ -203,12 +197,10 @@ export const Sidebar = () => {
 				setIsPopupOpen(false);
 			}
 		};
-
 		document.addEventListener('mousedown', handleClickOutside);
 		return () => document.removeEventListener('mousedown', handleClickOutside);
 	}, []);
 
-	// Fetch list of KhataBooks when popup opens
 	useEffect(() => {
 		let isMounted = true;
 		const fetchKhataBooks = async () => {
@@ -232,27 +224,35 @@ export const Sidebar = () => {
 			isMounted = false;
 		};
 	}, [isPopupOpen]);
-
-	// Fetch currently selected KhataBook ONCE on mount with Strict Mode guard
 	useEffect(() => {
-		if (fetchedRef.current) return;
-		fetchedRef.current = true;
-
 		let isMounted = true;
+
 		const fetchCurrentKhataBook = async () => {
 			try {
-				const selectedKhataBook = await getSelectedKhataBook();
+				const selectedKhataBook: UserBasedAllMember = await getSelectedKhataBook();
+				console.log("Selected KhataBook API Payload:", selectedKhataBook);
+
 				if (selectedKhataBook && isMounted) {
-					setCurrentKhataBook(selectedKhataBook);
-					localStorage.setItem('companyName', selectedKhataBook.organizationName);
-					localStorage.setItem('selectedKhataBookId', selectedKhataBook.id.toString());
+					const orgName = selectedKhataBook.organizationName;
+
+					if (orgName) {
+						const formattedBook = {
+							...selectedKhataBook,
+							organizationName: orgName
+						};
+						setCurrentKhataBook(formattedBook);
+						console.log("Organization Name:", orgName);
+						localStorage.setItem('companyName', orgName);
+						localStorage.setItem('selectedKhataBookId', selectedKhataBook.id.toString());
+					}
 				}
 			} catch (err) {
 				console.error('Failed to fetch current KhataBook:', err);
 			}
 		};
 
-		fetchCurrentKhataBook().catch((err) => console.error('Error fetching current KhataBook:', err));
+		fetchCurrentKhataBook();
+
 		return () => {
 			isMounted = false;
 		};
@@ -260,13 +260,10 @@ export const Sidebar = () => {
 
 	const isActive = (path: string, item: NavItem) => {
 		if (path === '/') return false;
-
 		if (path === '/parties/suppliers' && location.pathname.startsWith('/parties/supplier')) {
 			return true;
 		}
-
 		const isPathActive = location.pathname.startsWith(path);
-
 		if (item.children) {
 			return item.children.some((child) => {
 				if (child.children) {
@@ -280,7 +277,6 @@ export const Sidebar = () => {
 				return childAliasActive || location.pathname === child.path || location.pathname.startsWith(child.path);
 			});
 		}
-
 		return isPathActive;
 	};
 
@@ -382,72 +378,97 @@ export const Sidebar = () => {
 	const authorizedNavItems = filterAuthorizedNavItems(navItems);
 
 	return (
-		<div className="sidebar" ref={sidebarContainerRef} onScroll={handleSidebarScroll}>
-			<div className="user-section" onClick={() => setIsPopupOpen(true)}>
-				<div className="user-profile" style={{ display: 'flex', flexDirection: 'column' }}>
-					<div
-						className="avatar"
-						style={{
-							backgroundImage: 'linear-gradient(135deg, #3498db, #2980b9)',
-							backgroundSize: 'cover',
-							backgroundPosition: 'center',
-							backgroundRepeat: 'no-repeat',
-						}}
+		<>
+			{isMobileOpen && (
+				<div
+					className="sidebar-backdrop"
+					onClick={() => setIsMobileOpen(false)}
+					aria-label="Close sidebar overlay"
+				/>
+			)}
+			<div
+				className={`sidebar ${isMobileOpen ? 'open' : ''}`}
+				ref={sidebarContainerRef}
+				onScroll={handleSidebarScroll}
+			>
+				<div className="sidebar-mobile-header">
+					<span className="sidebar-mobile-title">Menu</span>
+					<button
+						type="button"
+						className="sidebar-mobile-close-btn"
+						onClick={() => setIsMobileOpen(false)}
+						aria-label="Close menu"
 					>
-						{'👤'}
-					</div>
-					<div className="user-info">
-						<p className="user-role">
-							{currentKhataBook?.organizationName || cachedCompanyName || 'No KhataBook Selected'}
-						</p>
+						✕
+					</button>
+				</div>
+
+				<div className="user-section" onClick={() => setIsPopupOpen(true)}>
+					<div className="user-profile" style={{ display: 'flex', flexDirection: 'column' }}>
+						<div
+							className="avatar"
+							style={{
+								backgroundImage: 'linear-gradient(135deg, #3498db, #2980b9)',
+								backgroundSize: 'cover',
+								backgroundPosition: 'center',
+								backgroundRepeat: 'no-repeat',
+							}}
+						>
+							{'👤'}
+						</div>
+						<div className="user-info">
+							<p className="user-role">
+								{displayCompanyName}
+							</p>
+						</div>
 					</div>
 				</div>
-			</div>
 
-			{isPopupOpen && (
-				<div className="popup-container">
-					<div className="popup-content" ref={popupRef}>
-						<div className="popup-header">
-							<h2 className="popup-title">KhataBooks</h2>
-							<button className="close-button" onClick={() => setIsPopupOpen(false)}>
-								×
+				{isPopupOpen && (
+					<div className="popup-container">
+						<div className="popup-content" ref={popupRef}>
+							<div className="popup-header">
+								<h2 className="popup-title">KhataBooks</h2>
+								<button className="close-button" onClick={() => setIsPopupOpen(false)}>
+									×
+								</button>
+							</div>
+							<div className="user-cards-container">
+								{loading ? (
+									<p className="loading-text">Loading KhataBooks...</p>
+								) : error ? (
+									<p className="error-text">{error}</p>
+								) : khataBooks.length === 0 ? (
+									<p className="loading-text">No KhataBooks found</p>
+								) : (
+									khataBooks.map((khataBook) => (
+										<div
+											key={khataBook.id}
+											className="user-card"
+											onClick={() => handleKhataBookClick(khataBook)}
+										>
+											<div className="user-image">
+												{'👤'}
+											</div>
+											<div className="user-details">
+												<h3 className="company-name">{khataBook.organizationName}</h3>
+												<p className="user-info-text">{khataBook.organizationContactNumber}</p>
+											</div>
+										</div>
+									))
+								)}
+							</div>
+							<button className="add-button" onClick={handleAddKhataBook}>
+								Add New KhataBook
 							</button>
 						</div>
-						<div className="user-cards-container">
-							{loading ? (
-								<p className="loading-text">Loading KhataBooks...</p>
-							) : error ? (
-								<p className="error-text">{error}</p>
-							) : khataBooks.length === 0 ? (
-								<p className="loading-text">No KhataBooks found</p>
-							) : (
-								khataBooks.map((khataBook) => (
-									<div
-										key={khataBook.id}
-										className="user-card"
-										onClick={() => handleKhataBookClick(khataBook)}
-									>
-										<div className="user-image">
-											{'👤'}
-										</div>
-										<div className="user-details">
-											<h3 className="company-name">{khataBook.organizationName}</h3>
-											<p className="user-info-text">{khataBook.organizationContactNumber}</p>
-										</div>
-									</div>
-								))
-							)}
-						</div>
-						<button className="add-button" onClick={handleAddKhataBook}>
-							Add New KhataBook
-						</button>
 					</div>
-				</div>
-			)}
+				)}
 
-			<div className="nav-section">
-				<ul className="nav-items list-unstyled">{renderNavItems(authorizedNavItems)}</ul>
+				<div className="nav-section">
+					<ul className="nav-items list-unstyled">{renderNavItems(authorizedNavItems)}</ul>
+				</div>
 			</div>
-		</div>
+		</>
 	);
 };

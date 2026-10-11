@@ -2,18 +2,19 @@
 
 .add-rental-item-container {
   display: flex;
-  max-width: calc(100% - 500px);
-  margin-right: 500px;
-  margin-left: 200px;
+  max-width: 1000px;
+  margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .add-rental-item-main {
   flex: 1;
-  padding: 2rem;
-  padding-top: 80px;
+  padding: 84px 2rem 2rem 2rem;
   background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .add-rental-item-form-card {
@@ -33,29 +34,56 @@
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
+.add-rental-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.25rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 1rem;
+}
+
 .add-rental-item-form-title {
   font-size: 1.75rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
   color: #212529;
-  text-align: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  text-align: left;
+  background: linear-gradient(135deg, #255dce 0%, #021861 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   position: relative;
+  display: flex;
+  align-items: center;
 }
 
-.add-rental-item-form-title::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60px;
-  height: 3px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 2px;
+.add-rental-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.add-rental-close-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+  transform: scale(1.05);
+}
+
+.add-rental-close-btn:active {
+  transform: scale(0.95);
 }
 
 .add-rental-item-form-row {
@@ -155,7 +183,7 @@
 
 .add-rental-item-save-button {
   padding: 0.875rem 2rem;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
   color: white;
   border: none;
   border-radius: 8px;
@@ -166,13 +194,13 @@
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.3);
 }
 
 .add-rental-item-save-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
-  background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.4);
+  background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
 }
 
 .add-rental-item-save-button:active {
@@ -270,8 +298,7 @@
   }
   
   .add-rental-item-main {
-    padding: 1rem;
-    padding-top: 60px;
+    padding: 76px 1rem 1.5rem 1rem;
   }
   
   .add-rental-item-form-card {

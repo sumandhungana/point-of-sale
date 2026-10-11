@@ -326,7 +326,15 @@ export const RoleManagement: React.FC = () => {
                             <h3>{editingRoleId ? 'Edit Role' : 'Add New Role'}</h3>
                             <p>Configure role information and assign permissions</p>
                         </div>
-                        <button className="modal-close-icon" onClick={() => setIsModalOpen(false)}>&times;</button>
+                        <button
+                            type="button"
+                            className="form-close-btn"
+                            onClick={() => setIsModalOpen(false)}
+                            aria-label="Close"
+                            title="Close"
+                        >
+                            <i className="bi bi-x-lg" />
+                        </button>
                     </div>
 
                     <form onSubmit={handleSubmitRole}>

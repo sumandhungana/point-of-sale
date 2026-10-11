@@ -51,10 +51,10 @@
 
 .suppliers-search-row {
   display: flex !important;
-  gap: 2.75rem !important;
+  gap: 1.5rem !important;
   margin-bottom: 0 !important;
   align-items: center !important;
-  flex-wrap: nowrap !important;
+  flex-wrap: wrap !important;
   justify-content: space-between !important;
 }
 
@@ -172,10 +172,10 @@
   font-weight: 600 !important;
   border: none !important;
   border-radius: 50px !important;
-  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+  background: linear-gradient(135deg, #255DCE, #021861) !important;
   color: #ffffff !important;
   cursor: pointer !important;
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(37, 93, 206, 0.35) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-width: 160px !important;
   text-align: center !important;
@@ -193,7 +193,7 @@
   left: 0 !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
   transform: translateX(-100%) !important;
   transition: transform 0.5s ease !important;
   pointer-events: none !important;
@@ -204,8 +204,8 @@
 }
 
 .suppliers-add-button:hover {
-  background: linear-gradient(135deg, #218838, #1e7e34) !important;
-  box-shadow: 0 12px 35px rgba(40, 167, 69, 0.4) !important;
+  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
+  box-shadow: 0 12px 35px rgba(37, 93, 206, 0.45) !important;
   transform: translateY(-3px) scale(1.05) !important;
 }
 

@@ -32,55 +32,10 @@
 }
 
 /* ==========================================================================
-   BACK BUTTON
+   HEADER & TOP-LEFT CROSS BUTTON
    ========================================================================== */
 
-.add-staff-back-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
-  padding: 0.65rem 1.1rem;
-  background: #ffffff;
-  color: #021861;
-  border: 1px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease;
-}
-
-.add-staff-back-button i {
-  font-size: 1rem;
-  color: #255dce;
-}
-
-.add-staff-back-button:hover {
-  background: #f8fafc;
-  border-color: #255dce;
-  color: #255dce;
-  transform: translateX(-2px);
-}
-
-.add-staff-back-button:focus-visible {
-  outline: 2px solid #255dce;
-  outline-offset: 2px;
-}
-
-/* ==========================================================================
-   FORM & CARDS
-   ========================================================================== */
-
-.add-staff-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.75rem;
-}
-
-.add-staff-card,
-.add-staff-salary-management-section {
+.add-staff-main-card {
   position: relative;
   background: #ffffff;
   padding: 2.25rem;
@@ -90,9 +45,7 @@
   overflow: hidden;
 }
 
-/* Dual Color Top Accent Border */
-.add-staff-card::before,
-.add-staff-salary-management-section::before {
+.add-staff-main-card::before {
   content: "";
   position: absolute;
   top: 0;
@@ -102,129 +55,302 @@
   background: linear-gradient(90deg, #021861 0%, #255dce 70%, #de1110 100%);
 }
 
+.add-staff-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  margin-bottom: 1.75rem;
+}
+
+.add-staff-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Cross button replacing back button on top left */
+.add-staff-close-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 1.15rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.add-staff-close-btn:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+  color: #dc2626;
+  transform: scale(1.05);
+}
+
+.add-staff-close-btn:active {
+  transform: scale(0.95);
+}
+
+.add-staff-header-icon-wrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(37, 93, 206, 0.12), rgba(2, 24, 97, 0.08));
+  color: #255dce;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  flex-shrink: 0;
+}
+
+.add-staff-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.add-staff-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0.25rem 0 0 0;
+  font-weight: 500;
+}
+
 /* ==========================================================================
-   STAFF LAYOUT SECTIONS
+   AVATAR UPLOAD CARD BANNER (CLEAN SOLID BORDER - NO DASHED/DOTTED)
    ========================================================================== */
 
-.add-staff-sections {
+.avatar-card-banner {
   display: flex;
-  align-items: flex-start;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
-}
-
-.add-staff-section {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  min-width: 0;
-}
-
-.add-staff-photo-section {
-  flex: 0 0 180px;
-  display: flex;
-  flex-direction: column;
   align-items: center;
+  gap: 1.75rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.25rem 1.75rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-/* ==========================================================================
-   IMAGE UPLOAD & PREVIEW
-   ========================================================================== */
-
-.add-staff-image-upload {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
+.avatar-card-banner:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
 }
 
-.add-staff-file-input {
-  display: none;
-}
-
-.add-staff-image-placeholder {
+.avatar-preview-wrapper {
   position: relative;
-  width: 130px;
-  height: 130px;
-  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.avatar-display-frame {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #255dce, #021861);
+  padding: 3px;
+  box-shadow: 0 4px 14px rgba(37, 93, 206, 0.25);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-img-preview {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #ffffff;
+}
+
+.avatar-icon-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-size: 2.75rem;
+}
+
+.avatar-hover-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: rgba(2, 24, 97, 0.75);
+  backdrop-filter: blur(2px);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: #f8fafc;
-  color: #021861;
-  border: 2px dashed #cbd5e1;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s ease;
+  color: #ffffff;
+  font-size: 1.15rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
 }
 
-.add-staff-image-placeholder:hover {
-  background: #f0f4ff;
-  border-color: #255dce;
-  color: #255dce;
-  transform: translateY(-2px);
+.avatar-preview-wrapper:hover .avatar-hover-overlay {
+  opacity: 1;
 }
 
-.add-staff-image-placeholder > i {
-  font-size: 2.25rem;
-  line-height: 1;
-  margin-bottom: 0.35rem;
-  color: #255dce;
-}
-
-.add-staff-upload-text {
-  font-size: 0.75rem;
+.avatar-hover-overlay span {
+  font-size: 0.675rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-top: 2px;
 }
 
-.add-staff-image-placeholder small {
-  margin-top: 0.2rem;
-  font-size: 0.625rem;
-  font-weight: 500;
-  color: #64748b;
-}
-
-.add-staff-image-placeholder.has-image {
-  border-style: solid;
-  border-color: #021861;
-  background: #ffffff;
-}
-
-.add-staff-image-preview {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
+.avatar-camera-badge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-}
-
-.add-staff-image-remove {
-  display: inline-flex;
+  background: #255dce;
+  color: #ffffff;
+  border: 2.5px solid #ffffff;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.85rem;
-  background: #ffffff;
-  color: #de1110;
-  border: 1px solid #fca5a5;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
-.add-staff-image-remove:hover {
+.avatar-preview-wrapper:hover .avatar-camera-badge {
+  transform: scale(1.1);
+  background: #021861;
+}
+
+.avatar-meta-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.avatar-meta-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.avatar-meta-hint {
+  font-size: 0.825rem;
+  color: #64748b;
+  margin: 0 0 0.5rem 0;
+}
+
+.avatar-action-buttons {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.btn-upload-avatar {
+  padding: 0.5rem 1.1rem;
+  border-radius: 8px;
+  border: 1.5px solid #255dce;
+  background: #ffffff;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: #255dce;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-upload-avatar:hover {
+  border-color: #255dce;
   color: #ffffff;
-  border-color: #de1110;
-  background: #de1110;
+  background: #255dce;
+  box-shadow: 0 4px 12px rgba(37, 93, 206, 0.25);
+}
+
+.btn-remove-avatar {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid #fecaca;
+  background: #fef2f2;
+  font-size: 0.825rem;
+  font-weight: 700;
+  color: #dc2626;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-remove-avatar:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+  color: #b91c1c;
+}
+
+/* ==========================================================================
+   STAFF FORM GRID & ICONS
+   ========================================================================== */
+
+.add-staff-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.35rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.add-staff-full-width {
+  grid-column: 1 / -1;
+}
+
+.add-staff-required {
+  color: #de1110;
+  font-weight: 700;
+}
+
+.add-staff-input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.add-staff-field-icon {
+  position: absolute;
+  left: 1rem;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  pointer-events: none;
+  transition: color 0.2s ease;
+  z-index: 1;
+}
+
+.add-staff-textarea-icon {
+  top: 1rem;
+  left: 1rem;
+}
+
+.add-staff-input-with-icon:focus-within .add-staff-field-icon {
+  color: #255dce;
 }
 
 /* ==========================================================================
@@ -256,24 +382,30 @@
 .add-staff-input,
 .add-staff-textarea,
 .add-staff-select,
-.add-staff-field-input,
-.add-staff-calendar-select {
+.add-staff-field-input {
   box-sizing: border-box;
   width: 100%;
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  color: #021861;
+  padding: 0.8rem 1rem 0.8rem 3rem !important;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
   font-family: inherit;
   font-size: 0.95rem;
   border-radius: 10px;
   transition: all 0.2s ease;
 }
 
-.add-staff-input,
-.add-staff-textarea,
-.add-staff-select,
-.add-staff-field-input {
-  padding: 0.85rem 1.1rem;
+.add-staff-calendar-select {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  border: 1.5px solid #cbd5e1;
+  background: #ffffff;
+  color: #0f172a;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
 }
 
 .add-staff-input::placeholder,
@@ -558,31 +690,67 @@
   color: #de1110;
 }
 
-.add-staff-save-button {
+/* ==========================================================================
+   FOOTER ACTIONS (CANCEL + SAVE BUTTONS SIDE BY SIDE)
+   ========================================================================== */
+
+.add-staff-action-footer {
   display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 2rem;
+}
+
+.add-staff-cancel-button {
+  padding: 0.75rem 1.75rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #475569;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.add-staff-cancel-button:hover {
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.add-staff-cancel-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.add-staff-save-button {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  min-width: 180px;
-  align-self: flex-end;
-  margin-top: 1.5rem;
-  padding: 0.85rem 1.75rem;
-  background: #de1110;
+  padding: 0.75rem 2.25rem;
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
   color: #ffffff;
   border: none;
   border-radius: 10px;
   font-family: inherit;
   font-size: 0.95rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(222, 17, 16, 0.25);
+  box-shadow: 0 4px 14px rgba(37, 93, 206, 0.3);
   transition: all 0.2s ease;
 }
 
-.add-staff-save-button:hover {
-  background: #b90e0d;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(222, 17, 16, 0.35);
+.add-staff-save-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.4);
 }
 
 .add-staff-save-button:active {

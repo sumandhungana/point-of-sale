@@ -207,7 +207,15 @@ export const Categories: React.FC = () => {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h3>{isEditMode ? "Edit Category" : "Add New Category"}</h3>
-                            <button className="btn-close-modal" onClick={handleCloseModal}>&times;</button>
+                            <button
+                                type="button"
+                                className="form-close-btn"
+                                onClick={handleCloseModal}
+                                aria-label="Close"
+                                title="Close"
+                            >
+                                <i className="bi bi-x-lg" />
+                            </button>
                         </div>
                         <form className="modal-form" onSubmit={handleSubmit}>
                             {errorMessage && <div className="form-error">{errorMessage}</div>}

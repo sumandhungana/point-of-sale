@@ -38,13 +38,20 @@ export const AddSupplier = () => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        if (file.size > 2 * 1024 * 1024) {
+            setAlertMessage('Image size must be less than 2MB');
+            setAlertType('error');
+            setShowAlert(true);
+            return;
+        }
+
         const reader = new FileReader();
         reader.onloadend = () => {
             const base64String = reader.result as string;
             setImagePreview(base64String);
             setFormData((prev) => ({
                 ...prev,
-                profileImage: base64String, // Fixed typo
+                profileImage: base64String,
             }));
         };
         reader.readAsDataURL(file);
@@ -54,7 +61,7 @@ export const AddSupplier = () => {
         setImagePreview('');
         setFormData((prev) => ({
             ...prev,
-            profileImage: '', // Fixed typo
+            profileImage: '',
         }));
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -94,7 +101,7 @@ export const AddSupplier = () => {
             setShowAlert(true);
 
             setTimeout(() => {
-                navigate(-1);
+                navigate('/parties/suppliers');
             }, 1500);
         } catch (error) {
             setAlertMessage(
@@ -108,7 +115,7 @@ export const AddSupplier = () => {
     };
 
     const handleCancel = () => {
-        navigate(-1);
+        navigate('/parties/suppliers');
     };
 
     return (
@@ -116,241 +123,233 @@ export const AddSupplier = () => {
             <Sidebar />
 
             <main className="add-supplier-main-content">
-                <div className="add-supplier-form-container">
-                    <h2 className="add-supplier-form-title">
-                        <i className="bi bi-plus-circle me-2"></i>
-                        Add New Supplier
-                    </h2>
+                <div className="add-supplier-card">
+                    {/* Header with Title and Top-Right Cross Button */}
+                    <div className="form-card-header">
+                        <div className="form-card-header-left">
+                            <div className="form-header-icon-wrap supplier-theme">
+                                <i className="bi bi-shop-window" />
+                            </div>
+                            <div>
+                                <h1 className="form-header-title">Add New Supplier</h1>
+                                <p className="form-header-subtitle">Register vendor master profile and procurement contacts</p>
+                            </div>
+                        </div>
 
-                    <form onSubmit={handleSubmit}>
-                        {/* Image Placeholder Section */}
-                        <div
-                            style={{
-                                display: 'flex',
-                                flexDirection: 'column',
-                                alignItems: 'center',
-                                marginBottom: '2rem',
-                                gap: '0.75rem',
-                            }}
+                        {/* Top Right Cross Button */}
+                        <button
+                            type="button"
+                            className="form-close-btn"
+                            onClick={handleCancel}
+                            aria-label="Close"
+                            title="Close"
                         >
-                            <div
-                                style={{
-                                    width: '110px',
-                                    height: '110px',
-                                    borderRadius: '50%',
-                                    backgroundColor: '#f1f3f5',
-                                    border: '2px dashed #ced4da',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    overflow: 'hidden',
-                                    cursor: 'pointer',
-                                    position: 'relative',
-                                }}
-                                onClick={() => fileInputRef.current?.click()}
-                                title="Click to choose profile picture"
-                            >
-                                {imagePreview ? (
-                                    <img
-                                        src={imagePreview}
-                                        alt="Supplier Profile Preview"
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                ) : (
-                                    <i
-                                        className="bi bi-camera"
-                                        style={{ fontSize: '2rem', color: '#adb5bd' }}
-                                    ></i>
-                                )}
+                            <i className="bi bi-x-lg" />
+                        </button>
+                    </div>
+
+                    <form onSubmit={handleSubmit} className="form-body">
+                        {/* Interactive Avatar Upload Card */}
+                        <div className="avatar-card-banner">
+                            <div className="avatar-preview-wrapper" onClick={() => fileInputRef.current?.click()} role="button" tabIndex={0}>
+                                <div className="avatar-display-frame">
+                                    {imagePreview ? (
+                                        <img src={imagePreview} alt="Supplier Preview" className="avatar-img-preview" />
+                                    ) : (
+                                        <div className="avatar-icon-fallback">
+                                            <i className="bi bi-person-fill" />
+                                        </div>
+                                    )}
+                                    <div className="avatar-hover-overlay">
+                                        <i className="bi bi-camera-fill" />
+                                        <span>Change</span>
+                                    </div>
+                                </div>
+                                <div className="avatar-camera-badge" title="Upload Photo">
+                                    <i className="bi bi-camera-fill" />
+                                </div>
+                            </div>
+
+                            <div className="avatar-meta-info">
+                                <h3 className="avatar-meta-title">Supplier Photo</h3>
+                                <p className="avatar-meta-hint">Upload a vendor logo, storefront, or contact photo (max 2MB)</p>
+                                <div className="avatar-action-buttons">
+                                    <button
+                                        type="button"
+                                        className="btn-upload-avatar"
+                                        onClick={() => fileInputRef.current?.click()}
+                                    >
+                                        <i className="bi bi-cloud-arrow-up me-1" />
+                                        {imagePreview ? 'Replace Photo' : 'Choose Photo'}
+                                    </button>
+                                    {imagePreview && (
+                                        <button
+                                            type="button"
+                                            className="btn-remove-avatar"
+                                            onClick={handleRemoveImage}
+                                        >
+                                            <i className="bi bi-trash3 me-1" />
+                                            Remove
+                                        </button>
+                                    )}
+                                </div>
                             </div>
 
                             <input
-                                type="file"
                                 ref={fileInputRef}
-                                style={{ display: 'none' }}
+                                type="file"
                                 accept="image/*"
                                 onChange={handleImageChange}
+                                style={{ display: 'none' }}
                             />
+                        </div>
 
-                            <div style={{ display: 'flex', gap: '0.5rem' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    style={{
-                                        padding: '0.35rem 0.8rem',
-                                        fontSize: '0.8rem',
-                                        border: '1px solid #ced4da',
-                                        borderRadius: '4px',
-                                        background: '#fff',
-                                        cursor: 'pointer',
-                                    }}
-                                >
-                                    <i className="bi bi-upload me-1"></i>
-                                    {imagePreview ? 'Change Photo' : 'Upload Photo'}
-                                </button>
+                        {/* Form Fields Grid */}
+                        <div className="form-grid">
+                            {/* Supplier Name */}
+                            <div className="form-field-group">
+                                <label className="form-field-label">
+                                    Supplier Name <span className="required-star">*</span>
+                                </label>
+                                <div className="input-with-icon">
+                                    <i className="bi bi-shop field-icon" />
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        className="form-field-input"
+                                        placeholder="Vendor / Business Name"
+                                        required
+                                    />
+                                </div>
+                            </div>
 
-                                {imagePreview && (
-                                    <button
-                                        type="button"
-                                        onClick={handleRemoveImage}
-                                        style={{
-                                            padding: '0.35rem 0.8rem',
-                                            fontSize: '0.8rem',
-                                            border: '1px solid #dc3545',
-                                            borderRadius: '4px',
-                                            background: '#fff',
-                                            color: '#dc3545',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        <i className="bi bi-trash me-1"></i>
-                                        Remove
-                                    </button>
-                                )}
+                            {/* Contact Person */}
+                            <div className="form-field-group">
+                                <label className="form-field-label">
+                                    Contact Person <span className="required-star">*</span>
+                                </label>
+                                <div className="input-with-icon">
+                                    <i className="bi bi-person-badge field-icon" />
+                                    <input
+                                        type="text"
+                                        name="contactPerson"
+                                        value={formData.contactPerson}
+                                        onChange={handleChange}
+                                        className="form-field-input"
+                                        placeholder="Contact Representative"
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Phone Number */}
+                            <div className="form-field-group">
+                                <label className="form-field-label">Phone Number</label>
+                                <div className="input-with-icon">
+                                    <i className="bi bi-telephone field-icon" />
+                                    <input
+                                        type="tel"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        className="form-field-input"
+                                        placeholder="Contact Number"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Email Address */}
+                            <div className="form-field-group">
+                                <label className="form-field-label">Email Address</label>
+                                <div className="input-with-icon">
+                                    <i className="bi bi-envelope field-icon" />
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        className="form-field-input"
+                                        placeholder="supplier@domain.com"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Company Name */}
+                            <div className="form-field-group">
+                                <label className="form-field-label">Company Name</label>
+                                <div className="input-with-icon">
+                                    <i className="bi bi-building field-icon" />
+                                    <input
+                                        type="text"
+                                        name="company"
+                                        value={formData.company}
+                                        onChange={handleChange}
+                                        className="form-field-input"
+                                        placeholder="Registered Company Name"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* PAN Number */}
+                            <div className="form-field-group">
+                                <label className="form-field-label">PAN Number</label>
+                                <div className="input-with-icon">
+                                    <i className="bi bi-card-text field-icon" />
+                                    <input
+                                        type="text"
+                                        name="pan"
+                                        value={formData.pan}
+                                        onChange={handleChange}
+                                        className="form-field-input"
+                                        placeholder="PAN / VAT Number"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Address */}
+                            <div className="form-field-group form-field-full">
+                                <label className="form-field-label">Address</label>
+                                <div className="input-with-icon">
+                                    <i className="bi bi-geo-alt field-icon" />
+                                    <input
+                                        type="text"
+                                        name="address"
+                                        value={formData.address}
+                                        onChange={handleChange}
+                                        className="form-field-input"
+                                        placeholder="Warehouse / Street Address"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        {/* Form Fields */}
-                        <div className="add-supplier-form-row">
-                            <div className="add-supplier-form-group">
-                                <label className="add-supplier-label">
-                                    <i className="bi bi-person me-1"></i>
-                                    Supplier Name <span style={{ color: '#dc3545' }}>*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="name"
-                                    value={formData.name}
-                                    onChange={handleChange}
-                                    className="add-supplier-input"
-                                    placeholder="Enter supplier name"
-                                    required
-                                />
-                            </div>
-
-                            <div className="add-supplier-form-group">
-                                <label className="add-supplier-label">
-                                    <i className="bi bi-telephone me-1"></i>
-                                    Phone Number
-                                </label>
-                                <input
-                                    type="tel"
-                                    name="phone"
-                                    value={formData.phone}
-                                    onChange={handleChange}
-                                    className="add-supplier-input"
-                                    placeholder="Enter phone number"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="add-supplier-form-row">
-                            <div className="add-supplier-form-group">
-                                <label className="add-supplier-label">
-                                    <i className="bi bi-building me-1"></i>
-                                    Company Name
-                                </label>
-                                <input
-                                    type="text"
-                                    name="company"
-                                    value={formData.company}
-                                    onChange={handleChange}
-                                    className="add-supplier-input"
-                                    placeholder="Enter company name"
-                                />
-                            </div>
-
-                            <div className="add-supplier-form-group">
-                                <label className="add-supplier-label">
-                                    <i className="bi bi-card-text me-1"></i>
-                                    PAN Number
-                                </label>
-                                <input
-                                    type="text"
-                                    name="pan"
-                                    value={formData.pan}
-                                    onChange={handleChange}
-                                    className="add-supplier-input"
-                                    placeholder="Enter PAN number"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="add-supplier-form-row">
-                            <div className="add-supplier-form-group">
-                                <label className="add-supplier-label">
-                                    <i className="bi bi-geo-alt me-1"></i>
-                                    Address
-                                </label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    className="add-supplier-input"
-                                    placeholder="Enter address"
-                                />
-                            </div>
-
-                            <div className="add-supplier-form-group">
-                                <label className="add-supplier-label">
-                                    <i className="bi bi-envelope me-1"></i>
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="add-supplier-input"
-                                    placeholder="Enter email address"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="add-supplier-form-row">
-                            <div className="add-supplier-form-group">
-                                <label className="add-supplier-label">
-                                    <i className="bi bi-person-badge me-1"></i>
-                                    Contact Person <span style={{ color: '#dc3545' }}>*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="contactPerson"
-                                    value={formData.contactPerson}
-                                    onChange={handleChange}
-                                    className="add-supplier-input"
-                                    placeholder="Enter contact person name"
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="add-supplier-button-container">
+                        {/* Action Footer */}
+                        <div className="form-action-footer">
+                            <button
+                                type="button"
+                                className="btn-form-cancel"
+                                onClick={handleCancel}
+                            >
+                                Cancel
+                            </button>
                             <button
                                 type="submit"
-                                className="add-supplier-submit-button"
+                                className="btn-form-submit"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? (
-                                    <div className="add-supplier-loading">
-                                        <div className="add-supplier-spinner"></div>
-                                        Adding Supplier...
-                                    </div>
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true" />
+                                        Saving Supplier...
+                                    </>
                                 ) : (
                                     <>
-                                        <i className="bi bi-plus-circle me-1"></i>
-                                        Add Supplier
+                                        <i className="bi bi-check2-circle me-1" />
+                                        Save Supplier
                                     </>
                                 )}
-                            </button>
-                            <button
-                                type="button"
-                                className="add-supplier-cancel-button"
-                                onClick={handleCancel}
-                            >
-                                <i className="bi bi-x-circle me-1"></i>
-                                Cancel
                             </button>
                         </div>
                     </form>

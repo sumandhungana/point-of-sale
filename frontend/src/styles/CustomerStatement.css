@@ -50,11 +50,10 @@
 /* Main Content Layout */
 .customer-statement-main-content {
   padding: 2rem !important;
-  margin-top: 64px !important;
-  max-width: calc(100% - 500px) !important;
-  margin-right: 500px !important;
+  max-width: 1200px !important;
   width: 100% !important;
-  margin-left: 16rem !important;
+  margin: 1rem auto 3rem !important;
+  box-sizing: border-box !important;
 }
 
 /* Form Container */

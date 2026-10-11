@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Singleton
 public class AddPurchaseBillUC implements MonoUC<AddPurchaseBillUCRequest, AddPurchaseBillUCResponse> {
@@ -28,14 +29,33 @@ public class AddPurchaseBillUC implements MonoUC<AddPurchaseBillUCRequest, AddPu
 
     @Override
     public Mono<AddPurchaseBillUCResponse> execute(AddPurchaseBillUCRequest request, UseCaseContext context) {
-        // Process each item in the request list reactively
+        // 1. Group items by productId to prevent race conditions or duplicate additions
+        // if the same product appears multiple times in a single request list.
         return Flux.fromIterable(request.items())
-                .flatMap(itemDto ->
-                        findProduct(itemDto.productId())
-                                .flatMap(product -> updateProductStockAndPrices(product, itemDto))
-                                .flatMap(savedProduct -> saveBillRecord(savedProduct, itemDto, request, context))
+                .groupBy(AddPurchaseBillUCRequest.PurchaseItemDto::productId)
+                .flatMap(groupedFlux ->
+                        groupedFlux.collectList().flatMap(itemsForProduct -> {
+                            Long productId = groupedFlux.key();
+
+                            // Aggregate total item count for this product in this request
+                            double totalItemCount = itemsForProduct.stream()
+                                    .mapToDouble(AddPurchaseBillUCRequest.PurchaseItemDto::itemCount)
+                                    .sum();
+
+                            // Aggregate total gross price for this product batch
+                            BigDecimal totalBatchGrossPrice = itemsForProduct.stream()
+                                    .map(item -> item.perUnitPurchasePrice().multiply(BigDecimal.valueOf(item.itemCount())))
+                                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+                            // Use the latest per-unit price from the last item in the group
+                            BigDecimal latestPerUnit = itemsForProduct.getLast().perUnitPurchasePrice();
+
+                            return findProduct(productId)
+                                    .flatMap(product -> updateProductStockAndPrices(product, totalItemCount, totalBatchGrossPrice, latestPerUnit));
+                        })
                 )
-                .last() // Take the last saved bill to construct the final response, or collect them if needed
+                .collectList()
+                .flatMap(updatedProducts -> saveBillRecords(updatedProducts, request, context))
                 .map(this::toResponse);
     }
 
@@ -44,50 +64,57 @@ public class AddPurchaseBillUC implements MonoUC<AddPurchaseBillUCRequest, AddPu
                 .switchIfEmpty(Mono.error(new RuntimeException("Product not found with id: " + productId)));
     }
 
-    private Mono<ProductEntity> updateProductStockAndPrices(ProductEntity product, AddPurchaseBillUCRequest.PurchaseItemDto itemDto) {
+    private Mono<ProductEntity> updateProductStockAndPrices(ProductEntity product, double additionalCount, BigDecimal batchGrossPrice, BigDecimal perUnitPurchasePrice) {
         // 1. Calculate updated item count
         double existingCount = product.getItemCount() != null ? product.getItemCount() : 0.0;
-        double updatedItemCount = existingCount + itemDto.itemCount();
+        double updatedItemCount = existingCount + additionalCount;
 
-        // 2. Calculate gross price for the new purchase batch
-        BigDecimal newBatchGrossPrice = itemDto.perUnitPurchasePrice()
-                .multiply(BigDecimal.valueOf(itemDto.itemCount()));
-
-        // 3. Accumulate with existing gross price
+        // 2. Accumulate with existing gross price
         BigDecimal existingGrossPrice = product.getGrossPurchasePrice() != null
                 ? product.getGrossPurchasePrice()
                 : BigDecimal.ZERO;
-        BigDecimal updatedGrossPrice = existingGrossPrice.add(newBatchGrossPrice);
+        BigDecimal updatedGrossPrice = existingGrossPrice.add(batchGrossPrice);
 
-        // 4. Update product fields
+        // 3. Update product fields
         product.setItemCount(updatedItemCount);
-        product.setPerUnitPurchasePrice(itemDto.perUnitPurchasePrice());
-        product.setGrossPurchasePrice(updatedGrossPrice);
+//        product.setPerUnitPurchasePrice(perUnitPurchasePrice);
+//        product.setGrossPurchasePrice(updatedGrossPrice);
 
         return productRepository.update(product);
     }
 
-    private Mono<PurchaseBillEntity> saveBillRecord(ProductEntity product, AddPurchaseBillUCRequest.PurchaseItemDto itemDto, AddPurchaseBillUCRequest request, UseCaseContext context) {
-        BigDecimal grossPrice = itemDto.perUnitPurchasePrice()
-                .multiply(BigDecimal.valueOf(itemDto.itemCount()));
+    private Mono<PurchaseBillEntity> saveBillRecords(List<ProductEntity> updatedProducts, AddPurchaseBillUCRequest request, UseCaseContext context) {
+        // Save a purchase bill record for each updated product / item group
+        return Flux.fromIterable(request.items())
+                .flatMap(itemDto -> {
+                    BigDecimal itemGrossPrice = itemDto.perUnitPurchasePrice()
+                            .multiply(BigDecimal.valueOf(itemDto.itemCount()));
 
-        PurchaseBillEntity purchaseBill = new PurchaseBillEntity();
-        purchaseBill.setProduct(product);
-        purchaseBill.setPurchaseNo(request.purchaseNo());
-        purchaseBill.setPurchaseDate(request.purchaseDate() != null ? request.purchaseDate() : LocalDate.now());
-        purchaseBill.setPaymentMode(request.paymentMode());
-        purchaseBill.setAmount(grossPrice);
-        purchaseBill.setRemarks(request.remarks());
-        purchaseBill.setPhotoPath(request.photoPath());
+                    // Find the matching updated product entity
+                    ProductEntity matchedProduct = updatedProducts.stream()
+                            .filter(p -> p.getId().equals(itemDto.productId()))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Product not found in updated list: " + itemDto.productId()));
 
-        if (context != null && context.securityContext() != null && context.securityContext().memberId() != null) {
-            MemberEntity member = new MemberEntity();
-            member.setId(context.securityContext().memberId());
-            purchaseBill.setMember(member);
-            purchaseBill.setCreatedBy(context.securityContext().subject());
-        }
+                    PurchaseBillEntity purchaseBill = new PurchaseBillEntity();
+                    purchaseBill.setProduct(matchedProduct);
+                    purchaseBill.setPurchaseNo(request.purchaseNo());
+                    purchaseBill.setPurchaseDate(request.purchaseDate() != null ? request.purchaseDate() : LocalDate.now());
+                    purchaseBill.setPaymentMode(request.paymentMode());
+                    purchaseBill.setAmount(itemGrossPrice);
+                    purchaseBill.setRemarks(request.remarks());
+                    purchaseBill.setPhotoPath(request.photoPath());
 
-        return purchaseBillRepository.save(purchaseBill);
+                    if (context != null && context.securityContext() != null && context.securityContext().memberId() != null) {
+                        MemberEntity member = new MemberEntity();
+                        member.setId(context.securityContext().memberId());
+                        purchaseBill.setMember(member);
+                        purchaseBill.setCreatedBy(context.securityContext().subject());
+                    }
+
+                    return purchaseBillRepository.save(purchaseBill);
+                })
+                .last(); // Take the last saved bill entity to pass to the response mapper
     }
 
     private AddPurchaseBillUCResponse toResponse(PurchaseBillEntity savedBill) {

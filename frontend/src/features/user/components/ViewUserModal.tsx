@@ -22,8 +22,14 @@ const ViewUserModal: React.FC<ViewUserModalProps> = ({ isOpen, onClose, user }) 
                         <h3>User Account Details</h3>
                         <span className="role-id-badge">#{user.id}</span>
                     </div>
-                    <button className="modal-close-icon" onClick={onClose}>
-                        &times;
+                    <button
+                        type="button"
+                        className="form-close-btn"
+                        onClick={onClose}
+                        aria-label="Close"
+                        title="Close"
+                    >
+                        <i className="bi bi-x-lg" />
                     </button>
                 </div>
 

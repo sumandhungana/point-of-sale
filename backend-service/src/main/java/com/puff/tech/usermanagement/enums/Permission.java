@@ -69,6 +69,10 @@ public enum Permission {
     ORGANIZATION_SELECTED(Module.ORGANIZATION,"selected" ),
     ORGANIZATION_ROLE_CHANGE(Module.ORGANIZATION, "user:module_change"),
 
+    RENTAL_ADD(Module.RENTAL, "add"),
+    RENTAL_GET_ALL(Module.RENTAL, "all"),
+
+
     //Inventory Permissions
     INVENTORY_CATEGORY_ALL(Module.CATEGORY_MANAGEMENT, "all"),
     INVENTORY_CATEGORY_ADD(Module.CATEGORY_MANAGEMENT, "add"),

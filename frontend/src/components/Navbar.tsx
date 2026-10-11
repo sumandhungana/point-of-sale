@@ -317,14 +317,28 @@ const Navbar: React.FC = () => {
             boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
           }}
       >
-        {/* Brand Logo Container */}
-        <div
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+        {/* Brand Logo & Mobile Hamburger Trigger */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <button
+            type="button"
+            className="navbar-hamburger-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              window.dispatchEvent(new CustomEvent('toggle-sidebar'));
+            }}
+            aria-label="Toggle navigation menu"
+            title="Open Menu"
+          >
+            ☰
+          </button>
+          <div
+            style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
             onClick={() => navigate('/')}
-        >
-          <img
+          >
+            <img
               src={logo}
               alt="Khatabook"
+              className="navbar-logo-img"
               style={{
                 height: '185px',
                 width: 'auto',
@@ -332,7 +346,8 @@ const Navbar: React.FC = () => {
                 marginBottom: '6px',
                 filter: 'brightness(0) invert(1)', // Clean white logo match
               }}
-          />
+            />
+          </div>
         </div>
 
         {/* User Profile Dropdown Trigger */}

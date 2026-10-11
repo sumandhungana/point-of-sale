@@ -380,40 +380,28 @@
 
 .user-add-button {
     height: 46px;
-
     padding: 0 20px;
-
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
-
     border: none;
     border-radius: 8px;
-
-    background: #255DCE;
+    background: linear-gradient(135deg, #255DCE, #021861);
     color: #ffffff;
-
     font-size: 14px;
     font-weight: 600;
-
     cursor: pointer;
-
     outline: none;
-
-    box-shadow: 0 4px 12px rgba(37, 93, 206, 0.3);
+    box-shadow: 0 4px 15px rgba(37, 93, 206, 0.35);
     transform: none !important;
-
-    transition:
-            background-color 0.2s ease,
-            box-shadow 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .user-add-button:hover {
-    background: #021861;
+    background: linear-gradient(135deg, #1f4cb0, #011043);
     transform: none !important;
-
-    box-shadow: 0 6px 16px rgba(2, 24, 97, 0.35);
+    box-shadow: 0 6px 20px rgba(37, 93, 206, 0.45);
 }
 
 .user-add-button:active {

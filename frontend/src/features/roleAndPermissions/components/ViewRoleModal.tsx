@@ -37,8 +37,14 @@ const ViewRoleModal: React.FC<ViewRoleModalProps> = ({ isOpen, onClose, role }) 
                         </div>
                         <p>{role.description || 'No description provided for this role.'}</p>
                     </div>
-                    <button className="modal-close-icon" onClick={onClose}>
-                        &times;
+                    <button
+                        type="button"
+                        className="form-close-btn"
+                        onClick={onClose}
+                        aria-label="Close"
+                        title="Close"
+                    >
+                        <i className="bi bi-x-lg" />
                     </button>
                 </div>
 

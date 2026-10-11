@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: pos-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: khatabook
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d khatabook"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Backend Service (Java 21 / Micronaut / Gradle)
+  backend-service:
+    build:
+      context: ./backend-service
+      dockerfile: Dockerfile
+    container_name: pos-backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      R2DBC_DATASOURCES_DEFAULT_URL: r2dbc:pool:postgresql://postgres:5432/khatabook
+      R2DBC_DATASOURCES_DEFAULT_USERNAME: postgres
+      R2DBC_DATASOURCES_DEFAULT_PASSWORD: root
+    ports:
+      - "8080:8080"
+
+  # Frontend Service (React / Vite / Node.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: pos-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend-service
+    environment:
+      VITE_API_BASE_URL: http://localhost:8080
+    ports:
+      - "5173:5173"
+
+volumes:
+  postgres_data:

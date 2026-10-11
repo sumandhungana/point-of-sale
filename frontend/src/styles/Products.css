@@ -315,14 +315,14 @@
     position: fixed;
     bottom: 28px;
     right: 28px;
-    background-color: #255DCE;
+    background: linear-gradient(135deg, #255DCE, #021861);
     color: #ffffff;
     border: none;
     padding: 12px 24px;
     border-radius: 30px;
     font-weight: 600;
     font-size: 14px;
-    box-shadow: 0 4px 14px rgba(37, 93, 206, 0.35);
+    box-shadow: 0 8px 25px rgba(37, 93, 206, 0.35);
     cursor: pointer;
     z-index: 999;
     display: flex;
@@ -331,9 +331,9 @@
 }
 
 .sticky-add-btn:hover {
-    background-color: #021861;
+    background: linear-gradient(135deg, #1f4cb0, #011043);
     transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(2, 24, 97, 0.4);
+    box-shadow: 0 12px 35px rgba(37, 93, 206, 0.45);
 }
 
 @media (max-width: 768px) {

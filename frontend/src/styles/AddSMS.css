@@ -6,17 +6,20 @@
 
 .add-sms-container {
   flex: 1;
-  padding-top: 40px;
-  margin-left: 300px;
+  padding-top: 20px;
+  margin: 0 auto;
   min-height: 100vh;
   background: #f8f9fa;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .add-sms-card {
   padding: 2rem;
-  max-width: calc(100% - 500px);
-  margin-right: 500px;
+  max-width: 1000px;
+  margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
 }
 
 .add-sms-form-card {
@@ -198,8 +201,8 @@
 /* Responsive Design */
 @media (max-width: 1200px) {
   .add-sms-card {
-    max-width: calc(100% - 300px);
-    margin-right: 300px;
+    max-width: 100%;
+    margin: 0 auto;
   }
 }
 

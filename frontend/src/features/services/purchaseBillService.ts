@@ -51,6 +51,8 @@ export interface GetAllPurchaseBillResponse {
         name?: string;
         imageUrl?: string;
     };
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 

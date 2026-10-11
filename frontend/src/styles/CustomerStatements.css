@@ -736,6 +736,21 @@
   border-radius: 6px;
 }
 
+/* Sticky Action Buttons Footer */
+.popup-action-buttons {
+  position: sticky !important;
+  bottom: 0 !important;
+  background: #ffffff !important;
+  padding: 1rem 0 !important;
+  margin-top: 1.5rem !important;
+  border-top: 1px solid #e1e6ef !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.75rem !important;
+  z-index: 10 !important;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
 /* Mobile Responsive */
 @media (max-width: 768px) {
   .customer-statements-main-content {

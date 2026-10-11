@@ -591,3 +591,152 @@
     font-size: 1.25rem !important;
   }
 }
+
+/* ==========================================================
+   Popup Modal Styles (You Gave / You Received)
+   ========================================================== */
+
+.popup-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100vh !important;
+  background-color: rgba(2, 24, 97, 0.55) !important;
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1050 !important;
+  padding: 1.5rem !important;
+  box-sizing: border-box !important;
+  overflow-y: auto !important;
+}
+
+/* Modal Content Card */
+.popup-content {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 680px !important;
+  max-height: 90vh !important;
+  height: auto !important;
+  background: #ffffff !important;
+  border-radius: 16px !important;
+  box-shadow: 0 20px 45px rgba(2, 24, 97, 0.18), 0 4px 10px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #e1e6ef !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  animation: popupSlideIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes popupSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Header Bar */
+.popup-title-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 1.25rem 1.5rem !important;
+  border-bottom: 1px solid #e1e6ef !important;
+  background: #ffffff !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+}
+
+.popup-title,
+.popup-title-received {
+  font-size: 1.25rem !important;
+  font-weight: 700 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  line-height: 1.3 !important;
+  text-align: left !important;
+}
+
+.popup-title {
+  color: #DE1110 !important; /* Red for You Gave */
+}
+
+.popup-title-received {
+  color: #28a745 !important; /* Green for You Received */
+}
+
+/* Close Button (Top-Right of modal header) */
+.popup-close-button {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+  border: 1px solid #e1e6ef !important;
+  border-radius: 50% !important;
+  background-color: #f8fafc !important;
+  color: #021861 !important;
+  font-size: 16px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  margin-left: 1rem !important;
+  flex-shrink: 0 !important;
+}
+
+.popup-close-button:hover {
+  background-color: #fee2e2 !important;
+  color: #DE1110 !important;
+  border-color: #fca5a5 !important;
+  transform: scale(1.05) !important;
+}
+
+/* Modal Body - Scrollable Container */
+.you-gave-popup-body,
+.you-received-popup-body {
+  padding: 1.5rem !important;
+  margin: 0 !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
+
+.you-gave-popup-body::-webkit-scrollbar,
+.you-received-popup-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.you-gave-popup-body::-webkit-scrollbar-thumb,
+.you-received-popup-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 6px;
+}
+
+/* Sticky Action Buttons Footer */
+.popup-action-buttons {
+  position: sticky !important;
+  bottom: 0 !important;
+  background: #ffffff !important;
+  padding: 1rem 0 !important;
+  margin-top: 1.5rem !important;
+  border-top: 1px solid #e1e6ef !important;
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 0.75rem !important;
+  z-index: 10 !important;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+@media (max-width: 768px) {
+  .popup-content {
+    max-width: 100% !important;
+    max-height: 95vh !important;
+  }
+}

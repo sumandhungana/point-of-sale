@@ -570,19 +570,21 @@ export const CustomerStatements = () => {
                     </button>
 
                     {showPopup && (
-                        <div className="popup-overlay">
-                            <div className="popup-content">
-                                <button
-                                    onClick={() => setShowPopup(false)}
-                                    className="popup-close-button"
-                                    aria-label="Close"
-                                >
-                                    <i className="bi bi-x-lg"></i>
-                                </button>
+                        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+                            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
                                 <div className="popup-title-container">
-                                    <h2 style={{ color: "red", textAlign: "center", margin: "0", padding: "0" }}>
+                                    <h2 className="popup-title">
                                         You Gave
                                     </h2>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPopup(false)}
+                                        className="popup-close-button"
+                                        aria-label="Close"
+                                        title="Close"
+                                    >
+                                        <i className="bi bi-x-lg"></i>
+                                    </button>
                                 </div>
                                 <div className="you-gave-popup-body">
                                     <YouGave
@@ -617,19 +619,21 @@ export const CustomerStatements = () => {
                     </button>
 
                     {showReceivedPopup && (
-                        <div className="popup-overlay">
-                            <div className="popup-content">
-                                <button
-                                    onClick={() => setShowReceivedPopup(false)}
-                                    className="popup-close-button"
-                                    aria-label="Close"
-                                >
-                                    <i className="bi bi-x-lg"></i>
-                                </button>
+                        <div className="popup-overlay" onClick={() => setShowReceivedPopup(false)}>
+                            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
                                 <div className="popup-title-container">
-                                    <h2 style={{ color: "green", textAlign: "center", margin: "0", padding: "0" }}>
+                                    <h2 className="popup-title-received">
                                         You Received
                                     </h2>
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowReceivedPopup(false)}
+                                        className="popup-close-button"
+                                        aria-label="Close"
+                                        title="Close"
+                                    >
+                                        <i className="bi bi-x-lg"></i>
+                                    </button>
                                 </div>
                                 <div className="you-received-popup-body">
                                     <YouReceived

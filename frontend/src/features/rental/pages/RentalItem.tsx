@@ -1,0 +1,269 @@
+import React, { useState, useEffect } from 'react';
+import { Sidebar } from '@/components/Sidebar';
+import { useNavigate } from 'react-router-dom';
+import Navbar from '@/components/Navbar';
+import { fetchRental, RentalItemDto } from '@/features/services/rentalItemService';
+import '@/styles/RentalItem.css';
+
+export const RentalItem: React.FC = () => {
+  const navigate = useNavigate();
+  const [rentalItems, setRentalItems] = useState<RentalItemDto[]>([]);
+  const [youGive, setYouGive] = useState<number>(0);
+  const [advanceAmount, setAdvanceAmount] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Interactive UI States
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [sort, setSort] = useState<string>('');
+
+  useEffect(() => {
+    const fetchRentalItemsList = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchRental();
+        setRentalItems(data || []);
+
+        // Calculate totals dynamically if needed from list items
+        const totalAmount = (data || []).reduce((acc, item) => acc + (item.rentalAmount || 0), 0);
+        setYouGive(totalAmount);
+        setAdvanceAmount(0); // Adjust if your backend provides advance amount
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch rental items.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRentalItemsList();
+  }, []);
+
+  const getRentalStatus = (item: RentalItemDto): string => {
+    const currentDate = new Date();
+    const endDate = new Date(item.endDate);
+
+    if (currentDate > endDate) {
+      return 'Completed';
+    }
+
+    const startDate = new Date(item.startDate);
+    if (currentDate < startDate) {
+      return 'Not Started';
+    }
+
+    return 'In Progress';
+  };
+
+  const calculateRentalAmount = (item: RentalItemDto): number => {
+    const startDate = new Date(item.startDate);
+    const endDate = new Date(item.endDate);
+    const currentDate = new Date();
+
+    if (currentDate < startDate) {
+      return 0;
+    }
+    if (currentDate > endDate) {
+      return item.rentalAmount;
+    }
+
+    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    const daysPassed = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+
+    if (totalDays <= 0) return item.rentalAmount;
+    const dailyRate = item.rentalAmount / totalDays;
+    return Math.round(dailyRate * daysPassed);
+  };
+
+  // Filtering by search query and status
+  const filteredItems = rentalItems.filter(item => {
+    const matchesSearch = (item?.rentalItemName ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item?.phoneNumber ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item?.address ?? '').toLowerCase().includes(searchQuery.toLowerCase());
+
+    const status = getRentalStatus(item);
+    const matchesStatus = statusFilter ? status.toLowerCase() === statusFilter.toLowerCase() : true;
+
+    return matchesSearch && matchesStatus;
+  });
+
+  // Sorting logic
+  const sortedItems = [...filteredItems].sort((a, b) => {
+    switch (sort) {
+      case 'name_asc':
+        return (a?.rentalItemName ?? '').localeCompare(b?.rentalItemName ?? '');
+      case 'name_desc':
+        return (b?.rentalItemName ?? '').localeCompare(a?.rentalItemName ?? '');
+      case 'date_asc':
+        return new Date(a?.startDate || 0).getTime() - new Date(b?.startDate || 0).getTime();
+      case 'date_desc':
+        return new Date(b?.startDate || 0).getTime() - new Date(a?.startDate || 0).getTime();
+      default:
+        return 0;
+    }
+  });
+
+  if (loading) {
+    return (
+        <>
+          <Navbar />
+          <div className="rental-item-container">
+            <Sidebar />
+            <div className="rental-item-main">
+              <div className="rental-item-loading-message">
+                <i className="bi bi-arrow-clockwise spin"></i>
+                Loading rental items...
+              </div>
+            </div>
+          </div>
+        </>
+    );
+  }
+
+  return (
+      <>
+        <Navbar />
+        <div className="rental-item-container">
+          <Sidebar />
+          <div className="rental-item-main">
+
+            {/* Error Banner if any */}
+            {error && (
+                <div className="alert alert-danger mb-4" role="alert">
+                  <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                  {error}
+                </div>
+            )}
+
+            {/* Search and Filters Toolbar */}
+            <div className="rental-item-search-container">
+              <div className="rental-item-search-bar">
+                <i className="bi bi-search rental-item-search-icon"></i>
+                <input
+                    type="text"
+                    placeholder="Search by item name, phone, address..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="rental-item-search-input"
+                />
+              </div>
+              <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="rental-item-dropdown"
+              >
+                <option value="">All Status</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Not Started">Not Started</option>
+                <option value="Completed">Completed</option>
+              </select>
+              <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  className="rental-item-dropdown"
+              >
+                <option value="">Sort By</option>
+                <option value="name_asc">Name (A-Z)</option>
+                <option value="name_desc">Name (Z-A)</option>
+                <option value="date_asc">Date (Oldest)</option>
+                <option value="date_desc">Date (Newest)</option>
+              </select>
+              <button className="rental-item-reminder-button" onClick={() => alert('Reminders feature coming soon!')}>
+                <i className="bi bi-alarm"></i>
+                Reminder
+              </button>
+            </div>
+
+            {/* Summary Card */}
+            <div className="rental-item-summary-card">
+              <div className="rental-item-summary-grid">
+                <div className="rental-item-summary-item">
+                  <span className="rental-item-summary-label">
+                    <i className="bi bi-arrow-up-circle me-1"></i>
+                    You Give
+                  </span>
+                  <span className="rental-item-summary-amount">रु {youGive.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="rental-item-summary-item">
+                  <span className="rental-item-summary-label">
+                    <i className="bi bi-cash-coin me-1"></i>
+                    Advance Amount
+                  </span>
+                  <span className="rental-item-summary-amount">रु {advanceAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Rental Items List or Empty State */}
+            {sortedItems.length === 0 ? (
+                <div className="rental-item-loading-message">
+                  <i className="bi bi-inbox me-2"></i>
+                  No rental items found.
+                </div>
+            ) : (
+                sortedItems.map(item => {
+                  const calculatedAmount = calculateRentalAmount(item);
+                  const status = getRentalStatus(item);
+                  const statusClass = status === 'Completed' ? 'rental-item-status-completed' :
+                      status === 'Not Started' ? 'rental-item-status-not-started' :
+                          'rental-item-status-in-progress';
+
+                  return (
+                      <div key={item?.id ?? Math.random()} className="rental-item-card">
+                        <div className="rental-item-info">
+                          <div className="rental-item-image-placeholder">
+                            <i className="bi bi-box-seam"></i>
+                          </div>
+                          <div className="rental-item-details">
+                            <div className="rental-item-name">{item?.rentalItemName ?? 'Unnamed Item'}</div>
+                            <div className="rental-item-time">
+                              <i className="bi bi-calendar-event me-1"></i>
+                              Period: {item?.rentalPeriod || '-'} |
+                              Start: {item?.startDate ? new Date(item.startDate).toLocaleDateString() : 'N/A'} |
+                              End: {item?.endDate ? new Date(item.endDate).toLocaleDateString() : 'N/A'}
+                            </div>
+                            <div className="rental-item-time">
+                              <i className="bi bi-telephone me-1"></i>
+                              Phone: {item?.phoneNumber || 'N/A'} |
+                              <i className="bi bi-geo-alt me-1 ms-1"></i>
+                              Address: {item?.address || 'N/A'}
+                            </div>
+                            {item?.remarks && (
+                                <div className="rental-item-time">
+                                  <i className="bi bi-chat-text me-1"></i>
+                                  Remarks: {item.remarks}
+                                </div>
+                            )}
+                            <div className={`rental-item-status ${statusClass}`}>
+                              <i className="bi bi-circle-fill me-1" style={{ fontSize: '8px' }}></i>
+                              Status: {status}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="rental-item-amount">
+                          <div>रु {(calculatedAmount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                          <div className="rental-item-amount-total">
+                            of रु {(item?.rentalAmount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          </div>
+                        </div>
+                      </div>
+                  );
+                })
+            )}
+
+            {/* Add Button Container */}
+            <div className="rental-item-add-button-container">
+              <button
+                  className="rental-item-add-button"
+                  onClick={() => navigate('/rental/add')}
+              >
+                <i className="bi bi-plus-circle"></i>
+                Add Rental Items
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </>
+  );
+};

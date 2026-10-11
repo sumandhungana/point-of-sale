@@ -27,6 +27,7 @@
     font-family: "Inter", "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
     transition: transform 0.3s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
+    color: #ffffff !important;
 }
 
 /* Scrollbar Customization */
@@ -140,19 +141,21 @@
 
 .user-role {
     margin: 0;
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 0.875rem;
+    color: #ffffff !important;
+    font-size: 0.95rem;
+    font-weight: 600;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
 .user-section:hover .user-name {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 .user-section:hover .user-role {
-    color: #ffffff;
+    color: #ffffff !important;
 }
 
 /* ==========================================================
@@ -180,7 +183,7 @@
     width: 100%;
     gap: 0.75rem;
     padding: 0.75rem 1rem;
-    color: rgba(255, 255, 255, 0.85) !important;
+    color: #ffffff !important;
     background: transparent !important;
     border: none !important;
     border-radius: 8px;
@@ -216,14 +219,16 @@
 }
 
 .nav-text {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
     margin: 0;
-    color: inherit !important;
+    color: #ffffff !important;
     font-weight: 600;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    font-size: 0.95rem !important;
+    display: inline-block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4) !important;
 }
 
 .expand-icon {
@@ -257,7 +262,7 @@
     width: 100%;
     gap: 0.75rem;
     padding: 0.5rem 0.875rem;
-    color: rgba(255, 255, 255, 0.75) !important;
+    color: #f1f5f9 !important;
     background: transparent !important;
     border: none !important;
     border-radius: 6px;
@@ -290,13 +295,57 @@
 }
 
 .nested-nav-text {
-    flex: 1;
+    flex: 1 1 auto;
     min-width: 0;
     margin: 0;
-    color: inherit !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
+    color: #ffffff !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    display: inline-block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Sidebar Text High-Contrast Specificity Overrides */
+.sidebar,
+.sidebar a,
+.sidebar p,
+.sidebar span,
+.sidebar div,
+.sidebar li {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.sidebar .nav-link,
+.sidebar .nested-nav-link {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.sidebar .nav-link .nav-text,
+.sidebar .nested-nav-link .nested-nav-text,
+.sidebar .nav-text,
+.sidebar .nested-nav-text {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    display: inline-block !important;
+}
+
+.sidebar .nav-icon,
+.sidebar .nested-nav-icon {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+.sidebar .expand-icon {
+    color: #ffffff !important;
+    opacity: 0.85 !important;
+    visibility: visible !important;
 }
 
 /* ==========================================================
@@ -484,8 +533,8 @@
 }
 
 .add-button:hover {
-    background: linear-gradient(135deg, #DE1110 0%, #255DCE 100%);
-    box-shadow: 0 6px 18px rgba(222, 17, 16, 0.4);
+    background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
+    box-shadow: 0 6px 18px rgba(37, 93, 206, 0.45);
     transform: translateY(-1px);
 }
 
@@ -532,6 +581,100 @@
 }
 
 /* ==========================================================
+   Mobile Navigation Trigger & Drawer Header
+   ========================================================== */
+
+.navbar-hamburger-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 1.35rem;
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    padding: 0;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.navbar-hamburger-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.navbar-hamburger-btn:active {
+    transform: scale(0.92);
+}
+
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(3px);
+    z-index: 10004;
+    animation: fadeIn 0.25s ease;
+}
+
+@media (min-width: 769px) {
+    .sidebar-backdrop {
+        display: none !important;
+    }
+}
+
+.sidebar-mobile-header {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem;
+    background: rgba(1, 10, 46, 0.85);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    margin-bottom: 0.5rem;
+}
+
+.sidebar-mobile-title {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.sidebar-mobile-close-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    font-size: 1.1rem;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    padding: 0;
+    line-height: 1;
+}
+
+.sidebar-mobile-close-btn:hover {
+    background: #DE1110;
+    border-color: #DE1110;
+}
+
+.sidebar-mobile-close-btn:active {
+    transform: scale(0.92);
+}
+
+/* ==========================================================
    Responsive Breakpoints
    ========================================================== */
 
@@ -549,12 +692,27 @@
 
 /* Tablet & Mobile Screens */
 @media (max-width: 768px) {
+    .navbar-hamburger-btn {
+        display: flex !important;
+    }
+
+    .navbar-logo-img {
+        margin-left: 0 !important;
+    }
+
+    .sidebar-mobile-header {
+        display: flex !important;
+    }
+
     .sidebar {
         width: 280px;
         height: 100dvh;
         top: 0;
+        left: 0;
         z-index: 10005;
         transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 10px 0 35px rgba(0, 0, 0, 0.6);
     }
 
     .sidebar.open {

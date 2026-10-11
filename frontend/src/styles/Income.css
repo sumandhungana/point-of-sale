@@ -5,9 +5,10 @@
 
 .income-container {
   padding: 2rem !important;
-  max-width: calc(100% - 500px) !important;
-  margin-left: 250px !important;
+  max-width: 1400px !important;
+  margin: 0 auto !important;
   width: 100% !important;
+  box-sizing: border-box !important;
 }
 
 .income-card {
@@ -336,10 +337,10 @@
   font-weight: 600 !important;
   border: none !important;
   border-radius: 50px !important;
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%) !important;
   color: white !important;
   cursor: pointer !important;
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3) !important;
+  box-shadow: 0 8px 25px rgba(37, 93, 206, 0.35) !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   min-width: 160px !important;
   text-align: center !important;
@@ -357,7 +358,7 @@
   left: -100% !important;
   width: 100% !important;
   height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
   transition: left 0.5s !important;
 }
 
@@ -367,8 +368,8 @@
 
 .income-add-button:hover {
   transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4) !important;
-  background: linear-gradient(135deg, #00c12b 0%, #1ea085 100%) !important;
+  box-shadow: 0 12px 35px rgba(37, 93, 206, 0.45) !important;
+  background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%) !important;
 }
 
 .income-list {
