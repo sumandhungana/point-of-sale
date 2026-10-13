@@ -10,6 +10,9 @@ import com.puff.tech.onboarding.usecase.onbaording.OwnMemberOnboardingUCRequest;
 import com.puff.tech.onboarding.usecase.onbaording.OwnMemberOnboardingUCResponse;
 import com.puff.tech.onboarding.usecase.registration.UserRegistrationUcResponse;
 import com.puff.tech.onboarding.usecase.registration.UserRegistrationUseCase;
+import com.puff.tech.onboarding.usecase.user.add.AddUserUC;
+import com.puff.tech.onboarding.usecase.user.add.AddUserUCRequest;
+import com.puff.tech.onboarding.usecase.user.add.AddUserUCResponse;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUCRequest;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUseCase;
 import com.puff.tech.onboarding.usecase.user.get.GetUserUCResponse;
@@ -21,14 +24,12 @@ import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseRequest;
 import com.puff.tech.onboarding.usecase.userlogout.LogoutUserUseCaseResponse;
 import com.puff.tech.security.Secured;
 import com.puff.tech.usermanagement.enums.Permission;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-
-
-
 
 @Controller("/user")
 public class UserEnrollmentController {
@@ -39,19 +40,39 @@ public class UserEnrollmentController {
     private final GetUserUseCase getUserUseCase;
     private final FlushTokenUC flushTokenUC;
     private final OwnMemberOnboardingUC ownMemberOnboardingUC;
+    private final AddUserUC addUserUC;
 
     @Inject
     UserEnrollmentController(UserRegistrationUseCase userRegistrationUseCases,
                              LoginUserUseCase loginUserUseCase,
                              LogoutUserUseCase logoutUserUseCase,
                              GetUserUseCase getUserUseCase,
-                             FlushTokenUC flushTokenUC, OwnMemberOnboardingUC ownMemberOnboardingUC) {
+                             FlushTokenUC flushTokenUC,
+                             OwnMemberOnboardingUC ownMemberOnboardingUC,
+                             AddUserUC addUserUC) {
         this.userRegistrationUseCase = userRegistrationUseCases;
         this.loginUserUseCase = loginUserUseCase;
         this.logoutUserUseCase = logoutUserUseCase;
         this.getUserUseCase = getUserUseCase;
         this.flushTokenUC = flushTokenUC;
         this.ownMemberOnboardingUC = ownMemberOnboardingUC;
+        this.addUserUC = addUserUC;
+    }
+
+    @Secured(permissions = {Permission.USER_CREATE})
+    @Post("/add")
+    public Mono<RestResponse<AddUserUCResponse>> addUser(@Body AddUserUCRequest payload) {
+        return addUserUC.execute(payload)
+                .map(RestResponse::success)
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
+    }
+
+    @Secured(permissions = {Permission.USER_CREATE})
+    @Post("/create")
+    public Mono<RestResponse<AddUserUCResponse>> createUser(@Body AddUserUCRequest payload) {
+        return addUserUC.execute(payload)
+                .map(RestResponse::success)
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
     @Post("/register")
@@ -92,7 +113,6 @@ public class UserEnrollmentController {
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }
-
 
     @Secured(permissions = {Permission.OWN_KHATA_BOOK_SWITCH})
     @Get("flush-token")

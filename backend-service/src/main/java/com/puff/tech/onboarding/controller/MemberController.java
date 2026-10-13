@@ -24,6 +24,10 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import com.puff.tech.onboarding.usecase.member.approve.ApproveOrganizationUC;
+import com.puff.tech.onboarding.usecase.member.approve.ApproveOrganizationUCRequest;
+import com.puff.tech.onboarding.usecase.member.approve.ApproveOrganizationUCResponse;
+
 @Controller("member")
 public class MemberController {
 
@@ -31,14 +35,18 @@ public class MemberController {
     private final GetUserWiseAllMemberUC getUserWiseAllMemberUC;
     private final UserRegistrationUseCase userRegistrationUseCase;
     private final GetAllOrganizationUC getAllOrganizationUC;
+    private final ApproveOrganizationUC approveOrganizationUC;
 
     public MemberController(GetSelectedMemberUC getSelectedMemberUC,
-                            GetUserWiseAllMemberUC getUserWiseAllMemberUC, UserRegistrationUseCase userRegistrationUseCase, GetAllOrganizationUC getAllOrganizationUC) {
+                            GetUserWiseAllMemberUC getUserWiseAllMemberUC,
+                            UserRegistrationUseCase userRegistrationUseCase,
+                            GetAllOrganizationUC getAllOrganizationUC,
+                            ApproveOrganizationUC approveOrganizationUC) {
         this.getSelectedMemberUC = getSelectedMemberUC;
         this.getUserWiseAllMemberUC = getUserWiseAllMemberUC;
         this.userRegistrationUseCase = userRegistrationUseCase;
         this.getAllOrganizationUC = getAllOrganizationUC;
-
+        this.approveOrganizationUC = approveOrganizationUC;
     }
 
     @Secured(permissions = {Permission.ORGANIZATION_REGISTRATION})
@@ -73,5 +81,13 @@ public class MemberController {
                 .collectList()
                 .map(RestResponse::success)
                 .onErrorResume(err->Mono.error(new Throwable("Unexpected happened on controller:: " +err.getLocalizedMessage())));
+    }
+
+    @Secured(permissions = {Permission.ORGANIZATION_ACTIVE, Permission.ORGANIZATION_REGISTRATION})
+    @Post("/approve")
+    public Mono<RestResponse<ApproveOrganizationUCResponse>> approveOrganization(@Body ApproveOrganizationUCRequest request) {
+        return approveOrganizationUC.execute(request)
+                .map(RestResponse::success)
+                .onErrorResume(err -> Mono.just(RestResponse.error("Failed to approve organization: " + err.getLocalizedMessage())));
     }
 }

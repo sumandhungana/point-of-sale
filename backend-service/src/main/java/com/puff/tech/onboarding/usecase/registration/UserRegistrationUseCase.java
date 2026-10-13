@@ -27,7 +27,7 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
     private final MemberRepository memberRepository;
     private final UserMemberRepository userMemberRepository;
     private final UserRoleRepository userRoleRepository;
-    private static final String DEFAULT_SELF_ONBOARDING_ROLE = "2";
+    private static final String DEFAULT_SELF_ONBOARDING_ROLE = "";
     private static final String SELF_ONBOARDING = "SELF_ONBOARDING";
 
     public UserRegistrationUseCase(UserInfoRepository userInfoRepository,
@@ -47,52 +47,55 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
                 .map(UserSecurityContext::subject)
                 .filter(subject -> !subject.isBlank())
                 .orElse(SELF_ONBOARDING);
+
         Long refMemberId = Optional.ofNullable(context)
                 .map(UseCaseContext::securityContext)
                 .map(UserSecurityContext::memberId)
                 .orElse(null);
+
         return Mono.justOrEmpty(request)
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Request payload cannot be empty")))
                 .filter(req -> Objects.nonNull(req.gmail()) && !req.gmail().isBlank())
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Email/Gmail is required for registration")))
                 .flatMap(validReq -> {
-                    // Determine role dynamically based on onboarding type
-                    String targetRoleName;
+
+                    // Step 0: Handle External vs Internal Onboarding flow
+                    Mono<UserInfoEntity> saveUserMono;
+
                     if (validReq.isExternalOnboarding()) {
-                        targetRoleName = DEFAULT_SELF_ONBOARDING_ROLE;
+                        // External onboarding: skip role fetching and save with empty role/permissions
+                        UserInfoEntity userEntity = mapToUserEntity(validReq, null, createdBy);
+                        saveUserMono = Mono.from(userInfoRepository.save(userEntity));
                     } else {
                         if (validReq.role() == null || validReq.role().isBlank()) {
                             return Mono.error(new IllegalArgumentException("Role is required when internal onboarding (isExternalOnboarding is false)"));
                         }
-                        targetRoleName = validReq.role();
+
+                        // Internal onboarding: fetch role entity dynamically
+                        saveUserMono = userRoleRepository.findById(Integer.valueOf(validReq.role()))
+                                .switchIfEmpty(Mono.error(new IllegalStateException("Role '" + validReq.role() + "' not found in database")))
+                                .flatMap(role -> Mono.from(userInfoRepository.save(mapToUserEntity(validReq, role, createdBy))));
                     }
 
-                    // Step 0: Fetch Role Entity dynamically
-                    return userRoleRepository.findById(Integer.valueOf(targetRoleName))
-                            .switchIfEmpty(Mono.error(new IllegalStateException("Role '" + targetRoleName + "' not found in database")))
-                            .flatMap(role ->
-                                    // Step 1: Save User
-                                    Mono.from(userInfoRepository.save(mapToUserEntity(validReq, role,createdBy)))
-                                            .switchIfEmpty(Mono.error(new IllegalStateException("Failed to save user credentials")))
-                                            .flatMap(savedUser ->
-                                                    // Step 2: Fetch sequence and build Member Entity
-                                                    memberRepository.getNextMemberSequence()
-                                                            .defaultIfEmpty(1L)
-                                                            .flatMap(nextSeq -> {
-                                                                MemberEntity member = mapToMemberEntity(validReq);
-                                                                if (!validReq.isExternalOnboarding() && validReq.isSelfOrganizationOnboarded())
-                                                                    member.setRefMemberId(refMemberId);
-                                                                else
-                                                                    member.setRefMemberId(0L);
-                                                                return Mono.from(memberRepository.save(member));
-                                                            })
-                                                            .switchIfEmpty(Mono.error(new IllegalStateException("Failed to save organization details")))
-                                                            .flatMap(savedMember ->
-                                                                    // Step 3: Link User and Member
-                                                                    Mono.from(userMemberRepository.save(mapToUserMemberEntity(savedUser, savedMember)))
-                                                                            .switchIfEmpty(Mono.error(new IllegalStateException("Failed to link user to organization")))
-                                                                            .map(userMember -> mapToResponse(savedUser, savedMember))
-                                                            )
+                    // Proceed with User save, Member creation, and linking
+                    return saveUserMono
+                            .switchIfEmpty(Mono.error(new IllegalStateException("Failed to save user credentials")))
+                            .flatMap(savedUser ->
+                                    memberRepository.getNextMemberSequence()
+                                            .defaultIfEmpty(1L)
+                                            .flatMap(nextSeq -> {
+                                                MemberEntity member = mapToMemberEntity(validReq);
+                                                if (!validReq.isExternalOnboarding() && validReq.isSelfOrganizationOnboarded())
+                                                    member.setRefMemberId(refMemberId);
+                                                else
+                                                    member.setRefMemberId(0L);
+                                                return Mono.from(memberRepository.save(member));
+                                            })
+                                            .switchIfEmpty(Mono.error(new IllegalStateException("Failed to save organization details")))
+                                            .flatMap(savedMember ->
+                                                    Mono.from(userMemberRepository.save(mapToUserMemberEntity(savedUser, savedMember)))
+                                                            .switchIfEmpty(Mono.error(new IllegalStateException("Failed to link user to organization")))
+                                                            .map(userMember -> mapToResponse(savedUser, savedMember))
                                             )
                             );
                 })
@@ -109,18 +112,19 @@ public class UserRegistrationUseCase implements MonoUC<UserRegistrationUcRequest
         user.setEmail(request.gmail());
 
         // Safe extraction of permission ID to prevent NoSuchElementException
-        if (roleEntity.getPermissions() != null && !roleEntity.getPermissions().isEmpty()) {
+        if (roleEntity != null && roleEntity.getPermissions() != null && !roleEntity.getPermissions().isEmpty()) {
             String permissionIds = JsonUtils.toJsonString(
                     roleEntity.getPermissions()
                             .stream()
                             .map(UserPermissionEntity::getId)
                             .toList()
             );
+            user.setRole(String.valueOf(roleEntity.getId()));
             user.setPermission(permissionIds);
         } else {
-            user.setPermission(null);
+            user.setRole("");
+            user.setPermission("");
         }
-        user.setRole(String.valueOf(roleEntity.getId()));
         user.setUpdatedBy("System");
         if(request.isExternalOnboarding()) {
             user.setCreatedBy(createdBy);

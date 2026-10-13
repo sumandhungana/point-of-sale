@@ -15,7 +15,7 @@ export class ApiService {
     private baseUrl: string =
         (typeof process !== 'undefined' && process.env?.REACT_APP_API_BASE_URL) ||
         (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) ||
-        'http://160.22.164.212';
+        'http://localhost:8080';
     // Helper method to append query parameters to endpoint string
     private buildUrlWithParams(endpoint: string, params?: Record<string, any>): string {
         if (!params || Object.keys(params).length === 0) {

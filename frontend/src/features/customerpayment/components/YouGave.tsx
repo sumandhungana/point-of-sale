@@ -85,8 +85,11 @@ export const YouGave: React.FC<YouGaveProps> = ({ customerId, onSuccess, onClose
 
     return (
         <form onSubmit={handleSubmit} className="you-gave-form">
-            <div className="mb-3">
-                <label className="form-label">Amount (रु)</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-cash-stack me-1 text-danger"></i>
+                    Amount (रु) <span className="text-danger ms-1">*</span>
+                </label>
                 <input
                     type="number"
                     step="0.01"
@@ -95,11 +98,15 @@ export const YouGave: React.FC<YouGaveProps> = ({ customerId, onSuccess, onClose
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     required
+                    autoFocus
                 />
             </div>
 
-            <div className="mb-3">
-                <label className="form-label">Payment Mode</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-wallet2 me-1"></i>
+                    Payment Mode
+                </label>
                 <select
                     className="form-select"
                     value={paymentType}
@@ -112,8 +119,11 @@ export const YouGave: React.FC<YouGaveProps> = ({ customerId, onSuccess, onClose
             </div>
 
             {/* Optional Bill/Receipt Attachment Input */}
-            <div className="mb-3">
-                <label className="form-label">Attach Bill / Receipt (Optional)</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-paperclip me-1"></i>
+                    Attach Bill / Receipt (Optional)
+                </label>
                 <input
                     type="file"
                     className="form-control"
@@ -122,28 +132,42 @@ export const YouGave: React.FC<YouGaveProps> = ({ customerId, onSuccess, onClose
                 />
                 {selectedFile && (
                     <small className="text-muted d-block mt-1">
+                        <i className="bi bi-check-circle me-1 text-success"></i>
                         Selected: {selectedFile.name}
                     </small>
                 )}
             </div>
 
-            <div className="mb-3">
-                <label className="form-label">Remarks</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-chat-left-text me-1"></i>
+                    Remarks
+                </label>
                 <textarea
                     className="form-control"
                     rows={2}
-                    placeholder="Optional notes..."
+                    placeholder="Optional notes or reference..."
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
                 />
             </div>
 
             <div className="popup-action-buttons">
-                <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
+                <button type="button" className="btn-cancel" onClick={onClose} disabled={isSubmitting}>
                     Cancel
                 </button>
-                <button type="submit" className="btn btn-danger" disabled={isSubmitting}>
-                    {isSubmitting ? 'Saving...' : 'Confirm You Gave'}
+                <button type="submit" className="btn-submit-gave" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <i className="bi bi-arrow-up-circle me-1"></i>
+                            Confirm You Gave
+                        </>
+                    )}
                 </button>
             </div>
         </form>

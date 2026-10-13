@@ -213,403 +213,343 @@ export const SupplierStatements: React.FC = () => {
             <Sidebar />
 
             <main className="supplier-statements-main-content">
-                <div className="supplier-statements-profile-container">
-                    <div className="supplier-statements-profile-header-grid">
-                        <div className="supplier-statements-header-left">
-                            <button
-                                className="btn-base btn-primary"
-                                onClick={handleCall}
-                            >
-                                <i className="bi bi-telephone"></i>
-                                Call
-                            </button>
-                        </div>
-
+                {/* 1. Sleek Compact Profile Header */}
+                <div className="statements-profile-card">
+                    <div className="statements-profile-info">
                         <div
-                            className="supplier-statements-header-center"
+                            className="statements-avatar-wrapper"
                             onClick={handleProfileClick}
-                            title="Open profile"
-                            style={{ cursor: 'pointer' }}
+                            title="View supplier profile"
                         >
                             {supplierProfileImage ? (
                                 <img
                                     src={supplierProfileImage}
                                     alt={supplierName || 'Supplier'}
                                     className="supplier-statements-profile-image"
-                                    style={{
-                                        width: '60px',
-                                        height: '60px',
-                                        borderRadius: '50%',
-                                        objectFit: 'cover',
-                                        display: 'block'
-                                    }}
-                                    onError={() => {
-                                        setSupplierProfileImage(null);
-                                    }}
+                                    onError={() => setSupplierProfileImage(null)}
                                 />
                             ) : (
                                 <div
-                                    className="supplier-statements-profile-image-placeholder"
                                     style={{
-                                        width: '60px',
-                                        height: '60px',
+                                        width: '100%',
+                                        height: '100%',
                                         borderRadius: '50%',
                                         backgroundColor: '#e9ecef',
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        fontSize: '1.5rem',
-                                        fontWeight: '600',
-                                        color: '#6c757d'
+                                        fontSize: '1.25rem',
+                                        fontWeight: '700',
+                                        color: '#021861'
                                     }}
                                 >
-                                    {supplierName ? supplierName.charAt(0).toUpperCase() : <i className="bi bi-person"></i>}
+                                    {supplierName ? supplierName.charAt(0).toUpperCase() : <i className="bi bi-truck"></i>}
                                 </div>
                             )}
                         </div>
-
-                        <div className="supplier-statements-header-right">
-                            <button
-                                type="button"
-                                className="supplier-statements-close-button"
-                                onClick={handleBack} /* Replace with your close/back function */
-                                aria-label="Close"
-                            >
-                                {/* SVG cross ensures icon shows up even without Font Awesome */}
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
+                        <div className="statements-details">
+                            <div className="statements-name-row">
+                                <h2
+                                    className="statements-customer-name"
+                                    onClick={handleProfileClick}
+                                    title="View supplier profile"
                                 >
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
-
+                                    {supplierName || 'Supplier'}
+                                </h2>
+                                {id ? (
+                                    <span className="statements-id-badge">#SUPP-{id}</span>
+                                ) : null}
+                            </div>
+                            <div className="statements-meta-row">
+                                {supplierPhone ? (
+                                    <span>
+                                        <i className="bi bi-telephone me-1"></i>
+                                        {supplierPhone}
+                                    </span>
+                                ) : (
+                                    <span>
+                                        <i className="bi bi-telephone me-1"></i>
+                                        No phone
+                                    </span>
+                                )}
+                            </div>
                         </div>
                     </div>
 
-                    <div
-                        className="supplier-statements-customer-name"
-                        style={{
-                            textAlign: 'center',
-                            marginTop: '0.5rem',
-                            cursor: 'pointer'
-                        }}
-                        onClick={handleProfileClick}
-                        title="Open profile"
-                    >
-                        {supplierName || 'Supplier'}
+                    <div className="statements-header-actions">
+                        <button
+                            type="button"
+                            className="btn-statement-action btn-call"
+                            onClick={handleCall}
+                            title={supplierPhone || 'No phone number available'}
+                        >
+                            <i className="bi bi-telephone"></i>
+                            Call
+                        </button>
+                        <button
+                            type="button"
+                            className="btn-statement-close"
+                            onClick={handleBack}
+                            aria-label="Back to suppliers"
+                            title="Back to suppliers"
+                        >
+                            <i className="bi bi-x-lg"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div className="supplier-statements-amount-card">
-                    <div className="supplier-statements-amount-row">
-                        <div className="supplier-statements-amount-item">
-                            <div className="supplier-statements-amount-label">
+                {/* 2. Amount Summary & Reminder Card */}
+                <div className="statements-amount-card">
+                    <div className="statements-amount-grid">
+                        <div className="statements-amount-box box-gave">
+                            <div className="statements-amount-label">
                                 <i className="bi bi-arrow-up-circle me-2"></i>
                                 You Gave
                             </div>
-                            <div className="supplier-statements-amount-value supplier-statements-amount-red">
+                            <div className="statements-amount-val val-gave">
                                 रु{(totals.given || 0).toLocaleString()}
                             </div>
                         </div>
-
-                        <div className="supplier-statements-amount-item">
-                            <div className="supplier-statements-amount-label">
+                        <div className="statements-amount-box box-received">
+                            <div className="statements-amount-label">
                                 <i className="bi bi-arrow-down-circle me-2"></i>
                                 You Received
                             </div>
-                            <div className="supplier-statements-amount-value supplier-statements-amount-green">
+                            <div className="statements-amount-val val-received">
                                 रु{(totals.received || 0).toLocaleString()}
                             </div>
                         </div>
                     </div>
 
-                    <div className="supplier-statements-reminder-row">
-                        <div className="supplier-statements-reminder-label">
-                            Set Date Reminder
+                    <div className="statements-reminder-strip">
+                        <div className="statements-reminder-label">
+                            <i className="bi bi-calendar-event me-2"></i>
+                            Set Reminder Date
                         </div>
-
-                        <input
-                            type="date"
-                            value={reminderDate}
-                            onChange={handleDateChange}
-                            ref={dateInputRef}
-                            className="supplier-statements-date-input"
-                        />
-
-                        <button
-                            type="button"
-                            className="btn-base btn-secondary"
-                            onClick={() => {
-                                const el = dateInputRef.current;
-                                if (el && typeof el.showPicker === 'function') {
-                                    el.showPicker();
-                                } else {
-                                    el?.click();
-                                }
-                            }}
-                            aria-label="Select reminder date"
-                            title={
-                                reminderDate
-                                    ? safeFormatDate(reminderDate)
-                                    : 'Select Date'
-                            }
-                        >
-                            <i className="bi bi-calendar2-plus"></i>
-                            {reminderDate
-                                ? safeFormatDate(reminderDate)
-                                : 'Select Date'}
-                        </button>
+                        <div className="statements-reminder-controls">
+                            <input
+                                type="date"
+                                value={reminderDate}
+                                onChange={handleDateChange}
+                                ref={dateInputRef}
+                                className="statements-date-input"
+                            />
+                            <button
+                                type="button"
+                                className="btn-reminder-picker"
+                                onClick={() => {
+                                    const el = dateInputRef.current;
+                                    if (el && typeof el.showPicker === 'function') {
+                                        el.showPicker();
+                                    } else {
+                                        el?.click();
+                                    }
+                                }}
+                                title="Pick reminder date"
+                            >
+                                <i className="bi bi-calendar2-plus"></i>
+                                {reminderDate ? safeFormatDate(reminderDate) : 'Pick Date'}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div className="supplier-statements-actions-row">
-                    <div className="supplier-statements-action-slot-left">
-                        <button
-                            className="btn-base btn-info"
-                            onClick={() =>
-                                navigate(`/parties/suppliers/statements/report/${id}`)
+                {/* 3. Quick Actions Grid */}
+                <div className="statements-quick-actions">
+                    <button
+                        className="btn-quick-action action-report"
+                        onClick={() => navigate(`/parties/suppliers/statements/report/${id}`)}
+                    >
+                        <i className="bi bi-file-earmark-bar-graph"></i>
+                        <span>Report</span>
+                    </button>
+                    <button
+                        className="btn-quick-action action-reminder"
+                        onClick={() => {
+                            const el = dateInputRef.current;
+                            if (el && typeof el.showPicker === 'function') {
+                                el.showPicker();
+                            } else {
+                                el?.click();
                             }
-                        >
-                            <i className="bi bi-bar-chart"></i>
-                            Report
-                        </button>
-                    </div>
-
-                    <div className="supplier-statements-action-slot-center">
-                        <button
-                            className="btn-base btn-warning"
-                            onClick={() =>
-                                dateInputRef.current
-                                    ? dateInputRef.current.click()
-                                    : null
-                            }
-                        >
-                            <i className="bi bi-alarm"></i>
-                            Reminder
-                        </button>
-                    </div>
-
-                    <div className="supplier-statements-action-slot-right">
-                        <button className="btn-base btn-purple">
-                            <i className="bi bi-chat-dots"></i>
-                            SMS
-                        </button>
-                    </div>
+                        }}
+                    >
+                        <i className="bi bi-alarm"></i>
+                        <span>Reminder</span>
+                    </button>
+                    <button className="btn-quick-action action-sms">
+                        <i className="bi bi-chat-dots"></i>
+                        <span>SMS</span>
+                    </button>
                 </div>
 
-                <div className="supplier-statements-transactions-container">
-                    <div className="supplier-statements-transactions-title">
+                {/* 4. Transactions List */}
+                <div className="statements-transactions-card">
+                    <div className="statements-transactions-header">
                         <i className="bi bi-clock-history"></i>
-                        Recent Transactions
+                        <span>Recent Transactions</span>
                     </div>
 
-                    {isLoading ? (
-                        <div className="supplier-statements-no-transactions">
-                            Loading transactions...
-                        </div>
-                    ) : !paymentHistory || paymentHistory.length === 0 ? (
-                        <div className="supplier-statements-no-transactions">
-                            No transactions found
-                        </div>
-                    ) : (
-                        paymentHistory
-                            .slice()
-                            .sort((a, b) => {
-                                const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                                const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                                return timeB - timeA;
-                            })
-                            .map((t) => {
-                                const isReceived = t.paymentCategory === 'RECEIVED';
-                                const amountAbs = Math.abs(t.amount || 0);
+                    <div className="statements-transactions-body">
+                        {isLoading ? (
+                            <div className="statements-state-msg">
+                                <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                                Loading transactions...
+                            </div>
+                        ) : !paymentHistory || paymentHistory.length === 0 ? (
+                            <div className="statements-state-msg">
+                                <i className="bi bi-inbox me-2" style={{ fontSize: '18px' }}></i>
+                                No transactions recorded yet
+                            </div>
+                        ) : (
+                            paymentHistory
+                                .slice()
+                                .sort((a, b) => {
+                                    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                                    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                                    return timeB - timeA;
+                                })
+                                .map((t) => {
+                                    const isReceived = t.paymentCategory === 'RECEIVED';
+                                    const amountAbs = Math.abs(t.amount || 0);
 
-                                return (
-                                    <div
-                                        key={t.id}
-                                        className="supplier-statements-transaction-card"
-                                        onClick={() => {
-                                            navigate(
-                                                `/parties/supplier/statement/${t.id}`,
-                                                {
-                                                    state: {
-                                                        transaction: {
-                                                            customerName: supplierName || 'Supplier',
-                                                            date: safeFormatDate(t.createdAt),
-                                                            totalAmount: amountAbs,
-                                                            phoneNumber: supplierPhone || '',
-                                                            type: isReceived ? 'payment_in' : 'payment_out',
-                                                            customerId: parseInt(id || '0', 10),
-                                                            details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${safeFormatDate(t.createdAt)}`,
-                                                            remarks: t.remarks || '',
-                                                            sms: `Dear ${supplierName || 'Supplier'}, your payment of रु${amountAbs} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
+                                    return (
+                                        <div
+                                            key={t.id}
+                                            className="statement-tx-row"
+                                            onClick={() => {
+                                                navigate(
+                                                    `/parties/supplier/statement/${t.id}`,
+                                                    {
+                                                        state: {
+                                                            transaction: {
+                                                                customerName: supplierName || 'Supplier',
+                                                                date: safeFormatDate(t.createdAt),
+                                                                totalAmount: amountAbs,
+                                                                phoneNumber: supplierPhone || '',
+                                                                type: isReceived ? 'payment_in' : 'payment_out',
+                                                                customerId: parseInt(id || '0', 10),
+                                                                details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${safeFormatDate(t.createdAt)}`,
+                                                                remarks: t.remarks || '',
+                                                                sms: `Dear ${supplierName || 'Supplier'}, your payment of रु${amountAbs} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
+                                                            }
                                                         }
                                                     }
-                                                }
-                                            );
-                                        }}
-                                        role="button"
-                                        tabIndex={0}
-                                    >
-                                        <div className="supplier-statements-transaction-info">
-                                            <div className="supplier-statements-transaction-row">
-                                                <div className="supplier-statements-transaction-label">
-                                                    Payment Type:
+                                                );
+                                            }}
+                                            role="button"
+                                            tabIndex={0}
+                                        >
+                                            <div className="tx-main-col">
+                                                <div className="tx-type-line">
+                                                    <span className={`tx-type-badge ${isReceived ? 'badge-in' : 'badge-out'}`}>
+                                                        <i className={`bi ${isReceived ? 'bi-arrow-down-left' : 'bi-arrow-up-right'} me-1`}></i>
+                                                        {isReceived ? 'Payment In' : 'Payment Out'} ({t.paymentType || 'General'})
+                                                    </span>
                                                 </div>
-                                                <div className="supplier-statements-transaction-value">
-                                                    {isReceived ? (
-                                                        <span className="supplier-statements-payment-in">
-                                                            Payment In ({t.paymentType || 'General'})
-                                                        </span>
-                                                    ) : (
-                                                        <span className="supplier-statements-payment-out">
-                                                            Payment Out ({t.paymentType || 'General'})
-                                                        </span>
-                                                    )}
+                                                <div className="tx-date-line">
+                                                    <i className="bi bi-calendar3 me-1"></i>
+                                                    {safeFormatDate(t.createdAt)}
+                                                    <span className="tx-dot">•</span>
+                                                    <i className="bi bi-clock me-1"></i>
+                                                    {safeFormatTime(t.createdAt)}
                                                 </div>
+                                                {t.remarks && (
+                                                    <div className="tx-remarks-line">
+                                                        <i className="bi bi-chat-left-quote me-1"></i>
+                                                        {t.remarks}
+                                                    </div>
+                                                )}
                                             </div>
 
-                                            <div className="supplier-statements-transaction-row">
-                                                <div className="supplier-statements-transaction-label">
-                                                    Date/Time:
-                                                </div>
-                                                <div className="supplier-statements-transaction-value">
-                                                    {safeFormatDate(t.createdAt)} {safeFormatTime(t.createdAt)}
-                                                </div>
-                                            </div>
-
-                                            <div className="supplier-statements-transaction-row">
-                                                <div className="supplier-statements-transaction-label">
-                                                    Remarks:
-                                                </div>
-                                                <div className="supplier-statements-transaction-value">
-                                                    {t.remarks || '-'}
+                                            <div className="tx-amount-col">
+                                                <div className={`tx-amount-num ${isReceived ? 'num-received' : 'num-gave'}`}>
+                                                    {isReceived ? '+ ' : '- '}रु{amountAbs.toLocaleString()}
                                                 </div>
                                             </div>
                                         </div>
-
-                                        <div className="supplier-statements-transaction-amounts">
-                                            <div
-                                                className={
-                                                    isReceived
-                                                        ? 'supplier-statements-current-amount'
-                                                        : 'supplier-statements-current-amount-red'
-                                                }
-                                            >
-                                                रु {amountAbs.toLocaleString()}
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            })
-                    )}
+                                    );
+                                })
+                        )}
+                    </div>
                 </div>
 
-                <div className="supplier-statements-bottom-row">
+                {/* 5. Fixed Sticky Bottom Action Bar */}
+                <div className="statements-bottom-bar">
                     <button
-                        className="btn-base btn-red"
+                        className="btn-bottom-action btn-bottom-gave"
                         onClick={() => setShowPopup(true)}
-                        style={{
-                            backgroundColor: 'red',
-                            color: 'white',
-                            padding: '12px 24px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}
                     >
-                        <i className="bi bi-arrow-up-circle"></i>
-                        You Gave
+                        <i className="bi bi-dash-circle"></i>
+                        <span>You Gave</span>
                     </button>
-
-                    {showPopup && (
-                        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
-                            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-                                <div className="popup-title-container">
-                                    <h2 className="popup-title">
-                                        You Gave
-                                    </h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPopup(false)}
-                                        className="popup-close-button"
-                                        aria-label="Close"
-                                        title="Close"
-                                    >
-                                        <i className="bi bi-x-lg"></i>
-                                    </button>
-                                </div>
-
-                                <div className="you-gave-popup-body">
-                                    <YouGave
-                                        supplierId={parseInt(id || '0', 10)}
-                                        onSuccess={handleGaveSuccess}
-                                        onClose={() => setShowPopup(false)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     <button
-                        className="btn-base btn-green"
+                        className="btn-bottom-action btn-bottom-received"
                         onClick={() => setShowReceivedPopup(true)}
-                        style={{
-                            backgroundColor: 'green',
-                            color: 'white',
-                            padding: '12px 24px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}
                     >
-                        <i className="bi bi-arrow-down-circle"></i>
-                        You Received
+                        <i className="bi bi-plus-circle"></i>
+                        <span>You Received</span>
                     </button>
-
-                    {showReceivedPopup && (
-                        <div className="popup-overlay" onClick={() => setShowReceivedPopup(false)}>
-                            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-                                <div className="popup-title-container">
-                                    <h2 className="popup-title-received">
-                                        You Received
-                                    </h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowReceivedPopup(false)}
-                                        className="popup-close-button"
-                                        aria-label="Close"
-                                        title="Close"
-                                    >
-                                        <i className="bi bi-x-lg"></i>
-                                    </button>
-                                </div>
-
-                                <div className="you-received-popup-body">
-                                    <YouReceived
-                                        supplierId={parseInt(id || '0', 10)}
-                                        onSuccess={handleReceivedSuccess}
-                                        onClose={() => setShowReceivedPopup(false)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
                 </div>
 
-                {showDatePicker && (
-                    <div className="supplier-statements-date-overlay" ref={datePickerRef}></div>
+                {/* Modal: You Gave */}
+                {showPopup && (
+                    <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+                        <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="popup-title-container">
+                                <h2 className="popup-title">
+                                    <i className="bi bi-arrow-up-circle me-2" style={{ color: '#DE1110' }}></i>
+                                    Record Payment Given
+                                </h2>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPopup(false)}
+                                    className="popup-close-button"
+                                    aria-label="Close"
+                                    title="Close"
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div className="you-gave-popup-body">
+                                <YouGave
+                                    supplierId={parseInt(id || '0', 10)}
+                                    onSuccess={handleGaveSuccess}
+                                    onClose={() => setShowPopup(false)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Modal: You Received */}
+                {showReceivedPopup && (
+                    <div className="popup-overlay" onClick={() => setShowReceivedPopup(false)}>
+                        <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="popup-title-container">
+                                <h2 className="popup-title-received">
+                                    <i className="bi bi-arrow-down-circle me-2" style={{ color: '#10b981' }}></i>
+                                    Record Payment Received
+                                </h2>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReceivedPopup(false)}
+                                    className="popup-close-button"
+                                    aria-label="Close"
+                                    title="Close"
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div className="you-received-popup-body">
+                                <YouReceived
+                                    supplierId={parseInt(id || '0', 10)}
+                                    onSuccess={handleReceivedSuccess}
+                                    onClose={() => setShowReceivedPopup(false)}
+                                />
+                            </div>
+                        </div>
+                    </div>
                 )}
             </main>
         </div>

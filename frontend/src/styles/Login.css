@@ -607,3 +607,21 @@
     padding: 1rem;
   }
 }
+
+/* Registration Section Titles */
+.registration-section-title {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #021861;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e5e7eb;
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.registration-section-title i {
+  color: #255DCE;
+  font-size: 16px;
+}

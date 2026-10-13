@@ -83,8 +83,11 @@ export const YouReceived: React.FC<YouReceivedProps> = ({ customerId, onSuccess,
 
     return (
         <form onSubmit={handleSubmit} className="you-received-form">
-            <div className="mb-3">
-                <label className="form-label">Amount (रु)</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-cash-stack me-1 text-success"></i>
+                    Amount (रु) <span className="text-danger ms-1">*</span>
+                </label>
                 <input
                     type="number"
                     step="0.01"
@@ -93,11 +96,15 @@ export const YouReceived: React.FC<YouReceivedProps> = ({ customerId, onSuccess,
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     required
+                    autoFocus
                 />
             </div>
 
-            <div className="mb-3">
-                <label className="form-label">Payment Mode</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-wallet2 me-1"></i>
+                    Payment Mode
+                </label>
                 <select
                     className="form-select"
                     value={paymentType}
@@ -109,8 +116,11 @@ export const YouReceived: React.FC<YouReceivedProps> = ({ customerId, onSuccess,
                 </select>
             </div>
 
-            <div className="mb-3">
-                <label className="form-label">Attach Bill / Receipt (Optional)</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-paperclip me-1"></i>
+                    Attach Bill / Receipt (Optional)
+                </label>
                 <input
                     type="file"
                     className="form-control"
@@ -119,28 +129,42 @@ export const YouReceived: React.FC<YouReceivedProps> = ({ customerId, onSuccess,
                 />
                 {selectedFile && (
                     <small className="text-muted d-block mt-1">
+                        <i className="bi bi-check-circle me-1 text-success"></i>
                         Selected: {selectedFile.name}
                     </small>
                 )}
             </div>
 
-            <div className="mb-3">
-                <label className="form-label">Remarks</label>
+            <div className="form-group">
+                <label className="form-label">
+                    <i className="bi bi-chat-left-text me-1"></i>
+                    Remarks
+                </label>
                 <textarea
                     className="form-control"
                     rows={2}
-                    placeholder="Optional notes..."
+                    placeholder="Optional notes or reference..."
                     value={remarks}
                     onChange={(e) => setRemarks(e.target.value)}
                 />
             </div>
 
             <div className="popup-action-buttons">
-                <button type="button" className="btn btn-secondary" onClick={onClose} disabled={isSubmitting}>
+                <button type="button" className="btn-cancel" onClick={onClose} disabled={isSubmitting}>
                     Cancel
                 </button>
-                <button type="submit" className="btn btn-success" disabled={isSubmitting}>
-                    {isSubmitting ? 'Saving...' : 'Confirm You Received'}
+                <button type="submit" className="btn-submit-received" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                        <>
+                            <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <i className="bi bi-arrow-down-circle me-1"></i>
+                            Confirm You Received
+                        </>
+                    )}
                 </button>
             </div>
         </form>

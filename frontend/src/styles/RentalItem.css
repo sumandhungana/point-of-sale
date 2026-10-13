@@ -144,13 +144,65 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid rgba(0,0,0,0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  border: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer;
 }
 
 .rental-item-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+  border-color: #2563eb;
+}
+
+.rental-card-statement-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 0.65rem;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 0.35rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border: 1px solid #dbeafe;
+}
+
+.rental-item-card:hover .rental-card-statement-btn {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.rental-card-balance-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  margin-top: 0.35rem;
+}
+
+.rental-card-paid-text {
+  font-size: 0.8rem;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.rental-card-due-text {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #dc2626;
+}
+
+.rental-card-settled-text {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0284c7;
+  background: #e0f2fe;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
 }
 
 .rental-item-info {
@@ -345,6 +397,11 @@
   .rental-item-amount {
     text-align: left;
     min-width: auto;
+    width: 100%;
+  }
+
+  .rental-card-balance-row {
+    align-items: flex-start;
   }
   
   .rental-item-add-button-container {

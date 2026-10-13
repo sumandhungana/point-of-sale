@@ -22,7 +22,13 @@ public record GetAllOrganizationUCResponse(
         Instant createdAt,
         String createdBy,
         Instant updatedAt,
-        String updatedBy
+        String updatedBy,
+        Boolean isActive,
+        Long userId,
+        String userName,
+        String userEmail,
+        String roleId,
+        String roleName
 )
 implements UCResponse {
 }

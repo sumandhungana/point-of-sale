@@ -76,15 +76,6 @@ export const fetchMembers = async (): Promise<Member[]> => {
 };
 
 
-export const addUser = async (payload: AddUserPayload): Promise<void> => {
-    await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-};
-
-
 // ============================================================
 // CREATE USER
 // ============================================================

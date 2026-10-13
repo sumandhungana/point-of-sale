@@ -1,963 +1,517 @@
-/* Modern Suppliers Page Styles - Palette Aligned */
+/* ==========================================================================
+   SUPPLIERS PAGE STYLES - DESIGN SYSTEM MATCHING ORGANIZATION & CUSTOMER
+   ========================================================================== */
+
+/* 1. Main Page Layout */
 .suppliers-page-wrapper {
   min-height: 100vh;
-  background: #f4f6f9;
+  background-color: #f8f9fa;
 }
 
 .suppliers-main-content {
-  overflow: visible !important;
-  padding-bottom: 100px !important;
-  padding-top: 4rem !important;
-  background: #f4f6f9;
+  padding: 80px 28px 100px 28px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
   min-height: 100vh;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
+  background-color: #f8f9fa;
+  overflow: visible;
 }
 
-/* Search and Filter Container */
+/* 2. Search & Controls Bar */
 .suppliers-search-container {
-  background: #ffffff !important;
-  padding: 1rem !important;
-  border-radius: 20px !important;
-  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08) !important;
-  border: 1px solid #e1e6ef !important;
-  margin-bottom: 1.3rem !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.suppliers-search-container::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 4px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  transform: scaleX(0) !important;
-  transition: transform 0.3s ease !important;
-}
-
-.suppliers-search-container:hover::before {
-  transform: scaleX(1) !important;
+  background: #ffffff;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
+  border: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .suppliers-search-container:hover {
-  box-shadow: 0 16px 45px rgba(2, 24, 97, 0.12) !important;
+  box-shadow: 0 4px 14px rgba(2, 24, 97, 0.08);
+  border-color: #e2e8f0;
 }
 
 .suppliers-search-row {
-  display: flex !important;
-  gap: 1.5rem !important;
-  margin-bottom: 0 !important;
-  align-items: center !important;
-  flex-wrap: wrap !important;
-  justify-content: space-between !important;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
 }
 
 .suppliers-search-group {
-  flex: 1 !important;
-  position: relative !important;
-}
-
-.suppliers-search-input {
-  width: 100% !important;
-  padding: 0.75rem 1rem 0.75rem 3rem !important;
-  border: 1px solid #e1e6ef !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  background: #f8fafc !important;
-  color: #021861 !important;
-  transition: all 0.3s ease !important;
-  position: relative !important;
-}
-
-.suppliers-search-input:focus {
-  outline: none !important;
-  border-color: #255DCE !important;
-  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
-  background: #ffffff !important;
-  transform: translateY(-1px) !important;
-}
-
-.suppliers-search-input:hover {
-  border-color: #255DCE !important;
-  transform: translateY(-1px) !important;
+  flex: 1;
+  min-width: 240px;
+  position: relative;
 }
 
 .suppliers-search-icon {
-  position: absolute !important;
-  left: 1rem !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  color: #5a6a85 !important;
-  z-index: 2 !important;
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  font-size: 15px;
+  pointer-events: none;
+}
+
+.suppliers-search-input {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #021861;
+  background-color: #ffffff;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.suppliers-search-input:focus {
+  border-color: #255DCE;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15);
+}
+
+.suppliers-search-input::placeholder {
+  color: #94a3b8;
 }
 
 .suppliers-filter-select {
-  padding: 0.75rem 1rem !important;
-  border: 1px solid #e1e6ef !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  background: #ffffff !important;
-  color: #021861 !important;
-  transition: all 0.3s ease !important;
-  min-width: 150px !important;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #021861;
+  background-color: #ffffff;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 160px;
 }
 
 .suppliers-filter-select:focus {
-  outline: none !important;
-  border-color: #255DCE !important;
-  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
-  transform: translateY(-1px) !important;
+  border-color: #255DCE;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15);
 }
 
-.suppliers-filter-select:hover {
-  border-color: #255DCE !important;
-  transform: translateY(-1px) !important;
-}
-
-/* Action Buttons */
 .suppliers-action-buttons {
-  display: flex !important;
-  gap: 0.75rem !important;
-  margin-left: auto !important;
-  flex-wrap: nowrap !important;
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
 .suppliers-action-button {
-  padding: 0.9rem 1rem !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 0.9rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  position: relative !important;
-  overflow: hidden !important;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  border: none;
 }
 
-.suppliers-action-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
-  transition: left 0.5s !important;
+.suppliers-reminder-button,
+.suppliers-primary-button {
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
+  color: #ffffff;
+  box-shadow: 0 4px 14px rgba(37, 93, 206, 0.25);
 }
 
-.suppliers-action-button:hover::before {
-  left: 100% !important;
+.suppliers-reminder-button:hover,
+.suppliers-primary-button:hover {
+  background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
+  box-shadow: 0 6px 18px rgba(37, 93, 206, 0.35);
+  transform: translateY(-1px);
 }
 
-.suppliers-action-button:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(2, 24, 97, 0.15) !important;
+.suppliers-report-button,
+.suppliers-secondary-button {
+  background: #ffffff;
+  color: #021861;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.suppliers-add-button {
-  position: fixed !important;
-  right: 2rem !important;
-  z-index: 1000 !important;
-  padding: 1rem 2rem !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  border: none !important;
-  border-radius: 50px !important;
-  background: linear-gradient(135deg, #255DCE, #021861) !important;
-  color: #ffffff !important;
-  cursor: pointer !important;
-  box-shadow: 0 8px 25px rgba(37, 93, 206, 0.35) !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  min-width: 160px !important;
-  text-align: center !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 0.5rem !important;
-  pointer-events: auto !important;
+.suppliers-report-button:hover,
+.suppliers-secondary-button:hover {
+  background: #f8fafc;
+  border-color: #255DCE;
+  color: #255DCE;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(37, 93, 206, 0.12);
 }
 
-.suppliers-add-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
-  transform: translateX(-100%) !important;
-  transition: transform 0.5s ease !important;
-  pointer-events: none !important;
-}
-
-.suppliers-add-button:hover::before {
-  transform: translateX(100%) !important;
-}
-
-.suppliers-add-button:hover {
-  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
-  box-shadow: 0 12px 35px rgba(37, 93, 206, 0.45) !important;
-  transform: translateY(-3px) scale(1.05) !important;
-}
-
-.suppliers-add-button:active {
-  transform: translateY(-1px) scale(1.02) !important;
-}
-
-.suppliers-reminder-button {
-  background: linear-gradient(135deg, #255DCE, #1d4bb0) !important;
-  color: #ffffff !important;
-}
-
-.suppliers-reminder-button:hover {
-  background: linear-gradient(135deg, #1d4bb0, #255DCE) !important;
-}
-
-.suppliers-report-button {
-  background: linear-gradient(135deg, #021861, #0a2580) !important;
-  color: #ffffff !important;
-}
-
-.suppliers-report-button:hover {
-  background: linear-gradient(135deg, #0a2580, #021861) !important;
-}
-
-/* Stats Cards */
+/* 3. Stat Cards Banner (Single-row grid matching Organization & Customer) */
 .suppliers-stats-container {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
-  gap: 1.5rem !important;
-  margin-bottom: 1rem !important;
-  padding: 0.5rem !important;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+  width: 100%;
 }
 
 .suppliers-stat-card {
-  background: #ffffff !important;
-  padding: 1.5rem !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.05) !important;
-  border: 1px solid #e1e6ef !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 1rem !important;
-  max-height: 170px !important;
-  min-height: 120px !important;
-}
-
-.suppliers-stat-card::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 4px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  transform: scaleX(0) !important;
-  transition: transform 0.3s ease !important;
-}
-
-.suppliers-stat-card:hover::before {
-  transform: scaleX(1) !important;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
+  border: 1px solid #f1f5f9;
+  min-width: 0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .suppliers-stat-card:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 8px 20px rgba(2, 24, 97, 0.1) !important;
-}
-
-.suppliers-stat-card::after {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  opacity: 0 !important;
-  transition: opacity 0.4s ease !important;
-  pointer-events: none !important;
-}
-
-.suppliers-stat-card:hover::after {
-  opacity: 1 !important;
-}
-
-/* Red shade for "You Give" card */
-.suppliers-stat-card:first-child::after {
-  background: rgba(222, 17, 16, 0.04) !important;
-}
-
-/* Green shade for "You Receive" card */
-.suppliers-stat-card:nth-child(2)::after {
-  background: rgba(40, 167, 69, 0.04) !important;
-}
-
-/* Vibrant Blue shade for "Online Collection" card */
-.suppliers-stat-card:nth-child(3)::after {
-  background: rgba(37, 93, 206, 0.04) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(2, 24, 97, 0.08);
+  border-color: #e2e8f0;
 }
 
 .suppliers-stat-icon {
-  width: 50px !important;
-  height: 50px !important;
-  border-radius: 16px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  margin: 0 !important;
-  font-size: 1.2rem !important;
-  color: #ffffff !important;
-  transition: all 0.3s ease !important;
-  flex-shrink: 0 !important;
-  box-shadow: 0 4px 16px rgba(2, 24, 97, 0.15) !important;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
-.suppliers-stat-card:hover .suppliers-stat-icon {
-  transform: scale(1.1) rotate(5deg) !important;
-  box-shadow: 0 6px 20px rgba(2, 24, 97, 0.2) !important;
-}
-
+/* Color palettes for stat icons */
 .suppliers-stat-given-icon {
-  background: linear-gradient(135deg, #DE1110, #b80d0c) !important;
+  background-color: rgba(222, 17, 16, 0.1);
+  color: #DE1110;
 }
 
 .suppliers-stat-received-icon {
-  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10b981;
 }
 
 .suppliers-stat-online-icon {
-  background: linear-gradient(135deg, #021861, #255DCE) !important;
+  background-color: rgba(37, 93, 206, 0.1);
+  color: #255DCE;
+}
+
+.suppliers-stat-content {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .suppliers-stat-label {
-  font-size: 0.875rem !important;
-  color: #5a6a85 !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
-  text-align: center !important;
+  font-size: 11px;
+  color: #6c757d;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .suppliers-stat-value {
-  font-size: 1.75rem !important;
-  font-weight: 700 !important;
-  color: #021861 !important;
+  font-size: 22px;
+  font-weight: 700;
+  color: #021861;
+  white-space: nowrap;
+  line-height: 1.2;
 }
 
-/* Red color for "You Give" card amount */
-.suppliers-stat-card:first-child .suppliers-stat-value {
-  color: #DE1110 !important;
+/* 4. Supplier List Cards (Clean role-card style) */
+.suppliers-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
-/* Green color for "You Receive" card amount */
-.suppliers-stat-card:nth-child(2) .suppliers-stat-value {
-  color: #28a745 !important;
-}
-
-/* Default color for "Online Collection" card amount */
-.suppliers-stat-card:nth-child(3) .suppliers-stat-value {
-  color: #021861 !important;
-}
-
-/* Suppliers List */
 .suppliers-customer-card {
-  background: #ffffff !important;
-  padding: 0.9rem !important;
-  border-radius: 16px !important;
-  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.05) !important;
-  margin-bottom: 0.75rem !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  border: 1px solid #e1e6ef !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.suppliers-customer-card::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: rgba(37, 93, 206, 0.03) !important;
-  transform: scaleX(0) !important;
-  transform-origin: left !important;
-  transition: transform 0.3s ease !important;
-}
-
-.suppliers-customer-card:hover::before {
-  transform: scaleX(1) !important;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  border: 1px solid #f1f5f9;
+  box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  transition: all 0.2s ease;
+  position: relative;
 }
 
 .suppliers-customer-card:hover {
-  transform: translateY(-4px) scale(1.01) !important;
-  box-shadow: 0 8px 25px rgba(2, 24, 97, 0.12) !important;
-  border-color: #255DCE !important;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(2, 24, 97, 0.09);
+  border-color: rgba(37, 93, 206, 0.35);
 }
 
 .suppliers-customer-info {
-  display: flex !important;
-  align-items: center !important;
-  gap: 1.25rem !important;
-  position: relative !important;
-  z-index: 2 !important;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex: 1;
+  min-width: 0;
 }
 
 .suppliers-profile-image {
-  width: 50px !important;
-  height: 50px !important;
-  border-radius: 50% !important;
-  object-fit: cover !important;
-  background: linear-gradient(135deg, #021861, #255DCE) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 1.25rem !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.2) !important;
-}
-
-.suppliers-customer-card:hover .suppliers-profile-image {
-  transform: scale(1.1) rotate(5deg) !important;
-  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.3) !important;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(2, 24, 97, 0.08);
 }
 
 .suppliers-customer-details {
-  flex: 1 !important;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
 }
 
 .suppliers-customer-name {
-  font-size: 1.1rem !important;
-  font-weight: 700 !important;
-  color: #021861 !important;
-  margin-bottom: 0.25rem !important;
-  transition: color 0.3s ease !important;
+  font-size: 16px;
+  font-weight: 700;
+  color: #021861;
+  margin: 0;
+  transition: color 0.2s ease;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .suppliers-customer-card:hover .suppliers-customer-name {
-  color: #255DCE !important;
+  color: #255DCE;
+}
+
+.supplier-id-badge {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
 }
 
 .suppliers-working-hours {
-  font-size: 0.875rem !important;
-  color: #5a6a85 !important;
-  margin: 0 !important;
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
+/* Balance Badges (Right side) */
 .suppliers-customer-amount {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
-  padding-left: 1.25rem !important;
-  border-left: 3px solid #e1e6ef !important;
-  height: 100% !important;
-  display: flex !important;
-  align-items: center !important;
-  transition: all 0.3s ease !important;
+  font-size: 15px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 8px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .suppliers-customer-amount.balance-positive {
-  color: #28a745 !important;
+  color: #059669;
+  background-color: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
 
 .suppliers-customer-amount.balance-negative {
-  color: #DE1110 !important;
+  color: #dc2626;
+  background-color: rgba(222, 17, 16, 0.1);
+  border: 1px solid rgba(222, 17, 16, 0.25);
 }
 
 .suppliers-customer-amount.balance-zero {
-  color: #021861 !important;
+  color: #64748b;
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
 }
 
-.suppliers-customer-card:hover .suppliers-customer-amount {
-  border-left-color: #255DCE !important;
+/* 5. Sticky Bottom-Right Add Supplier Button (Identical to btn-sticky-add-org) */
+.suppliers-add-button {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 999;
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
+  color: #ffffff;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(2, 24, 97, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
 }
 
-/* Checkbox Container */
-.suppliers-checkbox-container {
-  background: #ffffff !important;
-  padding: 1rem !important;
-  border-radius: 20px !important;
-  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08) !important;
-  border: 1px solid #e1e6ef !important;
-  margin-bottom: 1rem !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-  display: flex !important;
-  gap: 1rem !important;
-  flex-wrap: wrap !important;
+.suppliers-add-button:hover {
+  background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
+  box-shadow: 0 12px 30px rgba(2, 24, 97, 0.5);
+  transform: translateY(-3px) scale(1.02);
+  color: #ffffff;
 }
 
-.suppliers-checkbox-container::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 4px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  transform: scaleX(0) !important;
-  transition: transform 0.3s ease !important;
+.suppliers-add-button:active {
+  transform: translateY(0) scale(0.98);
 }
 
-.suppliers-checkbox-container:hover::before {
-  transform: scaleX(1) !important;
+/* 6. Empty & Loading States (Matching Organization & Customer) */
+.suppliers-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px dashed #cbd5e1;
+  color: #64748b;
+  margin-top: 12px;
 }
 
-.suppliers-checkbox-container:hover {
-  box-shadow: 0 16px 45px rgba(2, 24, 97, 0.12) !important;
+.suppliers-empty-state .empty-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
 }
 
-.suppliers-checkbox-item {
-  flex: 1 !important;
-  min-width: 200px !important;
-  display: flex !important;
-  align-items: center !important;
-  padding: 0.75rem 1.25rem !important;
-  background: #f8fafc !important;
-  border-radius: 12px !important;
-  border: 1px solid #e1e6ef !important;
-  transition: all 0.3s ease !important;
+.suppliers-empty-state h4 {
+  margin: 0 0 6px 0;
+  color: #021861;
+  font-size: 16px;
+  font-weight: 700;
 }
 
-.suppliers-checkbox-item:hover {
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.08) !important;
-  border-color: #255DCE !important;
+.suppliers-empty-state p {
+  margin: 0;
+  font-size: 13px;
+  max-width: 450px;
+  margin-left: auto;
+  margin-right: auto;
+  color: #64748b;
 }
 
-.suppliers-checkbox-group {
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
+.suppliers-loading-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #f1f5f9;
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 12px;
 }
 
-.suppliers-checkbox {
-  width: 18px !important;
-  height: 18px !important;
-  cursor: pointer !important;
-  accent-color: #255DCE !important;
-  transition: all 0.3s ease !important;
+.suppliers-error {
+  text-align: center;
+  padding: 14px 18px;
+  color: #DE1110;
+  background-color: rgba(222, 17, 16, 0.08);
+  border-radius: 10px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(222, 17, 16, 0.2);
+  font-weight: 600;
+  font-size: 14px;
 }
 
-.suppliers-checkbox:checked {
-  transform: scale(1.1) !important;
-}
-
-.suppliers-checkbox-label {
-  font-size: 0.875rem !important;
-  color: #021861 !important;
-  cursor: pointer !important;
-  font-weight: 600 !important;
-  transition: color 0.3s ease !important;
-}
-
-.suppliers-checkbox-label:hover {
-  color: #255DCE !important;
-}
-
-.suppliers-list-container::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 4px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  transform: scaleX(0) !important;
-  transition: transform 0.3s ease !important;
-}
-
-.suppliers-list-container:hover::before {
-  transform: scaleX(1) !important;
-}
-
-.suppliers-list-container:hover {
-  box-shadow: 0 16px 45px rgba(2, 24, 97, 0.12) !important;
-}
-
-.suppliers-list-title {
-  font-size: 1.5rem !important;
-  font-weight: 700 !important;
-  color: #021861 !important;
-  margin-bottom: 2rem !important;
-  padding-bottom: 1rem !important;
-  border-bottom: 2px solid #e1e6ef !important;
-  position: relative !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-}
-
-.suppliers-list-title::after {
-  content: '' !important;
-  position: absolute !important;
-  bottom: -2px !important;
-  left: 0 !important;
-  width: 60px !important;
-  height: 2px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  border-radius: 1px !important;
-}
-
-/* Supplier Card */
-.suppliers-card {
-  display: flex !important;
-  align-items: center !important;
-  padding: 1.5rem !important;
-  border: 1px solid #e1e6ef !important;
-  border-radius: 16px !important;
-  margin-bottom: 1rem !important;
-  background: #ffffff !important;
-  cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.suppliers-card::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: rgba(37, 93, 206, 0.03) !important;
-  transform: scaleX(0) !important;
-  transform-origin: left !important;
-  transition: transform 0.3s ease !important;
-}
-
-.suppliers-card:hover::before {
-  transform: scaleX(1) !important;
-}
-
-.suppliers-card:hover {
-  border-color: #255DCE !important;
-  transform: translateY(-4px) scale(1.01) !important;
-  box-shadow: 0 8px 25px rgba(2, 24, 97, 0.12) !important;
-}
-
-.suppliers-profile-image {
-  width: 60px !important;
-  height: 60px !important;
-  border-radius: 50% !important;
-  object-fit: cover !important;
-  margin-right: 1rem !important;
-  border: 3px solid #255DCE !important;
-  transition: all 0.3s ease !important;
-}
-
-.suppliers-card:hover .suppliers-profile-image {
-  transform: scale(1.1) !important;
-  border-color: #021861 !important;
-}
-
-.suppliers-profile-placeholder {
-  width: 60px !important;
-  height: 60px !important;
-  border-radius: 50% !important;
-  background: linear-gradient(135deg, #021861, #255DCE) !important;
-  margin-right: 1rem !important;
-  border: 3px solid #255DCE !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  font-size: 1.5rem !important;
-  color: #ffffff !important;
-  transition: all 0.3s ease !important;
-}
-
-.suppliers-card:hover .suppliers-profile-placeholder {
-  transform: scale(1.1) !important;
-  border-color: #021861 !important;
-}
-
-.suppliers-info {
-  flex: 1 !important;
-  position: relative !important;
-  z-index: 2 !important;
-}
-
-.suppliers-name {
-  font-size: 1.1rem !important;
-  font-weight: 600 !important;
-  color: #021861 !important;
-  margin-bottom: 0.25rem !important;
-  transition: all 0.3s ease !important;
-}
-
-.suppliers-card:hover .suppliers-name {
-  color: #255DCE !important;
-}
-
-.suppliers-details {
-  font-size: 0.875rem !important;
-  color: #5a6a85 !important;
-  margin-bottom: 0.25rem !important;
-}
-
-.suppliers-balance {
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  padding: 0.5rem 1rem !important;
-  border-radius: 8px !important;
-  text-align: center !important;
-  min-width: 120px !important;
-  transition: all 0.3s ease !important;
-}
-
-.suppliers-balance-positive {
-  color: #28a745 !important;
-  background: rgba(40, 167, 69, 0.1) !important;
-  border: 1px solid #28a745 !important;
-}
-
-.suppliers-balance-negative {
-  color: #DE1110 !important;
-  background: rgba(222, 17, 16, 0.1) !important;
-  border: 1px solid #DE1110 !important;
-}
-
-.suppliers-balance-zero {
-  color: #021861 !important;
-  background: rgba(2, 24, 97, 0.08) !important;
-  border: 1px solid #021861 !important;
-}
-
-/* Loading and Error States */
-.suppliers-loading,
-.suppliers-error,
-.suppliers-no-suppliers {
-  text-align: center !important;
-  padding: 3rem !important;
-  color: #5a6a85 !important;
-  font-size: 1.1rem !important;
-  background: #f8fafc !important;
-  border-radius: 16px !important;
-  border: 2px dashed #e1e6ef !important;
-}
-
-/* Responsive Button Positioning */
-@media (min-width: 1500px) and (max-width: 1549px) {
-  .suppliers-add-button {
-    right: 3rem !important;
-  }
-}
-@media (min-width: 1550px) and (max-width: 1599px) {
-  .suppliers-add-button {
-    right: 4rem !important;
-  }
-}
-@media (min-width: 1600px) and (max-width: 1649px) {
-  .suppliers-add-button {
-    right: 7rem !important;
-  }
-}
-@media (min-width: 1650px) and (max-width: 1699px) {
-  .suppliers-add-button {
-    right: 8.5rem !important;
-  }
-}
-@media (min-width: 1700px) and (max-width: 1749px) {
-  .suppliers-add-button {
-    right: 9rem !important;
-  }
-}
-@media (min-width: 1750px) and (max-width: 1799px) {
-  .suppliers-add-button {
-    right: 10.5rem !important;
-  }
-}
-@media (min-width: 1800px) and (max-width: 1849px) {
-  .suppliers-add-button {
-    right: 12.5rem !important;
-  }
-}
-@media (min-width: 1850px) and (max-width: 1899px) {
-  .suppliers-add-button {
-    right: 13.5rem !important;
-  }
-}
-@media (min-width: 1900px) and (max-width: 1949px) {
-  .suppliers-add-button {
-    right: 16rem !important;
-  }
-}
-@media (min-width: 1200px) and (max-width: 1499px) {
-  .suppliers-add-button {
-    right: 3rem !important;
+/* 7. Responsive Breakpoints */
+@media (max-width: 992px) {
+  .suppliers-main-content {
+    padding: 70px 20px 90px 20px;
   }
 }
 
-/* Mobile Responsive */
 @media (max-width: 768px) {
   .suppliers-main-content {
-    padding: 1rem !important;
-    padding-top: 2rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
-  }
-
-  .suppliers-search-row {
-    flex-direction: column !important;
-    gap: 1rem !important;
-    align-items: stretch !important;
-  }
-
-  .suppliers-action-buttons {
-    margin-left: 0 !important;
-    width: 100% !important;
-    justify-content: space-between !important;
-    flex-wrap: wrap !important;
-  }
-
-  .suppliers-action-button {
-    width: 100% !important;
-    justify-content: center !important;
+    padding: 65px 16px 85px 16px;
   }
 
   .suppliers-stats-container {
-    grid-template-columns: 1fr !important;
-    gap: 1rem !important;
-    margin-bottom: 1rem !important;
+    grid-template-columns: 1fr;
+    gap: 12px;
   }
 
-  .suppliers-stat-card {
-    padding: 1rem !important;
-    border-right: none !important;
-    border-bottom: 1px solid #e1e6ef !important;
-    margin-bottom: 0.5rem !important;
+  .suppliers-search-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
   }
 
-  .suppliers-stat-card:last-child {
-    border-bottom: none !important;
-    margin-bottom: 0 !important;
+  .suppliers-search-group {
+    width: 100%;
   }
 
-  .suppliers-stat-icon {
-    width: 40px !important;
-    height: 40px !important;
-    font-size: 1rem !important;
+  .suppliers-filter-select {
+    width: 100%;
   }
 
-  .suppliers-stat-value {
-    font-size: 1.5rem !important;
+  .suppliers-action-buttons {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .suppliers-action-button {
+    flex: 1;
+    justify-content: center;
   }
 
   .suppliers-customer-card {
-    padding: 0.75rem !important;
-    margin-bottom: 0.75rem !important;
-  }
-
-  .suppliers-customer-info {
-    gap: 1rem !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-  }
-
-  .suppliers-profile-image {
-    width: 50px !important;
-    height: 50px !important;
-  }
-
-  .suppliers-customer-details {
-    width: 100% !important;
-  }
-
-  .suppliers-customer-name {
-    font-size: 1.1rem !important;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
   }
 
   .suppliers-customer-amount {
-    font-size: 1.25rem !important;
-    padding-left: 0 !important;
-    border-left: none !important;
-    border-top: 2px solid #e1e6ef !important;
-    padding-top: 0.5rem !important;
-    margin-top: 0.5rem !important;
-    justify-content: center !important;
-    width: 100% !important;
-  }
-
-  .suppliers-customer-amount.balance-positive {
-    color: #28a745 !important;
-  }
-
-  .suppliers-customer-amount.balance-negative {
-    color: #DE1110 !important;
-  }
-
-  .suppliers-customer-amount.balance-zero {
-    color: #021861 !important;
+    align-self: flex-end;
   }
 
   .suppliers-add-button {
-    bottom: 20px !important;
-    right: 20px !important;
-    padding: 0.75rem 1.5rem !important;
-    font-size: 0.9rem !important;
-    min-width: 140px !important;
-    pointer-events: auto !important;
+    bottom: 20px;
+    right: 20px;
+    padding: 11px 18px;
+    font-size: 13px;
   }
 }
 
-/* Additional mobile optimizations */
 @media (max-width: 480px) {
   .suppliers-main-content {
-    padding: 0.5rem !important;
-    padding-top: 1rem !important;
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-  }
-
-  .suppliers-search-container,
-  .suppliers-stats-container,
-  .suppliers-list-container {
-    padding: 1rem !important;
+    padding: 60px 12px 80px 12px;
   }
 
   .suppliers-stat-card {
-    padding: 1.5rem !important;
+    padding: 14px 16px;
   }
 
-  .suppliers-card {
-    padding: 1rem !important;
+  .suppliers-stat-value {
+    font-size: 19px;
   }
-}
 
-/* Transitions */
-* {
-  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
-}
-
-/* Actions row inside main container */
-.suppliers-actions {
-  display: flex !important;
-  justify-content: flex-end !important;
-  margin-top: 1rem !important;
-}
-
-/* Fixed alignment to container edge for desktop */
-.suppliers-add-button {
-  right: calc((100vw - 1200px) / 3 + 1rem) !important;
-}
-
-@media (max-width: 1200px) {
-  .suppliers-add-button {
-    right: 20px !important;
+  .suppliers-customer-card {
+    padding: 14px 16px;
   }
 }

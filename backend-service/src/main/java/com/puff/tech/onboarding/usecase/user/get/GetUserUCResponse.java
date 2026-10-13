@@ -11,12 +11,13 @@ import java.time.Instant;
 public record GetUserUCResponse(
         Long userId,
         String userName,
+        String email,
+        String phoneNumber,
         String role,
         boolean isActive,
         String createdBy,
         Instant createdAt,
-        String  updatedBy,
+        String updatedBy,
         Instant updatedAt
-
 ) implements UCResponse {
 }

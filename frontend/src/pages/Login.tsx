@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/core/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import { apiService } from '@/infrastructure/utils/ApiService';
 import { RegistrationModal } from './RegistrationModal';
 import logo from '../assets/logo.png';
@@ -27,7 +28,7 @@ type UserFormType = {
 };
 
 interface RestResponse<T> {
-  status?: string;
+  code?: number;
   data?: T;
   message?: string;
   error?: string;
@@ -124,7 +125,6 @@ export const Login = () => {
 
   const handleUserRegistration = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsRegistering(true);
     setRegistrationError('');
     setRegistrationSuccess('');
 
@@ -132,66 +132,100 @@ export const Login = () => {
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
 
     if (!passwordRegex.test(userForm.password)) {
-      setRegistrationError(
-          'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.'
-      );
+      const msg =
+          'Password must contain at least 8 characters, one uppercase letter, one lowercase letter, one number, and one special character.';
+      setRegistrationError(msg);
+      toast.error(msg);
       return;
     }
 
     if (userForm.password !== userForm.confirmPassword) {
-      setRegistrationError('Password and Confirm Password do not match.');
+      const msg = 'Password and Confirm Password do not match.';
+      setRegistrationError(msg);
+      toast.error(msg);
       return;
     }
 
-    const payload = {
-      userName: userForm.userName,
-      phoneNumber: userForm.phoneNumber,
-      gmail: userForm.gmail,
-      password: userForm.password,
-      organizationName: userForm.organizationName,
-      branch: userForm.branch || undefined,
-      panVatNumber: userForm.panVatNumber || undefined,
-      organizationType: userForm.organizationType,
-      organizationAddress: userForm.organizationAddress,
-      notes: userForm.notes || undefined,
-    };
+    setIsRegistering(true);
 
-    const res = await apiService.post<RestResponse<UserRegistrationUcResponse>>(
-        'api/v1/user/register',
-        payload
-    );
+    try {
+      const payload = {
+        userName: userForm.userName,
+        phoneNumber: userForm.phoneNumber,
+        gmail: userForm.gmail,
+        password: userForm.password,
+        organizationName: userForm.organizationName,
+        branch: userForm.branch || undefined,
+        panVatNumber: userForm.panVatNumber || undefined,
+        organizationType: userForm.organizationType,
+        organizationAddress: userForm.organizationAddress,
+        notes: userForm.notes || undefined,
+      };
 
-    setIsRegistering(false);
-
-    if (res.success && res.response) {
-      const backendData = res.response;
-
-      if (backendData.error || (backendData.data && backendData.data.errorMessage)) {
-        setRegistrationError(
-            backendData.error || backendData.data?.errorMessage || 'Registration failed'
-        );
+      const res = await apiService.post<RestResponse<UserRegistrationUcResponse>>(
+          'api/v1/user/register',
+          payload
+      );
+      if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
+        const errorMsg =
+            res?.response?.message || 'Unable to register user. Please try again.';
+        setRegistrationError(errorMsg);
+        toast.error(errorMsg);
         return;
       }
+      if (res.success && res.response) {
+        const backendData = res.response;
 
-      setRegistrationSuccess(
-          backendData.data?.message || 'Registration submitted successfully!'
-      );
+        if (
+            backendData.error ||
+            (backendData.data && backendData.data.errorMessage) ||
+            backendData.data?.success === false
+        ) {
+          const errorMsg =
+              backendData.error ||
+              backendData.data?.errorMessage ||
+              'Registration failed';
+          setRegistrationError(errorMsg);
+          toast.error(errorMsg);
+          return;
+        }
 
-      setUserForm({
-        userName: '',
-        phoneNumber: '',
-        gmail: '',
-        password: '',
-        confirmPassword: '',
-        organizationName: '',
-        organizationAddress: '',
-        panVatNumber: '',
-        branch: '',
-        organizationType: '',
-        notes: '',
-      });
-    } else {
-      setRegistrationError(res.error || 'Unable to register user. Please try again.');
+        const successMsg =
+            backendData.data?.message || 'Registration submitted successfully!';
+        toast.success(successMsg);
+        setRegistrationSuccess(successMsg);
+        setRegistrationError('');
+
+        setUserForm({
+          userName: '',
+          phoneNumber: '',
+          gmail: '',
+          password: '',
+          confirmPassword: '',
+          organizationName: '',
+          organizationAddress: '',
+          panVatNumber: '',
+          branch: '',
+          organizationType: '',
+          notes: '',
+        });
+
+        // Close registration modal and redirect to login page
+        setShowRegistrationModal(false);
+        navigate('/login');
+      } else {
+        const errorMsg =
+            res.error || 'Unable to register user. Please try again.';
+        setRegistrationError(errorMsg);
+        toast.error(errorMsg);
+      }
+    } catch (err: any) {
+      const errorMsg =
+          err?.message || 'An unexpected error occurred during registration.';
+      setRegistrationError(errorMsg);
+      toast.error(errorMsg);
+    } finally {
+      setIsRegistering(false);
     }
   };
 

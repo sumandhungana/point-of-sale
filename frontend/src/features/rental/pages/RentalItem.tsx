@@ -3,13 +3,15 @@ import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { fetchRental, RentalItemDto } from '@/features/services/rentalItemService';
+import { getRentalSummary, getGlobalRentalSummary } from '@/features/services/rentalPaymentService';
 import '@/styles/RentalItem.css';
 
 export const RentalItem: React.FC = () => {
   const navigate = useNavigate();
   const [rentalItems, setRentalItems] = useState<RentalItemDto[]>([]);
-  const [youGive, setYouGive] = useState<number>(0);
-  const [advanceAmount, setAdvanceAmount] = useState<number>(0);
+  const [totalRentalAmount, setTotalRentalAmount] = useState<number>(0);
+  const [totalPaidAmount, setTotalPaidAmount] = useState<number>(0);
+  const [totalRemainingDue, setTotalRemainingDue] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,12 +26,14 @@ export const RentalItem: React.FC = () => {
       setError(null);
       try {
         const data = await fetchRental();
-        setRentalItems(data || []);
+        const items = data || [];
+        setRentalItems(items);
 
-        // Calculate totals dynamically if needed from list items
-        const totalAmount = (data || []).reduce((acc, item) => acc + (item.rentalAmount || 0), 0);
-        setYouGive(totalAmount);
-        setAdvanceAmount(0); // Adjust if your backend provides advance amount
+        // Calculate global totals dynamically including local payments
+        const summary = getGlobalRentalSummary(items);
+        setTotalRentalAmount(summary.totalAmount);
+        setTotalPaidAmount(summary.totalPaid);
+        setTotalRemainingDue(summary.remainingDue);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch rental items.');
       } finally {
@@ -176,20 +180,33 @@ export const RentalItem: React.FC = () => {
 
             {/* Summary Card */}
             <div className="rental-item-summary-card">
-              <div className="rental-item-summary-grid">
-                <div className="rental-item-summary-item">
+              <div className="rental-item-summary-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+                <div className="rental-item-summary-item" style={{ borderLeftColor: '#3b82f6' }}>
+                  <span className="rental-item-summary-label">
+                    <i className="bi bi-cash-stack me-1"></i>
+                    Total Rental
+                  </span>
+                  <span className="rental-item-summary-amount" style={{ color: '#1e293b' }}>
+                    रु {totalRentalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </span>
+                </div>
+                <div className="rental-item-summary-item" style={{ borderLeftColor: '#10b981' }}>
                   <span className="rental-item-summary-label">
                     <i className="bi bi-arrow-up-circle me-1"></i>
-                    You Give
+                    Total Paid (You Gave)
                   </span>
-                  <span className="rental-item-summary-amount">रु {youGive.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="rental-item-summary-amount" style={{ color: '#10b981' }}>
+                    रु {totalPaidAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </span>
                 </div>
-                <div className="rental-item-summary-item">
+                <div className="rental-item-summary-item" style={{ borderLeftColor: '#ef4444' }}>
                   <span className="rental-item-summary-label">
-                    <i className="bi bi-cash-coin me-1"></i>
-                    Advance Amount
+                    <i className="bi bi-exclamation-circle me-1"></i>
+                    Remaining Balance Due
                   </span>
-                  <span className="rental-item-summary-amount">रु {advanceAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                  <span className="rental-item-summary-amount" style={{ color: totalRemainingDue > 0 ? '#ef4444' : '#10b981' }}>
+                    रु {totalRemainingDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </span>
                 </div>
               </div>
             </div>
@@ -202,14 +219,22 @@ export const RentalItem: React.FC = () => {
                 </div>
             ) : (
                 sortedItems.map(item => {
-                  const calculatedAmount = calculateRentalAmount(item);
                   const status = getRentalStatus(item);
-                  const statusClass = status === 'Completed' ? 'rental-item-status-completed' :
+                  const itemSummary = getRentalSummary(item.id, item.rentalAmount || 0);
+                  const isItemSettled = itemSummary.isFullyPaid;
+                  
+                  const statusClass = isItemSettled ? 'rental-item-status-completed' :
+                      status === 'Completed' ? 'rental-item-status-completed' :
                       status === 'Not Started' ? 'rental-item-status-not-started' :
                           'rental-item-status-in-progress';
 
                   return (
-                      <div key={item?.id ?? Math.random()} className="rental-item-card">
+                      <div
+                        key={item?.id ?? Math.random()}
+                        className="rental-item-card"
+                        onClick={() => navigate(`/rental-items/statement/${item.id}`, { state: { rentalItem: item } })}
+                        title="Click to view Statement and Record Payments"
+                      >
                         <div className="rental-item-info">
                           <div className="rental-item-image-placeholder">
                             <i className="bi bi-box-seam"></i>
@@ -236,14 +261,31 @@ export const RentalItem: React.FC = () => {
                             )}
                             <div className={`rental-item-status ${statusClass}`}>
                               <i className="bi bi-circle-fill me-1" style={{ fontSize: '8px' }}></i>
-                              Status: {status}
+                              Status: {isItemSettled ? 'Fully Settled' : status}
                             </div>
                           </div>
                         </div>
                         <div className="rental-item-amount">
-                          <div>रु {(calculatedAmount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
-                          <div className="rental-item-amount-total">
-                            of रु {(item?.rentalAmount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>
+                            रु {(item?.rentalAmount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                          </div>
+                          <div className="rental-card-balance-row">
+                            <span className="rental-card-paid-text">
+                              Paid: रु {itemSummary.netPaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            </span>
+                            {isItemSettled ? (
+                              <span className="rental-card-settled-text">
+                                <i className="bi bi-check-circle-fill me-1"></i>Settled
+                              </span>
+                            ) : (
+                              <span className="rental-card-due-text">
+                                Due: रु {itemSummary.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              </span>
+                            )}
+                          </div>
+                          <div className="rental-card-statement-btn">
+                            <i className="bi bi-file-earmark-text"></i>
+                            Statement & Pay <i className="bi bi-chevron-right ms-1"></i>
                           </div>
                         </div>
                       </div>

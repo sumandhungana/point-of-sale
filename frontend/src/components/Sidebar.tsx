@@ -45,6 +45,7 @@ const navItems: NavItem[] = [
 			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼', module: 'staffManagement' },
 			{ title: 'Rental Items', path: '/rental-items', icon: '📦' },
 			{ title: 'Note', path: '/others/note', icon: '📝' },
+			{ title: 'Loan MGMT', path: '/others/loan', icon: '🏦' },
 		],
 	},
 	{

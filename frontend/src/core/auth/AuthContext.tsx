@@ -20,6 +20,10 @@ export const ApiClient = {
         'api/v1/user/login',
         { username, password }
     );
+    if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
+      toast(res?.response?.message)
+      return
+    }
     return res?.response?.data;
   },
 

@@ -442,7 +442,7 @@ export const Customers = () => {
         });
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f8f9fa', paddingTop: '40px' }}>
+        <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
             <Sidebar />
             <main className="customers-main-content">
                 <div className="customers-search-container">
@@ -489,93 +489,117 @@ export const Customers = () => {
                         <div className="customers-card-icon customers-card-give-icon">
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
-                        <div className="customers-card-header">You Gave</div>
-                        <div className="customers-card-amount" style={{ color: '#cb1729' }}>
-                            रु{overallTotals.given.toLocaleString()}
+                        <div className="customers-card-content">
+                            <div className="customers-card-header">You Gave</div>
+                            <div className="customers-card-amount" style={{ color: '#DE1110' }}>
+                                रु{overallTotals.given.toLocaleString()}
+                            </div>
                         </div>
                     </div>
                     <div className="customers-card">
                         <div className="customers-card-icon customers-card-receive-icon">
                             <i className="bi bi-arrow-down-circle"></i>
                         </div>
-                        <div className="customers-card-header">You Received</div>
-                        <div className="customers-card-amount" style={{ color: '#1fc445' }}>
-                            रु{overallTotals.received.toLocaleString()}
+                        <div className="customers-card-content">
+                            <div className="customers-card-header">You Received</div>
+                            <div className="customers-card-amount" style={{ color: '#10b981' }}>
+                                रु{overallTotals.received.toLocaleString()}
+                            </div>
                         </div>
                     </div>
-                    <div className="suppliers-stat-card">
-                        <div className="suppliers-stat-icon suppliers-stat-online-icon">
+                    <div className="customers-card">
+                        <div className="customers-card-icon customers-card-online-icon">
                             <i className="bi bi-globe"></i>
                         </div>
-                        <div className="suppliers-stat-label">Online Collection</div>
-                        <div className="suppliers-stat-value">
-                            रु{overallTotals.online.toLocaleString()}
+                        <div className="customers-card-content">
+                            <div className="customers-card-header">Online Collection</div>
+                            <div className="customers-card-amount" style={{ color: '#021861' }}>
+                                रु{overallTotals.online.toLocaleString()}
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 {error && (
-                    <div className="customers-error" style={{ color: '#dc3545', margin: '1rem 0' }}>
+                    <div className="customers-error">
                         <i className="bi bi-exclamation-triangle me-2"></i>
                         {error}
                     </div>
                 )}
 
                 {isLoading ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>
+                    <div className="customers-loading-state">
+                        <div className="spinner-border spinner-border-sm me-2" role="status"></div>
                         Loading customers...
                     </div>
                 ) : filteredAndSortedCustomers.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d', background: '#fff', borderRadius: '8px', marginTop: '1rem' }}>
-                        No customers found. Click below to add your first customer.
+                    <div className="customers-empty-state">
+                        <div className="empty-icon">👥</div>
+                        <h4>No Customers Found</h4>
+                        <p>Try adjusting your search criteria or click below to add your first customer.</p>
                     </div>
                 ) : (
-                    filteredAndSortedCustomers.map((customer) => {
-                        const customerKey = customer.id || customer.customerId || Math.random();
-                        const imageSrc = resolveImageSrc(customer.profileImage);
+                    <div className="customers-list-container">
+                        {filteredAndSortedCustomers.map((customer) => {
+                            const customerKey = customer.id || customer.customerId || Math.random();
+                            const imageSrc = resolveImageSrc(customer.profileImage);
+                            const balanceVal = Number(customer.balance) || 0;
+                            const isPositive = balanceVal > 0;
+                            const isNegative = balanceVal < 0;
 
-                        return (
-                            <div
-                                key={customerKey}
-                                className="customers-customer-card"
-                                onClick={() => handleCustomerClick(customer)}
-                            >
-                                <div className="customers-customer-info">
-                                    <CustomerAvatar name={customer.name} imageSrc={imageSrc} />
+                            return (
+                                <div
+                                    key={customerKey}
+                                    className="customers-customer-card"
+                                    onClick={() => handleCustomerClick(customer)}
+                                >
+                                    <div className="customers-customer-info">
+                                        <CustomerAvatar name={customer.name} imageSrc={imageSrc} />
 
-                                    <div className="customers-customer-details">
-                                        <h3 className="customers-customer-name">{customer.name || 'Unnamed Customer'}</h3>
-                                        <p className="customers-working-hours">
-                                            <i className="bi bi-telephone me-1"></i>
-                                            {customer.phone || 'N/A'}
-                                        </p>
-                                        <p className="customers-working-hours">
-                                            <i className="bi bi-clock me-1"></i>
-                                            {getRelativeTime(getLatestUpdatedAt(customer))}
-                                        </p>
+                                        <div className="customers-customer-details">
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                <h3 className="customers-customer-name">{customer.name || 'Unnamed Customer'}</h3>
+                                                {customer.id ? (
+                                                    <span className="customer-id-badge">#CUST-{customer.id}</span>
+                                                ) : null}
+                                            </div>
+                                            <div className="customers-working-hours">
+                                                <span>
+                                                    <i className="bi bi-telephone me-1"></i>
+                                                    {customer.phone || 'N/A'}
+                                                </span>
+                                                <span>•</span>
+                                                <span>
+                                                    <i className="bi bi-clock me-1"></i>
+                                                    {getRelativeTime(getLatestUpdatedAt(customer))}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
+
                                     <div className={`customers-customer-amount ${
-                                        (customer.balance || 0) === 0 ? 'balance-zero' :
-                                            (customer.balance || 0) > 0 ? 'balance-positive' : 'balance-negative'
+                                        balanceVal === 0 ? 'balance-zero' :
+                                            isPositive ? 'balance-positive' : 'balance-negative'
                                     }`}>
-                                        रु{Math.abs(customer.balance || 0).toLocaleString()}
+                                        {isPositive ? '+ ' : isNegative ? '- ' : ''}
+                                        रु{Math.abs(balanceVal).toLocaleString()}
                                     </div>
                                 </div>
-                            </div>
-                        );
-                    })
+                            );
+                        })}
+                    </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'flex-end', position: 'fixed', bottom: '30px', left: '0', width: '98%', zIndex: 1000, pointerEvents: 'none' }}>
-                    <button
-                        className="customers-add-button"
-                        style={{ pointerEvents: 'auto' }}
-                        onClick={handleAddCustomer}
-                    >
-                        <i className="bi bi-plus-circle"></i>
-                        Add Customer
-                    </button>
-                </div>
+                {/* Sticky Bottom-Right Add Customer Button */}
+                <button
+                    type="button"
+                    className="customers-add-button"
+                    onClick={handleAddCustomer}
+                    title="Add Customer"
+                >
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+                    <span>Add Customer</span>
+                </button>
             </main>
         </div>
     );

@@ -343,104 +343,110 @@ export const CustomerStatements = () => {
             <Sidebar />
 
             <main className="customer-statements-main-content">
-                <div className="customer-statements-profile-container">
-                    <div className="customer-statements-profile-header-grid">
-                        <div className="customer-statements-header-left">
-                            <button
-                                className="btn-base btn-primary"
-                                onClick={() => navigate(`/parties/customers/deposit/${activeId}`)}
-                                aria-label="Make a deposit"
-                                title="Make a deposit"
-                            >
-                                <i className="bi bi-cash-coin"></i>
-                                Deposit
-                            </button>
-                            <button
-                                className="btn-base btn-primary"
-                                onClick={handleCall}
-                                aria-label={`Call ${customerData.name || 'Customer'}`}
-                                title={customerData.phone || 'No phone number available'}
-                            >
-                                <i className="bi bi-telephone"></i>
-                                Call
-                            </button>
-
+                {/* 1. Sleek Compact Profile Header */}
+                <div className="statements-profile-card">
+                    <div className="statements-profile-info">
+                        <div
+                            className="statements-avatar-wrapper"
+                            onClick={handleProfileClick}
+                            title="View customer profile"
+                        >
+                            <CustomerAvatar name={customerData.name} imageSrc={resolvedImage} />
                         </div>
-                        <div className="customer-statements-header-center">
-                            <div
-                                className="customer-statements-profile-image-container"
-                                onClick={handleProfileClick}
-                                title="View customer profile"
-                            >
-                                <CustomerAvatar name={customerData.name} imageSrc={resolvedImage} />
+                        <div className="statements-details">
+                            <div className="statements-name-row">
+                                <h2
+                                    className="statements-customer-name"
+                                    onClick={handleProfileClick}
+                                    title="View customer profile"
+                                >
+                                    {customerLoading ? 'Loading...' : customerData.name || 'Customer'}
+                                </h2>
+                                {activeId ? (
+                                    <span className="statements-id-badge">#CUST-{activeId}</span>
+                                ) : null}
+                            </div>
+                            <div className="statements-meta-row">
+                                {customerData.phone ? (
+                                    <span>
+                                        <i className="bi bi-telephone me-1"></i>
+                                        {customerData.phone}
+                                    </span>
+                                ) : (
+                                    <span>
+                                        <i className="bi bi-telephone me-1"></i>
+                                        No phone
+                                    </span>
+                                )}
+                                {customerData.address && (
+                                    <>
+                                        <span>•</span>
+                                        <span>
+                                            <i className="bi bi-geo-alt me-1"></i>
+                                            {customerData.address}
+                                        </span>
+                                    </>
+                                )}
                             </div>
                         </div>
-                        <div className="customer-statements-header-right">
-                            {/*<button*/}
-                            {/*    className="customer-statements-back-button"*/}
-                            {/*    onClick={handleBack}*/}
-                            {/*    aria-label="Go back to customers"*/}
-                            {/*>*/}
-                            {/*    <i className="bi bi-arrow-left"></i>*/}
-                            {/*    Back*/}
-                            {/*</button>*/}
-                            <button
-                                type="button"
-                                className="customer-statements-close-button"
-                                onClick={handleBack} /* Replace with your close/back function */
-                                aria-label="Close"
-                            >
-                                {/* SVG cross ensures icon shows up even without Font Awesome */}
-                                <svg
-                                    width="18"
-                                    height="18"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.5"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
-                                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                                </svg>
-                            </button>
-
-
-                        </div>
                     </div>
-                    <div
-                        className="customer-statements-customer-name"
-                        onClick={handleProfileClick}
-                        title="View customer profile"
-                    >
-                        {customerLoading ? 'Loading...' : customerData.name || 'Customer'}
+
+                    <div className="statements-header-actions">
+                        <button
+                            type="button"
+                            className="btn-statement-action btn-deposit"
+                            onClick={() => navigate(`/parties/customers/deposit/${activeId}`)}
+                            title="Make a deposit"
+                        >
+                            <i className="bi bi-cash-coin"></i>
+                            Deposit
+                        </button>
+                        <button
+                            type="button"
+                            className="btn-statement-action btn-call"
+                            onClick={handleCall}
+                            title={customerData.phone || 'No phone number available'}
+                        >
+                            <i className="bi bi-telephone"></i>
+                            Call
+                        </button>
+                        <button
+                            type="button"
+                            className="btn-statement-close"
+                            onClick={handleBack}
+                            aria-label="Back to customers"
+                            title="Back to customers"
+                        >
+                            <i className="bi bi-x-lg"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div className="customer-statements-amount-card">
-                    <div className="customer-statements-amount-row">
-                        <div className="customer-statements-amount-item">
-                            <div className="customer-statements-amount-label">
+                {/* 2. Amount Summary & Reminder Card */}
+                <div className="statements-amount-card">
+                    <div className="statements-amount-grid">
+                        <div className="statements-amount-box box-gave">
+                            <div className="statements-amount-label">
                                 <i className="bi bi-arrow-up-circle me-2"></i>
                                 You Gave
                             </div>
-                            <div className="customer-statements-amount-value customer-statements-amount-red">
+                            <div className="statements-amount-val val-gave">
                                 रु{totals.given.toLocaleString()}
                             </div>
                         </div>
-                        <div className="customer-statements-amount-item">
-                            <div className="customer-statements-amount-label">
+                        <div className="statements-amount-box box-received">
+                            <div className="statements-amount-label">
                                 <i className="bi bi-arrow-down-circle me-2"></i>
                                 You Received
                             </div>
-                            <div className="customer-statements-amount-value customer-statements-amount-green">
+                            <div className="statements-amount-val val-received">
                                 रु{totals.received.toLocaleString()}
                             </div>
                         </div>
                     </div>
-                    <div className="customer-statements-reminder-row">
-                        <div className="customer-statements-reminder-label">
+
+                    <div className="statements-reminder-strip">
+                        <div className="statements-reminder-label">
                             <i className="bi bi-calendar-event me-2"></i>
                             Set Date Reminder
                         </div>
@@ -448,29 +454,31 @@ export const CustomerStatements = () => {
                             type="date"
                             value={reminderDate}
                             onChange={handleDateChange}
-                            className="customer-statements-date-input"
+                            className="statements-date-input"
                         />
                     </div>
                 </div>
 
-                <div className="customer-statements-action-buttons-container">
-                    <button className="btn-base btn-info" onClick={handleReport}>
+                {/* 3. Quick Action Buttons */}
+                <div className="statements-quick-actions">
+                    <button className="btn-quick-action btn-qa-report" onClick={handleReport}>
                         <i className="bi bi-graph-up"></i>
                         Report
                     </button>
-                    <button className="btn-base btn-warning" onClick={handleSetReminder}>
+                    <button className="btn-quick-action btn-qa-reminder" onClick={handleSetReminder}>
                         <i className="bi bi-alarm"></i>
                         Reminder
                     </button>
-                    <button className="btn-base btn-purple">
+                    <button className="btn-quick-action btn-qa-sms">
                         <i className="bi bi-chat-dots"></i>
                         SMS
                     </button>
                 </div>
 
+                {/* 4. Recent Transactions List */}
                 <div className="customer-statements-transactions-container">
                     <h3 className="customer-statements-transactions-title">
-                        <i className="bi bi-clock-history me-2"></i>
+                        <i className="bi bi-clock-history"></i>
                         Recent Transactions
                     </h3>
 
@@ -538,7 +546,7 @@ export const CustomerStatements = () => {
                                                         </div>
                                                     </div>
                                                     <div className="customer-statements-transaction-amounts">
-                                                        <div className={`customer-statements-current-amount ${!transaction.isReceived ? 'customer-statements-current-amount-red' : 'customer-statements-current-amount-green'}`}>
+                                                        <div className={`customer-statements-current-amount ${!transaction.isReceived ? 'customer-statements-current-amount-red' : ''}`}>
                                                             रु {Math.abs(transaction.amount).toLocaleString()}
                                                         </div>
                                                     </div>
@@ -550,105 +558,92 @@ export const CustomerStatements = () => {
                     )}
                 </div>
 
-                <div className={`customer-statements-bottom-row ${showBottomButtons ? "show-buttons" : ""}`}>
+                {/* 5. Sleek Fixed Bottom Action Bar */}
+                <div className="statements-bottom-bar">
                     <button
-                        className="btn-base btn-red"
+                        type="button"
+                        className="btn-bottom-gave"
                         onClick={() => setShowPopup(true)}
-                        style={{
-                            backgroundColor: 'red',
-                            color: 'white',
-                            padding: '12px 24px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}
                     >
                         <i className="bi bi-arrow-up-circle"></i>
                         You Gave
                     </button>
 
-                    {showPopup && (
-                        <div className="popup-overlay" onClick={() => setShowPopup(false)}>
-                            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-                                <div className="popup-title-container">
-                                    <h2 className="popup-title">
-                                        You Gave
-                                    </h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowPopup(false)}
-                                        className="popup-close-button"
-                                        aria-label="Close"
-                                        title="Close"
-                                    >
-                                        <i className="bi bi-x-lg"></i>
-                                    </button>
-                                </div>
-                                <div className="you-gave-popup-body">
-                                    <YouGave
-                                        customerId={activeId}
-                                        onSuccess={() => {
-                                            fetchPayments();
-                                            setShowPopup(false);
-                                        }}
-                                        onClose={() => setShowPopup(false)}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
                     <button
-                        className="btn-base btn-green"
+                        type="button"
+                        className="btn-bottom-received"
                         onClick={() => setShowReceivedPopup(true)}
-                        style={{
-                            backgroundColor: 'green',
-                            color: 'white',
-                            padding: '12px 24px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                        }}
                     >
                         <i className="bi bi-arrow-down-circle"></i>
                         You Received
                     </button>
+                </div>
 
-                    {showReceivedPopup && (
-                        <div className="popup-overlay" onClick={() => setShowReceivedPopup(false)}>
-                            <div className="popup-content" onClick={(e) => e.stopPropagation()}>
-                                <div className="popup-title-container">
-                                    <h2 className="popup-title-received">
-                                        You Received
-                                    </h2>
-                                    <button
-                                        type="button"
-                                        onClick={() => setShowReceivedPopup(false)}
-                                        className="popup-close-button"
-                                        aria-label="Close"
-                                        title="Close"
-                                    >
-                                        <i className="bi bi-x-lg"></i>
-                                    </button>
-                                </div>
-                                <div className="you-received-popup-body">
-                                    <YouReceived
-                                        customerId={activeId}
-                                        onSuccess={() => {
-                                            fetchPayments();
-                                            setShowReceivedPopup(false);
-                                        }}
-                                        onClose={() => setShowReceivedPopup(false)}
-                                    />
-                                </div>
+                {/* Modal: You Gave */}
+                {showPopup && (
+                    <div className="popup-overlay" onClick={() => setShowPopup(false)}>
+                        <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="popup-title-container">
+                                <h2 className="popup-title">
+                                    <i className="bi bi-arrow-up-circle me-2"></i>
+                                    You Gave
+                                </h2>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPopup(false)}
+                                    className="popup-close-button"
+                                    aria-label="Close"
+                                    title="Close"
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div className="you-gave-popup-body">
+                                <YouGave
+                                    customerId={activeId}
+                                    onSuccess={() => {
+                                        fetchPayments();
+                                        setShowPopup(false);
+                                    }}
+                                    onClose={() => setShowPopup(false)}
+                                />
                             </div>
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
+
+                {/* Modal: You Received */}
+                {showReceivedPopup && (
+                    <div className="popup-overlay" onClick={() => setShowReceivedPopup(false)}>
+                        <div className="popup-content" onClick={(e) => e.stopPropagation()}>
+                            <div className="popup-title-container">
+                                <h2 className="popup-title-received">
+                                    <i className="bi bi-arrow-down-circle me-2"></i>
+                                    You Received
+                                </h2>
+                                <button
+                                    type="button"
+                                    onClick={() => setShowReceivedPopup(false)}
+                                    className="popup-close-button"
+                                    aria-label="Close"
+                                    title="Close"
+                                >
+                                    <i className="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                            <div className="you-received-popup-body">
+                                <YouReceived
+                                    customerId={activeId}
+                                    onSuccess={() => {
+                                        fetchPayments();
+                                        setShowReceivedPopup(false);
+                                    }}
+                                    onClose={() => setShowReceivedPopup(false)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

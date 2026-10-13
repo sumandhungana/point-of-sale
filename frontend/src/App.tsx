@@ -45,6 +45,7 @@ import { OrganizationManagement } from './features/onboarding/pages/Organization
 import { AddUser } from './pages/AddUser';
 import { RentalItem } from './features/rental/pages/RentalItem';
 import { AddRentalItem } from './features/rental/pages/AddRentalItem';
+import { RentalStatement } from './features/rental/pages/RentalStatement';
 import { AppSetting } from './pages/AppSetting';
 import { Purchase } from './features/inventoryManagement/pages/Purchase';
 import { Expenses } from './pages/Expenses';
@@ -74,7 +75,7 @@ import SupplierProfile from "@/pages/SupplierProfile";
 import {AddOrganization} from "@/features/onboarding/components/AddOrganization";
 import UserManagement from "@/features/user/pages/UserManagement";
 import {Products} from "@/features/inventoryManagement/pages/Products";
-// import Categories from "@/features/inventoryManagement/pages/Categories";
+import { LoanManagement } from "@/features/loan/pages/LoanManagement";
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -662,6 +663,22 @@ const App: React.FC = () => {
             } 
           />
           <Route 
+            path="/rental-items/statement/:id" 
+            element={
+              <PrivateRoute>
+                <RentalStatement />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
+            path="/rental/statement/:id" 
+            element={
+              <PrivateRoute>
+                <RentalStatement />
+              </PrivateRoute>
+            } 
+          />
+          <Route 
             path="/rental/add" 
             element={
               <PrivateRoute>
@@ -854,6 +871,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <div>Note Page</div>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/others/loan"
+            element={
+              <PrivateRoute>
+                <LoanManagement />
               </PrivateRoute>
             }
           />

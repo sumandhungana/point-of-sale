@@ -45,7 +45,7 @@ r2dbc:
       db-type: postgres
       username: postgres
       password: root
-      url: r2dbc:pool:postgresql://172.17.0.1:5432/khatabook
+      url: r2dbc:pool:postgresql://localhost:5432/khatabook
 
 logger:
   levels:

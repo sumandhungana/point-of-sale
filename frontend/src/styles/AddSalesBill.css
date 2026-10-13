@@ -511,15 +511,20 @@
     visibility: hidden;
   }
   #printable-invoice, #printable-invoice *,
-  #printable-purchase, #printable-purchase * {
+  #printable-purchase, #printable-purchase *,
+  #printable-invoice-paper, #printable-invoice-paper * {
     visibility: visible;
   }
   #printable-invoice,
-  #printable-purchase {
+  #printable-purchase,
+  #printable-invoice-paper {
     position: absolute;
     left: 0;
     top: 0;
     width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #ffffff !important;
   }
 }
 

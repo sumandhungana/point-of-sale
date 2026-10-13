@@ -62,18 +62,19 @@ const SupplierAvatar = ({ imageSrc, name }: { imageSrc?: string; name: string })
             <div
                 className="suppliers-profile-image"
                 style={{
-                    backgroundColor: '#e9ecef',
+                    backgroundColor: '#e2e8f0',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '1.25rem',
-                    fontWeight: '600',
-                    color: '#6c757d',
+                    fontSize: '1.1rem',
+                    fontWeight: '700',
+                    color: '#021861',
                     borderRadius: '50%',
-                    width: '45px',
-                    height: '45px',
-                    minWidth: '45px',
+                    width: '48px',
+                    height: '48px',
+                    minWidth: '48px',
                     userSelect: 'none',
+                    boxShadow: '0 2px 8px rgba(2, 24, 97, 0.08)',
                 }}
             >
                 {name ? name.charAt(0).toUpperCase() : '?'}
@@ -87,12 +88,13 @@ const SupplierAvatar = ({ imageSrc, name }: { imageSrc?: string; name: string })
             alt={name || 'Supplier'}
             className="suppliers-profile-image"
             style={{
-                width: '45px',
-                height: '45px',
-                minWidth: '45px',
+                width: '48px',
+                height: '48px',
+                minWidth: '48px',
                 borderRadius: '50%',
                 objectFit: 'cover',
                 display: 'block',
+                boxShadow: '0 2px 8px rgba(2, 24, 97, 0.08)',
             }}
             onError={() => setImgError(true)}
         />
@@ -118,7 +120,7 @@ export const Suppliers = () => {
                 const suppliersWithBalance = await Promise.all(
                     data.map(async (supplier: GetSupplierResponse) => {
                         try {
-                            const paymentHistory =await getPaymentList({
+                            const paymentHistory = await getPaymentList({
                                 paymentParty: 'SUPPLIER',
                                 partyId: supplier.id
                             });
@@ -254,27 +256,33 @@ export const Suppliers = () => {
                         <div className="suppliers-stat-icon suppliers-stat-given-icon">
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
-                        <div className="suppliers-stat-label">You Gave</div>
-                        <div className="suppliers-stat-value">
-                            रु{overallTotals.given.toLocaleString()}
+                        <div className="suppliers-stat-content">
+                            <div className="suppliers-stat-label">You Gave</div>
+                            <div className="suppliers-stat-value" style={{ color: '#DE1110' }}>
+                                रु{overallTotals.given.toLocaleString()}
+                            </div>
                         </div>
                     </div>
                     <div className="suppliers-stat-card">
                         <div className="suppliers-stat-icon suppliers-stat-received-icon">
                             <i className="bi bi-arrow-down-circle"></i>
                         </div>
-                        <div className="suppliers-stat-label">You Received</div>
-                        <div className="suppliers-stat-value">
-                            रु{overallTotals.received.toLocaleString()}
+                        <div className="suppliers-stat-content">
+                            <div className="suppliers-stat-label">You Received</div>
+                            <div className="suppliers-stat-value" style={{ color: '#10b981' }}>
+                                रु{overallTotals.received.toLocaleString()}
+                            </div>
                         </div>
                     </div>
                     <div className="suppliers-stat-card">
                         <div className="suppliers-stat-icon suppliers-stat-online-icon">
                             <i className="bi bi-globe"></i>
                         </div>
-                        <div className="suppliers-stat-label">Online Collection</div>
-                        <div className="suppliers-stat-value">
-                            रु{overallTotals.online.toLocaleString()}
+                        <div className="suppliers-stat-content">
+                            <div className="suppliers-stat-label">Online Collection</div>
+                            <div className="suppliers-stat-value" style={{ color: '#021861' }}>
+                                रु{overallTotals.online.toLocaleString()}
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -287,52 +295,64 @@ export const Suppliers = () => {
                 )}
 
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>
+                    <div className="suppliers-loading-state">
+                        <div className="spinner-border spinner-border-sm me-2" role="status"></div>
                         Loading suppliers...
                     </div>
                 ) : filteredSuppliers.length === 0 ? (
-                    <div style={{ textAlign: 'center', padding: '3rem', color: '#6c757d' }}>
-                        No suppliers found.
+                    <div className="suppliers-empty-state">
+                        <div className="empty-icon">🏭</div>
+                        <h4>No Suppliers Found</h4>
+                        <p>Try adjusting your search criteria or click below to add your first supplier.</p>
                     </div>
                 ) : (
-                    filteredSuppliers.map((supplier) => (
-                        <div
-                            key={supplier.id}
-                            className="suppliers-customer-card"
-                            onClick={() => handleSupplierClick(supplier.id)}
-                        >
-                            <div className="suppliers-customer-info">
-                                <SupplierAvatar
-                                    imageSrc={supplier.profileImage}
-                                    name={supplier.name}
-                                />
-                                <div className="suppliers-customer-details">
-                                    <h3 className="suppliers-customer-name">{supplier.name}</h3>
-                                    <p className="suppliers-working-hours">
-                                        <i className="bi bi-telephone me-1"></i>
-                                        {supplier.phone || supplier.phoneNumber || 'N/A'}
-                                    </p>
+                    <div className="suppliers-list-container">
+                        {filteredSuppliers.map((supplier) => (
+                            <div
+                                key={supplier.id}
+                                className="suppliers-customer-card"
+                                onClick={() => handleSupplierClick(supplier.id)}
+                            >
+                                <div className="suppliers-customer-info">
+                                    <SupplierAvatar
+                                        imageSrc={supplier.profileImage}
+                                        name={supplier.name}
+                                    />
+                                    <div className="suppliers-customer-details">
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                            <h3 className="suppliers-customer-name">{supplier.name}</h3>
+                                            {supplier.id ? (
+                                                <span className="supplier-id-badge">#SUPP-{supplier.id}</span>
+                                            ) : null}
+                                        </div>
+                                        <p className="suppliers-working-hours">
+                                            <i className="bi bi-telephone me-1"></i>
+                                            {supplier.phone || supplier.phoneNumber || 'N/A'}
+                                        </p>
+                                    </div>
                                 </div>
                                 <div className={`suppliers-customer-amount ${
                                     supplier.balance === 0 ? 'balance-zero' :
                                         supplier.balance > 0 ? 'balance-positive' : 'balance-negative'
                                 }`}>
+                                    {supplier.balance > 0 ? '+ ' : supplier.balance < 0 ? '- ' : ''}
                                     रु{Math.abs(supplier.balance).toLocaleString()}
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        ))}
+                    </div>
                 )}
 
-                <div className="suppliers-actions">
-                    <button
-                        className="suppliers-add-button"
-                        onClick={handleAddSupplier}
-                    >
-                        <i className="bi bi-plus-circle"></i>
-                        Add Supplier
-                    </button>
-                </div>
+                {/* Sticky Bottom-Right Add Supplier Button */}
+                <button
+                    type="button"
+                    className="suppliers-add-button"
+                    onClick={handleAddSupplier}
+                    title="Add Supplier"
+                >
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+                    <span>Add Supplier</span>
+                </button>
             </main>
         </div>
     );

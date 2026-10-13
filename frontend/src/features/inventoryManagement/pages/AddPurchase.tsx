@@ -48,6 +48,7 @@ export const AddPurchase: React.FC = () => {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     // Global Calculation Settings (Applies to New Products)
+    const [showGuideModal, setShowGuideModal] = useState(false);
     const [pricingMode, setPricingMode] = useState<'unit' | 'gross'>('unit');
     const [isTaxInclusive, setIsTaxInclusive] = useState(false);
     const [enableTax, setEnableTax] = useState(false);
@@ -221,6 +222,42 @@ export const AddPurchase: React.FC = () => {
     const grandTotal = useMemo(() => {
         return lineItems.reduce((sum, item) => sum + item.totalPrice, 0);
     }, [lineItems]);
+
+    const totalsSummary = useMemo(() => {
+        let subtotal = 0;
+        let tax = 0;
+        let vat = 0;
+        lineItems.forEach((li) => {
+            const qty = typeof li.quantity === 'number' ? li.quantity : 0;
+            subtotal += (li.unitPrice || 0) * qty;
+            tax += li.taxAmount || 0;
+            vat += li.vatAmount || 0;
+        });
+        return { subtotal, tax, vat };
+    }, [lineItems]);
+
+    const previewText = useMemo(() => {
+        const isGross = pricingMode === 'gross';
+        const activeVat = enableVat ? (typeof vatPercentage === 'number' ? vatPercentage : 0) : 0;
+        const activeTax = enableTax ? (typeof taxPercentage === 'number' ? taxPercentage : 0) : 0;
+        const totalTaxPct = activeVat + activeTax;
+
+        if (!isGross) {
+            if (isTaxInclusive) {
+                return `Prices entered in the table are per unit and already include tax. (e.g. 10 items @ Rs 100/unit = Rs 1,000 total bill amount, including ${totalTaxPct}% tax/VAT).`;
+            } else {
+                const sampleTax = (1000 * totalTaxPct) / 100;
+                return `Prices entered are base rate per unit. (e.g. 10 items @ Rs 100/unit = Rs 1,000 base + Rs ${sampleTax.toLocaleString()} tax/VAT [${totalTaxPct}%] = Rs ${(1000 + sampleTax).toLocaleString()} total).`;
+            }
+        } else {
+            if (isTaxInclusive) {
+                return `Price entered is the final lump-sum total for the line item. (e.g. Entering Rs 1,000 gross for 10 items = Rs 1,000 total bill amount; unit base rate is auto-calculated).`;
+            } else {
+                const sampleTax = (1000 * totalTaxPct) / 100;
+                return `Price entered is the base lump-sum total. (e.g. Entering Rs 1,000 gross for 10 items + Rs ${sampleTax.toLocaleString()} tax/VAT [${totalTaxPct}%] = Rs ${(1000 + sampleTax).toLocaleString()} total).`;
+            }
+        }
+    }, [pricingMode, isTaxInclusive, enableTax, taxPercentage, enableVat, vatPercentage]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -398,84 +435,147 @@ export const AddPurchase: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Global Settings Card: Pricing Mode & Tax/VAT Options */}
-                            <div className="purchase-card mb-3">
-                                <h3 className="purchase-card-title mb-2">
-                                    <i className="bi bi-sliders"></i> Tax & Pricing Settings
-                                </h3>
-                                <div className="d-flex flex-wrap align-items-center gap-3">
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span className="text-muted small fw-bold">Mode:</span>
-                                        <div className="toggle-btn-group">
+                            {/* Designer-Grade Tax & Pricing Setup Bar */}
+                            <div className="price-settings-bar">
+                                <div className="price-settings-top">
+                                    <h3 className="price-settings-title">
+                                        <i className="bi bi-sliders"></i> Tax & Pricing Setup
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        className="price-settings-guide-btn"
+                                        onClick={() => setShowGuideModal(true)}
+                                    >
+                                        <i className="bi bi-question-circle"></i> How calculations work
+                                    </button>
+                                </div>
+
+                                <div className="price-settings-grid">
+                                    {/* 1. Pricing Entry Mode */}
+                                    <div className="price-settings-col">
+                                        <span className="col-label">
+                                            <i className="bi bi-tag"></i> Pricing Mode
+                                        </span>
+                                        <div className="segmented-control">
                                             <button
                                                 type="button"
-                                                className={`toggle-pill ${pricingMode === 'unit' ? 'active' : ''}`}
+                                                className={`segmented-btn ${pricingMode === 'unit' ? 'active' : ''}`}
                                                 onClick={() => setPricingMode('unit')}
                                             >
-                                                Per Unit
+                                                <i className="bi bi-box-seam"></i> Per Unit
                                             </button>
                                             <button
                                                 type="button"
-                                                className={`toggle-pill ${pricingMode === 'gross' ? 'active' : ''}`}
+                                                className={`segmented-btn ${pricingMode === 'gross' ? 'active' : ''}`}
                                                 onClick={() => setPricingMode('gross')}
                                             >
-                                                Gross
+                                                <i className="bi bi-collection"></i> Gross Total
                                             </button>
                                         </div>
+                                        <p className="col-hint">
+                                            {pricingMode === 'unit' ? 'Enter rate per piece (Rate × Qty)' : 'Enter lump-sum total for line'}
+                                        </p>
                                     </div>
 
-                                    <div className="d-flex align-items-center gap-2">
-                                        <span className="text-muted small fw-bold">Tax Status:</span>
-                                        <button
-                                            type="button"
-                                            className={`toggle-inc-badge ${isTaxInclusive ? 'inc' : 'exc'}`}
-                                            style={{padding: '4px 10px'}}
-                                            onClick={() => setIsTaxInclusive(!isTaxInclusive)}
-                                        >
-                                            {isTaxInclusive ? 'Tax Included' : '+ Tax Extra'}
-                                        </button>
+                                    {/* 2. Tax Application Mode */}
+                                    <div className="price-settings-col">
+                                        <span className="col-label">
+                                            <i className="bi bi-receipt"></i> Tax Application
+                                        </span>
+                                        <div className="segmented-control">
+                                            <button
+                                                type="button"
+                                                className={`segmented-btn ${!isTaxInclusive ? 'active' : ''}`}
+                                                onClick={() => setIsTaxInclusive(false)}
+                                            >
+                                                <i className="bi bi-plus-circle"></i> + Tax Extra
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`segmented-btn ${isTaxInclusive ? 'active' : ''}`}
+                                                onClick={() => setIsTaxInclusive(true)}
+                                            >
+                                                <i className="bi bi-check2-circle"></i> Tax Included
+                                            </button>
+                                        </div>
+                                        <p className="col-hint">
+                                            {!isTaxInclusive ? 'Tax is added on top of item price' : 'Entered price already includes tax'}
+                                        </p>
                                     </div>
 
-                                    <div className="d-flex align-items-center gap-1">
-                                        <button
-                                            type="button"
-                                            className={`badge-toggle ${enableTax ? 'active' : ''}`}
-                                            onClick={() => setEnableTax(!enableTax)}
-                                        >
-                                            TAX
-                                        </button>
-                                        {enableTax && (
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                className="table-input input-compact"
-                                                style={{width: '65px'}}
-                                                placeholder="%"
-                                                value={taxPercentage === '' ? '' : taxPercentage}
-                                                onChange={(e) => setTaxPercentage(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                                            />
-                                        )}
-                                    </div>
+                                    {/* 3. Tax Rates & Surcharges */}
+                                    <div className="price-settings-col taxes-col">
+                                        <span className="col-label">
+                                            <i className="bi bi-percent"></i> Applicable Taxes & Surcharges
+                                        </span>
+                                        <div className="taxes-control-wrapper">
+                                            <div className={`tax-chip ${enableVat ? 'active' : ''}`}>
+                                                <label className="tax-chip-toggle">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={enableVat}
+                                                        onChange={(e) => setEnableVat(e.target.checked)}
+                                                    />
+                                                    <span className="tax-chip-title">VAT</span>
+                                                </label>
+                                                {enableVat && (
+                                                    <div className="tax-chip-input-wrap">
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.5"
+                                                            value={vatPercentage === '' ? '' : vatPercentage}
+                                                            onChange={(e) =>
+                                                                setVatPercentage(
+                                                                    e.target.value === '' ? '' : parseFloat(e.target.value) || 0
+                                                                )
+                                                            }
+                                                        />
+                                                        <span className="tax-unit">%</span>
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                    <div className="d-flex align-items-center gap-1">
-                                        <button
-                                            type="button"
-                                            className={`badge-toggle ${enableVat ? 'active' : ''}`}
-                                            onClick={() => setEnableVat(!enableVat)}
-                                        >
-                                            VAT
-                                        </button>
-                                        {enableVat && (
-                                            <input
-                                                type="number"
-                                                min="0"
-                                                className="table-input input-compact"
-                                                style={{width: '65px'}}
-                                                placeholder="%"
-                                                value={vatPercentage === '' ? '' : vatPercentage}
-                                                onChange={(e) => setVatPercentage(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                                            />
-                                        )}
+                                            <div className={`tax-chip ${enableTax ? 'active' : ''}`}>
+                                                <label className="tax-chip-toggle">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={enableTax}
+                                                        onChange={(e) => setEnableTax(e.target.checked)}
+                                                    />
+                                                    <span className="tax-chip-title">Additional Tax</span>
+                                                </label>
+                                                {enableTax && (
+                                                    <div className="tax-chip-input-wrap">
+                                                        <input
+                                                            type="number"
+                                                            min="0"
+                                                            step="0.5"
+                                                            value={taxPercentage === '' ? '' : taxPercentage}
+                                                            onChange={(e) =>
+                                                                setTaxPercentage(
+                                                                    e.target.value === '' ? '' : parseFloat(e.target.value) || 0
+                                                                )
+                                                            }
+                                                        />
+                                                        <span className="tax-unit">%</span>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            <div className={`tax-summary-pill ${enableVat || enableTax ? 'active' : ''}`}>
+                                                <i className={`bi ${enableVat || enableTax ? 'bi-check-circle-fill' : 'bi-dash-circle'}`}></i>
+                                                <span>
+                                                    {enableVat && enableTax
+                                                        ? `Total ${(Number(vatPercentage) || 0) + (Number(taxPercentage) || 0)}% Tax Applied`
+                                                        : enableVat
+                                                        ? `${vatPercentage || 0}% VAT Applied`
+                                                        : enableTax
+                                                        ? `${taxPercentage || 0}% Tax Applied`
+                                                        : 'Tax Exempt (0% Applied)'}
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -631,6 +731,31 @@ export const AddPurchase: React.FC = () => {
                                 })}
                                 </div>
                                 <div className="summary-breakdown">
+                                    <div className="breakdown-row">
+                                        <span>Items Subtotal</span>
+                                        <span>Rs. {totalsSummary.subtotal.toLocaleString('en-IN', {
+                                            minimumFractionDigits: 2,
+                                            maximumFractionDigits: 2
+                                        })}</span>
+                                    </div>
+                                    {enableVat && (
+                                        <div className="breakdown-row">
+                                            <span>VAT ({vatPercentage || 0}%)</span>
+                                            <span>Rs. {totalsSummary.vat.toLocaleString('en-IN', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}</span>
+                                        </div>
+                                    )}
+                                    {enableTax && (
+                                        <div className="breakdown-row">
+                                            <span>Additional Tax ({taxPercentage || 0}%)</span>
+                                            <span>Rs. {totalsSummary.tax.toLocaleString('en-IN', {
+                                                minimumFractionDigits: 2,
+                                                maximumFractionDigits: 2
+                                            })}</span>
+                                        </div>
+                                    )}
                                     <div className="breakdown-row">
                                         <span>Line Items Count</span>
                                         <span>{lineItems.length}</span>
@@ -813,6 +938,77 @@ export const AddPurchase: React.FC = () => {
                                             <i className="bi bi-printer me-1"></i> Print Bill
                                         </button>
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Calculation Guide Modal */}
+                    {showGuideModal && (
+                        <div className="modal-backdrop-custom" onClick={() => setShowGuideModal(false)}>
+                            <div className="price-guide-modal" onClick={(e) => e.stopPropagation()}>
+                                <div className="price-guide-modal-header">
+                                    <div className="guide-modal-title">
+                                        <div className="guide-icon-badge">
+                                            <i className="bi bi-lightbulb"></i>
+                                        </div>
+                                        <div>
+                                            <h4>Tax & Pricing Calculation Guide</h4>
+                                            <p>How item rates, taxes, and bill totals are calculated</p>
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="guide-modal-close"
+                                        onClick={() => setShowGuideModal(false)}
+                                        aria-label="Close"
+                                    >
+                                        <i className="bi bi-x-lg"></i>
+                                    </button>
+                                </div>
+
+                                <div className="price-guide-modal-body">
+                                    <div className="guide-cards-grid">
+                                        <div className="guide-info-card">
+                                            <h5>1. Per Unit vs. Gross Total Pricing</h5>
+                                            <p>
+                                                <strong>Per Unit:</strong> Enter the price for one single product unit (e.g. Rs. 100/pc). The row total is computed as <code>Rate × Quantity</code>.
+                                            </p>
+                                            <p>
+                                                <strong>Gross Total:</strong> Enter the combined purchase cost for the whole quantity (e.g. Rs. 1,000 for 10 pcs). The unit cost is auto-calculated as <code>Gross Amount ÷ Quantity</code>.
+                                            </p>
+                                        </div>
+
+                                        <div className="guide-info-card">
+                                            <h5>2. + Tax Extra (Exclusive) vs. Tax Included (Inclusive)</h5>
+                                            <p>
+                                                <strong>+ Tax Extra (Exclusive):</strong> The rate entered is the bare base price. Applicable VAT and Tax are added on top of the subtotal.
+                                            </p>
+                                            <p>
+                                                <strong>Tax Included (Inclusive):</strong> The rate entered is the final customer price. The system extracts the tax portions without increasing your line total.
+                                            </p>
+                                        </div>
+
+                                        <div className="guide-info-card">
+                                            <h5>3. Applicable Taxes (VAT & Additional Tax)</h5>
+                                            <p>
+                                                Under standard Nepal regulations, VAT is 13%. You can toggle VAT on or off, or change the percentage if items are exempt or carry different rates.
+                                            </p>
+                                            <div className="guide-formula-box">
+                                                <strong>Active Formula:</strong> {previewText}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="price-guide-modal-footer">
+                                    <button
+                                        type="button"
+                                        className="btn-guide-confirm"
+                                        onClick={() => setShowGuideModal(false)}
+                                    >
+                                        Got it
+                                    </button>
                                 </div>
                             </div>
                         </div>

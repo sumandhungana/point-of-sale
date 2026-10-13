@@ -16,6 +16,11 @@ export const AddOrganization = () => {
     const [roles, setRoles] = useState<RoleResponse[]>([]);
     const [isLoadingRoles, setIsLoadingRoles] = useState(false);
 
+    // Expandable password form state
+    const [isPasswordExpanded, setIsPasswordExpanded] = useState<boolean>(true);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+
     const [formData, setFormData] = useState({
         userName: '',
         password: '',
@@ -155,119 +160,8 @@ export const AddOrganization = () => {
                     </div>
 
                     <form onSubmit={handleSubmit}>
-                        {/*/!* User Credentials & Personal Info *!/*/}
-                        {/*<div className="add-khata-book-section mb-4">*/}
-                        {/*    <h2 className="add-khata-book-section-title">*/}
-                        {/*        <i className="bi bi-person-badge me-2"></i>*/}
-                        {/*        User Credentials*/}
-                        {/*    </h2>*/}
-                        {/*    <div className="add-khata-book-form-grid">*/}
-                        {/*        <div className="add-khata-book-form-group">*/}
-                        {/*            <label className="add-khata-book-label required">*/}
-                        {/*                <i className="bi bi-person me-1"></i>*/}
-                        {/*                Username <span>*</span>*/}
-                        {/*            </label>*/}
-                        {/*            <input*/}
-                        {/*                type="text"*/}
-                        {/*                name="userName"*/}
-                        {/*                value={formData.userName}*/}
-                        {/*                onChange={handleInputChange}*/}
-                        {/*                className="add-khata-book-input"*/}
-                        {/*                placeholder="Enter Username"*/}
-                        {/*                required*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        <div className="add-khata-book-form-group">*/}
-                        {/*            <label className="add-khata-book-label required">*/}
-                        {/*                <i className="bi bi-key me-1"></i>*/}
-                        {/*                Password <span>*</span>*/}
-                        {/*            </label>*/}
-                        {/*            <input*/}
-                        {/*                type="password"*/}
-                        {/*                name="password"*/}
-                        {/*                value={formData.password}*/}
-                        {/*                onChange={handleInputChange}*/}
-                        {/*                className="add-khata-book-input"*/}
-                        {/*                placeholder="Enter Password"*/}
-                        {/*                required*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        <div className="add-khata-book-form-group">*/}
-                        {/*            <label className="add-khata-book-label required">*/}
-                        {/*                <i className="bi bi-check2-square me-1"></i>*/}
-                        {/*                Confirm Password <span>*</span>*/}
-                        {/*            </label>*/}
-                        {/*            <input*/}
-                        {/*                type="password"*/}
-                        {/*                name="confirmPassword"*/}
-                        {/*                value={formData.confirmPassword}*/}
-                        {/*                onChange={handleInputChange}*/}
-                        {/*                className="add-khata-book-input"*/}
-                        {/*                placeholder="Re-enter Password"*/}
-                        {/*                required*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        <div className="add-khata-book-form-group">*/}
-                        {/*            <label className="add-khata-book-label">*/}
-                        {/*                <i className="bi bi-envelope me-1"></i>*/}
-                        {/*                User Email*/}
-                        {/*            </label>*/}
-                        {/*            <input*/}
-                        {/*                type="email"*/}
-                        {/*                name="gmail"*/}
-                        {/*                value={formData.gmail}*/}
-                        {/*                onChange={handleInputChange}*/}
-                        {/*                className="add-khata-book-input"*/}
-                        {/*                placeholder="user@gmail.com"*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        <div className="add-khata-book-form-group">*/}
-                        {/*            <label className="add-khata-book-label">*/}
-                        {/*                <i className="bi bi-telephone me-1"></i>*/}
-                        {/*                Phone Number*/}
-                        {/*            </label>*/}
-                        {/*            <input*/}
-                        {/*                type="text"*/}
-                        {/*                name="phoneNumber"*/}
-                        {/*                value={formData.phoneNumber}*/}
-                        {/*                onChange={handleInputChange}*/}
-                        {/*                className="add-khata-book-input"*/}
-                        {/*                placeholder="Mobile Number"*/}
-                        {/*            />*/}
-                        {/*        </div>*/}
-
-                        {/*        <div className="add-khata-book-form-group">*/}
-                        {/*            <label className="add-khata-book-label required">*/}
-                        {/*                <i className="bi bi-shield-lock me-1"></i>*/}
-                        {/*                Role <span>*</span>*/}
-                        {/*            </label>*/}
-                        {/*            <select*/}
-                        {/*                name="role"*/}
-                        {/*                value={formData.role}*/}
-                        {/*                onChange={handleInputChange}*/}
-                        {/*                className="add-khata-book-select"*/}
-                        {/*                required*/}
-                        {/*                disabled={isLoadingRoles}*/}
-                        {/*            >*/}
-                        {/*                <option value="">*/}
-                        {/*                    {isLoadingRoles ? 'Loading roles...' : 'Select role'}*/}
-                        {/*                </option>*/}
-                        {/*                {roles.map((r) => (*/}
-                        {/*                    <option key={r.id} value={r.id}>*/}
-                        {/*                        {r.name}*/}
-                        {/*                    </option>*/}
-                        {/*                ))}*/}
-                        {/*            </select>*/}
-                        {/*        </div>*/}
-                        {/*    </div>*/}
-                        {/*</div>*/}
-
-                        {/* Organization Info */}
-                        <div className="add-khata-book-section">
+                        {/* 1. Organization Details */}
+                        <div className="add-khata-book-section mb-4">
                             <h2 className="add-khata-book-section-title">
                                 <i className="bi bi-building me-2"></i>
                                 Organization Details
@@ -404,11 +298,11 @@ export const AddOrganization = () => {
                             </div>
                         </div>
 
-                        {/* User Credentials & Personal Info */}
+                        {/* 2. Administrator Credentials */}
                         <div className="add-khata-book-section mb-4">
                             <h2 className="add-khata-book-section-title">
                                 <i className="bi bi-person-badge me-2"></i>
-                                User Credentials
+                                Administrator Credentials
                             </h2>
                             <div className="add-khata-book-form-grid">
                                 <div className="add-khata-book-form-group">
@@ -429,40 +323,8 @@ export const AddOrganization = () => {
 
                                 <div className="add-khata-book-form-group">
                                     <label className="add-khata-book-label required">
-                                        <i className="bi bi-key me-1"></i>
-                                        Password <span>*</span>
-                                    </label>
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleInputChange}
-                                        className="add-khata-book-input"
-                                        placeholder="Enter Password"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="add-khata-book-form-group">
-                                    <label className="add-khata-book-label required">
-                                        <i className="bi bi-check2-square me-1"></i>
-                                        Confirm Password <span>*</span>
-                                    </label>
-                                    <input
-                                        type="password"
-                                        name="confirmPassword"
-                                        value={formData.confirmPassword}
-                                        onChange={handleInputChange}
-                                        className="add-khata-book-input"
-                                        placeholder="Re-enter Password"
-                                        required
-                                    />
-                                </div>
-
-                                <div className="add-khata-book-form-group">
-                                    <label className="add-khata-book-label">
                                         <i className="bi bi-envelope me-1"></i>
-                                        User Email
+                                        User Email / Gmail <span>*</span>
                                     </label>
                                     <input
                                         type="email"
@@ -471,6 +333,7 @@ export const AddOrganization = () => {
                                         onChange={handleInputChange}
                                         className="add-khata-book-input"
                                         placeholder="user@gmail.com"
+                                        required
                                     />
                                 </div>
 
@@ -512,6 +375,98 @@ export const AddOrganization = () => {
                                         ))}
                                     </select>
                                 </div>
+                            </div>
+
+                            {/* EXPANDABLE PASSWORD & CONFIRM PASSWORD CARD */}
+                            <div className="expandable-card mt-3">
+                                <div
+                                    className="expandable-card-header"
+                                    onClick={() => setIsPasswordExpanded(!isPasswordExpanded)}
+                                    role="button"
+                                    tabIndex={0}
+                                    aria-expanded={isPasswordExpanded}
+                                >
+                                    <div className="expandable-header-title">
+                                        <span className="expandable-icon">🔑</span>
+                                        <div>
+                                            <h4 className="expandable-title">Password Credentials</h4>
+                                            <p className="expandable-subtitle">
+                                                Set administrator login password & confirm password
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className="expandable-toggle-action">
+                                        <span className="expandable-badge">
+                                            {isPasswordExpanded ? 'Collapse' : 'Expand Form'}
+                                        </span>
+                                        <i className={`bi ${isPasswordExpanded ? 'bi-chevron-up' : 'bi-chevron-down'}`} />
+                                    </div>
+                                </div>
+
+                                {isPasswordExpanded && (
+                                    <div className="expandable-card-body">
+                                        <div className="form-group mb-2">
+                                            <label className="add-khata-book-label required">
+                                                <i className="bi bi-key me-1"></i>
+                                                Password <span>*</span>
+                                            </label>
+                                            <div className="password-input-wrapper">
+                                                <input
+                                                    type={showPassword ? 'text' : 'password'}
+                                                    name="password"
+                                                    value={formData.password}
+                                                    onChange={handleInputChange}
+                                                    className="add-khata-book-input form-input"
+                                                    placeholder="Enter password (minimum 6 characters)"
+                                                    required
+                                                    minLength={6}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="password-toggle-btn"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                                                >
+                                                    <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="form-group">
+                                            <label className="add-khata-book-label required">
+                                                <i className="bi bi-check2-square me-1"></i>
+                                                Confirm Password <span>*</span>
+                                            </label>
+                                            <div className="password-input-wrapper">
+                                                <input
+                                                    type={showConfirmPassword ? 'text' : 'password'}
+                                                    name="confirmPassword"
+                                                    value={formData.confirmPassword}
+                                                    onChange={handleInputChange}
+                                                    className="add-khata-book-input form-input"
+                                                    placeholder="Re-enter password to confirm"
+                                                    required
+                                                    minLength={6}
+                                                />
+                                                <button
+                                                    type="button"
+                                                    className="password-toggle-btn"
+                                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                                    aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                                                >
+                                                    <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`} />
+                                                </button>
+                                            </div>
+
+                                            {formData.confirmPassword && (
+                                                <div className={`password-match-indicator ${formData.password === formData.confirmPassword ? 'match' : 'mismatch'}`}>
+                                                    <i className={`bi ${formData.password === formData.confirmPassword ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'}`} />
+                                                    <span>{formData.password === formData.confirmPassword ? 'Passwords match' : 'Passwords do not match'}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

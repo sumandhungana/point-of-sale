@@ -33,6 +33,12 @@ export interface GetAllMember{
     createdBy: string;
     updatedAt: string;
     updatedBy: string;
+    isActive?: boolean;
+    userId?: number;
+    userName?: string;
+    userEmail?: string;
+    roleId?: string;
+    roleName?: string;
 }
 
 
@@ -94,6 +100,36 @@ export async function getAllOrganization(): Promise<GetAllMember[]>{
         // Return empty array if API call fails
         return [];
     }
+}
+
+export interface ApproveOrganizationRequest {
+    memberId: number;
+    userId?: number;
+    roleId?: string;
+}
+
+export interface ApproveOrganizationResponse {
+    memberId: number;
+    userId: number;
+    status: string;
+    message: string;
+}
+
+export async function approveOrganization(data: ApproveOrganizationRequest): Promise<ApproveOrganizationResponse> {
+    const res = await apiService.post<RestResponse<ApproveOrganizationResponse>>(
+        'api/v1/member/approve',
+        data,
+        {
+            headers: {
+                ...getAuthHeaders(),
+            },
+        }
+    );
+
+    if (res?.response?.code === 0 && res?.response?.message === 'SUCCESS') {
+        return res.response.data;
+    }
+    throw new Error(res?.response?.message || 'Failed to approve organization');
 }
 
 function getAuthHeaders(): Record<string, string> {

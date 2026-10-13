@@ -2,7 +2,10 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../../../components/Navbar';
-import {fetchPurchases, GetAllPurchaseBillResponse} from '../../services/purchaseBillService'
+import { fetchPurchases, GetAllPurchaseBillResponse } from '../../services/purchaseBillService';
+import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
+import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
+import { printInvoiceDirectly } from '../utils/printInvoice';
 import '../../../styles/Purchase.css';
 
 
@@ -14,6 +17,14 @@ export const Purchase = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [paymentFilter, setPaymentFilter] = useState('');
   const [dateSort, setDateSort] = useState('');
+
+  // PDF Modals state
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceModalData | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [autoDownloadInvoice, setAutoDownloadInvoice] = useState(false);
+
+  const [reportData, setReportData] = useState<ReportModalData | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
     fetchPurchasesList();
@@ -66,6 +77,71 @@ export const Purchase = () => {
     navigate('/bills/purchase/add');
   };
 
+  const formatPurchaseForInvoice = (purchase: GetAllPurchaseBillResponse): InvoiceModalData => {
+    const amount = purchase.amount ?? 0;
+    return {
+      type: 'PURCHASE',
+      invoiceNumber: purchase.purchaseNo || 'PUR-N/A',
+      date: purchase.date || purchase.createdAt || new Date().toISOString(),
+      partyName: purchase.category?.name ? `${purchase.category.name} Vendor` : 'Supplier / Vendor',
+      partyType: 'Registered Supplier',
+      paymentMode: purchase.paymentMode || 'CASH',
+      remarks: purchase.remarks,
+      items: [
+        {
+          name: purchase.item?.name || 'Inventory Product',
+          category: purchase.category?.name || 'General',
+          quantity: 1,
+          unitPrice: amount,
+          totalAmount: amount,
+        },
+      ],
+      subtotal: amount,
+      grandTotal: amount,
+    };
+  };
+
+  const handleDownloadPurchasePdf = (purchase: GetAllPurchaseBillResponse) => {
+    const invData = formatPurchaseForInvoice(purchase);
+    setSelectedInvoice(invData);
+    setAutoDownloadInvoice(true);
+    setIsInvoiceModalOpen(true);
+  };
+
+  const handlePreviewPurchaseInvoice = (purchase: GetAllPurchaseBillResponse) => {
+    const invData = formatPurchaseForInvoice(purchase);
+    setSelectedInvoice(invData);
+    setAutoDownloadInvoice(false);
+    setIsInvoiceModalOpen(true);
+  };
+
+  const handlePrintPurchaseDirectly = (purchase: GetAllPurchaseBillResponse) => {
+    const invData = formatPurchaseForInvoice(purchase);
+    printInvoiceDirectly(invData);
+  };
+
+  const handleExportReportPDF = () => {
+    const rows = filteredPurchases.map((p) => ({
+      id: p.id ?? Math.random(),
+      number: p.purchaseNo ?? 'N/A',
+      date: p.date ?? '',
+      party: p.category?.name ? `${p.category.name} Vendor` : 'Supplier',
+      itemsSummary: `${p.item?.name ?? 'Item'} (${p.category?.name ?? 'General'})`,
+      paymentMode: p.paymentMode ?? 'CASH',
+      amount: p.amount ?? 0,
+    }));
+
+    setReportData({
+      reportType: 'PURCHASE',
+      title: 'Vendor Purchases Summary Report',
+      subtitle: 'Comprehensive record of all inventory purchases and vendor invoices',
+      totalAmount: filteredPurchases.reduce((sum, p) => sum + (p.amount ?? 0), 0),
+      totalCount: filteredPurchases.length,
+      rows,
+    });
+    setIsReportModalOpen(true);
+  };
+
   const totalPurchases = purchases.reduce((sum, purchase) => sum + (purchase.amount ?? 0), 0);
   return (
       <div className="sales-layout-root">
@@ -83,9 +159,14 @@ export const Purchase = () => {
                   <h2 className="sales-page-title">Purchase Bills</h2>
                   <p className="sales-page-subtitle">Manage and track all your vendor purchases and invoices</p>
                 </div>
-                <button className="btn-primary" onClick={handleAddBill}>
-                  <i className="bi bi-plus-lg me-1"></i> Add Purchase Bill
-                </button>
+                <div className="d-flex align-items-center gap-2">
+                  <button className="btn-secondary" onClick={handleExportReportPDF}>
+                    <i className="bi bi-file-earmark-arrow-down me-1"></i> Export PDF Report
+                  </button>
+                  <button className="btn-primary" onClick={handleAddBill}>
+                    <i className="bi bi-plus-lg me-1"></i> Add Purchase Bill
+                  </button>
+                </div>
               </div>
 
               <div className="sales-stats-grid">
@@ -177,6 +258,7 @@ export const Purchase = () => {
                         <th>Payment Mode</th>
                         <th>Remarks</th>
                         <th className="text-end">Amount</th>
+                        <th className="text-center" style={{ width: '135px' }}>Actions</th>
                       </tr>
                       </thead>
                       <tbody>
@@ -205,6 +287,26 @@ export const Purchase = () => {
                             <td className="text-end fw-bold">
                               Rs. {(purchase?.amount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                             </td>
+                            <td className="text-center" onClick={(e) => e.stopPropagation()}>
+                              <div className="d-flex align-items-center justify-content-center gap-1">
+                                <button
+                                    type="button"
+                                    className="btn-row-action pdf"
+                                    title="Download Purchase Invoice PDF"
+                                    onClick={() => handleDownloadPurchasePdf(purchase)}
+                                >
+                                  <i className="bi bi-file-earmark-pdf"></i> PDF
+                                </button>
+                                <button
+                                    type="button"
+                                    className="btn-row-action"
+                                    title="Print Invoice"
+                                    onClick={() => handlePrintPurchaseDirectly(purchase)}
+                                >
+                                  <i className="bi bi-printer"></i>
+                                </button>
+                              </div>
+                            </td>
                           </tr>
                       ))}
                       </tbody>
@@ -214,6 +316,21 @@ export const Purchase = () => {
             </div>
           </div>
         </div>
+
+        {/* Invoice PDF & Print Modal */}
+        <InvoiceModal
+            isOpen={isInvoiceModalOpen}
+            onClose={() => setIsInvoiceModalOpen(false)}
+            data={selectedInvoice}
+            autoDownload={autoDownloadInvoice}
+        />
+
+        {/* Purchase List Summary Report PDF Modal */}
+        <ReportPdfModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            data={reportData}
+        />
       </div>
   );
 };

@@ -1,94 +1,111 @@
-import {apiService} from "@/infrastructure/utils/ApiService";
-
-// ============================================================
-// GET USERS
-// ============================================================
+import { apiService } from "@/infrastructure/utils/ApiService";
 
 export interface User {
     id: number;
-    phoneNumber: string;
+    phoneNumber?: string;
     userId: number;
     userName: string;
     role: string;
     email: string;
     isActive: boolean;
-    createdBy: string;
-    createdAt: string;
-    updatedBy: string;
-    updatedAt: string;
-    memberId?: number | null; // Selected member association
+    createdBy?: string;
+    createdAt?: string;
+    updatedBy?: string;
+    updatedAt?: string;
+    memberId?: number | null;
 }
-interface RestResponse<T> {
+
+export interface RestResponse<T> {
     code: number;
     message: string;
     data: T;
     error?: string;
 }
-export interface UserPayload {
-    fullName: string;
+
+export interface AddUserRequest {
+    userName: string;
+    email: string;
+    password?: string;
+    phoneNumber?: string;
+    role: string;
+    enable?: boolean;
+    memberId?: number;
+}
+
+export interface AddUserResponse {
+    id: number;
+    userId: number;
+    userName: string;
     email: string;
     phoneNumber?: string;
-    roleId: number;
-    status: 'ACTIVE' | 'INACTIVE';
+    role: string;
+    isActive: boolean;
+    memberId?: number;
+    memberName?: string;
+    createdBy?: string;
+    createdAt?: string;
 }
 
-// Simulated API Endpoints (Replace base URLs with your Micronaut endpoint)
-const BASE_URL = '/api/users';
+export interface UserPayload {
+    fullName?: string;
+    userName?: string;
+    email: string;
+    phoneNumber?: string;
+    password?: string;
+    roleId?: number | string;
+    role?: string;
+    status?: 'ACTIVE' | 'INACTIVE';
+    isActive?: boolean;
+    memberId?: number;
+}
 
 function getAuthHeaders(): Record<string, string> {
-    const token =
-        localStorage.getItem('authToken');
-
-    if (!token) {
-        return {};
-    }
-
-    return {
-        Authorization: `Bearer ${token}`,
-    };
+    const token = localStorage.getItem('authToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-export const fetchUsers = async (): Promise<User[] | any[]> => {
-    const res= await apiService.get<RestResponse<User[]>>(
-        'api/v1/user/list',
+export const fetchUsers = async (memberId?: number): Promise<User[]> => {
+    const query = memberId ? `?memberId=${memberId}` : '';
+    const res = await apiService.get<RestResponse<User[]>>(
+        `api/v1/user/list${query}`,
         {
-            headers:{
+            headers: {
                 ...getAuthHeaders()
             },
         }
     );
-    if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
-        throw new Error(res.error || "Failed to Fetch User");
-    }
-    if(res.error){
-        throw new Error(res.error || "Failed to Fetch User");
+    if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+        throw new Error(res.error || res?.response?.error || "Failed to Fetch User");
     }
     return res?.response?.data ?? [];
 };
 
-
-
-export const addUser = async (payload: UserPayload): Promise<User> => {
-    const response = await fetch(BASE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-    if (!response.ok) throw new Error('Failed to create user');
-    return response.json();
-};
-
-export const updateUser = async (id: number, payload: UserPayload): Promise<User> => {
-    const response = await fetch(`${BASE_URL}/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-    });
-    if (!response.ok) throw new Error('Failed to update user');
-    return response.json();
+export const addUser = async (payload: AddUserRequest): Promise<AddUserResponse> => {
+    const res = await apiService.post<RestResponse<AddUserResponse>>(
+        'api/v1/user/add',
+        payload,
+        {
+            headers: {
+                ...getAuthHeaders()
+            }
+        }
+    );
+    if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+        throw new Error(res?.error || res?.response?.error || 'Failed to add user');
+    }
+    return res.response.data;
 };
 
 export const deleteUser = async (id: number): Promise<void> => {
-    const response = await fetch(`${BASE_URL}/${id}`, { method: 'DELETE' });
-    if (!response.ok) throw new Error('Failed to delete user');
+    const res = await apiService.delete<RestResponse<void>>(
+        `api/v1/user/${id}`,
+        {
+            headers: {
+                ...getAuthHeaders()
+            }
+        }
+    );
+    if (res?.response?.code !== 0 && res?.response?.message !== 'SUCCESS') {
+        console.warn('Delete user endpoint warning:', res?.error);
+    }
 };

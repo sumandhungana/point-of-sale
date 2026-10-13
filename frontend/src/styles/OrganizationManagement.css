@@ -61,22 +61,32 @@
    3. STAT CARDS (REPLACED LEGACY GREEN)
    ========================================================================== */
 
-.stat-card-grid {
+.stat-card-grid,
+.role-stats-grid,
+.org-stats-row {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
     margin-bottom: 24px;
+    width: 100%;
 }
 
 .stat-card {
     background: #ffffff;
     border-radius: 12px;
-    padding: 20px;
+    padding: 16px 18px;
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 14px;
     box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
     border: 1px solid #f1f5f9;
+    min-width: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(2, 24, 97, 0.08);
 }
 
 .stat-icon-box {
@@ -105,17 +115,30 @@
     color: #DE1110;
 }
 
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+}
+
 .stat-value {
     font-size: 22px;
     font-weight: 700;
     color: #021861;
+    white-space: nowrap;
+    line-height: 1.2;
 }
 
 .stat-label {
-    font-size: 12px;
+    font-size: 11px;
     color: #6c757d;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* ==========================================================================
@@ -490,6 +513,249 @@
 
     .tab-btn {
         padding: 8px 14px;
+        font-size: 13px;
+    }
+}
+
+/* ==========================================================================
+   9. DRAFT TAB & APPROVAL WORKFLOW
+   ========================================================================== */
+
+.tab-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 11px;
+    font-weight: 700;
+    border-radius: 10px;
+    margin-left: 8px;
+    background: #e2e8f0;
+    color: #475569;
+}
+
+.tab-btn.active .tab-badge {
+    background: rgba(37, 93, 206, 0.15);
+    color: #255DCE;
+}
+
+.tab-badge.badge-amber {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+}
+
+.tab-badge.badge-amber.pulse {
+    animation: draftPulse 2s infinite ease-in-out;
+}
+
+@keyframes draftPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.2);
+    }
+}
+
+.draft-item-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 2px 10px rgba(2, 24, 97, 0.05);
+    border: 1px solid #fed7aa;
+    border-left: 5px solid #f59e0b;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    transition: all 0.2s ease;
+}
+
+.draft-item-card:hover {
+    box-shadow: 0 6px 18px rgba(245, 158, 11, 0.12);
+    border-color: #f97316;
+}
+
+.draft-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.draft-org-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: #021861;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.draft-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    background: #fafaf9;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid #f3f4f6;
+}
+
+.draft-info-item {
+    font-size: 13px;
+    color: #4b5563;
+}
+
+.draft-info-item strong {
+    color: #1f2937;
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.draft-actions-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed #e5e7eb;
+    flex-wrap: wrap;
+}
+
+.draft-role-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 260px;
+    max-width: 480px;
+}
+
+.draft-role-picker label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #021861;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.badge-org-draft {
+    font-size: 12px;
+    font-weight: 600;
+    color: #b45309;
+    background-color: #fef3c7;
+    border: 1px solid #fde68a;
+    padding: 4px 10px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-approve-org {
+    background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    color: #ffffff;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-approve-org:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669 0%, #065f46 100%);
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn-approve-org:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.draft-empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px dashed #cbd5e1;
+    color: #64748b;
+}
+
+.draft-empty-state .icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.draft-empty-state h4 {
+    margin: 0 0 6px 0;
+    color: #021861;
+    font-size: 16px;
+}
+
+.draft-empty-state p {
+    margin: 0;
+    font-size: 13px;
+    max-width: 450px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ==========================================================================
+   10. STICKY BOTTOM RIGHT ONBOARD BUTTON
+   ========================================================================== */
+
+.btn-sticky-add-org {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 999;
+    background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
+    color: #ffffff;
+    border: none;
+    padding: 13px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(2, 24, 97, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.btn-sticky-add-org:hover {
+    background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
+    box-shadow: 0 12px 30px rgba(2, 24, 97, 0.5);
+    transform: translateY(-3px) scale(1.02);
+    color: #ffffff;
+}
+
+.btn-sticky-add-org:active {
+    transform: translateY(0) scale(0.98);
+}
+
+@media (max-width: 768px) {
+    .btn-sticky-add-org {
+        bottom: 20px;
+        right: 20px;
+        padding: 11px 18px;
         font-size: 13px;
     }
 }

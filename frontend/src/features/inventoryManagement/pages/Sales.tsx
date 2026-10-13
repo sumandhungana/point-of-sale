@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { getAllSalesBill as fetchSalesBillsService, GetAllSalesBillResponse } from '../../services/salesBillService';
+import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
+import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
+import { printInvoiceDirectly } from '../utils/printInvoice';
 
 interface GroupedSalesBill {
   id: number;
@@ -27,6 +30,14 @@ export const Sales: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [paymentModeFilter, setPaymentModeFilter] = useState<string>('');
   const [dateSort, setDateSort] = useState<string>('newest');
+
+  // PDF Modals state
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceModalData | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [autoDownloadInvoice, setAutoDownloadInvoice] = useState(false);
+
+  const [reportData, setReportData] = useState<ReportModalData | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
     fetchSalesBills();
@@ -142,6 +153,73 @@ export const Sales: React.FC = () => {
     navigate('/bills/sales/add');
   };
 
+  const formatSalesForInvoice = (bill: GroupedSalesBill): InvoiceModalData => {
+    return {
+      type: 'SALES',
+      invoiceNumber: bill.billNumber,
+      date: bill.billDate || bill.createdAt || new Date().toISOString(),
+      partyName: bill.customerName || 'Walk-in Customer',
+      partyType: 'Customer',
+      paymentMode: bill.paymentMode,
+      remarks: bill.remarks,
+      createdBy: bill.createdBy,
+      items: bill.items.map((i, idx) => ({
+        id: i.id || idx,
+        name: i.productName || 'Product Item',
+        quantity: i.quantity || 1,
+        unitPrice: i.unitPrice || (i.amount ? i.amount / (i.quantity || 1) : 0),
+        taxPercentage: i.taxPercentage,
+        vatPercentage: i.vatPercentage,
+        taxAmount: i.taxAmount,
+        vatAmount: i.vatAmount,
+        totalAmount: i.amount ?? 0,
+      })),
+      subtotal: bill.totalAmount,
+      grandTotal: bill.totalAmount,
+    };
+  };
+
+  const handleDownloadSalesPdf = (bill: GroupedSalesBill) => {
+    const invData = formatSalesForInvoice(bill);
+    setSelectedInvoice(invData);
+    setAutoDownloadInvoice(true);
+    setIsInvoiceModalOpen(true);
+  };
+
+  const handlePreviewSalesInvoice = (bill: GroupedSalesBill) => {
+    const invData = formatSalesForInvoice(bill);
+    setSelectedInvoice(invData);
+    setAutoDownloadInvoice(false);
+    setIsInvoiceModalOpen(true);
+  };
+
+  const handlePrintSalesDirectly = (bill: GroupedSalesBill) => {
+    const invData = formatSalesForInvoice(bill);
+    printInvoiceDirectly(invData);
+  };
+
+  const handleExportReportPDF = () => {
+    const rows = filteredSalesBills.map((b) => ({
+      id: b.id,
+      number: b.billNumber,
+      date: b.billDate || b.createdAt || '',
+      party: b.customerName,
+      itemsSummary: b.productNames.join(', ') || 'Inventory Items',
+      paymentMode: b.paymentMode,
+      amount: b.totalAmount,
+    }));
+
+    setReportData({
+      reportType: 'SALES',
+      title: 'Customer Sales Invoices Report',
+      subtitle: 'Comprehensive ledger of all customer invoices and revenue receipts',
+      totalAmount: filteredSalesBills.reduce((sum, b) => sum + b.totalAmount, 0),
+      totalCount: filteredSalesBills.length,
+      rows,
+    });
+    setIsReportModalOpen(true);
+  };
+
   // Metric aggregates
   const totalRevenue = groupedBills.reduce((sum, b) => sum + b.totalAmount, 0);
   const totalInvoices = groupedBills.length;
@@ -162,9 +240,14 @@ export const Sales: React.FC = () => {
                 <h2 className="text-navy fw-bold">Sales Management</h2>
                 <p className="text-muted">Track sales bills, review total revenue, and issue customer invoices.</p>
               </div>
-              <button className="btn-primary" onClick={handleAddBill}>
-                <i className="bi bi-plus-lg me-1"></i> Create New Invoice
-              </button>
+              <div className="d-flex align-items-center gap-2">
+                <button className="btn-secondary" onClick={handleExportReportPDF}>
+                  <i className="bi bi-file-earmark-arrow-down me-1"></i> Export PDF Report
+                </button>
+                <button className="btn-primary" onClick={handleAddBill}>
+                  <i className="bi bi-plus-lg me-1"></i> Create New Invoice
+                </button>
+              </div>
             </div>
 
             {/* Stats Summary Cards */}
@@ -314,6 +397,25 @@ export const Sales: React.FC = () => {
                             <div className="sales-amount-tag" style={{ color: '#255DCE', fontWeight: 'bold', fontSize: '16px' }}>
                               Rs. {bill.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </div>
+
+                            <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                  type="button"
+                                  className="btn-row-action pdf"
+                                  title="Download Sales Invoice PDF"
+                                  onClick={() => handleDownloadSalesPdf(bill)}
+                              >
+                                <i className="bi bi-file-earmark-pdf"></i> PDF
+                              </button>
+                              <button
+                                  type="button"
+                                  className="btn-row-action"
+                                  title="Print Invoice"
+                                  onClick={() => handlePrintSalesDirectly(bill)}
+                              >
+                                <i className="bi bi-printer"></i>
+                              </button>
+                            </div>
                           </div>
                         </div>
                     );
@@ -322,6 +424,21 @@ export const Sales: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Sales Invoice PDF & Print Modal */}
+        <InvoiceModal
+            isOpen={isInvoiceModalOpen}
+            onClose={() => setIsInvoiceModalOpen(false)}
+            data={selectedInvoice}
+            autoDownload={autoDownloadInvoice}
+        />
+
+        {/* Sales List Summary Report PDF Modal */}
+        <ReportPdfModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            data={reportData}
+        />
       </div>
   );
 };
