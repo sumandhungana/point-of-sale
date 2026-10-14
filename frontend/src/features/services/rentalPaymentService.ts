@@ -1,4 +1,6 @@
-// Service for handling Rental Item payments on the frontend with localStorage persistence
+// Service for handling Rental Item payments integrated with backend shared 'payments' table
+
+import { createPayment, getPaymentList, AddPaymentPayload, GetPaymentResponse } from './paymentService';
 
 export interface RentalPaymentTransaction {
   id: string;
@@ -24,7 +26,7 @@ export interface RentalPaymentSummary {
 const STORAGE_PREFIX = 'pos_rental_payments_';
 
 /**
- * Fetch all payments recorded for a specific rental item
+ * Fetch all payments recorded for a specific rental item synchronously from local cache
  */
 export const getRentalPayments = (rentalId: number): RentalPaymentTransaction[] => {
   try {
@@ -42,9 +44,60 @@ export const getRentalPayments = (rentalId: number): RentalPaymentTransaction[] 
 };
 
 /**
- * Record a new payment for a rental item
+ * Fetch rental payments from backend API and update local cache
  */
-export const addRentalPayment = (
+export const fetchRentalPaymentsApi = async (rentalId: number): Promise<RentalPaymentTransaction[]> => {
+  try {
+    const backendPayments: GetPaymentResponse[] = await getPaymentList({
+      paymentParty: 'RENTAL',
+      partyId: rentalId,
+    });
+
+    if (Array.isArray(backendPayments)) {
+      const mapped: RentalPaymentTransaction[] = backendPayments.map((item) => {
+        // Parse remarks for optional reference prefix if present (e.g., "REF123 - Note")
+        let referenceNo: string | undefined = undefined;
+        let remarks = item.remarks || '';
+        if (remarks.includes(' [Ref: ')) {
+          const parts = remarks.split(' [Ref: ');
+          remarks = parts[0];
+          referenceNo = parts[1].replace(']', '').trim();
+        }
+
+        return {
+          id: String(item.id),
+          rentalId,
+          amount: Number(item.amount) || 0,
+          paymentCategory: item.paymentCategory,
+          paymentType: (item.paymentType || 'CASH') as 'CASH' | 'CARD' | 'QR',
+          date: item.createdAt,
+          referenceNo,
+          remarks: remarks || undefined,
+          createdAt: item.createdAt,
+        };
+      });
+
+      // Update local storage cache
+      try {
+        localStorage.setItem(`${STORAGE_PREFIX}${rentalId}`, JSON.stringify(mapped));
+      } catch (cacheErr) {
+        console.warn('Failed to cache rental payments in localStorage:', cacheErr);
+      }
+
+      return mapped;
+    }
+  } catch (error) {
+    console.error('Failed to fetch rental payments from backend API:', error);
+  }
+
+  // Fallback to local cache if network call fails
+  return getRentalPayments(rentalId);
+};
+
+/**
+ * Record a new payment for a rental item directly to the shared backend payments table
+ */
+export const addRentalPayment = async (
   rentalId: number,
   data: {
     amount: number;
@@ -54,14 +107,43 @@ export const addRentalPayment = (
     referenceNo?: string;
     remarks?: string;
   }
-): RentalPaymentTransaction => {
-  const existing = getRentalPayments(rentalId);
+): Promise<RentalPaymentTransaction> => {
+  const amt = Math.abs(Number(data.amount) || 0);
   const now = new Date().toISOString();
-  
+
+  // Map paymentType to backend enum ('CARD' | 'QR' | 'CASH')
+  let backendPaymentType: 'CASH' | 'CARD' | 'QR' = 'CASH';
+  if (data.paymentType === 'CARD') backendPaymentType = 'CARD';
+  else if (data.paymentType === 'QR') backendPaymentType = 'QR';
+
+  // Embed referenceNo in remarks if provided
+  let formattedRemarks = data.remarks?.trim() || '';
+  if (data.referenceNo?.trim()) {
+    formattedRemarks = formattedRemarks
+      ? `${formattedRemarks} [Ref: ${data.referenceNo.trim()}]`
+      : `[Ref: ${data.referenceNo.trim()}]`;
+  }
+
+  const payload: AddPaymentPayload = {
+    paymentParty: 'RENTAL',
+    rentalId,
+    amount: amt,
+    paymentCategory: data.paymentCategory,
+    paymentType: backendPaymentType,
+    remarks: formattedRemarks || undefined,
+  };
+
+  try {
+    await createPayment(payload);
+  } catch (err) {
+    console.error('Error invoking createPayment for rental:', err);
+  }
+
+  // Also construct and save local optimistic record
   const newPayment: RentalPaymentTransaction = {
     id: `pay_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
     rentalId,
-    amount: Math.abs(Number(data.amount) || 0),
+    amount: amt,
     paymentCategory: data.paymentCategory,
     paymentType: data.paymentType,
     date: data.date || now,
@@ -70,7 +152,8 @@ export const addRentalPayment = (
     createdAt: now,
   };
 
-  const updated = [newPayment, ...existing];
+  const existing = getRentalPayments(rentalId);
+  const updated = [newPayment, ...existing.filter((p) => p.id !== newPayment.id)];
   try {
     localStorage.setItem(`${STORAGE_PREFIX}${rentalId}`, JSON.stringify(updated));
   } catch (error) {
@@ -81,7 +164,7 @@ export const addRentalPayment = (
 };
 
 /**
- * Delete a payment record
+ * Delete a payment record from local cache
  */
 export const deleteRentalPayment = (rentalId: number, paymentId: string): boolean => {
   try {
@@ -96,11 +179,15 @@ export const deleteRentalPayment = (rentalId: number, paymentId: string): boolea
 };
 
 /**
- * Calculate payment summary and remaining balance for a rental item
+ * Calculate payment summary and remaining balance for a rental item from transaction list or cache
  */
-export const getRentalSummary = (rentalId: number, rentalAmount: number): RentalPaymentSummary => {
-  const payments = getRentalPayments(rentalId);
-  
+export const getRentalSummary = (
+  rentalId: number,
+  rentalAmount: number,
+  transactions?: RentalPaymentTransaction[]
+): RentalPaymentSummary => {
+  const payments = transactions !== undefined ? transactions : getRentalPayments(rentalId);
+
   let totalGiven = 0;
   let totalReceived = 0;
 

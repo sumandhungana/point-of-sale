@@ -26,6 +26,9 @@ public record AddPaymentUCRequest(
         @Nullable
         Long staffId,
 
+        @Nullable
+        Long rentalId,
+
         @NotNull(message = "Amount is required")
         @Positive(message = "Amount must be greater than zero")
         BigDecimal amount,

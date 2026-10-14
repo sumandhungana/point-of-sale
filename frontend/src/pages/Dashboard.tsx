@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Sidebar } from '@/components/Sidebar';
+import Navbar from '@/components/Navbar';
 import { getCustomers } from '@/features/services/customerService';
 import { getSuppliers } from '@/features/services/supplierService';
 import { SystemMonitor } from '@/components/SystemMonitor';
@@ -10,8 +11,6 @@ import { fetchPurchases, GetAllPurchaseBillResponse } from '@/features/services/
 import { fetchExpenses } from '@/services/expensesListService';
 import { fetchIncomes } from '@/services/incomeService';
 import { fetchCashbooks } from '@/services/cashbookService';
-import { fetchRentalItems } from '@/features/services/rentalItemService';
-import { fetchUsers } from '@/services/userService';
 import { fetchItems } from '@/services/itemService';
 import '../styles/Dashboard.css';
 
@@ -50,13 +49,9 @@ const Dashboard: React.FC = () => {
   const [totalExpenses, setTotalExpenses] = useState<number>(0);
   const [totalIncome, setTotalIncome] = useState<number>(0);
   const [totalCashbook, setTotalCashbook] = useState<number>(0);
-  const [totalRentalItem, setTotalRentalItem] = useState<number>(0);
-  const [totalBranch, setTotalBranch] = useState<number>(1);
-  const [totalAppUser, setTotalAppUser] = useState<number>(0);
   const [totalItem, setTotalItem] = useState<number>(0);
   const [totalDue, setTotalDue] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
-  const [totalDeposit, setTotalDeposit] = useState<number>(0);
 
   const [loading, setLoading] = useState<boolean>(true);
   const [activeBarHover, setActiveBarHover] = useState<number | null>(null);
@@ -73,8 +68,6 @@ const Dashboard: React.FC = () => {
         expensesData,
         incomesData,
         cashbooksData,
-        rentalItemsData,
-        usersData,
         itemsData,
       ] = await Promise.allSettled([
         getCustomers(),
@@ -85,8 +78,6 @@ const Dashboard: React.FC = () => {
         fetchExpenses(),
         fetchIncomes(),
         fetchCashbooks(),
-        fetchRentalItems(),
-        fetchUsers(),
         fetchItems(),
       ]);
 
@@ -118,18 +109,9 @@ const Dashboard: React.FC = () => {
       if (cashbooksData.status === 'fulfilled') {
         setTotalCashbook(Array.isArray(cashbooksData.value) ? cashbooksData.value.length : 0);
       }
-      if (rentalItemsData.status === 'fulfilled') {
-        setTotalRentalItem(Array.isArray(rentalItemsData.value) ? rentalItemsData.value.length : 0);
-      }
-      if (usersData.status === 'fulfilled') {
-        setTotalAppUser(Array.isArray(usersData.value) ? usersData.value.length : 0);
-      }
       if (itemsData.status === 'fulfilled') {
         setTotalItem(Array.isArray(itemsData.value) ? itemsData.value.length : 0);
       }
-
-      setTotalBranch(1);
-      setTotalDeposit(0);
 
       // Raw payment totals from backend
       try {
@@ -285,15 +267,13 @@ const Dashboard: React.FC = () => {
     { label: 'Suppliers', count: totalSuppliers, color: '#2196F3' },
     { label: 'Staff', count: totalStaff, color: '#FF9800' },
     { label: 'Items', count: totalItem, color: '#9C27B0' },
-    { label: 'Rental Items', count: totalRentalItem, color: '#E91E63' },
-    { label: 'App Users', count: totalAppUser, color: '#00BCD4' },
-  ], [totalCustomers, totalSuppliers, totalStaff, totalItem, totalRentalItem, totalAppUser]);
+  ], [totalCustomers, totalSuppliers, totalStaff, totalItem]);
 
   const maxEntityCount = useMemo(() => {
     return Math.max(...entityData.map((d) => d.count), 1);
   }, [entityData]);
 
-  // All 15 Boxes (The Original Metrics in Modern Cards)
+  // Core System Metrics in Modern Cards
   const metrics: Array<{
     title: string;
     value: number;
@@ -309,13 +289,9 @@ const Dashboard: React.FC = () => {
     { title: 'Total Expenses', value: totalExpenses, icon: 'bi-box-seam', iconColor: '#F44336' },
     { title: 'Total Income', value: totalIncome, icon: 'bi-wallet2', iconColor: '#4CAF50' },
     { title: 'Total Cashbook', value: totalCashbook, icon: 'bi-credit-card', iconColor: '#2196F3' },
-    { title: 'Total Rental Item', value: totalRentalItem, icon: 'bi-file-earmark', iconColor: '#9C27B0' },
-    { title: 'Total Branch', value: totalBranch, icon: 'bi-building', iconColor: '#9C27B0' },
-    { title: 'Total App User', value: totalAppUser, icon: 'bi-person-badge', iconColor: '#2196F3' },
     { title: 'Total Item', value: totalItem, icon: 'bi-bag-check', iconColor: '#FF9800' },
     { title: 'Total Due', value: totalDue, icon: 'bi-arrow-up-circle', iconColor: '#F44336', isCurrency: true },
     { title: 'Total Paid', value: totalPaid, icon: 'bi-arrow-down-circle', iconColor: '#4CAF50', isCurrency: true },
-    { title: 'Total Deposit', value: totalDeposit, icon: 'bi-bank', iconColor: '#4CAF50', isCurrency: true },
   ];
 
   // Greeting and Current Date based on real-time
@@ -344,6 +320,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="dashboard-page-wrapper">
       <Sidebar />
+      <Navbar />
       <main className="dashboard-container">
         {/* Header with Greeting and Company Name on same line, Date and Sync Button */}
         <div className="dashboard-top-header">

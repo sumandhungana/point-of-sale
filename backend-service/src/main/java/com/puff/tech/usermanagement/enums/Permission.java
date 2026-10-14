@@ -71,6 +71,7 @@ public enum Permission {
 
     RENTAL_ADD(Module.RENTAL, "add"),
     RENTAL_GET_ALL(Module.RENTAL, "all"),
+    RENTAL_PAYMENT(Module.RENTAL, "payment"),
 
 
     //Inventory Permissions

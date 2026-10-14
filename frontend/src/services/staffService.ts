@@ -109,5 +109,45 @@ export async function createStaffSalary(salaryData: any) {
       }
   );
   if(res.error) throw new Error('Failed to create staff salaries');
-  return res?.response?.data
+  return res?.response?.data;
+}
+
+// Fetch single staff by id
+export async function fetchStaffById(id: number): Promise<GetStaffResponse | null> {
+  const res = await apiService.get<RestResponse<GetStaffResponse>>(
+      `api/v1/staff/${id}`,
+      {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      }
+  );
+
+  if (res.error) {
+    // Fallback to fetchStaff list search if single endpoint is restricted
+    try {
+      const list = await fetchStaff();
+      return list.find((s) => s.id === id) || null;
+    } catch {
+      return null;
+    }
+  }
+
+  return res?.response?.data || null;
+}
+
+// Update staff details including notes/remarks
+export async function updateStaff(id: number, staffData: any): Promise<any> {
+  const res = await apiService.put<RestResponse<{ message: string }>>(
+      `api/v1/staff/${id}`,
+      { ...staffData, id },
+      {
+        headers: {
+          ...getAuthHeaders(),
+        },
+      }
+  );
+
+  if (res.error) throw new Error('Failed to update staff notes/details');
+  return res?.response?.data;
 }

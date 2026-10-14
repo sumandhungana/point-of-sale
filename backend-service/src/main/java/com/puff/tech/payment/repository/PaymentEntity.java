@@ -7,6 +7,7 @@ import com.puff.tech.payment.ValidPaymentParty;
 import com.puff.tech.payment.enums.PaymentParty;
 import com.puff.tech.payment.enums.PaymentCategory;
 import com.puff.tech.payment.enums.PaymentType;
+import com.puff.tech.entity.RentalEntity;
 import com.puff.tech.staffmanagement.repository.OrganizationStaffEntity;
 import com.puff.tech.suppliermanagement.repository.SupplierEntity;
 import io.micronaut.core.annotation.Introspected;
@@ -51,7 +52,7 @@ public class PaymentEntity {
     @NotNull
     @TypeDef(type = DataType.STRING)
     @MappedProperty("payment_party")
-    private PaymentParty paymentParty; // CUSTOMER, SUPPLIER, AUDIT, STAFF
+    private PaymentParty paymentParty; // CUSTOMER, SUPPLIER, AUDIT, STAFF, RENTAL
 
     @Nullable
     @Relation(value = Relation.Kind.MANY_TO_ONE)
@@ -67,6 +68,11 @@ public class PaymentEntity {
     @Relation(value = Relation.Kind.MANY_TO_ONE)
     @MappedProperty("supplier_id")
     private SupplierEntity supplier;
+
+    @Nullable
+    @Relation(value = Relation.Kind.MANY_TO_ONE)
+    @MappedProperty("rental_id")
+    private RentalEntity rental;
 
     @NotNull
     @Positive
@@ -133,6 +139,11 @@ public class PaymentEntity {
             case STAFF -> {
                 if (staff == null) {
                     throw new IllegalArgumentException("Staff entity must not be null when PaymentParty is STAFF");
+                }
+            }
+            case RENTAL -> {
+                if (rental == null) {
+                    throw new IllegalArgumentException("Rental entity must not be null when PaymentParty is RENTAL");
                 }
             }
             case AUDIT -> {

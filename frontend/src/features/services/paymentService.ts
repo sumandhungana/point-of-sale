@@ -4,10 +4,11 @@ import {RestResponse} from "@/core/auth/types"
 import {toast} from "react-toastify";
 
 export interface AddPaymentPayload {
-    paymentParty: 'CUSTOMER' | 'SUPPLIER' | 'STAFF' | 'AUDIT';
+    paymentParty: 'CUSTOMER' | 'SUPPLIER' | 'STAFF' | 'AUDIT' | 'RENTAL';
     customerId?: number;
     supplierId?: number;
     staffId?: number;
+    rentalId?: number;
     amount: number;
     paymentType: 'CARD' | 'QR' | 'CASH';
     paymentCategory: 'GIVEN' | 'RECEIVED';
@@ -21,7 +22,7 @@ export interface PaymentCreatedResponse {
 }
 
 export interface GetPaymentListRequest {
-    paymentParty: 'CUSTOMER' | 'SUPPLIER' | 'STAFF' | 'AUDIT';
+    paymentParty: 'CUSTOMER' | 'SUPPLIER' | 'STAFF' | 'AUDIT' | 'RENTAL';
     partyId: number;
 }
 export interface CustomerData {
@@ -58,10 +59,11 @@ export interface SupplierData {
 
 export interface GetPaymentResponse {
     id: number;
-    paymentParty: 'CUSTOMER' | 'SUPPLIER' | 'STAFF' | 'AUDIT';
+    paymentParty: 'CUSTOMER' | 'SUPPLIER' | 'STAFF' | 'AUDIT' | 'RENTAL';
     customerId?: number;
     supplierId?: number;
     staffId?: number;
+    rentalId?: number;
     amount: number;
     paymentType: 'CARD' | 'QR' | 'CASH';
     paymentCategory: 'GIVEN' | 'RECEIVED';

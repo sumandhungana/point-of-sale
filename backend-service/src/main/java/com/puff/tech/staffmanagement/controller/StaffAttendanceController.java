@@ -1,6 +1,8 @@
 package com.puff.tech.staffmanagement.controller;
 
 import com.puff.tech.core.responses.RestResponse;
+import com.puff.tech.security.Secured;
+import com.puff.tech.usermanagement.enums.Permission;
 import com.puff.tech.staffmanagement.usecase.staffattendance.create.CreateStaffAtendanceUseCase;
 import com.puff.tech.staffmanagement.usecase.staffattendance.create.CreateStaffAtendanceUseCaseRequest;
 import com.puff.tech.staffmanagement.usecase.staffattendance.create.CreateStaffAtendanceUseCaseResponse;
@@ -24,6 +26,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
 
 @Controller("")
 public class StaffAttendanceController {
@@ -53,57 +56,66 @@ public class StaffAttendanceController {
         this.deleteStaffAttendanceUseCase = deleteStaffAttendanceUseCase;
     }
 
+    @Secured(permissions = {Permission.STAFF_CREATE, Permission.STAFF_UPDATE, Permission.STAFF_FIND_ALL})
     @Post("/staff-attendance")
     public Mono<RestResponse<CreateStaffAtendanceUseCaseResponse>> create(@Body CreateStaffAtendanceUseCaseRequest request){
         return createStaffAtendanceUseCase.execute(request)
                 .map(RestResponse::success)
-                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error creating attendance: " + err.getLocalizedMessage())));
     }
 
+    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
     @Get("/staff-attendance")
-    public Flux<RestResponse<GetStaffAttendanceUseCaseResponse>> get(){
+    public Mono<RestResponse<List<GetStaffAttendanceUseCaseResponse>>> get(){
         return getStaffAttendanceUseCase.execute()
+                .collectList()
                 .map(RestResponse::success)
-                .onErrorResume(err-> Flux.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendances: " + err.getLocalizedMessage())));
     }
 
-    @Get("/staff-attendance/{date}")
-    public Flux<RestResponse<GetStaffAttendanceUseCaseResponse>> getByDate(Instant date){
-        var request= new GetStaffAttendanceByDateUseCaseRequest(date);
+    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
+    @Get("/staff-attendance/date/{date}")
+    public Mono<RestResponse<List<GetStaffAttendanceUseCaseResponse>>> getByDate(@PathVariable Instant date){
+        var request = new GetStaffAttendanceByDateUseCaseRequest(date);
         return getStaffAttendanceByDateUseCase.execute(request)
+                .collectList()
                 .map(RestResponse::success)
-                .onErrorResume(err-> Flux.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendances by date: " + err.getLocalizedMessage())));
     }
 
-    @Get("/staff-attendance/{staffId}")
-    public Flux<RestResponse<GetStaffAttendanceUseCaseResponse>> getByStaff(@PathVariable Integer staffId){
-        var request= new GetStaffAttendanceBySatffIdUseCaseRequest(staffId);
+    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
+    @Get("/staff-attendance/staff/{staffId}")
+    public Mono<RestResponse<List<GetStaffAttendanceUseCaseResponse>>> getByStaff(@PathVariable Integer staffId){
+        var request = new GetStaffAttendanceBySatffIdUseCaseRequest(staffId);
         return getStaffAttendanceBySatffIdUseCase.execute(request)
+                .collectList()
                 .map(RestResponse::success)
-                .onErrorResume(err-> Flux.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendances by staff: " + err.getLocalizedMessage())));
     }
 
+    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
     @Get("/staff-attendance/{id}")
     public Mono<RestResponse<GetStaffAttendanceUseCaseResponse>> getById(@PathVariable Integer id){
-        var request= new GetStaffAttendanceByIdUseCaseRequest(id);
+        var request = new GetStaffAttendanceByIdUseCaseRequest(id);
         return getStaffAttendanceByIdUseCase.execute(request)
                 .map(RestResponse::success)
-                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
-
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendance: " + err.getLocalizedMessage())));
     }
 
+    @Secured(permissions = {Permission.STAFF_UPDATE, Permission.STAFF_CREATE})
     @Put("/staff-attendance")
     public Mono<RestResponse<UpdateSatffAttendanceUseCaseResponse>> update(@Body UpdateSatffAttendanceUseCaseRequest request){
         return updateSatffAttendanceUseCase.execute(request)
                 .map(RestResponse::success)
-                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error updating attendance: " + err.getLocalizedMessage())));
     }
 
+    @Secured(permissions = {Permission.STAFF_DELETE, Permission.STAFF_UPDATE})
     @Delete("/staff-attendance/{id}")
     public Mono<RestResponse<DeleteStaffAttendanceUseCaseResponse>> delete(@PathVariable Integer id){
-        var request= new DeleteStaffAttendanceUseCaseRequest(id);
+        var request = new DeleteStaffAttendanceUseCaseRequest(id);
         return deleteStaffAttendanceUseCase.execute(request)
                 .map(RestResponse::success)
-                .onErrorResume(err-> Mono.just(RestResponse.error("Unexpected on controller" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.just(RestResponse.error("Error deleting attendance: " + err.getLocalizedMessage())));
     }
 }

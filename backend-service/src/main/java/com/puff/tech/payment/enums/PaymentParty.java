@@ -1,5 +1,5 @@
 package com.puff.tech.payment.enums;
 
 public enum PaymentParty {
-    CUSTOMER, SUPPLIER, STAFF, AUDIT
+    CUSTOMER, SUPPLIER, STAFF, AUDIT, RENTAL
 }

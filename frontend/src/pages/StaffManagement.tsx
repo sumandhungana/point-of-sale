@@ -3,6 +3,13 @@ import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { fetchStaff } from '@/services/staffService';
+import {
+  fetchStaffAttendances,
+  recordStaffAttendance,
+  StaffAttendanceRecord,
+  AttendanceStatusType
+} from '@/services/staffAttendanceService';
+import { toast } from 'react-toastify';
 import '../styles/StaffManagement.css';
 
 export interface StaffSalary {
@@ -59,38 +66,107 @@ export const StaffManagement = () => {
   const [permissionInput, setPermissionInput] = useState<string>('');
   const [staffPermissions, setStaffPermissions] = useState<Record<string | number, string[]>>({});
   const [staffList, setStaffList] = useState<Staff[]>([]);
+  const [attendanceRecords, setAttendanceRecords] = useState<StaffAttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBy, setFilterBy] = useState('');
   const [sortBy, setSortBy] = useState('');
 
   // Helper getters to safely retrieve nested arrays regardless of property name
-  // Helper getter to safely retrieve nested salary arrays regardless of property name
   const getSalaries = (staff: Staff): StaffSalary[] => {
     if (Array.isArray(staff.salaryResponses)) {
       return staff.salaryResponses;
     }
-
     return [];
   };
 
   const getAttendances = (staff: Staff): StaffAttendance[] => {
-    return staff.staffAttendanceEntities || staff.staffAttendanceEntities || [];
+    return (staff as any).attendanceResponses || staff.staffAttendanceEntities || [];
+  };
+
+  const loadData = async () => {
+    try {
+      const [staffData, attendances] = await Promise.all([
+        fetchStaff(),
+        fetchStaffAttendances(),
+      ]);
+      setStaffList(staffData || []);
+      setAttendanceRecords(attendances || []);
+    } catch (error) {
+      console.error('Error fetching staff data:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
-    const fetchStaffList = async () => {
-      try {
-        const data = await fetchStaff();
-        setStaffList(data || []);
-      } catch (error) {
-        console.error('Error fetching staff:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchStaffList();
+    loadData();
   }, []);
+
+  const getTodayStatusForStaff = (staffId: number): AttendanceStatusType | '' => {
+    const todayStr = new Date().toDateString();
+    // 1. Check in attendanceRecords fetched from backend
+    const record = attendanceRecords.find(
+      (a) => a.staffId === staffId && a.date && new Date(a.date).toDateString() === todayStr
+    );
+    if (record?.status) {
+      return record.status.toUpperCase() as AttendanceStatusType;
+    }
+
+    // 2. Fallback to nested staff attendance responses
+    const staff = staffList.find((s) => s.id === staffId);
+    if (staff) {
+      const attendances = getAttendances(staff);
+      const match = attendances.find((a: any) => {
+        const d = a.attendanceDate || a.date;
+        return d && new Date(d).toDateString() === todayStr;
+      });
+      if (match?.status) {
+        return match.status.toUpperCase() as AttendanceStatusType;
+      }
+    }
+    return '';
+  };
+
+  const handleAttendanceChange = async (staffId: number, staffName: string, newStatus: string) => {
+    if (!newStatus) return;
+    const statusType = newStatus.toUpperCase() as AttendanceStatusType;
+
+    // Optimistically update local records state
+    setAttendanceRecords((prev) => {
+      const todayStr = new Date().toDateString();
+      const filtered = prev.filter(
+        (a) => !(a.staffId === staffId && a.date && new Date(a.date).toDateString() === todayStr)
+      );
+      return [
+        {
+          id: Date.now(),
+          staffId,
+          date: new Date().toISOString(),
+          status: statusType,
+          createdAt: new Date().toISOString(),
+        },
+        ...filtered,
+      ];
+    });
+
+    const success = await recordStaffAttendance({
+      staffId,
+      status: statusType,
+      date: new Date().toISOString(),
+    });
+
+    if (success) {
+      toast.success(`${staffName} marked as ${statusType.replace('_', ' ')}!`, {
+        position: 'top-right',
+        autoClose: 2500,
+      });
+      // Refresh attendances in background
+      fetchStaffAttendances().then(setAttendanceRecords);
+    } else {
+      toast.error(`Failed to record attendance for ${staffName}`);
+    }
+  };
 
   const handleOpenPermissionModal = (staffId: string | number) => {
     setSelectedStaffId(staffId);
@@ -155,13 +231,9 @@ export const StaffManagement = () => {
   }, 0);
 
   const todayAttendances = staffList.reduce((acc, staff) => {
-    const attendances = getAttendances(staff);
-    const todayAttendance = attendances.find(a =>
-        a?.date && new Date(a.date).toDateString() === new Date().toDateString()
-    );
-    if (todayAttendance?.status) {
-      const statusKey = todayAttendance.status.toUpperCase();
-      acc[statusKey] = (acc[statusKey] || 0) + 1;
+    const status = getTodayStatusForStaff(staff.id);
+    if (status) {
+      acc[status] = (acc[status] || 0) + 1;
     }
     return acc;
   }, {} as Record<string, number>);
@@ -445,7 +517,43 @@ export const StaffManagement = () => {
                             )}
                           </div>
                           <div className="staff-management-staff-details">
-                            <div className="staff-management-staff-name">{staff.name}</div>
+                            {(() => {
+                              const todayStatus = getTodayStatusForStaff(staff.id);
+                              return (
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                  <div className="staff-management-staff-name">{staff.name}</div>
+                                  {todayStatus && (
+                                    <span
+                                      style={{
+                                        fontSize: '0.72rem',
+                                        fontWeight: 700,
+                                        padding: '2px 8px',
+                                        borderRadius: '12px',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        background:
+                                          todayStatus === 'PRESENT' ? '#dcfce7' :
+                                          todayStatus === 'ABSENT' ? '#fee2e2' :
+                                          todayStatus === 'HALF_DAY' ? '#fef3c7' : '#f3e8ff',
+                                        color:
+                                          todayStatus === 'PRESENT' ? '#166534' :
+                                          todayStatus === 'ABSENT' ? '#991b1b' :
+                                          todayStatus === 'HALF_DAY' ? '#92400e' : '#6b21a8',
+                                        border: `1px solid ${
+                                          todayStatus === 'PRESENT' ? '#86efac' :
+                                          todayStatus === 'ABSENT' ? '#fca5a5' :
+                                          todayStatus === 'HALF_DAY' ? '#fde047' : '#d8b4fe'
+                                        }`
+                                      }}
+                                    >
+                                      <i className="bi bi-circle-fill" style={{ fontSize: '5px' }}></i>
+                                      {todayStatus === 'HALF_DAY' ? 'Half Day' : todayStatus === 'PRESENT' ? 'Present' : todayStatus === 'ABSENT' ? 'Absent' : 'Leave'}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
                             <div className="staff-management-staff-contact">
                               <i className="bi bi-telephone me-1"></i>
                               {staff.phone || 'No phone'}
@@ -454,6 +562,32 @@ export const StaffManagement = () => {
                               <i className="bi bi-calendar-event me-1"></i>
                               Salary from {formatRelativeTime(getSalaryStartDate(staff))}
                             </div>
+                            {staff.remarks && (
+                              <div
+                                className="staff-management-staff-notes"
+                                title={staff.remarks}
+                                style={{
+                                  marginTop: '4px',
+                                  fontSize: '0.78rem',
+                                  color: '#334155',
+                                  background: 'rgba(13, 110, 253, 0.08)',
+                                  padding: '2px 8px',
+                                  borderRadius: '6px',
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  gap: '4px',
+                                  maxWidth: '320px',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                <i className="bi bi-journal-text" style={{ color: '#0d6efd' }} />
+                                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                  Note: {staff.remarks}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -469,13 +603,23 @@ export const StaffManagement = () => {
                             <i className="bi bi-shield-plus me-1"></i>
                             Add Permission
                           </button>
-                          <select className="staff-management-attendance-dropdown">
-                            <option value="">Today's Attendance</option>
-                            <option value="PRESENT">Present</option>
-                            <option value="ABSENT">Absent</option>
-                            <option value="HALF_DAY">Half Day</option>
-                            <option value="LEAVE">Leave</option>
-                          </select>
+                          {(() => {
+                            const todayStatus = getTodayStatusForStaff(staff.id);
+                            return (
+                              <select
+                                className="staff-management-attendance-dropdown"
+                                value={todayStatus}
+                                onChange={(e) => handleAttendanceChange(staff.id, staff.name, e.target.value)}
+                                title="Mark today's attendance"
+                              >
+                                <option value="">Today's Attendance</option>
+                                <option value="PRESENT">✓ Present</option>
+                                <option value="ABSENT">✗ Absent</option>
+                                <option value="HALF_DAY">◷ Half Day</option>
+                                <option value="LEAVE">✈ Leave</option>
+                              </select>
+                            );
+                          })()}
                         </div>
 
                         <div

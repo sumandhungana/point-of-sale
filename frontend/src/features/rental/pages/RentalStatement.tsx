@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { fetchRental, RentalItemDto } from '@/features/services/rentalItemService';
 import {
   getRentalPayments,
+  fetchRentalPaymentsApi,
   addRentalPayment,
   deleteRentalPayment,
   getRentalSummary,
@@ -80,15 +81,27 @@ export const RentalStatement: React.FC = () => {
     }
   }, [rentalId, rentalItem]);
 
-  // Refresh payments and balances
-  const refreshTransactions = useCallback(() => {
+  // Refresh payments and balances from backend API (with instant cache fallback)
+  const refreshTransactions = useCallback(async () => {
     if (!rentalId) return;
-    const history = getRentalPayments(rentalId);
-    setPayments(history);
 
-    const rentalAmount = rentalItem?.rentalAmount || 0;
-    const updatedSummary = getRentalSummary(rentalId, rentalAmount);
-    setSummary(updatedSummary);
+    // 1. Immediately populate from local cache if present
+    const cached = getRentalPayments(rentalId);
+    if (cached && cached.length > 0) {
+      setPayments(cached);
+      const rentalAmount = rentalItem?.rentalAmount || 0;
+      setSummary(getRentalSummary(rentalId, rentalAmount, cached));
+    }
+
+    // 2. Fetch fresh payment data from the shared backend payments table
+    try {
+      const freshPayments = await fetchRentalPaymentsApi(rentalId);
+      setPayments(freshPayments);
+      const rentalAmount = rentalItem?.rentalAmount || 0;
+      setSummary(getRentalSummary(rentalId, rentalAmount, freshPayments));
+    } catch (err) {
+      console.error('Failed to load rental payments from backend API:', err);
+    }
   }, [rentalId, rentalItem?.rentalAmount]);
 
   useEffect(() => {
@@ -135,7 +148,7 @@ export const RentalStatement: React.FC = () => {
   };
 
   // Handle Recording Payment ("You Gave" or "You Received")
-  const handleSavePayment = (category: 'GIVEN' | 'RECEIVED') => {
+  const handleSavePayment = async (category: 'GIVEN' | 'RECEIVED') => {
     const amt = parseFloat(paymentAmount);
     if (isNaN(amt) || amt <= 0) {
       toast.error('Please enter a valid payment amount.');
@@ -149,7 +162,7 @@ export const RentalStatement: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      addRentalPayment(rentalId, {
+      await addRentalPayment(rentalId, {
         amount: amt,
         paymentCategory: category,
         paymentType: paymentMode,
@@ -160,16 +173,16 @@ export const RentalStatement: React.FC = () => {
 
       toast.success(
         category === 'GIVEN'
-          ? `Payment of रु ${amt.toLocaleString()} recorded successfully!`
-          : `Advance/Deposit of रु ${amt.toLocaleString()} recorded!`
+          ? `Payment of रु ${amt.toLocaleString()} recorded successfully in payments table!`
+          : `Advance/Deposit of रु ${amt.toLocaleString()} recorded in payments table!`
       );
 
       // Close modals
       setShowGaveModal(false);
       setShowReceivedModal(false);
 
-      // Refresh transactions
-      refreshTransactions();
+      // Refresh transactions from backend
+      await refreshTransactions();
     } catch (err) {
       console.error('Error saving payment:', err);
       toast.error('Failed to save payment record.');

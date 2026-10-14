@@ -42,6 +42,15 @@ public class PaymentPartyValidator implements ConstraintValidator<ValidPaymentPa
                 }
                 yield true;
             }
+            case RENTAL -> {
+                if (entity.getRental() == null) {
+                    context.buildConstraintViolationWithTemplate("rental must not be null when paymentParty is RENTAL")
+                            .addPropertyNode("rental")
+                            .addConstraintViolation();
+                    yield false;
+                }
+                yield true;
+            }
             case AUDIT -> true;
         };
     }

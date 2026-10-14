@@ -369,58 +369,6 @@ CREATE TABLE purchase_bill (
 CREATE INDEX idx_purchase_bill_purchase_no ON purchase_bill (purchase_no);
 
 
-
--- Payment
-
-CREATE TABLE payments (
-                          id BIGSERIAL PRIMARY KEY,
-                          member_id BIGINT NOT NULL,
-                          user_id BIGINT NOT NULL,
-                          payment_party VARCHAR(32) NOT NULL,
-                          customer_id BIGINT,
-                          staff_id BIGINT,
-                          supplier_id BIGINT,
-                          amount NUMERIC(19, 4) NOT NULL,
-                          payment_type VARCHAR(32) NOT NULL,
-                          payment_category VARCHAR(32) NOT NULL,
-                          bill_path VARCHAR(512),
-                          remarks VARCHAR(1000),
-                          created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                          updated_at TIMESTAMPTZ,
-                          created_by VARCHAR(255) NOT NULL,
-                          updated_by VARCHAR(255),
-
-    -- Foreign Key Constraints
-                          CONSTRAINT fk_payments_member FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE RESTRICT,
-                          CONSTRAINT fk_payments_user FOREIGN KEY (user_id) REFERENCES user_info(id) ON DELETE RESTRICT,
-                          CONSTRAINT fk_payments_customer FOREIGN KEY (customer_id) REFERENCES organization_customers(id) ON DELETE SET NULL,
-                          CONSTRAINT fk_payments_staff FOREIGN KEY (staff_id) REFERENCES organization_staff(id) ON DELETE SET NULL,
-                          CONSTRAINT fk_payments_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers(id) ON DELETE SET NULL,
-
-    -- Data Integrity Constraints
-                          CONSTRAINT chk_payments_amount_positive CHECK (amount > 0),
-                          CONSTRAINT chk_payments_party CHECK (payment_party IN ('CUSTOMER', 'SUPPLIER', 'AUDIT', 'STAFF')),
-                          CONSTRAINT chk_payments_type CHECK (payment_type IN ('CARD', 'QR', 'CASH')),
-                          CONSTRAINT chk_payments_category CHECK (payment_category IN ('GIVEN', 'RECEIVED')),
-
-    -- Conditional FK Nullability Check Constraint
-                          CONSTRAINT chk_payments_party_relation CHECK (
-                              (payment_party = 'CUSTOMER' AND customer_id IS NOT NULL) OR
-                              (payment_party = 'SUPPLIER' AND supplier_id IS NOT NULL) OR
-                              (payment_party = 'STAFF'    AND staff_id IS NOT NULL)    OR
-                              (payment_party = 'AUDIT')
-                              )
-);
-
--- Indexes for optimal lookup performance
-CREATE INDEX idx_payments_member_id ON payments(member_id);
-CREATE INDEX idx_payments_user_id ON payments(user_id);
-CREATE INDEX idx_payments_customer_id ON payments(customer_id) WHERE customer_id IS NOT NULL;
-CREATE INDEX idx_payments_supplier_id ON payments(supplier_id) WHERE supplier_id IS NOT NULL;
-CREATE INDEX idx_payments_staff_id ON payments(staff_id) WHERE staff_id IS NOT NULL;
-CREATE INDEX idx_payments_party ON payments(payment_party);
-CREATE INDEX idx_payments_created_at ON payments(created_at);
-
 -- RENTAL MANAGEMENT
 
 CREATE TABLE rental_item (
@@ -444,3 +392,66 @@ CREATE TABLE rental_item (
 
 -- Index for searching rental items quickly by name
 CREATE INDEX idx_rental_item_name ON rental_item (rental_item_name);
+
+-- STAFF ATTENDANCE MANAGEMENT
+CREATE TABLE IF NOT EXISTS staff_attendance (
+    id SERIAL PRIMARY KEY,
+    member_id BIGINT,
+    staff_id BIGINT,
+    status VARCHAR(32) NOT NULL DEFAULT 'PRESENT',
+    date TIMESTAMPTZ NOT NULL,
+    note TEXT,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_staff_attendance_member FOREIGN KEY (member_id) REFERENCES member(id) ON DELETE CASCADE,
+    CONSTRAINT fk_staff_attendance_staff FOREIGN KEY (staff_id) REFERENCES organization_staff(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_staff_attendance_member_id ON staff_attendance(member_id);
+CREATE INDEX IF NOT EXISTS idx_staff_attendance_staff_id ON staff_attendance(staff_id);
+CREATE INDEX IF NOT EXISTS idx_staff_attendance_date ON staff_attendance(date);
+
+
+
+-- 1. Add rental_id column and foreign key
+ALTER TABLE payments
+    ADD COLUMN rental_id BIGINT;
+
+ALTER TABLE payments
+    ADD CONSTRAINT fk_payments_rental
+        FOREIGN KEY (rental_id)
+            REFERENCES rental_item (id)
+            ON DELETE SET NULL;
+
+-- 2. Update payment_party constraint to include RENTAL
+ALTER TABLE payments
+    DROP CONSTRAINT chk_payments_party;
+
+ALTER TABLE payments
+    ADD CONSTRAINT chk_payments_party
+        CHECK (
+            payment_party IN (
+                              'CUSTOMER',
+                              'SUPPLIER',
+                              'AUDIT',
+                              'STAFF',
+                              'RENTAL'
+                )
+            );
+
+-- 3. Update party relation constraint to support RENTAL
+ALTER TABLE payments
+    DROP CONSTRAINT chk_payments_party_relation;
+
+ALTER TABLE payments
+    ADD CONSTRAINT chk_payments_party_relation
+        CHECK (
+            (payment_party = 'CUSTOMER' AND customer_id IS NOT NULL)
+                OR (payment_party = 'SUPPLIER' AND supplier_id IS NOT NULL)
+                OR (payment_party = 'STAFF' AND staff_id IS NOT NULL)
+                OR (payment_party = 'RENTAL' AND rental_id IS NOT NULL)
+                OR (payment_party = 'AUDIT')
+            );
+
+COMMIT;

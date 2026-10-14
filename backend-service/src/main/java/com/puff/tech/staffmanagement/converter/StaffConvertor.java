@@ -25,21 +25,18 @@ public class StaffConvertor {
         staffEntity.setPhone(request.phone());
         staffEntity.setAddress(request.address());
         staffEntity.setEmail(request.email());
-        staffEntity.setRemarks(request.remarks());
+        staffEntity.setRemarks(request.remarks() != null ? request.remarks() : "");
         if(context.memberId() != null) {
             MemberEntity memberEntity = new MemberEntity();
             memberEntity.setId(context.memberId());
             staffEntity.setMember(memberEntity);
         }
-        try{
-            staffEntity.setProfileImageUrl(getImageBase64String(request.profileImageUrl().getBytes()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        if (request.profileImageUrl() != null && !request.profileImageUrl().trim().isEmpty()) {
+            staffEntity.setProfileImageUrl(request.profileImageUrl());
+        } else {
+            staffEntity.setProfileImageUrl("");
         }
         return staffEntity;
-    }
-    private static String getImageBase64String(byte[] src){
-        return Base64.getEncoder().encodeToString(src);
     }
 
     public static GetStaffUseCaseResponse toResponse(OrganizationStaffEntity entity){
@@ -75,16 +72,13 @@ public class StaffConvertor {
     }
 
     public static OrganizationStaffEntity toEntityUpdate(UpdateStaffUseCaseRequest request, OrganizationStaffEntity staffEntity){
-
         staffEntity.setName(request.name());
         staffEntity.setPhone(request.phone());
         staffEntity.setAddress(request.address());
         staffEntity.setEmail(request.email());
-        staffEntity.setRemarks(request.remarks());
-        try{
-            staffEntity.setProfileImageUrl(getImageBase64String(request.profileImageUrl().getBytes()));
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        staffEntity.setRemarks(request.remarks() != null ? request.remarks() : "");
+        if (request.profileImageUrl() != null && !request.profileImageUrl().trim().isEmpty()) {
+            staffEntity.setProfileImageUrl(request.profileImageUrl());
         }
         return staffEntity;
     }

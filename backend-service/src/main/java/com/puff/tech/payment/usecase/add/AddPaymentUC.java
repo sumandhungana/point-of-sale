@@ -7,6 +7,7 @@ import com.puff.tech.onboarding.repository.UserInfoEntity;
 import com.puff.tech.payment.repository.PaymentEntity;
 import com.puff.tech.payment.repository.PaymentRepository;
 import com.puff.tech.security.UseCaseContext;
+import com.puff.tech.entity.RentalEntity;
 import com.puff.tech.staffmanagement.repository.OrganizationStaffEntity;
 import com.puff.tech.suppliermanagement.repository.SupplierEntity;
 import jakarta.inject.Singleton;
@@ -77,6 +78,14 @@ public class AddPaymentUC implements MonoUC<AddPaymentUCRequest, AddPaymentUCRes
                     OrganizationStaffEntity staff = new OrganizationStaffEntity();
                     staff.setId(Math.toIntExact(request.staffId()));
                     entity.setStaff(staff);
+                }
+            }
+
+            case RENTAL -> {
+                if (request.rentalId() != null) {
+                    RentalEntity rental = new RentalEntity();
+                    rental.setId(Math.toIntExact(request.rentalId()));
+                    entity.setRental(rental);
                 }
             }
             case AUDIT -> {

@@ -359,7 +359,10 @@ export const AddStaff: React.FC = () => {
                   </div>
 
                   <div className="add-staff-form-group add-staff-full-width">
-                    <label className="add-staff-label">Remarks</label>
+                    <label className="add-staff-label">
+                      <i className="bi bi-journal-text me-1" />
+                      Notes / Remarks
+                    </label>
                     <div className="add-staff-input-with-icon">
                       <i className="bi bi-chat-text add-staff-field-icon add-staff-textarea-icon" />
                       <textarea
@@ -367,7 +370,7 @@ export const AddStaff: React.FC = () => {
                           value={formData.remarks}
                           onChange={handleInputChange}
                           className="add-staff-textarea"
-                          placeholder="Enter any additional remarks..."
+                          placeholder="Add any notes or remarks about this staff member (e.g. background, emergency contacts, terms)..."
                           rows={3}
                       />
                     </div>

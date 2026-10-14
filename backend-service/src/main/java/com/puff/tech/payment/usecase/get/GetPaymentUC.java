@@ -37,6 +37,7 @@ public class GetPaymentUC implements FluxUC<GetPaymentUCRequest, GetPaymentUCRes
             case CUSTOMER -> paymentRepository.findByPaymentPartyAndCustomerIdOrderByCreatedAtDesc(party, targetId);
             case SUPPLIER -> paymentRepository.findByPaymentPartyAndSupplierIdOrderByCreatedAtDesc(party, targetId);
             case STAFF -> paymentRepository.findByPaymentPartyAndStaffIdOrderByCreatedAtDesc(party, targetId);
+            case RENTAL -> paymentRepository.findByPaymentPartyAndRentalIdOrderByCreatedAtDesc(party, targetId);
             default -> Flux.error(new IllegalArgumentException("Unsupported payment party type: " + party));
         };
         // Thread-safe container to track running balance across emissions

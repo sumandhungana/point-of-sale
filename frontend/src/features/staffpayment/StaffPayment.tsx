@@ -1,9 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import { BackButton } from '@/components/BackButton';
 import { AddPayments } from './AddPayments';
+import { toast } from 'react-toastify';
 import { getPaymentList, GetPaymentResponse } from '../services/paymentService';
+import { fetchStaffById, updateStaff, GetStaffResponse } from '@/services/staffService';
+import {
+    fetchStaffAttendanceByStaffId,
+    recordStaffAttendance,
+    StaffAttendanceRecord,
+    AttendanceStatusType
+} from '@/services/staffAttendanceService';
 import '../../styles/StaffPayment.css';
 
 export const StaffPayment: React.FC = () => {
@@ -11,12 +19,21 @@ export const StaffPayment: React.FC = () => {
     const { id } = useParams<{ id: string }>();
     const staffId = id ? parseInt(id, 10) : 0;
 
+    // Staff Profile and Notes State
+    const [staffInfo, setStaffInfo] = useState<GetStaffResponse | null>(null);
+    const [isEditingNotes, setIsEditingNotes] = useState<boolean>(false);
+    const [notesText, setNotesText] = useState<string>('');
+    const [isSavingNotes, setIsSavingNotes] = useState<boolean>(false);
+
     // Attendance Modal & Date State
     const [isAttendanceOpen, setIsAttendanceOpen] = useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
     const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth());
     const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
     const [selectedStatus, setSelectedStatus] = useState<string>('present');
+    const [attendanceList, setAttendanceList] = useState<StaffAttendanceRecord[]>([]);
+    const [attendanceNote, setAttendanceNote] = useState<string>('');
+    const [isSavingAttendance, setIsSavingAttendance] = useState<boolean>(false);
 
     // Add Payment Modal State
     const [isAddPaymentOpen, setIsAddPaymentOpen] = useState<boolean>(false);
@@ -62,9 +79,170 @@ export const StaffPayment: React.FC = () => {
         }
     }, [staffId]);
 
+    // Fetch staff member profile details
+    const fetchStaffDetails = useCallback(async () => {
+        if (!staffId) return;
+        try {
+            const data = await fetchStaffById(staffId);
+            if (data) {
+                setStaffInfo(data);
+                setNotesText(data.remarks || '');
+            }
+        } catch (error) {
+            console.error('Error fetching staff profile details:', error);
+        }
+    }, [staffId]);
+
+    // Fetch attendance records from backend
+    const fetchAttendances = useCallback(async () => {
+        if (!staffId) return;
+        try {
+            const records = await fetchStaffAttendanceByStaffId(staffId);
+            setAttendanceList(Array.isArray(records) ? records : []);
+        } catch (err) {
+            console.error('Failed to fetch staff attendance records:', err);
+        }
+    }, [staffId]);
+
     useEffect(() => {
         void fetchPayments();
-    }, [fetchPayments]);
+        void fetchStaffDetails();
+        void fetchAttendances();
+    }, [fetchPayments, fetchStaffDetails, fetchAttendances]);
+
+    // Helpers to lookup attendance
+    const getAttendanceForDate = useCallback((date: Date): StaffAttendanceRecord | undefined => {
+        const targetStr = date.toDateString();
+        return attendanceList.find(
+            (a) => a.date && new Date(a.date).toDateString() === targetStr
+        );
+    }, [attendanceList]);
+
+    const todayAttendance = useMemo(() => {
+        const todayStr = new Date().toDateString();
+        return attendanceList.find(
+            (a) => a.date && new Date(a.date).toDateString() === todayStr
+        );
+    }, [attendanceList]);
+
+    // When selected date changes in calendar, sync the form inputs
+    useEffect(() => {
+        if (selectedDate) {
+            const existing = getAttendanceForDate(selectedDate);
+            if (existing) {
+                const s = existing.status.toLowerCase();
+                setSelectedStatus(s === 'half_day' ? 'halfDay' : s);
+                setAttendanceNote(existing.note || '');
+            } else {
+                setSelectedStatus('present');
+                setAttendanceNote('');
+            }
+        }
+    }, [selectedDate, getAttendanceForDate]);
+
+    // Monthly attendance metrics
+    const monthlyStats = useMemo(() => {
+        const thisMonthRecords = attendanceList.filter((a) => {
+            if (!a.date) return false;
+            const d = new Date(a.date);
+            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        });
+
+        const presentCount = thisMonthRecords.filter((a) => a.status === 'PRESENT').length;
+        const absentCount = thisMonthRecords.filter((a) => a.status === 'ABSENT').length;
+        const halfDayCount = thisMonthRecords.filter((a) => a.status === 'HALF_DAY').length;
+        const leaveCount = thisMonthRecords.filter((a) => a.status === 'LEAVE').length;
+        const totalLogged = thisMonthRecords.length;
+        const effectivePresent = presentCount + halfDayCount * 0.5;
+        const percentage = totalLogged > 0 ? Math.round((effectivePresent / totalLogged) * 100) : 0;
+
+        return {
+            presentCount,
+            absentCount,
+            halfDayCount,
+            leaveCount,
+            totalLogged,
+            percentage,
+        };
+    }, [attendanceList, currentMonth, currentYear]);
+
+    // Save attendance for the selected date
+    const handleSaveAttendance = async () => {
+        if (!staffId || !selectedDate) return;
+        setIsSavingAttendance(true);
+        try {
+            const statusUpper = (
+                selectedStatus === 'halfDay' ? 'HALF_DAY' : selectedStatus.toUpperCase()
+            ) as AttendanceStatusType;
+
+            const success = await recordStaffAttendance({
+                staffId,
+                date: selectedDate.toISOString(),
+                status: statusUpper,
+                note: attendanceNote,
+            });
+
+            if (success) {
+                toast.success(
+                    `Attendance for ${selectedDate.toLocaleDateString()} marked as ${statusUpper.replace('_', ' ')}!`,
+                    { position: 'top-right', autoClose: 3000 }
+                );
+                await fetchAttendances();
+            } else {
+                toast.error('Failed to save attendance record');
+            }
+        } catch (err) {
+            console.error('Error saving attendance:', err);
+            toast.error('Unexpected error while saving attendance');
+        } finally {
+            setIsSavingAttendance(false);
+        }
+    };
+
+    // Quick mark today's attendance
+    const handleQuickMarkToday = async (status: AttendanceStatusType) => {
+        if (!staffId) return;
+        setIsSavingAttendance(true);
+        try {
+            const success = await recordStaffAttendance({
+                staffId,
+                date: new Date().toISOString(),
+                status,
+            });
+            if (success) {
+                toast.success(`Today's attendance recorded as ${status.replace('_', ' ')}!`, {
+                    position: 'top-right',
+                    autoClose: 2500,
+                });
+                await fetchAttendances();
+            }
+        } finally {
+            setIsSavingAttendance(false);
+        }
+    };
+
+    // Save notes directly to backend
+    const handleSaveNotes = async () => {
+        if (!staffId || !staffInfo) return;
+        setIsSavingNotes(true);
+        try {
+            await updateStaff(staffId, {
+                ...staffInfo,
+                remarks: notesText,
+            });
+            setStaffInfo((prev) => (prev ? { ...prev, remarks: notesText } : prev));
+            setIsEditingNotes(false);
+            toast.success('Staff notes updated successfully in backend!', {
+                position: 'top-right',
+                autoClose: 3000,
+            });
+        } catch (err: any) {
+            console.error('Failed to update staff notes:', err);
+            toast.error(err.message || 'Failed to save notes to backend');
+        } finally {
+            setIsSavingNotes(false);
+        }
+    };
 
     // Calculate total money given / total paid to staff
     const calculateTotals = (history: GetPaymentResponse[]) => {
@@ -129,6 +307,341 @@ export const StaffPayment: React.FC = () => {
                             <i className="bi bi-plus-circle me-1"></i>
                             Add Payment
                         </button>
+                    </div>
+                </div>
+
+                {/* Staff Profile & Backend Notes Card */}
+                <div
+                    className="staff-profile-notes-banner"
+                    style={{
+                        background: '#ffffff',
+                        borderRadius: '16px',
+                        padding: '1.25rem 1.5rem',
+                        marginBottom: '1.5rem',
+                        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
+                        border: '1px solid #e2e8f0',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem',
+                    }}
+                >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <div
+                                style={{
+                                    width: '54px',
+                                    height: '54px',
+                                    borderRadius: '50%',
+                                    backgroundColor: '#e0e7ff',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#4338ca',
+                                    fontSize: '1.5rem',
+                                    overflow: 'hidden',
+                                    border: '2px solid #c7d2fe',
+                                }}
+                            >
+                                {staffInfo?.profileImageUrl ? (
+                                    <img
+                                        src={staffInfo.profileImageUrl}
+                                        alt={staffInfo.name}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                ) : (
+                                    <i className="bi bi-person-fill" />
+                                )}
+                            </div>
+                            <div>
+                                <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 700, color: '#1e293b' }}>
+                                    {staffInfo?.name || `Staff Member #${staffId}`}
+                                </h2>
+                                <div style={{ display: 'flex', gap: '1.25rem', marginTop: '4px', fontSize: '0.85rem', color: '#64748b', flexWrap: 'wrap' }}>
+                                    {staffInfo?.phone && (
+                                        <span>
+                                            <i className="bi bi-telephone me-1" />
+                                            {staffInfo.phone}
+                                        </span>
+                                    )}
+                                    {staffInfo?.email && (
+                                        <span>
+                                            <i className="bi bi-envelope me-1" />
+                                            {staffInfo.email}
+                                        </span>
+                                    )}
+                                    {staffInfo?.address && (
+                                        <span>
+                                            <i className="bi bi-geo-alt me-1" />
+                                            {staffInfo.address}
+                                        </span>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Quick Actions (Notes & Attendance) */}
+                        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                            <button
+                                type="button"
+                                onClick={() => setIsAttendanceOpen(true)}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.4rem',
+                                    padding: '0.45rem 0.9rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid #10b981',
+                                    background: '#ecfdf5',
+                                    color: '#065f46',
+                                    fontWeight: 600,
+                                    fontSize: '0.85rem',
+                                    cursor: 'pointer',
+                                }}
+                            >
+                                <i className="bi bi-calendar3" style={{ color: '#059669' }} />
+                                Attendance Calendar
+                            </button>
+                            {!isEditingNotes && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditingNotes(true)}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                        padding: '0.45rem 0.9rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #cbd5e1',
+                                        background: '#f8fafc',
+                                        color: '#334155',
+                                        fontWeight: 600,
+                                        fontSize: '0.85rem',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <i className="bi bi-pencil-square" style={{ color: '#0d6efd' }} />
+                                    {staffInfo?.remarks ? 'Edit Notes' : 'Add Note'}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Staff Notes Content Box */}
+                    <div
+                        style={{
+                            background: '#f8fafc',
+                            borderRadius: '10px',
+                            padding: '0.85rem 1.15rem',
+                            border: '1px solid #e2e8f0',
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '6px' }}>
+                            <i className="bi bi-journal-text" style={{ color: '#2563eb', fontSize: '1rem' }} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                Staff Notes / Remarks
+                            </span>
+                        </div>
+
+                        {isEditingNotes ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+                                <textarea
+                                    value={notesText}
+                                    onChange={(e) => setNotesText(e.target.value)}
+                                    rows={3}
+                                    placeholder="Enter any notes or remarks about this staff member (stored in backend)..."
+                                    style={{
+                                        width: '100%',
+                                        padding: '0.75rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #94a3b8',
+                                        fontSize: '0.9rem',
+                                        outline: 'none',
+                                    }}
+                                    disabled={isSavingNotes}
+                                    autoFocus
+                                />
+                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setNotesText(staffInfo?.remarks || '');
+                                            setIsEditingNotes(false);
+                                        }}
+                                        disabled={isSavingNotes}
+                                        style={{
+                                            padding: '0.4rem 0.85rem',
+                                            borderRadius: '6px',
+                                            border: '1px solid #cbd5e1',
+                                            background: '#fff',
+                                            color: '#64748b',
+                                            fontWeight: 600,
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleSaveNotes}
+                                        disabled={isSavingNotes}
+                                        style={{
+                                            padding: '0.4rem 1rem',
+                                            borderRadius: '6px',
+                                            border: 'none',
+                                            background: '#2563eb',
+                                            color: '#fff',
+                                            fontWeight: 600,
+                                            fontSize: '0.85rem',
+                                            cursor: 'pointer',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '0.4rem',
+                                        }}
+                                    >
+                                        {isSavingNotes ? (
+                                            <>
+                                                <i className="bi bi-arrow-clockwise spinning" /> Saving to Backend...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <i className="bi bi-check2-circle" /> Save Notes
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+                        ) : (
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: staffInfo?.remarks ? '#1e293b' : '#94a3b8', fontStyle: staffInfo?.remarks ? 'normal' : 'italic' }}>
+                                {staffInfo?.remarks || 'No notes added yet for this staff member. Click "Add Note" to record notes in backend.'}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Attendance Overview & Quick Log Bar */}
+                    <div
+                        style={{
+                            marginTop: '1rem',
+                            background: '#ffffff',
+                            borderRadius: '10px',
+                            padding: '0.9rem 1.15rem',
+                            border: '1px solid #e2e8f0',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '1rem',
+                        }}
+                    >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                <i className="bi bi-calendar-check" style={{ color: '#059669', fontSize: '1.1rem' }} />
+                                <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>
+                                    Today's Attendance:
+                                </span>
+                            </div>
+                            {todayAttendance ? (
+                                <span
+                                    style={{
+                                        padding: '0.25rem 0.65rem',
+                                        borderRadius: '6px',
+                                        fontWeight: 700,
+                                        fontSize: '0.8rem',
+                                        letterSpacing: '0.3px',
+                                        background:
+                                            todayAttendance.status === 'PRESENT'
+                                                ? '#d1fae5'
+                                                : todayAttendance.status === 'ABSENT'
+                                                ? '#fee2e2'
+                                                : todayAttendance.status === 'HALF_DAY'
+                                                ? '#fef3c7'
+                                                : '#e0e7ff',
+                                        color:
+                                            todayAttendance.status === 'PRESENT'
+                                                ? '#065f46'
+                                                : todayAttendance.status === 'ABSENT'
+                                                ? '#991b1b'
+                                                : todayAttendance.status === 'HALF_DAY'
+                                                ? '#92400e'
+                                                : '#3730a3',
+                                    }}
+                                >
+                                    {todayAttendance.status.replace('_', ' ')}
+                                </span>
+                            ) : (
+                                <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                                    Not recorded yet
+                                </span>
+                            )}
+
+                            {/* Quick Action Buttons */}
+                            <div style={{ display: 'flex', gap: '0.4rem', marginLeft: '0.5rem' }}>
+                                {(
+                                    [
+                                        { status: 'PRESENT' as const, label: 'Present', color: '#059669', bg: '#ecfdf5' },
+                                        { status: 'HALF_DAY' as const, label: 'Half Day', color: '#d97706', bg: '#fffbeb' },
+                                        { status: 'ABSENT' as const, label: 'Absent', color: '#dc2626', bg: '#fef2f2' },
+                                        { status: 'LEAVE' as const, label: 'Leave', color: '#6366f1', bg: '#eef2ff' },
+                                    ]
+                                ).map((btn) => (
+                                    <button
+                                        key={btn.status}
+                                        type="button"
+                                        disabled={isSavingAttendance}
+                                        onClick={() => void handleQuickMarkToday(btn.status)}
+                                        style={{
+                                            border: `1px solid ${btn.color}40`,
+                                            background: todayAttendance?.status === btn.status ? btn.color : btn.bg,
+                                            color: todayAttendance?.status === btn.status ? '#ffffff' : btn.color,
+                                            padding: '0.25rem 0.55rem',
+                                            borderRadius: '6px',
+                                            fontSize: '0.78rem',
+                                            fontWeight: 600,
+                                            cursor: 'pointer',
+                                            transition: 'all 0.15s ease',
+                                        }}
+                                    >
+                                        {btn.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Monthly summary pill tags */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem' }}>
+                            <span style={{ color: '#64748b', fontWeight: 600 }}>This Month:</span>
+                            <span style={{ color: '#059669', fontWeight: 700 }}>
+                                <i className="bi bi-check-circle-fill me-1" />
+                                {monthlyStats.presentCount} Present
+                            </span>
+                            <span style={{ color: '#d97706', fontWeight: 700 }}>
+                                <i className="bi bi-clock-fill me-1" />
+                                {monthlyStats.halfDayCount} Half-day
+                            </span>
+                            <span style={{ color: '#dc2626', fontWeight: 700 }}>
+                                <i className="bi bi-x-circle-fill me-1" />
+                                {monthlyStats.absentCount} Absent
+                            </span>
+                            <span style={{ color: '#6366f1', fontWeight: 700 }}>
+                                <i className="bi bi-calendar2-minus me-1" />
+                                {monthlyStats.leaveCount} Leave
+                            </span>
+                            <button
+                                type="button"
+                                onClick={() => setIsAttendanceOpen(true)}
+                                style={{
+                                    border: 'none',
+                                    background: 'transparent',
+                                    color: '#2563eb',
+                                    fontWeight: 600,
+                                    fontSize: '0.8rem',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                }}
+                            >
+                                View Calendar &rarr;
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -407,6 +920,15 @@ export const StaffPayment: React.FC = () => {
                                     date.getDate() === selectedDate.getDate() &&
                                     date.getMonth() === selectedDate.getMonth() &&
                                     date.getFullYear() === selectedDate.getFullYear();
+                                const rec = getAttendanceForDate(date);
+
+                                let dotColor: string | null = null;
+                                if (rec) {
+                                    if (rec.status === 'PRESENT') dotColor = '#10b981';
+                                    else if (rec.status === 'ABSENT') dotColor = '#ef4444';
+                                    else if (rec.status === 'HALF_DAY') dotColor = '#f59e0b';
+                                    else if (rec.status === 'LEAVE') dotColor = '#6366f1';
+                                }
 
                                 return (
                                     <button
@@ -416,8 +938,23 @@ export const StaffPayment: React.FC = () => {
                                             isSelected ? 'staff-payment-selected-date' : ''
                                         }`}
                                         onClick={() => setSelectedDate(date)}
+                                        style={{ position: 'relative' }}
                                     >
-                                        {index + 1}
+                                        <span>{index + 1}</span>
+                                        {dotColor && (
+                                            <span
+                                                style={{
+                                                    position: 'absolute',
+                                                    bottom: '3px',
+                                                    left: '50%',
+                                                    transform: 'translateX(-50%)',
+                                                    width: '6px',
+                                                    height: '6px',
+                                                    borderRadius: '50%',
+                                                    backgroundColor: isSelected ? '#ffffff' : dotColor,
+                                                }}
+                                            />
+                                        )}
                                     </button>
                                 );
                             })}
@@ -489,8 +1026,29 @@ export const StaffPayment: React.FC = () => {
                             </div>
                         </div>
 
+                        {/* Attendance Note / Remarks */}
+                        <div style={{ marginTop: '0.85rem' }}>
+                            <label style={{ fontSize: '0.82rem', fontWeight: 600, color: '#475569', marginBottom: '0.35rem', display: 'block' }}>
+                                <i className="bi bi-chat-left-text me-1" />
+                                Attendance Note / Remarks (Optional)
+                            </label>
+                            <input
+                                type="text"
+                                value={attendanceNote}
+                                onChange={(e) => setAttendanceNote(e.target.value)}
+                                placeholder="e.g. Approved sick leave, worked extra hours, etc."
+                                style={{
+                                    width: '100%',
+                                    padding: '0.5rem 0.75rem',
+                                    borderRadius: '8px',
+                                    border: '1px solid #cbd5e1',
+                                    fontSize: '0.88rem',
+                                }}
+                            />
+                        </div>
+
                         {/* Actions inside Modal */}
-                        <div className="staff-payment-bottom-controls" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', gap: '1rem' }}>
+                        <div className="staff-payment-bottom-controls" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
                             <div className="staff-payment-date-input-wrapper">
                                 <i className="bi bi-calendar-date"></i>
                                 <input
@@ -501,13 +1059,51 @@ export const StaffPayment: React.FC = () => {
                                 />
                             </div>
 
-                            <button
-                                type="button"
-                                className="staff-payment-view-summary-button"
-                                onClick={() => setIsAttendanceOpen(false)}
-                            >
-                                Done
-                            </button>
+                            <div style={{ display: 'flex', gap: '0.6rem' }}>
+                                <button
+                                    type="button"
+                                    className="staff-payment-cancel-button"
+                                    onClick={() => setIsAttendanceOpen(false)}
+                                    style={{
+                                        padding: '0.45rem 1rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #cbd5e1',
+                                        background: '#f8fafc',
+                                        color: '#475569',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    Close
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={isSavingAttendance || !selectedDate}
+                                    onClick={() => void handleSaveAttendance()}
+                                    style={{
+                                        padding: '0.45rem 1.2rem',
+                                        borderRadius: '8px',
+                                        border: 'none',
+                                        background: '#2563eb',
+                                        color: '#ffffff',
+                                        fontWeight: 600,
+                                        cursor: 'pointer',
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                    }}
+                                >
+                                    {isSavingAttendance ? (
+                                        <>
+                                            <i className="bi bi-arrow-clockwise spinning" /> Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="bi bi-check2-circle" /> Save Attendance
+                                        </>
+                                    )}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

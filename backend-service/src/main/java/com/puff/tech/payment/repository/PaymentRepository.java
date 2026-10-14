@@ -13,4 +13,5 @@ public interface PaymentRepository extends ReactorCrudRepository<PaymentEntity, 
     Flux<PaymentEntity> findByPaymentPartyAndCustomerIdOrderByCreatedAtDesc(@NotNull PaymentParty paymentParty, Integer customerId);
     Flux<PaymentEntity> findByPaymentPartyAndSupplierIdOrderByCreatedAtDesc(@NotNull PaymentParty paymentParty, Integer supplierId);
     Flux<PaymentEntity> findByPaymentPartyAndStaffIdOrderByCreatedAtDesc(@NotNull PaymentParty paymentParty, Integer staffId);
+    Flux<PaymentEntity> findByPaymentPartyAndRentalIdOrderByCreatedAtDesc(@NotNull PaymentParty paymentParty, Integer rentalId);
 }
