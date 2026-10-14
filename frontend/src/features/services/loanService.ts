@@ -1,3 +1,11 @@
+import { apiService } from "@/infrastructure/utils/ApiService";
+
+interface RestResponse<T> {
+    code: number;
+    message: string;
+    data: T;
+}
+
 export type LenderType = 'BANK' | 'PERSON' | 'INSTITUTION' | 'OTHER';
 export type InterestType = 'REDUCING' | 'FLAT';
 export type LoanStatus = 'ACTIVE' | 'CLOSED' | 'OVERDUE';
@@ -316,21 +324,112 @@ export const saveStoredTransactions = (transactions: LoanTransaction[]): void =>
     localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(transactions));
 };
 
-// CRUD API Functions
+// ==========================================
+// Backend API Requests & Fallbacks
+// ==========================================
+
+function getAuthHeaders(): Record<string, string> {
+    const token = localStorage.getItem('authToken');
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+export const calculateLoanEmiBackend = async (payload: {
+    principalAmount: number;
+    interestRate: number;
+    tenureMonths: number;
+    interestType: InterestType;
+    startDate?: string;
+}): Promise<{ monthlyEmi: number; totalInterest: number; totalPayable: number; schedule: EMIScheduleItem[] }> => {
+    try {
+        const res = await apiService.post<RestResponse<any>>('api/v1/loans/calculate', payload, {
+            headers: getAuthHeaders(),
+        });
+        if (res && res.response?.data) {
+            return res.response.data;
+        }
+    } catch (e) {
+        console.warn('Backend calculate failed, using client calculation:', e);
+    }
+    const calc = calculateEMI(payload.principalAmount, payload.interestRate, payload.tenureMonths, payload.interestType);
+    const schedule = generateAmortizationSchedule(
+        payload.principalAmount,
+        payload.interestRate,
+        payload.tenureMonths,
+        payload.startDate || new Date().toISOString(),
+        payload.interestType
+    );
+    return { ...calc, schedule };
+};
+
 export const fetchAllLoans = async (): Promise<Loan[]> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(getStoredLoans());
-        }, 100);
-    });
+    try {
+        const res = await apiService.get<RestResponse<any[]>>('api/v1/loans', {
+            headers: getAuthHeaders(),
+        });
+        if (res && res.response?.data && Array.isArray(res.response.data)) {
+            const mapped: Loan[] = res.response.data.map((l: any) => ({
+                ...l,
+                id: String(l.id),
+                schedule: (l.schedule || []).map((s: any) => ({
+                    ...s,
+                    id: String(s.id),
+                })),
+            }));
+            saveStoredLoans(mapped);
+            return mapped;
+        }
+    } catch (e) {
+        console.warn('Backend fetchAllLoans failed, falling back to local cache:', e);
+    }
+    return getStoredLoans();
 };
 
 export const fetchLoanById = async (id: string): Promise<Loan | null> => {
+    try {
+        const res = await apiService.get<RestResponse<any>>(`api/v1/loans/${id}`, {
+            headers: getAuthHeaders(),
+        });
+        if (res && res.response?.data && res.response.data.loan) {
+            const l = res.response.data.loan;
+            return {
+                ...l,
+                id: String(l.id),
+                schedule: (l.schedule || []).map((s: any) => ({
+                    ...s,
+                    id: String(s.id),
+                })),
+            };
+        }
+    } catch (e) {
+        console.warn('Backend fetchLoanById failed, falling back to local cache:', e);
+    }
     const loans = getStoredLoans();
     return loans.find((l) => l.id === id) || null;
 };
 
 export const createLoan = async (payload: CreateLoanPayload): Promise<Loan> => {
+    try {
+        const res = await apiService.post<RestResponse<any>>('api/v1/loans', payload, {
+            headers: getAuthHeaders(),
+        });
+        if (res && res.response?.data && res.response.data.loan) {
+            const l = res.response.data.loan;
+            const mapped: Loan = {
+                ...l,
+                id: String(l.id),
+                schedule: (l.schedule || []).map((s: any) => ({
+                    ...s,
+                    id: String(s.id),
+                })),
+            };
+            const current = getStoredLoans();
+            saveStoredLoans([mapped, ...current]);
+            return mapped;
+        }
+    } catch (e) {
+        console.warn('Backend createLoan failed, falling back to local storage:', e);
+    }
+
     const loans = getStoredLoans();
     const id = `loan-${Date.now()}`;
     const loanNumber = payload.loanNumber || `LN-${new Date().getFullYear()}-${String(loans.length + 1).padStart(3, '0')}`;
@@ -403,6 +502,36 @@ export const createLoan = async (payload: CreateLoanPayload): Promise<Loan> => {
 };
 
 export const recordLoanTransaction = async (payload: RecordPaymentPayload): Promise<{ loan: Loan; transaction: LoanTransaction }> => {
+    try {
+        const res = await apiService.post<RestResponse<any>>(`api/v1/loans/${payload.loanId}/payments`, payload, {
+            headers: getAuthHeaders(),
+        });
+        if (res && res.response?.data && res.response.data.loan && res.response.data.transaction) {
+            const l = res.response.data.loan;
+            const t = res.response.data.transaction;
+            const mappedLoan: Loan = {
+                ...l,
+                id: String(l.id),
+                schedule: (l.schedule || []).map((s: any) => ({
+                    ...s,
+                    id: String(s.id),
+                })),
+            };
+            const mappedTx: LoanTransaction = {
+                ...t,
+                id: String(t.id),
+                loanId: String(t.loanId),
+            };
+            const loans = getStoredLoans().map((item) => (item.id === mappedLoan.id ? mappedLoan : item));
+            saveStoredLoans(loans);
+            const txs = getStoredTransactions();
+            saveStoredTransactions([mappedTx, ...txs]);
+            return { loan: mappedLoan, transaction: mappedTx };
+        }
+    } catch (e) {
+        console.warn('Backend recordPayment failed, falling back to local calculation:', e);
+    }
+
     const loans = getStoredLoans();
     const loanIndex = loans.findIndex((l) => l.id === payload.loanId);
     if (loanIndex === -1) {
@@ -415,11 +544,9 @@ export const recordLoanTransaction = async (payload: RecordPaymentPayload): Prom
     let newPaid = loan.totalPaid;
 
     if (payload.type === 'PAYMENT_GIVEN') {
-        // Organization repays loan to lender (Repayment)
         newPaid += payload.amount;
         newBalance = Math.max(0, newBalance - payload.amount);
 
-        // Update schedule installments
         let remainingPayment = payload.amount;
         loan.schedule = loan.schedule.map((item) => {
             if (item.status === 'PENDING' && remainingPayment > 0) {
@@ -440,7 +567,6 @@ export const recordLoanTransaction = async (payload: RecordPaymentPayload): Prom
             loan.status = 'CLOSED';
         }
     } else {
-        // Organization receives additional loan / inflow from lender
         newBalance += payload.amount;
         loan.status = 'ACTIVE';
     }
@@ -474,6 +600,14 @@ export const recordLoanTransaction = async (payload: RecordPaymentPayload): Prom
 };
 
 export const deleteLoanRecord = async (loanId: string): Promise<boolean> => {
+    try {
+        await apiService.delete<RestResponse<any>>(`api/v1/loans/${loanId}`, {
+            headers: getAuthHeaders(),
+        });
+    } catch (e) {
+        console.warn('Backend deleteLoan failed:', e);
+    }
+
     const loans = getStoredLoans().filter((l) => l.id !== loanId);
     saveStoredLoans(loans);
 
@@ -482,3 +616,17 @@ export const deleteLoanRecord = async (loanId: string): Promise<boolean> => {
 
     return true;
 };
+
+export const fetchLoanMetrics = async () => {
+    try {
+        const res = await apiService.get<RestResponse<any>>('api/v1/loans/metrics', {
+            headers: getAuthHeaders(),
+        });
+        if (res && res.response?.data) return res.response.data;
+    } catch (e) {
+        console.warn('Backend fetchLoanMetrics failed:', e);
+    }
+    return null;
+};
+
+

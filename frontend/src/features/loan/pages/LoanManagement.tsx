@@ -4,7 +4,6 @@ import Navbar from '@/components/Navbar';
 import {
     Loan,
     LoanTransaction,
-    LenderType,
     fetchAllLoans,
     getStoredTransactions,
     createLoan,
@@ -513,7 +512,7 @@ export const LoanManagement: React.FC = () => {
                 onClose={() => setSelectedLoanForDetail(null)}
                 loan={selectedLoanForDetail}
                 transactions={transactions}
-                onOpenPaymentModal={(l, type, amt) => {
+                onOpenPaymentModal={(l, type) => {
                     setSelectedLoanForPayment(l);
                     setPaymentModalType(type);
                 }}
