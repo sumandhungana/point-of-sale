@@ -1,144 +1,161 @@
-/*!* ==========================================================================*/
-/*   PRODUCTS & INVENTORY MANAGEMENT STYLES*/
-/*   (Synced with organizationManagement design language)*/
-/*   ========================================================================== *!*/
-
-/*!* Search & Filter Controls Card *!*/
-/*.filter-controls-card {*/
-/*    background: #ffffff;*/
-/*    border-radius: 12px;*/
-/*    padding: 16px 20px;*/
-/*    margin-bottom: 24px;*/
-/*    box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);*/
-/*    border: 1px solid #f1f5f9;*/
-/*}*/
-
-/*.filter-controls-grid {*/
-/*    display: flex;*/
-/*    flex-wrap: wrap;*/
-/*    align-items: center;*/
-/*    gap: 16px;*/
-/*}*/
-
-/*.search-input-wrapper {*/
-/*    position: relative;*/
-/*    flex: 1;*/
-/*    min-width: 240px;*/
-/*}*/
-
-/*.search-icon {*/
-/*    position: absolute;*/
-/*    left: 12px;*/
-/*    top: 50%;*/
-/*    transform: translateY(-50%);*/
-/*    color: #6c757d;*/
-/*    font-size: 14px;*/
-/*}*/
-
-/*.search-input {*/
-/*    padding-left: 36px !important;*/
-/*}*/
-
-/*.form-group-inline {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    gap: 8px;*/
-/*}*/
-
-/*.form-group-inline label {*/
-/*    font-weight: 600;*/
-/*    font-size: 13px;*/
-/*    color: #021861;*/
-/*    white-space: nowrap;*/
-/*}*/
-
-/*.form-group-inline .form-control {*/
-/*    width: auto;*/
-/*    min-width: 160px;*/
-/*}*/
-
-/*!* Table Specific Layouts *!*/
-/*.clickable-row {*/
-/*    cursor: pointer;*/
-/*    transition: background-color 0.15s ease;*/
-/*}*/
-
-/*.clickable-row:hover {*/
-/*    background-color: rgba(37, 93, 206, 0.03) !important;*/
-/*}*/
-
-/*.item-cell-content {*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    gap: 12px;*/
-/*}*/
-
-/*.item-thumb-box {*/
-/*    width: 40px;*/
-/*    height: 40px;*/
-/*    border-radius: 8px;*/
-/*    background-color: rgba(2, 24, 97, 0.05);*/
-/*    border: 1px solid #e9ecef;*/
-/*    display: flex;*/
-/*    align-items: center;*/
-/*    justify-content: center;*/
-/*    color: #021861;*/
-/*    font-size: 18px;*/
-/*    overflow: hidden;*/
-/*    flex-shrink: 0;*/
-/*}*/
-
-/*.item-thumb {*/
-/*    width: 100%;*/
-/*    height: 100%;*/
-/*    object-fit: cover;*/
-/*}*/
-
-/*.text-navy {*/
-/*    color: #021861;*/
-/*}*/
-
-/*!* Spin animation for loading state *!*/
-/*@keyframes spin {*/
-/*    from { transform: rotate(0deg); }*/
-/*    to { transform: rotate(360deg); }*/
-/*}*/
-
-/*.spin {*/
-/*    display: inline-block;*/
-/*    animation: spin 1s linear infinite;*/
-/*}*/
-
-/*!* Responsive adjustments *!*/
-/*@media (max-width: 768px) {*/
-/*    .filter-controls-grid {*/
-/*        flex-direction: column;*/
-/*        align-items: stretch;*/
-/*    }*/
-
-/*    .form-group-inline {*/
-/*        flex-direction: column;*/
-/*        align-items: flex-start;*/
-/*    }*/
-
-/*    .form-group-inline .form-control {*/
-/*        width: 100%;*/
-/*    }*/
-/*}*/
-
 /* ==========================================================================
-   PRODUCTS & INVENTORY MANAGEMENT STYLES
+   PRODUCTS & INVENTORY MANAGEMENT STYLES (DESKTOP & MOBILE RESPONSIVE)
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. FILTER CONTROLS CARD & GRID
+   1. GLOBAL PAGE CONTAINER & LAYOUT
+   -------------------------------------------------------------------------- */
+
+.user-management-page-wrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f8fafc;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.user-management-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+}
+
+.user-management-content {
+    padding: 80px 24px 28px;
+    max-width: 1320px;
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* --------------------------------------------------------------------------
+   2. MODULE TABS (Products List vs Categories)
+   -------------------------------------------------------------------------- */
+
+.tab-container {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #e2e8f0;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+}
+
+.tab-container::-webkit-scrollbar {
+    display: none;
+}
+
+.tab-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.tab-btn:hover {
+    color: #021861;
+    background: rgba(2, 24, 97, 0.04);
+}
+
+.tab-btn.active {
+    color: #255DCE;
+    border-bottom-color: #255DCE;
+    background: rgba(37, 93, 206, 0.06);
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   3. STAT SUMMARY CARDS GRID
+   -------------------------------------------------------------------------- */
+
+.stat-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 22px;
+    width: 100%;
+}
+
+.stat-card {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
+    border: 1px solid #f1f5f9;
+    min-width: 0;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(2, 24, 97, 0.08);
+}
+
+.stat-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.stat-icon-box.navy {
+    background-color: rgba(2, 24, 97, 0.08);
+    color: #021861;
+}
+
+.stat-icon-box.blue {
+    background-color: rgba(37, 93, 206, 0.1);
+    color: #255DCE;
+}
+
+.stat-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 2px;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #0f172a;
+    word-break: break-word;
+}
+
+/* --------------------------------------------------------------------------
+   4. SEARCH & FILTER CONTROLS BAR
    -------------------------------------------------------------------------- */
 
 .filter-controls-card {
     background: #ffffff;
-    border-radius: 12px;
-    padding: 16px 20px;
-    margin-bottom: 24px;
+    border-radius: 14px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
     border: 1px solid #f1f5f9;
 }
@@ -147,33 +164,45 @@
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .search-input-wrapper {
     position: relative;
     flex: 1 1 280px;
-    min-width: 240px;
+    min-width: 220px;
 }
 
 .search-icon {
     position: absolute;
-    left: 12px;
+    left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: #6c757d;
+    color: #64748b;
     font-size: 14px;
     pointer-events: none;
 }
 
 .search-input {
-    padding-left: 36px !important;
+    padding-left: 38px !important;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    width: 100%;
+    box-sizing: border-box;
+    outline: none;
+    transition: border-color 0.2s ease;
+}
+
+.search-input:focus {
+    border-color: #255DCE;
 }
 
 .form-group-inline {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     flex: 0 1 auto;
 }
 
@@ -186,28 +215,65 @@
 
 .form-group-inline .form-control {
     width: auto;
-    min-width: 170px;
+    min-width: 160px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 13px;
+    padding: 0 12px;
+    outline: none;
+    background-color: #ffffff;
+}
+
+.form-group-inline .form-control:focus {
+    border-color: #255DCE;
+}
+
+.btn-secondary {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 9px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    height: 40px;
+}
+
+.btn-secondary:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
 }
 
 /* --------------------------------------------------------------------------
-   2. TABLE SPACING & ROW GAP ENHANCEMENTS
+   5. TABLE & CELL STYLING
    -------------------------------------------------------------------------- */
 
 .user-table-card {
     background: #ffffff;
-    border-radius: 12px;
+    border-radius: 14px;
     box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
+    border: 1px solid #f1f5f9;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .user-table {
     width: 100%;
     border-collapse: separate;
-    border-spacing: 0 10px; /* Adds physical gap between table rows */
+    border-spacing: 0 8px;
     text-align: left;
-    min-width: 750px;
+    min-width: 720px;
 }
 
 .user-table thead tr {
@@ -215,7 +281,7 @@
 }
 
 .user-table th {
-    padding: 12px 18px;
+    padding: 12px 16px;
     color: #021861;
     font-size: 12px;
     text-transform: uppercase;
@@ -225,7 +291,6 @@
     border: none;
 }
 
-/* Row styling with visual card separation */
 .user-table tbody tr.clickable-row {
     background: #ffffff;
     cursor: pointer;
@@ -241,7 +306,7 @@
 }
 
 .user-table td {
-    padding: 18px;
+    padding: 14px 16px;
     font-size: 14px;
     color: #021861;
     vertical-align: middle;
@@ -262,31 +327,27 @@
     border-bottom-right-radius: 10px;
 }
 
-/* --------------------------------------------------------------------------
-   3. ITEM & CELL INTERNAL SPACING
-   -------------------------------------------------------------------------- */
-
 .item-cell-content {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 12px;
 }
 
 .item-info-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 6px; /* Spacing between item title and category badge */
+    gap: 4px;
 }
 
 .stock-cell-wrapper {
     display: flex;
     flex-direction: column;
-    gap: 6px; /* Spacing between stock quantity and status badge */
+    gap: 4px;
 }
 
 .item-thumb-box {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 10px;
     background-color: rgba(2, 24, 97, 0.05);
     border: 1px solid #e9ecef;
@@ -294,7 +355,7 @@
     align-items: center;
     justify-content: center;
     color: #021861;
-    font-size: 20px;
+    font-size: 18px;
     overflow: hidden;
     flex-shrink: 0;
 }
@@ -310,7 +371,54 @@
     font-weight: 600;
 }
 
-/* Sticky Floating Action Button */
+/* Badges */
+.badge-role {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    background: #e0f2fe;
+    color: #0369a1;
+    display: inline-block;
+    width: fit-content;
+}
+
+.badge-status {
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    display: inline-block;
+    width: fit-content;
+}
+
+.badge-status.active {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+}
+
+.badge-status.inactive {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+/* Spin animation for loading state */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.spin {
+    display: inline-block;
+    animation: spin 1s linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   6. STICKY FLOATING ADD BUTTON
+   -------------------------------------------------------------------------- */
+
 .sticky-add-btn {
     position: fixed;
     bottom: 28px;
@@ -336,36 +444,76 @@
     box-shadow: 0 12px 35px rgba(37, 93, 206, 0.45);
 }
 
-@media (max-width: 768px) {
-    .sticky-add-btn {
-        bottom: 20px;
-        right: 20px;
-        padding: 10px 18px;
-        font-size: 13px;
-    }
+.sticky-add-btn:active {
+    transform: translateY(0);
 }
-/* --------------------------------------------------------------------------
-   4. RESPONSIVE BREAKPOINTS
-   -------------------------------------------------------------------------- */
 
-@media (max-width: 1024px) {
-    .filter-controls-grid {
+/* ==========================================================================
+   7. RESPONSIVE BREAKPOINTS
+   ========================================================================== */
+
+/* Laptops & Tablets (<= 992px) */
+@media (max-width: 992px) {
+    .user-management-content {
+        padding: 76px 18px 24px;
+    }
+
+    .stat-card-grid {
+        grid-template-columns: repeat(3, 1fr);
         gap: 12px;
     }
 
-    .form-group-inline .form-control {
-        min-width: 140px;
+    .stat-card {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+
+    .stat-icon-box {
+        width: 42px;
+        height: 42px;
+        font-size: 18px;
+    }
+
+    .stat-value {
+        font-size: 1.15rem;
     }
 }
 
+/* Tablets & Mobile Screens (<= 768px) */
 @media (max-width: 768px) {
+    .user-management-content {
+        padding: 72px 14px 20px;
+    }
+
+    .tab-container {
+        margin-bottom: 16px;
+    }
+
+    .tab-btn {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    .stat-card-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 12px;
+        margin-bottom: 16px;
+    }
+
+    .filter-controls-card {
+        padding: 12px 14px;
+        margin-bottom: 16px;
+    }
+
     .filter-controls-grid {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
     }
 
     .search-input-wrapper {
         width: 100%;
+        min-width: 100%;
     }
 
     .form-group-inline {
@@ -376,26 +524,85 @@
 
     .form-group-inline .form-control {
         flex: 1;
+        width: auto;
+        min-width: unset;
+    }
+
+    .btn-secondary {
+        width: 100%;
+        justify-content: center;
     }
 
     .user-table td,
     .user-table th {
-        padding: 12px 14px;
-    }
-}
-
-@media (max-width: 480px) {
-    .filter-controls-card {
-        padding: 12px;
+        padding: 10px 12px;
+        font-size: 13px;
     }
 
     .user-table {
-        border-spacing: 0 6px;
+        min-width: 680px;
+    }
+
+    .sticky-add-btn {
+        bottom: 20px;
+        right: 20px;
+        padding: 10px 18px;
+        font-size: 13px;
+        border-radius: 25px;
+    }
+}
+
+/* Small Mobile Phones (<= 480px) */
+@media (max-width: 480px) {
+    .user-management-content {
+        padding: 68px 10px 16px;
+    }
+
+    .stat-card-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 12px 14px;
+        gap: 10px;
+    }
+
+    .stat-icon-box {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+
+    .stat-value {
+        font-size: 1.05rem;
+    }
+
+    .filter-controls-card {
+        padding: 10px 12px;
+    }
+
+    .user-table {
+        border-spacing: 0 4px;
+        min-width: 620px;
+    }
+
+    .user-table td,
+    .user-table th {
+        padding: 8px 10px;
+        font-size: 12px;
     }
 
     .item-thumb-box {
-        width: 36px;
-        height: 36px;
-        font-size: 16px;
+        width: 34px;
+        height: 34px;
+        font-size: 15px;
+    }
+
+    .sticky-add-btn {
+        bottom: 16px;
+        right: 16px;
+        padding: 9px 16px;
+        font-size: 12px;
     }
 }

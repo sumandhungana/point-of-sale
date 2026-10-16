@@ -52,6 +52,67 @@
 
 import { useAuth } from '@/core/auth/AuthContext';
 
+export const checkIsSuperAdmin = (user: any): boolean => {
+    if (!user) return false;
+    const roleUpper = (user.role || '').toUpperCase();
+    if (
+        roleUpper === 'SUPER_ADMIN' ||
+        roleUpper === 'SUPER ADMIN' ||
+        roleUpper === '1'
+    ) {
+        return true;
+    }
+
+    const permData = user.permissionResponse;
+    const modules: string[] = [];
+    if (Array.isArray(permData)) {
+        modules.push(...permData.flatMap((item: any) => (item.module ? item.module.split(',') : [])));
+    } else if (typeof permData === 'object' && permData?.module) {
+        modules.push(...permData.module.split(','));
+    }
+
+    const cleanModules = modules.map((m) => m.trim().toLowerCase());
+    if (cleanModules.includes('*')) return true;
+
+    const perms = Array.isArray(user.permissions)
+        ? user.permissions
+        : Array.isArray(permData?.permissions)
+        ? permData.permissions
+        : [];
+    if (perms.includes('*')) return true;
+
+    return false;
+};
+
+export const getStoredUserData = (): any => {
+    try {
+        const stored = localStorage.getItem('userData');
+        return stored ? JSON.parse(stored) : null;
+    } catch {
+        return null;
+    }
+};
+
+export const isCurrentSuperAdmin = (): boolean => {
+    const user = getStoredUserData();
+    return checkIsSuperAdmin(user);
+};
+
+export const hasStoredModule = (moduleName: string): boolean => {
+    const user = getStoredUserData();
+    if (!user) return false;
+    if (checkIsSuperAdmin(user)) return true;
+
+    const permData = user.permissionResponse;
+    const modules: string[] = [];
+    if (Array.isArray(permData)) {
+        modules.push(...permData.flatMap((item: any) => (item.module ? item.module.split(',') : [])));
+    } else if (typeof permData === 'object' && permData?.module) {
+        modules.push(...permData.module.split(','));
+    }
+    return modules.map((m) => m.trim().toLowerCase()).includes(moduleName.trim().toLowerCase());
+};
+
 export const usePermission = () => {
     const { user } = useAuth();
 
@@ -100,10 +161,13 @@ export const usePermission = () => {
     const userModules = extractModules();
     const userPermissions = extractPermissions();
 
+    const isSuperAdmin = checkIsSuperAdmin(user);
+
     /**
      * Check if user has access to a specific top-level module (e.g., 'organization')
      */
     const hasModule = (moduleName: string): boolean => {
+        if (isSuperAdmin) return true;
         return userModules.includes(moduleName.trim().toLowerCase());
     };
 
@@ -111,6 +175,7 @@ export const usePermission = () => {
      * Check if user has explicit permission (e.g., 'organization:user:active')
      */
     const hasPermission = (permission: string): boolean => {
+        if (isSuperAdmin) return true;
         return userPermissions.has(permission);
     };
 
@@ -118,6 +183,7 @@ export const usePermission = () => {
      * Check if user has ANY of the listed permissions
      */
     const hasAnyPermission = (permissions: string[]): boolean => {
+        if (isSuperAdmin) return true;
         return permissions.some((perm) => userPermissions.has(perm));
     };
 
@@ -125,6 +191,7 @@ export const usePermission = () => {
      * Check if user has ALL listed permissions
      */
     const hasAllPermissions = (permissions: string[]): boolean => {
+        if (isSuperAdmin) return true;
         return permissions.every((perm) => userPermissions.has(perm));
     };
 
@@ -133,6 +200,7 @@ export const usePermission = () => {
         hasPermission,
         hasAnyPermission,
         hasAllPermissions,
+        isSuperAdmin,
         userModules,
         userPermissions: Array.from(userPermissions),
     };

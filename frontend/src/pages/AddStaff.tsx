@@ -197,8 +197,6 @@ export const AddStaff: React.FC = () => {
         <Sidebar />
 
         <div className="add-staff-container">
-          <Navbar />
-
           <div className="add-staff-content">
             <div className="add-staff-main-card">
               {/* Header with Title and Top-Right Cross Button */}

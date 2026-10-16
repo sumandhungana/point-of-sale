@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import { User, fetchUsers, addUser, deleteUser, AddUserRequest } from '../../services/userService';
 import { fetchRoles, Role } from '@/services/permissionService';
 import { getAllOrganization, GetAllMember } from '@/features/services/organizationService';
+import { usePermission } from '@/core/rbac/usePermission';
 import ViewUserModal from '../components/ViewUserModal';
 import { toast } from 'react-toastify';
 import '@/styles/UserManagement.css';
@@ -30,6 +31,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, children }) => {
 };
 
 export const UserManagement: React.FC = () => {
+    const { isSuperAdmin } = usePermission();
     const [users, setUsers] = useState<User[]>([]);
     const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
     const [organizations, setOrganizations] = useState<GetAllMember[]>([]);
@@ -72,7 +74,7 @@ export const UserManagement: React.FC = () => {
             const [fetchedUsers, fetchedRoles, fetchedOrgs] = await Promise.all([
                 fetchUsers(memberIdParam),
                 fetchRoles(),
-                getAllOrganization(),
+                isSuperAdmin ? getAllOrganization() : Promise.resolve([]),
             ]);
             setUsers(fetchedUsers || []);
             setAvailableRoles(fetchedRoles || []);
@@ -249,35 +251,24 @@ export const UserManagement: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Page Header */}
-                    <div className="user-page-header">
-                        <div>
-                            <h2>User Management</h2>
-                            <p>Manage system users, assigned roles, and member organization enrollments</p>
+                    {/* Member Organization Filter Toolbar */}
+                    {organizations.length > 0 && (
+                        <div className="user-filter-toolbar">
+                            <select
+                                className="org-filter-select"
+                                value={selectedOrgFilter}
+                                onChange={(e) => setSelectedOrgFilter(e.target.value ? Number(e.target.value) : '')}
+                                title="Filter users by member organization"
+                            >
+                                <option value="">All Member Organizations ({organizations.length})</option>
+                                {organizations.map((org) => (
+                                    <option key={org.id} value={org.id}>
+                                        🏢 {org.organizationName}
+                                    </option>
+                                ))}
+                            </select>
                         </div>
-
-                        <div className="header-action-group">
-                            {organizations.length > 0 && (
-                                <select
-                                    className="org-filter-select"
-                                    value={selectedOrgFilter}
-                                    onChange={(e) => setSelectedOrgFilter(e.target.value ? Number(e.target.value) : '')}
-                                    title="Filter users by member organization"
-                                >
-                                    <option value="">All Member Organizations ({organizations.length})</option>
-                                    {organizations.map((org) => (
-                                        <option key={org.id} value={org.id}>
-                                            🏢 {org.organizationName}
-                                        </option>
-                                    ))}
-                                </select>
-                            )}
-
-                            <button className="btn-primary" onClick={handleOpenAddModal}>
-                                + Add New User
-                            </button>
-                        </div>
-                    </div>
+                    )}
 
                     {/* Summary Stat Cards */}
                     <div className="user-stats-grid">
@@ -369,6 +360,17 @@ export const UserManagement: React.FC = () => {
                             })
                         )}
                     </div>
+
+                    {/* Sticky Bottom-Right Add User Button */}
+                    <button
+                        type="button"
+                        className="user-add-sticky-button"
+                        onClick={handleOpenAddModal}
+                        title="Add New User"
+                    >
+                        <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+                        <span>Add User</span>
+                    </button>
                 </div>
 
                 {/* View Details Modal */}

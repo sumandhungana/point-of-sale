@@ -2,6 +2,7 @@ package com.puff.tech.loanmanagement.controller;
 
 import com.puff.tech.core.responses.RestResponse;
 import com.puff.tech.security.Secured;
+import com.puff.tech.usermanagement.enums.Permission;
 import com.puff.tech.loanmanagement.converter.LoanResponseDto;
 import com.puff.tech.loanmanagement.converter.LoanTransactionDto;
 import com.puff.tech.loanmanagement.usecase.calculate.CalculateLoanEmiUseCase;
@@ -76,6 +77,7 @@ public class LoanController {
      * Financial Calculation & Simulation Endpoint (EMI and Amortization Schedule).
      * Can be invoked without persisting to calculate loan parameters in real-time on the backend.
      */
+    @Secured(permissions = {Permission.LOAN_CREATE, Permission.LOAN_FIND_ALL})
     @Post("/calculate")
     public Mono<RestResponse<CalculateLoanEmiUseCaseResponse>> calculate(@Body CalculateLoanEmiUseCaseRequest request) {
         return calculateLoanEmiUseCase.execute(request)
@@ -86,7 +88,7 @@ public class LoanController {
     /**
      * Create a new loan with backend-calculated EMI and amortization schedule.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_CREATE})
     @Post()
     public Mono<RestResponse<CreateLoanUseCaseResponse>> create(@Body CreateLoanUseCaseRequest request) {
         return createLoanUseCase.execute(request)
@@ -97,7 +99,7 @@ public class LoanController {
     /**
      * Retrieve all loans for the authenticated member.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_FIND_ALL})
     @Get()
     public Mono<RestResponse<List<LoanResponseDto>>> getAll() {
         return getAllLoansUseCase.execute(new GetAllLoansUseCaseRequest())
@@ -109,7 +111,7 @@ public class LoanController {
     /**
      * Retrieve aggregate KPI metrics for all loans (Total Borrowed, Repaid, Outstanding, Monthly EMI).
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_METRICS, Permission.LOAN_FIND_ALL})
     @Get("/metrics")
     public Mono<RestResponse<GetLoanMetricsUseCaseResponse>> getMetrics() {
         return getLoanMetricsUseCase.execute(new GetLoanMetricsUseCaseRequest())
@@ -120,7 +122,7 @@ public class LoanController {
     /**
      * Retrieve all loan transactions for the authenticated member.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_PAYMENT, Permission.LOAN_FIND_ALL})
     @Get("/transactions")
     public Mono<RestResponse<List<LoanTransactionDto>>> getAllTransactions() {
         return getLoanTransactionsUseCase.execute(new GetLoanTransactionsUseCaseRequest(null))
@@ -132,7 +134,7 @@ public class LoanController {
     /**
      * Retrieve a single loan by ID with its full schedule and transaction history.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_FIND_ONE, Permission.LOAN_FIND_ALL})
     @Get("/{id}")
     public Mono<RestResponse<GetLoanDetailsUseCaseResponse>> getOne(@PathVariable Long id) {
         return getLoanDetailsUseCase.execute(new GetLoanDetailsUseCaseRequest(id))
@@ -143,7 +145,7 @@ public class LoanController {
     /**
      * Update loan metadata.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_UPDATE})
     @Put("/{id}")
     public Mono<RestResponse<UpdateLoanUseCaseResponse>> update(
             @PathVariable Long id,
@@ -167,7 +169,7 @@ public class LoanController {
     /**
      * Delete loan and its associated schedules and transactions.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_DELETE})
     @Delete("/{id}")
     public Mono<RestResponse<DeleteLoanUseCaseResponse>> delete(@PathVariable Long id) {
         return deleteLoanUseCase.execute(new DeleteLoanUseCaseRequest(id))
@@ -178,7 +180,7 @@ public class LoanController {
     /**
      * Record a loan repayment or disbursement transaction with backend balance and schedule updates.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_PAYMENT})
     @Post("/{id}/payments")
     public Mono<RestResponse<RecordLoanPaymentUseCaseResponse>> recordPayment(
             @PathVariable Long id,
@@ -203,7 +205,7 @@ public class LoanController {
     /**
      * Record payment alternative endpoint directly accepting loanId in request body.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_PAYMENT})
     @Post("/payments")
     public Mono<RestResponse<RecordLoanPaymentUseCaseResponse>> recordPaymentDirect(
             @Body RecordLoanPaymentUseCaseRequest request
@@ -216,7 +218,7 @@ public class LoanController {
     /**
      * Retrieve transactions for a specific loan.
      */
-    @Secured
+    @Secured(permissions = {Permission.LOAN_PAYMENT, Permission.LOAN_FIND_ONE, Permission.LOAN_FIND_ALL})
     @Get("/{id}/transactions")
     public Mono<RestResponse<List<LoanTransactionDto>>> getTransactionsByLoan(@PathVariable Long id) {
         return getLoanTransactionsUseCase.execute(new GetLoanTransactionsUseCaseRequest(id))

@@ -17,7 +17,8 @@ public class GetAllPurchaseBillUC implements FluxUC<GetAllPurchaseBillUCRequest,
 
     @Override
     public Flux<GetAllPurchaseBillUCResponse> execute(GetAllPurchaseBillUCRequest request, UseCaseContext context) {
-        return purchaseBillRepository.findAll()
+        Long memberId = context.securityContext().memberId();
+        return purchaseBillRepository.findByMemberId(memberId)
                 .map(this::toResponse);
     }
 

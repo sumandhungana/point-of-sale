@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
-import { fetchCategories, fetchItems, createCashbookEntry } from '../services/cashbookService';
+import { fetchCategories,  createCashbookEntry } from '../services/cashbookService';
 import '../styles/AddCashbook.css';
+import {getProduct} from '@/features/services/productService';
 
 interface Category {
   id: number;
@@ -46,7 +47,7 @@ export const AddCashbook = () => {
       try { 
         const [categoriesData, itemsData] = await Promise.all([
           fetchCategories(),
-          fetchItems()
+          getProduct()
         ]);
         setCategories(categoriesData);
         setItems(itemsData.items);

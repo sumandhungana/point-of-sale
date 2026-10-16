@@ -215,10 +215,35 @@ export const getRentalSummary = (
 };
 
 /**
+ * Sync payments from backend API for all rental items in parallel and cache them
+ */
+export const syncAllRentalPayments = async (
+  rentalIds: number[]
+): Promise<Record<number, RentalPaymentTransaction[]>> => {
+  const result: Record<number, RentalPaymentTransaction[]> = {};
+  if (!rentalIds || rentalIds.length === 0) return result;
+
+  await Promise.all(
+    rentalIds.map(async (id) => {
+      try {
+        const txs = await fetchRentalPaymentsApi(id);
+        result[id] = txs;
+      } catch (err) {
+        console.error(`Error syncing rental payments for item ${id}:`, err);
+        result[id] = getRentalPayments(id);
+      }
+    })
+  );
+
+  return result;
+};
+
+/**
  * Calculate overall summary across all rentals in list
  */
 export const getGlobalRentalSummary = (
-  rentalItems: Array<{ id: number; rentalAmount: number }>
+  rentalItems: Array<{ id: number; rentalAmount: number }>,
+  paymentsMap?: Record<number, RentalPaymentTransaction[]>
 ): { totalAmount: number; totalPaid: number; remainingDue: number } => {
   let totalAmount = 0;
   let totalPaid = 0;
@@ -226,7 +251,8 @@ export const getGlobalRentalSummary = (
   rentalItems.forEach((item) => {
     const amt = Number(item.rentalAmount) || 0;
     totalAmount += amt;
-    const summary = getRentalSummary(item.id, amt);
+    const txs = paymentsMap && paymentsMap[item.id] !== undefined ? paymentsMap[item.id] : undefined;
+    const summary = getRentalSummary(item.id, amt, txs);
     totalPaid += summary.netPaid;
   });
 

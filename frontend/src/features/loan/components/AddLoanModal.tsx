@@ -20,7 +20,7 @@ export const AddLoanModal: React.FC<AddLoanModalProps> = ({
     const [loanNumber, setLoanNumber] = useState(initialData?.loanNumber || '');
     const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || '');
     const [accountNumber, setAccountNumber] = useState(initialData?.accountNumber || '');
-    const [principalAmount, setPrincipalAmount] = useState<number | ''>(initialData?.principalAmount || 500000);
+    const [principalAmount, setPrincipalAmount] = useState<number | ''>(initialData?.principalAmount || 50000);
     const [interestRate, setInterestRate] = useState<number | ''>(initialData?.interestRate || 10.5);
     const [tenureMonths, setTenureMonths] = useState<number | ''>(initialData?.tenureMonths || 24);
     const [interestType, setInterestType] = useState<InterestType>(initialData?.interestType || 'REDUCING');
@@ -165,8 +165,8 @@ export const AddLoanModal: React.FC<AddLoanModalProps> = ({
                                 <input
                                     type="number"
                                     min="1"
-                                    step="1000"
-                                    placeholder="e.g. 500000"
+                                    step="any"
+                                    placeholder="e.g. 50000"
                                     value={principalAmount}
                                     onChange={(e) =>
                                         setPrincipalAmount(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)
@@ -181,7 +181,7 @@ export const AddLoanModal: React.FC<AddLoanModalProps> = ({
                                 <input
                                     type="number"
                                     min="0"
-                                    step="0.1"
+                                    step="any"
                                     placeholder="e.g. 10.5"
                                     value={interestRate}
                                     onChange={(e) =>

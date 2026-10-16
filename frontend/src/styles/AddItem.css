@@ -6,11 +6,20 @@
   display: flex;
   min-height: 100vh;
   background: #f8fafc;
+  width: 100%;
+}
+
+.add-item-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  width: 100%;
 }
 
 .add-item-main-content {
   flex: 1;
-  padding: 84px 2rem 3rem 2rem;
+  padding: 80px 2rem 3rem 2rem;
   background: #f8fafc;
   min-height: 100vh;
   max-width: 1020px;
@@ -762,5 +771,35 @@
 
   .pricing-mode-tabs {
     flex-direction: column;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-item-main-content {
+    padding: 72px 0.5rem 1.5rem 0.5rem;
+  }
+
+  .add-item-card {
+    padding: 1.25rem 0.85rem;
+    border-radius: 12px;
+  }
+
+  .form-header-title {
+    font-size: 1.2rem;
+  }
+
+  .form-header-icon-wrap {
+    width: 42px;
+    height: 42px;
+    font-size: 1.25rem;
+  }
+
+  .avatar-display-frame {
+    width: 80px;
+    height: 80px;
+  }
+
+  .financial-card {
+    padding: 1rem 0.75rem;
   }
 }

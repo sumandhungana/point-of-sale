@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Sidebar } from '@/components/Sidebar';
-import Navbar from '@/components/Navbar';
 import {
     Loan,
     LoanTransaction,
@@ -18,9 +17,17 @@ import { RecordPaymentModal } from '../components/RecordPaymentModal';
 import { EmiCalculatorModal } from '../components/EmiCalculatorModal';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { printHtmlContent } from '@/features/inventoryManagement/utils/printInvoice';
+import { usePermission } from '@/core/rbac/usePermission';
+import '@/styles/RentalItem.css';
 import '@/styles/LoanManagement.css';
 
 export const LoanManagement: React.FC = () => {
+    const { hasPermission, isSuperAdmin, hasModule } = usePermission();
+    const canAccessLoan = isSuperAdmin || hasModule('loan') || hasPermission('loan:list');
+    const canCreateLoan = hasPermission('loan:create');
+    const canRecordPayment = hasPermission('loan:payment');
+    const canViewDetails = hasPermission('loan:single') || hasPermission('loan:list');
+
     const [loans, setLoans] = useState<Loan[]>([]);
     const [transactions, setTransactions] = useState<LoanTransaction[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -38,10 +45,15 @@ export const LoanManagement: React.FC = () => {
     const [prefilledLoanPayload, setPrefilledLoanPayload] = useState<Partial<CreateLoanPayload> | undefined>(undefined);
 
     useEffect(() => {
-        loadData();
-    }, []);
+        if (canAccessLoan) {
+            loadData();
+        } else {
+            setLoading(false);
+        }
+    }, [canAccessLoan]);
 
     const loadData = async () => {
+        if (!canAccessLoan) return;
         setLoading(true);
         try {
             const data = await fetchAllLoans();
@@ -217,46 +229,24 @@ export const LoanManagement: React.FC = () => {
         <div className="loan-layout-root">
             <Sidebar />
             <div className="loan-page-wrapper">
-                <div className="purchase-navbar-spacer">
-                    <Navbar />
-                </div>
-
                 <div className="loan-container">
                     {/* Header Card */}
                     <div className="loan-header-card">
-                        <div className="loan-header-title-row">
-                            <div>
-                                <h2 className="loan-page-title">Loan & Debt Management</h2>
-                                <p className="loan-page-subtitle">
-                                    Track borrowings from banks, persons, and institutions, manage EMI schedules, and record payments
-                                </p>
-                            </div>
-                            <div className="d-flex align-items-center gap-2">
-                                <button
-                                    type="button"
-                                    className="btn-secondary"
-                                    onClick={() => setIsCalcModalOpen(true)}
-                                >
-                                    <i className="bi bi-calculator me-1"></i> EMI Calculator
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-secondary"
-                                    onClick={handleExportReport}
-                                >
-                                    <i className="bi bi-file-earmark-pdf me-1"></i> Export Report
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-primary"
-                                    onClick={() => {
-                                        setPrefilledLoanPayload(undefined);
-                                        setIsAddModalOpen(true);
-                                    }}
-                                >
-                                    <i className="bi bi-plus-lg me-1"></i> Add New Loan
-                                </button>
-                            </div>
+                        <div className="loan-header-actions-row">
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={() => setIsCalcModalOpen(true)}
+                            >
+                                <i className="bi bi-calculator me-1"></i> EMI Calculator
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-secondary"
+                                onClick={handleExportReport}
+                            >
+                                <i className="bi bi-file-earmark-pdf me-1"></i> Export Report
+                            </button>
                         </div>
 
                         {/* Top KPI Metrics Overview */}
@@ -325,154 +315,219 @@ export const LoanManagement: React.FC = () => {
                                 />
                             </div>
 
-                            <select
-                                value={typeFilter}
-                                onChange={(e) => setTypeFilter(e.target.value)}
-                                className="loan-select"
-                            >
-                                <option value="ALL">All Sources</option>
-                                <option value="BANK">Commercial Banks</option>
-                                <option value="PERSON">Persons / Individuals</option>
-                                <option value="INSTITUTION">Institutions</option>
-                            </select>
+                            <div className="loan-filter-selects-wrap">
+                                <select
+                                    value={typeFilter}
+                                    onChange={(e) => setTypeFilter(e.target.value)}
+                                    className="loan-select"
+                                >
+                                    <option value="ALL">All Sources</option>
+                                    <option value="BANK">Commercial Banks</option>
+                                    <option value="PERSON">Persons / Individuals</option>
+                                    <option value="INSTITUTION">Institutions</option>
+                                </select>
 
-                            <select
-                                value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="loan-select"
-                            >
-                                <option value="ALL">All Status</option>
-                                <option value="ACTIVE">Active Loans</option>
-                                <option value="CLOSED">Closed / Settled</option>
-                            </select>
+                                <select
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                    className="loan-select"
+                                >
+                                    <option value="ALL">All Status</option>
+                                    <option value="ACTIVE">Active Loans</option>
+                                    <option value="CLOSED">Closed / Settled</option>
+                                </select>
 
-                            <select
-                                value={sortBy}
-                                onChange={(e) => setSortBy(e.target.value)}
-                                className="loan-select"
-                            >
-                                <option value="NEWEST">Newest First</option>
-                                <option value="HIGHEST_AMOUNT">Highest Principal</option>
-                                <option value="HIGHEST_EMI">Highest Monthly EMI</option>
-                                <option value="LOWEST_BALANCE">Lowest Balance Left</option>
-                            </select>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="loan-select"
+                                >
+                                    <option value="NEWEST">Newest First</option>
+                                    <option value="HIGHEST_AMOUNT">Highest Principal</option>
+                                    <option value="HIGHEST_EMI">Highest Monthly EMI</option>
+                                    <option value="LOWEST_BALANCE">Lowest Balance Left</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Loan Cards Grid */}
+                    {/* Loan Items List (Full Width Rental Item Style) */}
                     {loading ? (
                         <div className="loan-table-card text-center p-5 text-muted">
                             <i className="bi bi-arrow-repeat fa-spin me-2"></i> Loading loan accounts...
                         </div>
                     ) : filteredLoans.length === 0 ? (
-                        <div className="loan-table-card text-center p-5 text-muted">
-                            <i className="bi bi-inbox fs-2 d-block mb-2 text-secondary"></i>
+                        <div className="rental-item-loading-message">
+                            <i className="bi bi-inbox me-2"></i>
                             No loan records found. Click <strong>+ Add New Loan</strong> to record your first loan.
                         </div>
                     ) : (
-                        <div className="loan-cards-grid">
+                        <div className="loan-list-container">
                             {filteredLoans.map((loan) => {
                                 const isBank = loan.lenderType === 'BANK';
+                                const isClosed = loan.status === 'CLOSED' || loan.remainingBalance <= 0;
                                 const pctPaid = loan.totalPayable > 0 ? (loan.totalPaid / loan.totalPayable) * 100 : 0;
+                                const statusClass = isClosed
+                                    ? 'rental-item-status-completed'
+                                    : 'rental-item-status-in-progress';
 
                                 return (
-                                    <div className="loan-card" key={loan.id}>
-                                        {/* Card Top */}
-                                        <div className="loan-card-top">
-                                            <div className="loan-lender-info">
-                                                <div className={`loan-type-avatar ${!isBank ? 'person' : ''}`}>
-                                                    <i className={`bi ${isBank ? 'bi-bank' : 'bi-person-fill'}`}></i>
-                                                </div>
-                                                <div>
-                                                    <h4 className="loan-lender-name">{loan.lenderName}</h4>
-                                                    <div className="loan-number-chip">
+                                    <div
+                                        key={loan.id}
+                                        className="rental-item-card loan-item-card"
+                                        onClick={() => setSelectedLoanForDetail(loan)}
+                                        title="Click to view Amortization Schedule and Payment History"
+                                    >
+                                        <div className="rental-item-info">
+                                            <div
+                                                className="rental-item-image-placeholder"
+                                                style={{
+                                                    background: isBank
+                                                        ? 'linear-gradient(135deg, #eff6ff, #dbeafe)'
+                                                        : loan.lenderType === 'INSTITUTION'
+                                                        ? 'linear-gradient(135deg, #f5f3ff, #ede9fe)'
+                                                        : 'linear-gradient(135deg, #fef3c7, #fde68a)',
+                                                    color: isBank
+                                                        ? '#255dce'
+                                                        : loan.lenderType === 'INSTITUTION'
+                                                        ? '#7c3aed'
+                                                        : '#b45309',
+                                                }}
+                                            >
+                                                <i
+                                                    className={`bi ${
+                                                        isBank
+                                                            ? 'bi-bank'
+                                                            : loan.lenderType === 'INSTITUTION'
+                                                            ? 'bi-building'
+                                                            : 'bi-person-fill'
+                                                    }`}
+                                                ></i>
+                                            </div>
+                                            <div className="rental-item-details">
+                                                <div className="rental-item-name d-flex align-items-center gap-2 flex-wrap">
+                                                    <span>{loan.lenderName}</span>
+                                                    <span className="loan-badge-chip">
                                                         {loan.loanNumber} • {loan.lenderType}
+                                                    </span>
+                                                </div>
+                                                <div className="rental-item-time">
+                                                    <i className="bi bi-calendar-event me-1"></i>
+                                                    Start: {loan.startDate ? new Date(loan.startDate).toLocaleDateString() : 'N/A'} |
+                                                    Tenure: {loan.tenureMonths} Months |
+                                                    Rate: {loan.interestRate}% ({loan.interestType}) |
+                                                    Monthly EMI: <strong>रु {loan.monthlyEmi.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
+                                                </div>
+                                                <div className="rental-item-time">
+                                                    {loan.accountNumber && (
+                                                        <>
+                                                            <i className="bi bi-credit-card-2-front me-1"></i>
+                                                            A/C: {loan.accountNumber} |{' '}
+                                                        </>
+                                                    )}
+                                                    {loan.phoneNumber && (
+                                                        <>
+                                                            <i className="bi bi-telephone me-1"></i>
+                                                            Phone: {loan.phoneNumber} |{' '}
+                                                        </>
+                                                    )}
+                                                    <i className="bi bi-tag me-1"></i>
+                                                    Purpose: {loan.purpose || 'General / Working Capital'}
+                                                </div>
+                                                {loan.remarks && (
+                                                    <div className="rental-item-time">
+                                                        <i className="bi bi-chat-text me-1"></i>
+                                                        Remarks: {loan.remarks}
+                                                    </div>
+                                                )}
+                                                <div className="d-flex align-items-center gap-3 flex-wrap mt-1">
+                                                    <div className={`rental-item-status ${statusClass}`}>
+                                                        <i className="bi bi-circle-fill me-1" style={{ fontSize: '8px' }}></i>
+                                                        Status: {isClosed ? 'Fully Settled / Closed' : loan.status}
+                                                    </div>
+                                                    <div
+                                                        className="d-flex align-items-center gap-2"
+                                                        style={{ fontSize: '0.8rem', color: '#64748b' }}
+                                                    >
+                                                        <span>{pctPaid.toFixed(1)}% Repaid</span>
+                                                        <div
+                                                            style={{
+                                                                width: '100px',
+                                                                height: '6px',
+                                                                backgroundColor: '#e2e8f0',
+                                                                borderRadius: '999px',
+                                                                overflow: 'hidden',
+                                                            }}
+                                                        >
+                                                            <div
+                                                                style={{
+                                                                    width: `${Math.min(100, pctPaid)}%`,
+                                                                    height: '100%',
+                                                                    backgroundColor: isClosed ? '#10b981' : '#255dce',
+                                                                    borderRadius: '999px',
+                                                                }}
+                                                            ></div>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-
-                                            <span
-                                                className={`loan-status-badge ${
-                                                    loan.status === 'ACTIVE' ? 'active' : 'closed'
-                                                }`}
-                                            >
-                                                {loan.status}
-                                            </span>
                                         </div>
 
-                                        {/* Card Metrics Grid */}
-                                        <div className="loan-card-metrics">
-                                            <div className="loan-metric-item">
-                                                <span className="loan-metric-title">Principal Loan</span>
-                                                <span className="loan-metric-num">
-                                                    Rs. {loan.principalAmount.toLocaleString('en-IN')}
+                                        <div className="rental-item-amount">
+                                            <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>
+                                                रु {loan.principalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                            </div>
+                                            <div className="rental-card-balance-row">
+                                                <span className="rental-card-paid-text">
+                                                    Repaid: रु {loan.totalPaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                                                 </span>
+                                                {isClosed ? (
+                                                    <span className="rental-card-settled-text">
+                                                        <i className="bi bi-check-circle-fill me-1"></i>Settled
+                                                    </span>
+                                                ) : (
+                                                    <span className="rental-card-due-text">
+                                                        Due: रु {loan.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                    </span>
+                                                )}
                                             </div>
 
-                                            <div className="loan-metric-item">
-                                                <span className="loan-metric-title">Interest Rate</span>
-                                                <span className="loan-metric-num" style={{ color: '#d97706' }}>
-                                                    {loan.interestRate}% ({loan.interestType})
-                                                </span>
-                                            </div>
-
-                                            <div className="loan-metric-item">
-                                                <span className="loan-metric-title">Monthly EMI</span>
-                                                <span className="loan-metric-num" style={{ color: '#255dce' }}>
-                                                    Rs. {loan.monthlyEmi.toLocaleString('en-IN')}
-                                                </span>
-                                            </div>
-
-                                            <div className="loan-metric-item">
-                                                <span className="loan-metric-title">Remaining Balance</span>
-                                                <span className="loan-metric-num" style={{ color: '#dc2626' }}>
-                                                    Rs. {loan.remainingBalance.toLocaleString('en-IN')}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        {/* Repayment Progress */}
-                                        <div className="loan-progress-container">
-                                            <div className="loan-progress-labels">
-                                                <span>Repaid: Rs. {loan.totalPaid.toLocaleString('en-IN')}</span>
-                                                <span>{pctPaid.toFixed(1)}% Completed</span>
-                                            </div>
-                                            <div className="loan-progress-bar">
-                                                <div
-                                                    className="loan-progress-fill"
-                                                    style={{ width: `${Math.min(100, pctPaid)}%` }}
-                                                ></div>
-                                            </div>
-                                        </div>
-
-                                        {/* Card Actions */}
-                                        <div className="loan-card-actions">
-                                            <button
-                                                type="button"
-                                                className="btn-loan-action pay"
-                                                onClick={() => handleOpenPayment(loan, 'PAYMENT_GIVEN')}
-                                                title="Record EMI / Repayment paid out to lender"
+                                            <div
+                                                className="loan-card-actions-wrap d-flex align-items-center gap-2 mt-2 flex-wrap justify-content-end"
+                                                onClick={(e) => e.stopPropagation()}
                                             >
-                                                <i className="bi bi-arrow-up-right"></i> Pay Given
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                className="btn-loan-action receive"
-                                                onClick={() => handleOpenPayment(loan, 'PAYMENT_RECEIVED')}
-                                                title="Record additional funds or loan amount received"
-                                            >
-                                                <i className="bi bi-arrow-down-left"></i> Receive
-                                            </button>
-
-                                            <button
-                                                type="button"
-                                                className="btn-loan-action details"
-                                                onClick={() => setSelectedLoanForDetail(loan)}
-                                                title="View Amortization Schedule and Payment History"
-                                            >
-                                                <i className="bi bi-calendar3"></i> Schedule
-                                            </button>
+                                                {canRecordPayment && (
+                                                    <>
+                                                        <button
+                                                            type="button"
+                                                            className="loan-action-btn pay"
+                                                            onClick={() => handleOpenPayment(loan, 'PAYMENT_GIVEN')}
+                                                            title="Record EMI / Repayment paid out to lender"
+                                                        >
+                                                            <i className="bi bi-arrow-up-right"></i> Pay Given
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="loan-action-btn receive"
+                                                            onClick={() => handleOpenPayment(loan, 'PAYMENT_RECEIVED')}
+                                                            title="Record additional funds or loan amount received"
+                                                        >
+                                                            <i className="bi bi-arrow-down-left"></i> Receive
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {canViewDetails && (
+                                                    <button
+                                                        type="button"
+                                                        className="loan-action-btn schedule"
+                                                        onClick={() => setSelectedLoanForDetail(loan)}
+                                                        title="View Amortization Schedule and Payment History"
+                                                    >
+                                                        <i className="bi bi-calendar3"></i> Schedule{' '}
+                                                        <i className="bi bi-chevron-right ms-1"></i>
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 );
@@ -481,6 +536,22 @@ export const LoanManagement: React.FC = () => {
                     )}
                 </div>
             </div>
+
+            {/* Sticky Bottom-Right Add Loan Button (Matching Customer Page) */}
+            {canCreateLoan && (
+                <button
+                    type="button"
+                    className="loan-add-sticky-button"
+                    onClick={() => {
+                        setPrefilledLoanPayload(undefined);
+                        setIsAddModalOpen(true);
+                    }}
+                    title="Add New Loan"
+                >
+                    <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+                    <span>Add New Loan</span>
+                </button>
+            )}
 
             {/* Add Loan Modal */}
             <AddLoanModal

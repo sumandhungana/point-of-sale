@@ -1,16 +1,15 @@
-/* RentalItem Page Styles */
 .rental-item-container {
-  display: flex;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: block;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
   box-sizing: border-box;
 }
 
 .rental-item-main {
-  flex: 1;
-  padding: 84px 2rem 6rem 2rem;
+  padding: 84px 32px 6rem 32px;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
@@ -29,8 +28,9 @@
   border-radius: 8px;
   padding: 0.75rem;
   background: white;
-  width: 100%;
-  max-width: 300px;
+  flex: 1 1 240px;
+  min-width: 200px;
+  max-width: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -52,6 +52,22 @@
   margin-right: 0.5rem;
 }
 
+.rental-item-clear-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+.rental-item-clear-btn:hover {
+  color: #dc2626;
+}
+
 .rental-item-reminder-button {
   padding: 0.75rem 1rem;
   background: linear-gradient(135deg, #ffc107, #e0a800);
@@ -71,6 +87,12 @@
   background: linear-gradient(135deg, #e0a800, #d39e00);
   transform: translateY(-1px);
   box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.rental-item-filters-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .rental-item-filter-container {
@@ -107,7 +129,7 @@
 
 .rental-item-summary-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 1.5rem;
 }
 
@@ -138,8 +160,8 @@
 .rental-item-card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  padding: 1.5rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.06);
+  padding: 1.25rem;
   margin-bottom: 1rem;
   display: flex;
   justify-content: space-between;
@@ -147,6 +169,10 @@
   transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
   border: 1px solid rgba(0,0,0,0.06);
   cursor: pointer;
+  flex-wrap: wrap;
+  gap: 1rem;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .rental-item-card:hover {
@@ -209,7 +235,8 @@
   display: flex;
   gap: 1rem;
   align-items: center;
-  flex: 1;
+  flex: 1 1 320px;
+  min-width: 0;
 }
 
 .rental-item-image-placeholder {
@@ -276,7 +303,9 @@
   font-size: 1.25rem;
   font-weight: bold;
   color: #28a745;
-  min-width: 120px;
+  flex: 0 0 auto;
+  min-width: 140px;
+  margin-left: auto;
 }
 
 .rental-item-amount-total {
@@ -354,93 +383,288 @@
     margin-right: 0;
   }
   
+  .rental-item-main {
+    padding: 84px 24px 6rem 24px;
+  }
+  
   .rental-item-summary-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
 @media (max-width: 1024px) {
   .rental-item-main {
-    padding: 80px 1.5rem 1.5rem 1.5rem;
+    padding: 84px 20px 2rem 20px;
   }
 }
 
 @media (max-width: 768px) {
   .rental-item-main {
     margin-left: 0;
-    padding: 76px 1rem 1rem 1rem;
+    padding: 76px 14px 100px 14px;
   }
   
   .rental-item-search-container {
     flex-direction: column;
     align-items: stretch;
+    gap: 8px;
+    margin-bottom: 12px;
   }
   
   .rental-item-search-bar {
-    max-width: none;
-  }
-  
-  .rental-item-filter-container {
-    flex-direction: column;
-  }
-  
-  .rental-item-dropdown {
     width: 100%;
+    max-width: none;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+  }
+
+  .rental-item-search-icon {
+    font-size: 13px;
+    margin-right: 6px;
+    color: #6c757d;
+    flex-shrink: 0;
+  }
+
+  .rental-item-search-input {
+    font-size: 13px;
+    height: 100%;
+    line-height: normal;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    width: 100%;
+    box-shadow: none;
+  }
+
+  .rental-item-clear-btn {
+    padding: 0 4px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  
+  .rental-item-filters-wrap {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+  }
+  
+  .rental-item-filters-wrap .rental-item-dropdown {
+    flex: 1 1 50%;
+    width: 100%;
+    min-width: 0;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    padding: 0 8px;
+    font-size: 12px;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    color: #334155;
+    box-sizing: border-box;
+  }
+
+  .rental-item-reminder-button {
+    width: 100%;
+    height: 36px;
+    min-height: 36px;
+    max-height: 36px;
+    padding: 0 10px;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    box-sizing: border-box;
+  }
+
+  .rental-item-summary-card {
+    padding: 12px;
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  .rental-item-summary-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+  }
+
+  .rental-item-summary-item {
+    padding: 10px;
+    border-radius: 8px;
+    border-left-width: 3px;
+    gap: 0.25rem;
+  }
+
+  .rental-item-summary-label {
+    font-size: 0.72rem;
+  }
+
+  .rental-item-summary-amount {
+    font-size: 1.15rem;
   }
   
   .rental-item-card {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 14px;
+    margin-bottom: 10px;
+  }
+
+  .rental-item-info {
+    width: 100%;
+    gap: 12px;
+  }
+
+  .rental-item-image-placeholder {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    border-radius: 10px;
+  }
+
+  .rental-item-name {
+    font-size: 1.05rem;
+  }
+
+  .rental-item-time {
+    font-size: 0.8rem;
+    line-height: 1.4;
   }
   
   .rental-item-amount {
     text-align: left;
     min-width: auto;
     width: 100%;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 10px;
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .rental-card-balance-row {
-    align-items: flex-start;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 0;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .rental-card-statement-btn {
+    width: 100%;
+    height: 40px;
+    justify-content: center;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    margin-top: 4px;
   }
   
   .rental-item-add-button-container {
     bottom: 20px;
     right: 20px;
-    left: auto;
-    width: auto;
+    z-index: 999;
   }
   
   .rental-item-add-button {
-    width: auto;
-    padding: 10px 20px;
-    font-size: 14px;
+    border-radius: 9999px;
+    padding: 12px 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    box-shadow: 0 8px 24px rgba(37, 93, 206, 0.35);
   }
 }
 
 @media (max-width: 480px) {
   .rental-item-main {
-    padding: 0.5rem;
+    padding: 72px 10px 90px 10px;
+  }
+  
+  .rental-item-search-bar {
+    height: 34px;
+    min-height: 34px;
+    max-height: 34px;
+    padding: 0 8px;
+  }
+
+  .rental-item-search-icon {
+    font-size: 12px;
+    margin-right: 5px;
+  }
+
+  .rental-item-search-input {
+    font-size: 12px;
+    height: 100%;
+    padding: 0;
+    line-height: normal;
+  }
+
+  .rental-item-clear-btn {
+    font-size: 12px;
+    padding: 0 2px;
+  }
+  
+  .rental-item-filters-wrap .rental-item-dropdown {
+    height: 34px;
+    min-height: 34px;
+    max-height: 34px;
+    padding: 0 6px;
+    font-size: 11.5px;
+  }
+
+  .rental-item-reminder-button {
+    height: 34px;
+    min-height: 34px;
+    max-height: 34px;
+    padding: 0 8px;
+    font-size: 11.5px;
   }
   
   .rental-item-summary-card,
   .rental-item-card {
-    padding: 1rem;
+    padding: 10px;
+  }
+
+  .rental-item-summary-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
   }
   
   .rental-item-summary-amount {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
   }
   
   .rental-item-name {
-    font-size: 1rem;
+    font-size: 0.98rem;
   }
   
   .rental-item-time {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
   
   .rental-item-amount {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
+  }
+
+  .rental-item-add-button-container {
+    bottom: 16px;
+    right: 16px;
+  }
+
+  .rental-item-add-button {
+    padding: 11px 18px;
+    font-size: 0.88rem;
   }
 } 

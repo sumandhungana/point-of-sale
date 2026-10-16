@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { billsConfig } from '../config/bills';
-import { fetchCategories, fetchItems, fetchLastExpenses, saveExpense } from '../services/expensesService';
+import { fetchCategories, fetchLastExpenses, saveExpense } from '../services/expensesService';
 import '../styles/AddExpenses.css';
+import {getProduct} from '@/features/services/productService'
 
 interface Category {
   id: number;
@@ -63,7 +64,7 @@ export const AddExpenses = () => {
       try { 
         const [categoriesData, itemsData, lastExpensesData] = await Promise.all([
           fetchCategories(),
-          fetchItems(),
+          getProduct(),
           fetchLastExpenses()
         ]);
         setCategories(categoriesData);

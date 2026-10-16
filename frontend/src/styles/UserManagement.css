@@ -34,7 +34,7 @@
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
-    padding: 24px 32px;
+    padding: 24px 32px 90px 32px;
     display: flex;
     flex-direction: column;
     gap: 24px;
@@ -670,4 +670,65 @@ select.form-input {
 .org-filter-select:focus {
     border-color: #255dce;
     box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15);
+}
+
+.user-filter-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 4px;
+    width: 100%;
+}
+
+/* Sticky Bottom-Right Add User Button (Matching Customer Page) */
+.user-add-sticky-button {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 999;
+    background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
+    color: #ffffff;
+    border: none;
+    padding: 13px 24px;
+    border-radius: 50px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 8px 24px rgba(2, 24, 97, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: auto;
+}
+
+.user-add-sticky-button:hover {
+    background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
+    box-shadow: 0 12px 30px rgba(2, 24, 97, 0.5);
+    transform: translateY(-3px) scale(1.02);
+    color: #ffffff;
+}
+
+.user-add-sticky-button:active {
+    transform: translateY(0) scale(0.98);
+}
+
+@media (max-width: 768px) {
+    .user-content {
+        padding: 76px 14px 90px 14px;
+    }
+
+    .user-add-sticky-button {
+        bottom: 20px;
+        right: 20px;
+        padding: 11px 18px;
+        font-size: 13px;
+    }
+
+    .user-filter-toolbar {
+        justify-content: stretch;
+    }
+
+    .user-filter-toolbar .org-filter-select {
+        width: 100%;
+    }
 }

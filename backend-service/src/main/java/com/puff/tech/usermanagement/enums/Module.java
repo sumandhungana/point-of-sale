@@ -22,6 +22,8 @@ public enum Module {
     PRODUCT_MANAGEMENT("product", "Product Management"),
     SALES_BILL_MANAGEMENT("salesBill", "Sales Bill Management"),
     PURCHASE_BILL_MANAGEMENT("purchaseBill", "Purchase Bill Management"),
+    LOAN_MANAGEMENT("loan", "Loan Management"),
+    STAFF_ATTENDANCE("staffAttendance", "Staff Attendance Management"),
     ;
 
     private final String code;

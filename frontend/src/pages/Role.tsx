@@ -61,10 +61,9 @@ export const Role = () => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div style={{ display: 'block', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
         <Sidebar />
         <div className="role-container">
-          <Navbar />
           <div className="role-loading-message">
             <i className="bi bi-arrow-clockwise"></i>
             Loading roles...
@@ -76,10 +75,9 @@ export const Role = () => {
 
   if (error) {
     return (
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div style={{ display: 'block', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
         <Sidebar />
         <div className="role-container">
-          <Navbar />
           <div className="role-error-message">
             <i className="bi bi-exclamation-triangle"></i>
             {error}
@@ -90,10 +88,9 @@ export const Role = () => {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'block', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
       <Sidebar />
       <div className="role-container">
-        <Navbar />
         <div className="role-card">
           <div className="role-header">
             <input

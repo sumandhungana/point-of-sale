@@ -11,12 +11,6 @@ export async function fetchCategories() {
   return response.json();
 }
 
-export async function fetchItems() {
-  const response = await fetch('/api/Item', { headers: getAuthHeaders() });
-  if (!response.ok) throw new Error('Failed to fetch items');
-  return response.json();
-}
-
 export async function fetchLastExpenses() {
   const response = await fetch('/api/Expenses/last', { headers: getAuthHeaders() });
   if (!response.ok) throw new Error('Failed to fetch last expenses');
@@ -39,4 +33,4 @@ export async function saveExpense(formData: FormData, isEditMode: boolean, id?: 
     const errorData = await response.json();
     throw new Error(errorData.message || `Failed to ${isEditMode ? 'update' : 'create'} expense entry`);
   }
-} 
+}

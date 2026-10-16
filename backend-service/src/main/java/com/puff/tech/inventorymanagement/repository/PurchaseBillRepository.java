@@ -4,6 +4,7 @@ import io.micronaut.data.annotation.Query;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository;
 import io.micronaut.data.repository.reactive.ReactorCrudRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
@@ -23,4 +24,6 @@ public interface PurchaseBillRepository extends ReactorCrudRepository<PurchaseBi
             "FROM purchase_bill " +
             "WHERE member_id = :memberId AND purchase_no LIKE CONCAT('%BILL-', :memberId, '-%')")
     Mono<Long> findLastSequenceByMemberId(Long memberId);
+
+    Flux<PurchaseBillEntity> findByMemberId(Long memberId);
 }

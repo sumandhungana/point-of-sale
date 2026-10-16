@@ -11,15 +11,19 @@
   margin-left: 100px;
   overflow-x: hidden;
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  transition: margin-left 0.25s ease;
 }
 
 .add-khata-book-container {
   width: calc(100% - 4rem);
+  max-width: 1400px;
+  margin: 100px auto 2rem auto;
   padding: 2rem;
-  margin-top: 100px;
   box-sizing: border-box;
   background: #f8f9fa;
-  min-height: 100vh;
+  min-height: calc(100vh - 100px);
 }
 
 .add-khata-book-image-section {
@@ -135,6 +139,10 @@
 
 .add-khata-book-form-group {
   margin-bottom: 1.5rem;
+}
+
+.form-group-col-span-2 {
+  grid-column: span 2;
 }
 
 .add-khata-book-label {
@@ -272,86 +280,6 @@
   transform: none;
 }
 
-/* ==========================================================================
-   RESPONSIVE DESIGN BREAKPOINTS
-   ========================================================================== */
-
-@media (max-width: 1200px) {
-  .add-khata-book-container {
-    width: calc(100% - 2rem);
-    padding: 1.5rem;
-  }
-
-  .add-khata-book-section {
-    padding: 2rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .add-khatabook-page-main {
-    margin-left: 0;
-  }
-
-  .add-khata-book-container {
-    margin-top: 70px;
-  }
-}
-
-@media (max-width: 768px) {
-  .add-khata-book-form-grid {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .add-khata-book-save-button {
-    width: 100%;
-    float: none;
-    justify-content: center;
-  }
-
-  .add-khata-book-container {
-    width: 100%;
-    padding: 1rem;
-  }
-
-  .add-khata-book-section {
-    padding: 1.5rem;
-  }
-
-  .add-khata-book-section-title {
-    font-size: 1.25rem;
-  }
-
-  .add-khata-book-image-placeholder {
-    width: 120px;
-    height: 120px;
-    font-size: 2.5rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .add-khata-book-section {
-    padding: 1rem;
-  }
-
-  .add-khata-book-input,
-  .add-khata-book-select {
-    padding: 0.75rem;
-    font-size: 0.9rem;
-  }
-
-  .add-khata-book-image-placeholder {
-    width: 100px;
-    height: 100px;
-    font-size: 2rem;
-  }
-
-  .add-khata-book-add-photo-button {
-    padding: 0.5rem 1rem;
-    font-size: 0.8rem;
-  }
-}
-
 /* ==========================================================
    Header with Top-Right Cross Button & Action Buttons
    ========================================================== */
@@ -370,6 +298,7 @@
   display: flex;
   align-items: center;
   gap: 1.25rem;
+  min-width: 0;
 }
 
 .form-header-icon-wrap {
@@ -471,15 +400,224 @@
   transform: translateY(0);
 }
 
+/* ==========================================================================
+   RESPONSIVE DESIGN BREAKPOINTS
+   ========================================================================== */
+
+@media (max-width: 1200px) {
+  .add-khata-book-container {
+    width: calc(100% - 2rem);
+    padding: 1.5rem;
+  }
+
+  .add-khata-book-section {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .add-khatabook-page-main {
+    margin-left: 0 !important;
+  }
+
+  .add-khata-book-container {
+    margin-top: 70px;
+    width: 100%;
+    padding: 1.25rem;
+  }
+}
+
 @media (max-width: 768px) {
+  .add-khatabook-page-main {
+    margin-left: 0 !important;
+  }
+
+  .add-khata-book-container {
+    width: 100%;
+    padding: 1rem 0.75rem;
+    margin-top: 65px;
+    margin-bottom: 1.5rem;
+  }
+
+  .add-khata-book-section {
+    padding: 1.25rem 1rem;
+    margin-bottom: 1.25rem;
+    border-radius: 10px;
+  }
+
+  .add-khata-book-section-title {
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .add-khata-book-form-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .add-khata-book-form-grid > *,
+  .form-group-col-span-2 {
+    grid-column: 1 / -1 !important;
+  }
+
+  .form-card-header {
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-card-header-left {
+    gap: 0.875rem;
+  }
+
+  .form-header-icon-wrap {
+    width: 42px;
+    height: 42px;
+    font-size: 1.25rem;
+    border-radius: 10px;
+  }
+
+  .form-header-title {
+    font-size: 1.3rem;
+  }
+
+  .form-header-subtitle {
+    font-size: 0.8rem;
+  }
+
+  .form-close-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+
   .add-organization-action-buttons {
     flex-direction: column-reverse;
     gap: 0.75rem;
+    width: 100%;
+    margin-top: 1.5rem;
   }
 
   .add-khata-book-cancel-button,
-  .add-organization-action-buttons .add-khata-book-save-button {
+  .add-organization-action-buttons .add-khata-book-save-button,
+  .add-khata-book-save-button {
     width: 100%;
+    float: none;
     justify-content: center;
+    padding: 0.875rem 1.25rem;
+    font-size: 0.95rem;
+  }
+
+  .add-khata-book-image-placeholder {
+    width: 120px;
+    height: 120px;
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .add-khata-book-container {
+    padding: 0.75rem 0.5rem;
+    margin-top: 60px;
+  }
+
+  .add-khata-book-section {
+    padding: 1rem 0.75rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+  }
+
+  .add-khata-book-section-title {
+    font-size: 1.05rem;
+    gap: 0.35rem;
+  }
+
+  .form-card-header {
+    padding-bottom: 1rem;
+    margin-bottom: 1.25rem;
+    gap: 0.5rem;
+  }
+
+  .form-card-header-left {
+    gap: 0.65rem;
+  }
+
+  .form-header-icon-wrap {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+    border-radius: 8px;
+  }
+
+  .form-header-title {
+    font-size: 1.15rem;
+    line-height: 1.25;
+  }
+
+  .form-header-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .form-close-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+
+  .add-khata-book-input,
+  .add-khata-book-select {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .add-khata-book-label {
+    font-size: 0.85rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .add-khata-book-image-placeholder {
+    width: 100px;
+    height: 100px;
+    font-size: 2rem;
+  }
+
+  .add-khata-book-add-photo-button {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  .expandable-card-header {
+    padding: 10px 12px;
+  }
+
+  .expandable-title {
+    font-size: 13px;
+  }
+
+  .expandable-subtitle {
+    font-size: 11px;
+  }
+
+  .expandable-badge {
+    display: none;
+  }
+
+  .expandable-card-body {
+    padding: 12px 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .add-khata-book-container {
+    padding: 0.5rem 0.35rem;
+  }
+
+  .add-khata-book-section {
+    padding: 0.875rem 0.625rem;
+  }
+
+  .form-header-title {
+    font-size: 1.05rem;
   }
 }

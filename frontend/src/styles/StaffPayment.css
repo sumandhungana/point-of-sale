@@ -1,4 +1,23 @@
 /* StaffPayment.css - Modern Bootstrap-like styles */
+
+/* =========================================
+   PAGE CONTAINER & MAIN LAYOUT
+========================================= */
+.staff-payment-container {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.staff-payment-main {
+  max-width: 100%;
+  margin: 0;
+  padding: 84px 32px 100px 32px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 100vh;
+}
+
 /* =========================================
    STAFF PAYMENT HEADER
 ========================================= */
@@ -8,12 +27,15 @@
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
 
   width: 100%;
   min-height: 42px;
 
-  margin-top: 70px; /* space below navbar */
-  margin-bottom: 12px;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
 }
 
 /* Force BackButton to stay visible */
@@ -37,7 +59,7 @@
 .staff-payment-summary-cards {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
@@ -1208,6 +1230,10 @@ button.staff-payment-calendar-date {
 ========================================= */
 
 @media (max-width: 768px) {
+  .staff-payment-main {
+    padding: 76px 16px 100px 16px;
+  }
+
   .staff-payment-summary-cards {
     grid-template-columns: 1fr;
   }

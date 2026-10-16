@@ -115,6 +115,32 @@ export async function getProduct(): Promise<GetAllProductUCResponse | undefined>
     }
 }
 
+
+
+export async function updateProduct(id: number, formData: FormData) {
+    const res = await apiService.put<RestResponse<AddProductResponse>>(
+        'api/v1/product/' + id,
+        formData,
+        {
+            headers: {
+                ...getAuthHeaders()
+            },
+        }
+    );
+
+    if (res.response?.code === -1 || res.response?.message !== 'SUCCESS') {
+        error("Failed to create product");
+        throw new Error(res.error || "Failed to create product");
+    }
+
+    if (res.error) {
+        throw new Error(res.error || "Failed to create product");
+    } else {
+        success("Product created successfully");
+        return res.response?.data;
+    }
+}
+
 function getAuthHeaders(): Record<string, string> {
     const token = localStorage.getItem('authToken');
     return token ? { Authorization: `Bearer ${token}` } : {};

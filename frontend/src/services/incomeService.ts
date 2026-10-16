@@ -11,11 +11,6 @@ export async function fetchCategories() {
   return response.json();
 }
 
-export async function fetchItems() {
-  const response = await fetch('/api/Item', { headers: getAuthHeaders() });
-  if (!response.ok) throw new Error('Failed to fetch items');
-  return response.json();
-}
 
 export async function fetchLastIncome() {
   const response = await fetch('/api/Income/last', { headers: getAuthHeaders() });

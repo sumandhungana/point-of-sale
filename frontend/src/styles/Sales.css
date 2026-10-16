@@ -327,7 +327,20 @@
 @media (max-width: 768px) {
   .user-management-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .sales-header-btn-wrap {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px !important;
+  }
+
+  .sales-header-btn-wrap button {
+    width: 100%;
+    justify-content: center;
   }
 
   .btn-add-user {
@@ -335,9 +348,15 @@
     text-align: center;
   }
 
+  .role-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
   .sales-filter-card {
     flex-direction: column;
     align-items: stretch;
+    padding: 14px;
   }
 
   .sales-search-input-wrapper {
@@ -357,16 +376,49 @@
   .table-role-select {
     width: 100%;
   }
+
+  .role-item-card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .role-main-details {
+    width: 100%;
+  }
+
+  .role-card-right {
+    width: 100%;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding-top: 10px;
+    border-top: 1px solid #f1f3f5;
+  }
 }
 
 /* Small Mobile Screens (≤ 480px) */
 @media (max-width: 480px) {
   .user-management-content {
-    padding: 68px 12px 16px;
+    padding: 68px 10px 16px;
+  }
+
+  .user-management-header {
+    padding: 14px;
+  }
+
+  .user-management-header h2 {
+    font-size: 1.25rem;
   }
 
   .role-stats-grid {
     grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .stat-card {
+    padding: 14px 16px;
   }
 
   .sales-filter-actions {
@@ -375,12 +427,11 @@
   }
 
   .role-card-right {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 6px;
+    flex-wrap: wrap;
+    gap: 8px;
   }
 
   .role-card-right > div {
     text-align: left !important;
   }
-}
+}

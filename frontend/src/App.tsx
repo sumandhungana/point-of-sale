@@ -74,15 +74,15 @@ import {RoleManagement} from "@/features/roleAndPermissions/pages/RoleManagement
 import SupplierProfile from "@/pages/SupplierProfile";
 import {AddOrganization} from "@/features/onboarding/components/AddOrganization";
 import UserManagement from "@/features/user/pages/UserManagement";
-import {Products} from "@/features/inventoryManagement/pages/Products";
+import { Products } from "@/features/inventoryManagement/pages/Products";
 import { LoanManagement } from "@/features/loan/pages/LoanManagement";
+import { ProtectedRoute } from './core/rbac/ProtectedRoute';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   return isAuthenticated ? (
     // return true ? (
     <div style={{ 
-        // Space for fixed navbar
       paddingLeft: '280px', // Space for sidebar
       minHeight: '100vh',
       backgroundColor: '#f8f9fa'
@@ -266,7 +266,6 @@ const App: React.FC = () => {
               </PrivateRoute>
             }
           />
-              <Route path="/role" element={<RoleManagement />} />
           <Route
             path="/parties/customers/profile/:id"
             element={
@@ -521,7 +520,9 @@ const App: React.FC = () => {
             path="/staff"
             element={
               <PrivateRoute>
-                <StaffManagement />
+                <ProtectedRoute requiredModules={['staffManagement', 'staffAttendance']}>
+                  <StaffManagement />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -529,7 +530,9 @@ const App: React.FC = () => {
             path="/staff/add"
             element={
               <PrivateRoute>
-                <AddStaff />
+                <ProtectedRoute requiredModule="staffManagement">
+                  <AddStaff />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -537,7 +540,9 @@ const App: React.FC = () => {
             path="/staff/payment"
             element={
               <PrivateRoute>
-                <StaffPayment />
+                <ProtectedRoute requiredModules={['staffManagement', 'staffAttendance']}>
+                  <StaffPayment />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -545,7 +550,9 @@ const App: React.FC = () => {
             path="/staff/payment/:id"
             element={
               <PrivateRoute>
-                <StaffPayment />
+                <ProtectedRoute requiredModules={['staffManagement', 'staffAttendance']}>
+                  <StaffPayment />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -626,7 +633,9 @@ const App: React.FC = () => {
             path="/role"
             element={
               <PrivateRoute>
-                <Role />
+                <ProtectedRoute requiredModules={['roleAndPermissions']}>
+                  <RoleManagement />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -658,7 +667,9 @@ const App: React.FC = () => {
             path="/rental-items" 
             element={
               <PrivateRoute>
-                <RentalItem />
+                <ProtectedRoute requiredModule="rental">
+                  <RentalItem />
+                </ProtectedRoute>
               </PrivateRoute>
             } 
           />
@@ -666,7 +677,9 @@ const App: React.FC = () => {
             path="/rental-items/statement/:id" 
             element={
               <PrivateRoute>
-                <RentalStatement />
+                <ProtectedRoute requiredModule="rental">
+                  <RentalStatement />
+                </ProtectedRoute>
               </PrivateRoute>
             } 
           />
@@ -674,7 +687,9 @@ const App: React.FC = () => {
             path="/rental/statement/:id" 
             element={
               <PrivateRoute>
-                <RentalStatement />
+                <ProtectedRoute requiredModule="rental">
+                  <RentalStatement />
+                </ProtectedRoute>
               </PrivateRoute>
             } 
           />
@@ -682,7 +697,9 @@ const App: React.FC = () => {
             path="/rental/add" 
             element={
               <PrivateRoute>
-                <AddRentalItem />
+                <ProtectedRoute requiredModule="rental">
+                  <AddRentalItem />
+                </ProtectedRoute>
               </PrivateRoute>
             } 
           />
@@ -690,7 +707,9 @@ const App: React.FC = () => {
             path="/organization"
             element={
               <PrivateRoute>
-                <OrganizationManagement />
+                <ProtectedRoute requiredModule="organization">
+                  <OrganizationManagement />
+                </ProtectedRoute>
               </PrivateRoute>
             } 
           />
@@ -698,7 +717,9 @@ const App: React.FC = () => {
                   path="/user-management"
                   element={
                       <PrivateRoute>
+                        <ProtectedRoute requiredModule="user">
                           <UserManagement />
+                        </ProtectedRoute>
                       </PrivateRoute>
                   }
               />
@@ -878,7 +899,9 @@ const App: React.FC = () => {
             path="/others/loan"
             element={
               <PrivateRoute>
-                <LoanManagement />
+                <ProtectedRoute requiredModule="loan">
+                  <LoanManagement />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />

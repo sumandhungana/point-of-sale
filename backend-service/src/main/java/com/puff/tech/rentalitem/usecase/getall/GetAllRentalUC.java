@@ -25,7 +25,7 @@ public class GetAllRentalUC implements FluxUC<GetAllRentalUCRequest, GetAllRenta
     }
 
     private Flux<RentalItemEntity> fetchAllEntities() {
-        return rentalItemRepository.findAll();
+        return rentalItemRepository.findAllOrderByCreatedAtDesc();
     }
 
     private GetAllRentalUCResponse mapToResponse(RentalItemEntity entity) {

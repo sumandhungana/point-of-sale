@@ -1,4 +1,12 @@
 import { apiService } from "@/infrastructure/utils/ApiService";
+import { isCurrentSuperAdmin, hasStoredModule } from '@/core/rbac/usePermission';
+
+let loansCache: { data: Loan[]; timestamp: number } | null = null;
+const LOANS_CACHE_TTL = 15000; // 15 seconds
+
+export const invalidateLoansCache = (): void => {
+    loansCache = null;
+};
 
 interface RestResponse<T> {
     code: number;
@@ -361,7 +369,19 @@ export const calculateLoanEmiBackend = async (payload: {
     return { ...calc, schedule };
 };
 
-export const fetchAllLoans = async (): Promise<Loan[]> => {
+export const fetchAllLoans = async (forceRefresh = false): Promise<Loan[]> => {
+    // 1. Role-based guard: only authorized users (Super Admin or user with loan module) can trigger loan API
+    if (!isCurrentSuperAdmin() && !hasStoredModule('loan')) {
+        console.warn('fetchAllLoans skipped: current user is not authorized for loans');
+        return [];
+    }
+
+    // 2. Prevent duplicate requests: Return cached data if fresh
+    const now = Date.now();
+    if (!forceRefresh && loansCache && now - loansCache.timestamp < LOANS_CACHE_TTL) {
+        return loansCache.data;
+    }
+
     try {
         const res = await apiService.get<RestResponse<any[]>>('api/v1/loans', {
             headers: getAuthHeaders(),
@@ -376,12 +396,15 @@ export const fetchAllLoans = async (): Promise<Loan[]> => {
                 })),
             }));
             saveStoredLoans(mapped);
+            loansCache = { data: mapped, timestamp: now };
             return mapped;
         }
     } catch (e) {
         console.warn('Backend fetchAllLoans failed, falling back to local cache:', e);
     }
-    return getStoredLoans();
+    const fallback = getStoredLoans();
+    loansCache = { data: fallback, timestamp: now };
+    return fallback;
 };
 
 export const fetchLoanById = async (id: string): Promise<Loan | null> => {
@@ -424,6 +447,7 @@ export const createLoan = async (payload: CreateLoanPayload): Promise<Loan> => {
             };
             const current = getStoredLoans();
             saveStoredLoans([mapped, ...current]);
+            invalidateLoansCache();
             return mapped;
         }
     } catch (e) {
@@ -497,6 +521,7 @@ export const createLoan = async (payload: CreateLoanPayload): Promise<Loan> => {
 
     const transactions = getStoredTransactions();
     saveStoredTransactions([initialTx, ...transactions]);
+    invalidateLoansCache();
 
     return newLoan;
 };
@@ -526,6 +551,7 @@ export const recordLoanTransaction = async (payload: RecordPaymentPayload): Prom
             saveStoredLoans(loans);
             const txs = getStoredTransactions();
             saveStoredTransactions([mappedTx, ...txs]);
+            invalidateLoansCache();
             return { loan: mappedLoan, transaction: mappedTx };
         }
     } catch (e) {
@@ -595,6 +621,7 @@ export const recordLoanTransaction = async (payload: RecordPaymentPayload): Prom
 
     const transactions = getStoredTransactions();
     saveStoredTransactions([transaction, ...transactions]);
+    invalidateLoansCache();
 
     return { loan, transaction };
 };
@@ -613,6 +640,7 @@ export const deleteLoanRecord = async (loanId: string): Promise<boolean> => {
 
     const transactions = getStoredTransactions().filter((t) => t.loanId !== loanId);
     saveStoredTransactions(transactions);
+    invalidateLoansCache();
 
     return true;
 };

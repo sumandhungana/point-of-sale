@@ -9,6 +9,7 @@ import {
   AppNotification,
 } from '@/services/notificationService';
 import '../styles/NotificationDropdown.css';
+import '../styles/Navbar.css';
 
 const resolveImageUrl = (path?: string | null): string => {
   if (!path) return '';
@@ -171,33 +172,9 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        top: 0,
-        right: 0,
-        left: 0,
-        height: '64px',
-        background: `
-          linear-gradient(
-            90deg,
-            #010A2E 0%,
-            #06164A 40%,
-            #102F78 70%,
-            #8F1118 100%
-          )
-        `,
-        borderBottom: '3px solid #DE1110', // Crimson Red Accent
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 1.5rem',
-        zIndex: 1000,
-        boxShadow: '0 2px 10px rgba(0, 0, 0, 0.25)',
-      }}
-    >
+    <nav className="navbar-container">
       {/* Brand Logo & Mobile Hamburger Trigger */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+      <div className="navbar-brand-section">
         <button
           type="button"
           className="navbar-hamburger-btn"
@@ -211,20 +188,13 @@ const Navbar: React.FC = () => {
           ☰
         </button>
         <div
-          style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+          className="navbar-logo-wrap"
           onClick={() => navigate('/')}
         >
           <img
             src={logo}
             alt="Khatabook"
             className="navbar-logo-img"
-            style={{
-              height: '185px',
-              width: 'auto',
-              marginLeft: '54px',
-              marginBottom: '6px',
-              filter: 'brightness(0) invert(1)', // Clean white logo match
-            }}
           />
         </div>
       </div>
@@ -302,20 +272,24 @@ const Navbar: React.FC = () => {
                 >
                   Stock <span className="tab-badge">{stockCount}</span>
                 </button>
-                <button
-                  type="button"
-                  className={`notif-tab ${notifFilter === 'LOAN_EMI' ? 'active' : ''}`}
-                  onClick={() => setNotifFilter('LOAN_EMI')}
-                >
-                  Loan EMIs <span className="tab-badge">{loanCount}</span>
-                </button>
-                <button
-                  type="button"
-                  className={`notif-tab ${notifFilter === 'NEW_ORGANIZATION' ? 'active' : ''}`}
-                  onClick={() => setNotifFilter('NEW_ORGANIZATION')}
-                >
-                  New Orgs <span className="tab-badge">{orgCount}</span>
-                </button>
+                {loanCount > 0 && (
+                  <button
+                    type="button"
+                    className={`notif-tab ${notifFilter === 'LOAN_EMI' ? 'active' : ''}`}
+                    onClick={() => setNotifFilter('LOAN_EMI')}
+                  >
+                    Loan EMIs <span className="tab-badge">{loanCount}</span>
+                  </button>
+                )}
+                {orgCount > 0 && (
+                  <button
+                    type="button"
+                    className={`notif-tab ${notifFilter === 'NEW_ORGANIZATION' ? 'active' : ''}`}
+                    onClick={() => setNotifFilter('NEW_ORGANIZATION')}
+                  >
+                    New Orgs <span className="tab-badge">{orgCount}</span>
+                  </button>
+                )}
               </div>
 
               {/* Notification List */}
@@ -384,98 +358,56 @@ const Navbar: React.FC = () => {
         </div>
 
         {/* User Profile Dropdown Trigger */}
-        <div style={{ position: 'relative' }} ref={dropdownRef}>
+        <div className="navbar-user-trigger-wrap" ref={dropdownRef}>
           <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              cursor: 'pointer',
-              padding: '4px 8px',
-              borderRadius: '8px',
-              transition: 'background-color 0.2s ease',
-            }}
+            className={`navbar-user-btn ${isDropdownOpen ? 'active' : ''}`}
             onClick={() => {
               setIsDropdownOpen(!isDropdownOpen);
               setIsNotifOpen(false);
             }}
+            role="button"
+            tabIndex={0}
+            aria-expanded={isDropdownOpen}
+            aria-label="User account menu"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                setIsDropdownOpen(!isDropdownOpen);
+                setIsNotifOpen(false);
+              }
+            }}
           >
-            <div
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #255DCE, #DE1110)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                overflow: 'hidden',
-                position: 'relative',
-                border: '2px solid #255DCE',
-                boxShadow: '0 0 8px rgba(37, 93, 206, 0.4)',
-              }}
-            >
+            <div className="navbar-user-avatar">
               {profileImageUrl && !imageError ? (
                 <img
                   src={profileImageUrl}
                   alt={getUserDisplayName()}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
+                  className="navbar-user-avatar-img"
                   onError={() => setImageError(true)}
                 />
               ) : (
-                <span style={{ fontSize: '1.1rem', color: '#ffffff' }}>👤</span>
+                <span className="navbar-user-avatar-fallback">👤</span>
               )}
             </div>
-            <span
-              style={{
-                fontSize: '0.75rem',
-                color: '#ffffff',
-                fontWeight: 600,
-                marginTop: '2px',
-              }}
-            >
-              {getUserDisplayName()}
-            </span>
+            <div className="navbar-user-meta">
+              <span className="navbar-username-text" title={getUserDisplayName()}>
+                {getUserDisplayName()}
+              </span>
+            </div>
+            <i className={`bi bi-chevron-down navbar-user-chevron ${isDropdownOpen ? 'rotated' : ''}`} />
           </div>
 
           {/* User Dropdown Menu */}
           {isDropdownOpen && (
-            <div
-              style={{
-                position: 'absolute',
-                top: 'calc(100% + 8px)',
-                right: 0,
-                backgroundColor: '#021861',
-                border: '1px solid rgba(37, 93, 206, 0.4)',
-                borderRadius: '12px',
-                boxShadow: '0 12px 30px rgba(0, 0, 0, 0.4)',
-                minWidth: '220px',
-                overflow: 'hidden',
-                color: '#ffffff',
-                zIndex: 1050,
-              }}
-            >
+            <div className="navbar-user-dropdown">
               {/* User Info Header */}
-              <div
-                style={{
-                  padding: '0.875rem 1rem',
-                  borderBottom: '1px solid rgba(37, 93, 206, 0.25)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  backgroundColor: 'rgba(37, 93, 206, 0.15)',
-                }}
-              >
-                <span style={{ fontSize: '1.2rem' }}>👤</span>
+              <div className="navbar-user-header">
+                <span className="navbar-user-header-icon">👤</span>
                 <div>
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem', color: '#ffffff' }}>
+                  <div className="navbar-user-header-name">
                     {getUserDisplayName()}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.7)' }}>
+                  <div className="navbar-user-header-email">
                     {user?.email || ''}
                   </div>
                 </div>
@@ -484,74 +416,26 @@ const Navbar: React.FC = () => {
               {/* Action Items */}
               <div
                 className="navbar-dropdown-item"
-                style={{
-                  padding: '0.75rem 1rem',
-                  borderBottom: '1px solid rgba(37, 93, 206, 0.15)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  transition: 'background-color 0.2s ease',
-                }}
                 onClick={checkForUpdates}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(37, 93, 206, 0.25)')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
                 <span>🔄</span> Check for Updates
               </div>
 
               <div
                 className="navbar-dropdown-item"
-                style={{
-                  padding: '0.75rem 1rem',
-                  borderBottom: '1px solid rgba(37, 93, 206, 0.15)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  color: 'rgba(255, 255, 255, 0.9)',
-                  transition: 'background-color 0.2s ease',
-                }}
                 onClick={toggleFullScreen}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = 'rgba(37, 93, 206, 0.25)')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
                 <span>⤢</span> Toggle Fullscreen
               </div>
 
-              <div
-                style={{
-                  padding: '0.75rem 1rem',
-                  borderBottom: '1px solid rgba(37, 93, 206, 0.15)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  fontSize: '0.875rem',
-                  color: 'rgba(255, 255, 255, 0.6)',
-                }}
-              >
-                <span>ℹ️</span> Version 1.0.0
+              <div className="navbar-dropdown-version">
+                <span>ℹ️</span> Version 1.0.1
               </div>
 
               {/* Logout Action */}
               <div
-                style={{
-                  padding: '0.75rem 1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  cursor: 'pointer',
-                  fontSize: '0.875rem',
-                  color: '#f2f3f4',
-                  fontWeight: 600,
-                  transition: 'background-color 0.2s ease',
-                }}
+                className="navbar-dropdown-logout"
                 onClick={logout}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#021861')}
-                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
               >
                 <span>🚪</span> Logout
               </div>

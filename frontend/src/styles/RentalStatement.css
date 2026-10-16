@@ -3,17 +3,17 @@
    ========================================================================== */
 
 .rental-statement-container {
-  display: flex;
-  max-width: 1200px;
-  margin: 0 auto;
+  display: block;
+  max-width: 100%;
+  margin: 0;
   width: 100%;
   box-sizing: border-box;
 }
 
 .rental-statement-main {
-  flex: 1;
-  padding: 84px 2rem 6rem 2rem;
+  padding: 84px 32px 6rem 32px;
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
   min-height: 100vh;
   background-color: #f8f9fa;
@@ -819,7 +819,7 @@
 /* Responsive Media Queries */
 @media (max-width: 768px) {
   .rental-statement-main {
-    padding: 70px 1rem 7.5rem 1rem;
+    padding: 76px 16px 7.5rem 16px;
   }
 
   .rental-statement-profile-card {
@@ -897,7 +897,7 @@
 
 @media (max-width: 480px) {
   .rental-statement-main {
-    padding: 64px 0.75rem 8.5rem 0.75rem;
+    padding: 76px 12px 8.5rem 12px;
   }
 
   .rental-statement-item-identity {

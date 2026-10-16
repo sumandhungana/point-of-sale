@@ -140,8 +140,8 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                                 <label>Amount (Rs.) *</label>
                                 <input
                                     type="number"
-                                    min="1"
-                                    step="100"
+                                    min="0.01"
+                                    step="any"
                                     value={amount}
                                     onChange={(e) =>
                                         setAmount(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)

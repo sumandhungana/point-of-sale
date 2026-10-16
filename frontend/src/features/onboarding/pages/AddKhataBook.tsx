@@ -69,8 +69,31 @@ export const AddKhataBook = () => {
         <div className="add-khatabook-page-main">
           <Navbar />
           <div className="add-khata-book-container">
+            {/* Header with Title and Top-Right Cross Button */}
+            <div className="form-card-header">
+              <div className="form-card-header-left">
+                <div className="form-header-icon-wrap">
+                  <i className="bi bi-journal-plus" />
+                </div>
+                <div>
+                  <h1 className="form-header-title">Create Khata Book</h1>
+                  <p className="form-header-subtitle">Register new organization ledger and business profile</p>
+                </div>
+              </div>
+
+              {/* Top Right Cross Button */}
+              <button
+                type="button"
+                className="form-close-btn"
+                onClick={() => navigate(-1)}
+                aria-label="Close"
+                title="Close"
+              >
+                <i className="bi bi-x-lg" />
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit}>
-              {/* User Credentials & Personal Info */}
               {/* Organization Info */}
               <div className="add-khata-book-section">
                 <h2 className="add-khata-book-section-title">
@@ -176,7 +199,7 @@ export const AddKhataBook = () => {
                     </select>
                   </div>
 
-                  <div className="add-khata-book-form-group" style={{ gridColumn: 'span 2' }}>
+                  <div className="add-khata-book-form-group form-group-col-span-2">
                     <label className="add-khata-book-label">
                       <i className="bi bi-geo-alt me-1"></i>
                       Organization Address <span>*</span>
@@ -192,7 +215,7 @@ export const AddKhataBook = () => {
                     />
                   </div>
 
-                  <div className="add-khata-book-form-group" style={{ gridColumn: 'span 2' }}>
+                  <div className="add-khata-book-form-group form-group-col-span-2">
                     <label className="add-khata-book-label">
                       <i className="bi bi-journal-text me-1"></i>
                       Notes
@@ -209,23 +232,32 @@ export const AddKhataBook = () => {
                 </div>
               </div>
 
-              <button
-                  type="submit"
-                  className="add-khata-book-save-button"
-                  disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                    <>
-                      <i className="bi bi-arrow-clockwise spin me-2"></i>
-                      Saving...
-                    </>
-                ) : (
-                    <>
-                      <i className="bi bi-check-circle me-2"></i>
-                      Save Khata Book
-                    </>
-                )}
-              </button>
+              <div className="add-organization-action-buttons">
+                <button
+                    type="button"
+                    className="add-khata-book-cancel-button"
+                    onClick={() => navigate(-1)}
+                >
+                  Cancel
+                </button>
+                <button
+                    type="submit"
+                    className="add-khata-book-save-button"
+                    disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                      <>
+                        <i className="bi bi-arrow-clockwise spin me-2"></i>
+                        Saving...
+                      </>
+                  ) : (
+                      <>
+                        <i className="bi bi-check-circle me-2"></i>
+                        Save Khata Book
+                      </>
+                  )}
+                </button>
+              </div>
             </form>
           </div>
         </div>

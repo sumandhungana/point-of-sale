@@ -12,9 +12,16 @@ import {
     StaffAttendanceRecord,
     AttendanceStatusType
 } from '@/services/staffAttendanceService';
+import { usePermission } from '@/core/rbac/usePermission';
 import '../../styles/StaffPayment.css';
 
 export const StaffPayment: React.FC = () => {
+    // Permission checks
+    const { hasModule, hasPermission } = usePermission();
+    const canViewAttendance = hasModule('staffAttendance') || hasPermission('staffAttendance:list') || hasPermission('staff:list');
+    const canMarkAttendance = hasPermission('staffAttendance:create') || hasPermission('staffAttendance:update') || hasPermission('staff:update') || hasPermission('staff:create');
+    const canMakePayment = hasPermission('staff:payment');
+
     // Extract staffId from route parameters
     const { id } = useParams<{ id: string }>();
     const staffId = id ? parseInt(id, 10) : 0;
@@ -95,14 +102,14 @@ export const StaffPayment: React.FC = () => {
 
     // Fetch attendance records from backend
     const fetchAttendances = useCallback(async () => {
-        if (!staffId) return;
+        if (!staffId || !canViewAttendance) return;
         try {
             const records = await fetchStaffAttendanceByStaffId(staffId);
             setAttendanceList(Array.isArray(records) ? records : []);
         } catch (err) {
             console.error('Failed to fetch staff attendance records:', err);
         }
-    }, [staffId]);
+    }, [staffId, canViewAttendance]);
 
     useEffect(() => {
         void fetchPayments();
@@ -271,10 +278,10 @@ export const StaffPayment: React.FC = () => {
 
             <div className="staff-payment-main">
                 {/* Header Navigation & Actions */}
-                <div className="staff-payment-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div className="staff-payment-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
                     <BackButton to="/staff" label="Back to Staff" />
 
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
+                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
                         {/* Open Attendance Modal Button */}
                         <button
                             type="button"
@@ -323,6 +330,8 @@ export const StaffPayment: React.FC = () => {
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '1rem',
+                        width: '100%',
+                        boxSizing: 'border-box',
                     }}
                 >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
@@ -381,26 +390,28 @@ export const StaffPayment: React.FC = () => {
 
                         {/* Quick Actions (Notes & Attendance) */}
                         <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
-                            <button
-                                type="button"
-                                onClick={() => setIsAttendanceOpen(true)}
-                                style={{
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '0.4rem',
-                                    padding: '0.45rem 0.9rem',
-                                    borderRadius: '8px',
-                                    border: '1px solid #10b981',
-                                    background: '#ecfdf5',
-                                    color: '#065f46',
-                                    fontWeight: 600,
-                                    fontSize: '0.85rem',
-                                    cursor: 'pointer',
-                                }}
-                            >
-                                <i className="bi bi-calendar3" style={{ color: '#059669' }} />
-                                Attendance Calendar
-                            </button>
+                            {canViewAttendance && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAttendanceOpen(true)}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.4rem',
+                                        padding: '0.45rem 0.9rem',
+                                        borderRadius: '8px',
+                                        border: '1px solid #10b981',
+                                        background: '#ecfdf5',
+                                        color: '#065f46',
+                                        fontWeight: 600,
+                                        fontSize: '0.85rem',
+                                        cursor: 'pointer',
+                                    }}
+                                >
+                                    <i className="bi bi-calendar3" style={{ color: '#059669' }} />
+                                    Attendance Calendar
+                                </button>
+                            )}
                             {!isEditingNotes && (
                                 <button
                                     type="button"
@@ -519,130 +530,134 @@ export const StaffPayment: React.FC = () => {
                     </div>
 
                     {/* Attendance Overview & Quick Log Bar */}
-                    <div
-                        style={{
-                            marginTop: '1rem',
-                            background: '#ffffff',
-                            borderRadius: '10px',
-                            padding: '0.9rem 1.15rem',
-                            border: '1px solid #e2e8f0',
-                            display: 'flex',
-                            flexWrap: 'wrap',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '1rem',
-                        }}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                <i className="bi bi-calendar-check" style={{ color: '#059669', fontSize: '1.1rem' }} />
-                                <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>
-                                    Today's Attendance:
-                                </span>
-                            </div>
-                            {todayAttendance ? (
-                                <span
-                                    style={{
-                                        padding: '0.25rem 0.65rem',
-                                        borderRadius: '6px',
-                                        fontWeight: 700,
-                                        fontSize: '0.8rem',
-                                        letterSpacing: '0.3px',
-                                        background:
-                                            todayAttendance.status === 'PRESENT'
-                                                ? '#d1fae5'
-                                                : todayAttendance.status === 'ABSENT'
-                                                ? '#fee2e2'
-                                                : todayAttendance.status === 'HALF_DAY'
-                                                ? '#fef3c7'
-                                                : '#e0e7ff',
-                                        color:
-                                            todayAttendance.status === 'PRESENT'
-                                                ? '#065f46'
-                                                : todayAttendance.status === 'ABSENT'
-                                                ? '#991b1b'
-                                                : todayAttendance.status === 'HALF_DAY'
-                                                ? '#92400e'
-                                                : '#3730a3',
-                                    }}
-                                >
-                                    {todayAttendance.status.replace('_', ' ')}
-                                </span>
-                            ) : (
-                                <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                                    Not recorded yet
-                                </span>
-                            )}
-
-                            {/* Quick Action Buttons */}
-                            <div style={{ display: 'flex', gap: '0.4rem', marginLeft: '0.5rem' }}>
-                                {(
-                                    [
-                                        { status: 'PRESENT' as const, label: 'Present', color: '#059669', bg: '#ecfdf5' },
-                                        { status: 'HALF_DAY' as const, label: 'Half Day', color: '#d97706', bg: '#fffbeb' },
-                                        { status: 'ABSENT' as const, label: 'Absent', color: '#dc2626', bg: '#fef2f2' },
-                                        { status: 'LEAVE' as const, label: 'Leave', color: '#6366f1', bg: '#eef2ff' },
-                                    ]
-                                ).map((btn) => (
-                                    <button
-                                        key={btn.status}
-                                        type="button"
-                                        disabled={isSavingAttendance}
-                                        onClick={() => void handleQuickMarkToday(btn.status)}
+                    {canViewAttendance && (
+                        <div
+                            style={{
+                                marginTop: '1rem',
+                                background: '#ffffff',
+                                borderRadius: '10px',
+                                padding: '0.9rem 1.15rem',
+                                border: '1px solid #e2e8f0',
+                                display: 'flex',
+                                flexWrap: 'wrap',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                                gap: '1rem',
+                            }}
+                        >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                    <i className="bi bi-calendar-check" style={{ color: '#059669', fontSize: '1.1rem' }} />
+                                    <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>
+                                        Today's Attendance:
+                                    </span>
+                                </div>
+                                {todayAttendance ? (
+                                    <span
                                         style={{
-                                            border: `1px solid ${btn.color}40`,
-                                            background: todayAttendance?.status === btn.status ? btn.color : btn.bg,
-                                            color: todayAttendance?.status === btn.status ? '#ffffff' : btn.color,
-                                            padding: '0.25rem 0.55rem',
+                                            padding: '0.25rem 0.65rem',
                                             borderRadius: '6px',
-                                            fontSize: '0.78rem',
-                                            fontWeight: 600,
-                                            cursor: 'pointer',
-                                            transition: 'all 0.15s ease',
+                                            fontWeight: 700,
+                                            fontSize: '0.8rem',
+                                            letterSpacing: '0.3px',
+                                            background:
+                                                todayAttendance.status === 'PRESENT'
+                                                    ? '#d1fae5'
+                                                    : todayAttendance.status === 'ABSENT'
+                                                    ? '#fee2e2'
+                                                    : todayAttendance.status === 'HALF_DAY'
+                                                    ? '#fef3c7'
+                                                    : '#e0e7ff',
+                                            color:
+                                                todayAttendance.status === 'PRESENT'
+                                                    ? '#065f46'
+                                                    : todayAttendance.status === 'ABSENT'
+                                                    ? '#991b1b'
+                                                    : todayAttendance.status === 'HALF_DAY'
+                                                    ? '#92400e'
+                                                    : '#3730a3',
                                         }}
                                     >
-                                        {btn.label}
-                                    </button>
-                                ))}
+                                        {todayAttendance.status.replace('_', ' ')}
+                                    </span>
+                                ) : (
+                                    <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                                        Not recorded yet
+                                    </span>
+                                )}
+
+                                {/* Quick Action Buttons */}
+                                {canMarkAttendance && (
+                                    <div style={{ display: 'flex', gap: '0.4rem', marginLeft: '0.5rem' }}>
+                                        {(
+                                            [
+                                                { status: 'PRESENT' as const, label: 'Present', color: '#059669', bg: '#ecfdf5' },
+                                                { status: 'HALF_DAY' as const, label: 'Half Day', color: '#d97706', bg: '#fffbeb' },
+                                                { status: 'ABSENT' as const, label: 'Absent', color: '#dc2626', bg: '#fef2f2' },
+                                                { status: 'LEAVE' as const, label: 'Leave', color: '#6366f1', bg: '#eef2ff' },
+                                            ]
+                                        ).map((btn) => (
+                                            <button
+                                                key={btn.status}
+                                                type="button"
+                                                disabled={isSavingAttendance}
+                                                onClick={() => void handleQuickMarkToday(btn.status)}
+                                                style={{
+                                                    border: `1px solid ${btn.color}40`,
+                                                    background: todayAttendance?.status === btn.status ? btn.color : btn.bg,
+                                                    color: todayAttendance?.status === btn.status ? '#ffffff' : btn.color,
+                                                    padding: '0.25rem 0.55rem',
+                                                    borderRadius: '6px',
+                                                    fontSize: '0.78rem',
+                                                    fontWeight: 600,
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.15s ease',
+                                                }}
+                                            >
+                                                {btn.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Monthly summary pill tags */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem' }}>
+                                <span style={{ color: '#64748b', fontWeight: 600 }}>This Month:</span>
+                                <span style={{ color: '#059669', fontWeight: 700 }}>
+                                    <i className="bi bi-check-circle-fill me-1" />
+                                    {monthlyStats.presentCount} Present
+                                </span>
+                                <span style={{ color: '#d97706', fontWeight: 700 }}>
+                                    <i className="bi bi-clock-fill me-1" />
+                                    {monthlyStats.halfDayCount} Half-day
+                                </span>
+                                <span style={{ color: '#dc2626', fontWeight: 700 }}>
+                                    <i className="bi bi-x-circle-fill me-1" />
+                                    {monthlyStats.absentCount} Absent
+                                </span>
+                                <span style={{ color: '#6366f1', fontWeight: 700 }}>
+                                    <i className="bi bi-calendar2-minus me-1" />
+                                    {monthlyStats.leaveCount} Leave
+                                </span>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsAttendanceOpen(true)}
+                                    style={{
+                                        border: 'none',
+                                        background: 'transparent',
+                                        color: '#2563eb',
+                                        fontWeight: 600,
+                                        fontSize: '0.8rem',
+                                        cursor: 'pointer',
+                                        textDecoration: 'underline',
+                                    }}
+                                >
+                                    View Calendar &rarr;
+                                </button>
                             </div>
                         </div>
-
-                        {/* Monthly summary pill tags */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem' }}>
-                            <span style={{ color: '#64748b', fontWeight: 600 }}>This Month:</span>
-                            <span style={{ color: '#059669', fontWeight: 700 }}>
-                                <i className="bi bi-check-circle-fill me-1" />
-                                {monthlyStats.presentCount} Present
-                            </span>
-                            <span style={{ color: '#d97706', fontWeight: 700 }}>
-                                <i className="bi bi-clock-fill me-1" />
-                                {monthlyStats.halfDayCount} Half-day
-                            </span>
-                            <span style={{ color: '#dc2626', fontWeight: 700 }}>
-                                <i className="bi bi-x-circle-fill me-1" />
-                                {monthlyStats.absentCount} Absent
-                            </span>
-                            <span style={{ color: '#6366f1', fontWeight: 700 }}>
-                                <i className="bi bi-calendar2-minus me-1" />
-                                {monthlyStats.leaveCount} Leave
-                            </span>
-                            <button
-                                type="button"
-                                onClick={() => setIsAttendanceOpen(true)}
-                                style={{
-                                    border: 'none',
-                                    background: 'transparent',
-                                    color: '#2563eb',
-                                    fontWeight: 600,
-                                    fontSize: '0.8rem',
-                                    cursor: 'pointer',
-                                    textDecoration: 'underline',
-                                }}
-                            >
-                                View Calendar &rarr;
-                            </button>
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Summary Cards */}
@@ -787,16 +802,18 @@ export const StaffPayment: React.FC = () => {
                         </div>
 
                         {/* Footer Action */}
-                        <div className="staff-payment-history-footer">
-                            <button
-                                type="button"
-                                className="staff-payment-add-payment-button"
-                                onClick={handleOpenAddPayment}
-                            >
-                                <i className="bi bi-plus-circle me-1"></i>
-                                Add Payment
-                            </button>
-                        </div>
+                        {canMakePayment && (
+                            <div className="staff-payment-history-footer">
+                                <button
+                                    type="button"
+                                    className="staff-payment-add-payment-button"
+                                    onClick={handleOpenAddPayment}
+                                >
+                                    <i className="bi bi-plus-circle me-1"></i>
+                                    Add Payment
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>

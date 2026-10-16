@@ -159,7 +159,7 @@ export const Purchase = () => {
                   <h2 className="sales-page-title">Purchase Bills</h2>
                   <p className="sales-page-subtitle">Manage and track all your vendor purchases and invoices</p>
                 </div>
-                <div className="d-flex align-items-center gap-2">
+                <div className="purchase-header-btn-wrap d-flex align-items-center gap-2">
                   <button className="btn-secondary" onClick={handleExportReportPDF}>
                     <i className="bi bi-file-earmark-arrow-down me-1"></i> Export PDF Report
                   </button>

@@ -40,10 +40,9 @@ export const AddRole = () => {
   };
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
+    <div style={{ display: 'block', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
       <Sidebar />
       <div className="add-role-container">
-        <Navbar />
         <div className="add-role-card">
           <div className="add-role-form-card">
             <h1 className="add-role-heading">

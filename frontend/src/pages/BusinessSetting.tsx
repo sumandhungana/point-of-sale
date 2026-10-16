@@ -238,6 +238,19 @@ const BusinessSetting = () => {
                 <Navbar />
 
                 <div className="update-khata-book-container">
+                    {/* Header with Title */}
+                    <div className="form-card-header">
+                        <div className="form-card-header-left">
+                            <div className="form-header-icon-wrap">
+                                <i className="bi bi-gear-wide-connected" />
+                            </div>
+                            <div>
+                                <h1 className="form-header-title">Business Settings</h1>
+                                <p className="form-header-subtitle">Update business profile, contact details, and organization preferences</p>
+                            </div>
+                        </div>
+                    </div>
+
                     <form onSubmit={handleSubmit}>
 
                         {/* Image Section */}

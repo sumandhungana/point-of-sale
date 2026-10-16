@@ -240,7 +240,7 @@ export const Sales: React.FC = () => {
                 <h2 className="text-navy fw-bold">Sales Management</h2>
                 <p className="text-muted">Track sales bills, review total revenue, and issue customer invoices.</p>
               </div>
-              <div className="d-flex align-items-center gap-2">
+              <div className="sales-header-btn-wrap d-flex align-items-center gap-2">
                 <button className="btn-secondary" onClick={handleExportReportPDF}>
                   <i className="bi bi-file-earmark-arrow-down me-1"></i> Export PDF Report
                 </button>

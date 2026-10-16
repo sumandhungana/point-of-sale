@@ -69,9 +69,31 @@ public enum Permission {
     ORGANIZATION_SELECTED(Module.ORGANIZATION,"selected" ),
     ORGANIZATION_ROLE_CHANGE(Module.ORGANIZATION, "user:module_change"),
 
+    // Rental Module Permissions
     RENTAL_ADD(Module.RENTAL, "add"),
+    RENTAL_CREATE(Module.RENTAL, "create"),
     RENTAL_GET_ALL(Module.RENTAL, "all"),
+    RENTAL_LIST(Module.RENTAL, "list"),
+    RENTAL_FIND_ONE(Module.RENTAL, "single"),
+    RENTAL_UPDATE(Module.RENTAL, "update"),
+    RENTAL_DELETE(Module.RENTAL, "delete"),
     RENTAL_PAYMENT(Module.RENTAL, "payment"),
+
+    // Staff Attendance Module Permissions
+    STAFF_ATTENDANCE_CREATE(Module.STAFF_ATTENDANCE, "create"),
+    STAFF_ATTENDANCE_UPDATE(Module.STAFF_ATTENDANCE, "update"),
+    STAFF_ATTENDANCE_DELETE(Module.STAFF_ATTENDANCE, "delete"),
+    STAFF_ATTENDANCE_FIND_ONE(Module.STAFF_ATTENDANCE, "single"),
+    STAFF_ATTENDANCE_FIND_ALL(Module.STAFF_ATTENDANCE, "list"),
+
+    // Loan Module Permissions
+    LOAN_CREATE(Module.LOAN_MANAGEMENT, "create"),
+    LOAN_UPDATE(Module.LOAN_MANAGEMENT, "update"),
+    LOAN_DELETE(Module.LOAN_MANAGEMENT, "delete"),
+    LOAN_FIND_ONE(Module.LOAN_MANAGEMENT, "single"),
+    LOAN_FIND_ALL(Module.LOAN_MANAGEMENT, "list"),
+    LOAN_PAYMENT(Module.LOAN_MANAGEMENT, "payment"),
+    LOAN_METRICS(Module.LOAN_MANAGEMENT, "metrics"),
 
 
     //Inventory Permissions

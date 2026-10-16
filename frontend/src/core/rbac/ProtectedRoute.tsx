@@ -4,17 +4,18 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '@/core/auth/AuthContext'
 import { usePermission } from './usePermission';
 import { AccessDenied } from '@/shared/components/AccessDenied';
-import Navbar from '@/components/Navbar';
 
 interface ProtectedRouteProps {
     children: React.ReactNode;
     requiredModule?: string;
+    requiredModules?: string[];
     requiredPermissions?: string[];
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
                                                                   children,
                                                                   requiredModule,
+                                                                  requiredModules,
                                                                   requiredPermissions = [],
                                                               }) => {
     const { isAuthenticated, isLoading } = useAuth();
@@ -28,7 +29,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         return <Navigate to="/login" replace />;
     }
 
-    // Check Module authorization
+    // Check Modules authorization
+    if (requiredModules && requiredModules.length > 0 && !requiredModules.some((m) => hasModule(m))) {
+        return <AccessDenied requiredModule={requiredModules.join(' or ')} />;
+    }
+
+    // Check single Module authorization
     if (requiredModule && !hasModule(requiredModule)) {
         return <AccessDenied requiredModule={requiredModule} />;
     }
@@ -43,16 +49,5 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
         );
     }
 
-    return (
-        <div
-            style={{
-                paddingLeft: '280px',
-                minHeight: '100vh',
-                backgroundColor: '#f8f9fa',
-            }}
-        >
-            <Navbar />
-            {children}
-        </div>
-    );
+    return <>{children}</>;
 };

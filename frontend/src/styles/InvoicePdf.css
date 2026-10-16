@@ -522,6 +522,52 @@
   color: #b91c1c;
 }
 
+/* Mobile & Tablet Modal Responsive */
+@media (max-width: 768px) {
+  .invoice-modal-backdrop {
+    padding: 8px;
+  }
+
+  .invoice-modal-container {
+    max-height: 96vh;
+    border-radius: 12px;
+  }
+
+  .invoice-modal-header {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .invoice-modal-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .invoice-modal-body {
+    padding: 12px 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .invoice-paper-card {
+    padding: 16px;
+    min-width: 580px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-invoice-download,
+  .btn-invoice-print {
+    padding: 6px 10px;
+    font-size: 0.8rem;
+  }
+
+  .invoice-modal-title h3 {
+    font-size: 0.95rem;
+  }
+}
+
 /* Native Print Override */
 @media print {
   @page {

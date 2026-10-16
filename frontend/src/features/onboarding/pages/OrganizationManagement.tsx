@@ -17,14 +17,20 @@ export const OrganizationManagement: React.FC = () => {
     const [approvingOrgId, setApprovingOrgId] = useState<number | null>(null);
 
     const navigate = useNavigate();
-    const { hasPermission } = usePermission();
+    const { hasPermission, isSuperAdmin, hasModule } = usePermission();
+    const canAccessOrg = isSuperAdmin || hasModule('organization');
     const canAddOrganization = hasPermission('organization:registration');
 
     useEffect(() => {
-        loadData();
-    }, []);
+        if (canAccessOrg) {
+            loadData();
+        } else {
+            setLoading(false);
+        }
+    }, [canAccessOrg]);
 
     const loadData = async () => {
+        if (!canAccessOrg) return;
         setLoading(true);
         try {
             const [fetchedOrganizations, fetchedRoles] = await Promise.all([

@@ -70,6 +70,7 @@ export async function createOrganization(formData: CreateOrganization): Promise<
     );
 
     if(res?.response?.code === 0 && res?.response?.message === 'SUCCESS') {
+        invalidateOrganizationCache();
         return  res.response.data;
     }
     throw  new Error("Unable to Register Organization")
@@ -78,11 +79,31 @@ export async function createOrganization(formData: CreateOrganization): Promise<
 
 
 
-export async function getAllOrganization(): Promise<GetAllMember[]>{
-    try{
-        const res= await apiService.get<RestResponse<GetAllMember[]>>(
-            'api/v1/member/organization-list',
+import { isCurrentSuperAdmin } from '@/core/rbac/usePermission';
 
+let orgListCache: { data: GetAllMember[]; timestamp: number } | null = null;
+const ORG_CACHE_TTL = 15000; // 15 seconds
+
+export const invalidateOrganizationCache = (): void => {
+    orgListCache = null;
+};
+
+export async function getAllOrganization(forceRefresh = false): Promise<GetAllMember[]> {
+    // 1. Strict Role-Based Execution: Only authenticated Super Admin can trigger organization-list
+    if (!isCurrentSuperAdmin()) {
+        console.warn('getAllOrganization skipped: current user is not a Super Admin');
+        return [];
+    }
+
+    // 2. Prevent duplicate requests: Return cached data if fresh
+    const now = Date.now();
+    if (!forceRefresh && orgListCache && now - orgListCache.timestamp < ORG_CACHE_TTL) {
+        return orgListCache.data;
+    }
+
+    try {
+        const res = await apiService.get<RestResponse<GetAllMember[]>>(
+            'api/v1/member/organization-list',
             {
                 headers: {
                     ...getAuthHeaders(),
@@ -90,14 +111,16 @@ export async function getAllOrganization(): Promise<GetAllMember[]>{
             }
         );
 
-        if(res.response?.code== -1 || res.response?.message!= 'SUCCESS' ){
+        if (res.response?.code === -1 || (res.response?.message && res.response.message !== 'SUCCESS')) {
             console.error('Failed to fetch organizations:', res.error);
-            throw error("Failed to fetch organization");
+            throw new Error(res.error || 'Failed to fetch organization');
         }
-        return res?.response?.data;
+
+        const data = res?.response?.data || [];
+        orgListCache = { data, timestamp: now };
+        return data;
     } catch (error) {
-        console.error('Error fetching KhataBooks:', error);
-        // Return empty array if API call fails
+        console.error('Error fetching organizations:', error);
         return [];
     }
 }
@@ -127,6 +150,7 @@ export async function approveOrganization(data: ApproveOrganizationRequest): Pro
     );
 
     if (res?.response?.code === 0 && res?.response?.message === 'SUCCESS') {
+        invalidateOrganizationCache();
         return res.response.data;
     }
     throw new Error(res?.response?.message || 'Failed to approve organization');

@@ -265,7 +265,7 @@ export const AddOrganization = () => {
                                     </select>
                                 </div>
 
-                                <div className="add-khata-book-form-group" style={{ gridColumn: 'span 2' }}>
+                                <div className="add-khata-book-form-group form-group-col-span-2">
                                     <label className="add-khata-book-label required">
                                         <i className="bi bi-geo-alt me-1"></i>
                                         Organization Address <span>*</span>
@@ -281,7 +281,7 @@ export const AddOrganization = () => {
                                     />
                                 </div>
 
-                                <div className="add-khata-book-form-group" style={{ gridColumn: 'span 2' }}>
+                                <div className="add-khata-book-form-group form-group-col-span-2">
                                     <label className="add-khata-book-label">
                                         <i className="bi bi-journal-text me-1"></i>
                                         Notes

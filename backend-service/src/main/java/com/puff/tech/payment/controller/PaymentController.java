@@ -32,7 +32,10 @@ public class PaymentController {
             Permission.STAFF_PAYMENT,
             Permission.RENTAL_PAYMENT,
             Permission.RENTAL_ADD,
-            Permission.RENTAL_GET_ALL
+            Permission.RENTAL_CREATE,
+            Permission.RENTAL_GET_ALL,
+            Permission.RENTAL_LIST,
+            Permission.LOAN_PAYMENT
     })
     @Post("add")
     Mono<RestResponse<AddPaymentUCResponse>> addPayment(@Body AddPaymentUCRequest request) {
@@ -47,7 +50,10 @@ public class PaymentController {
             Permission.STAFF_PAYMENT,
             Permission.RENTAL_PAYMENT,
             Permission.RENTAL_ADD,
-            Permission.RENTAL_GET_ALL
+            Permission.RENTAL_CREATE,
+            Permission.RENTAL_GET_ALL,
+            Permission.RENTAL_LIST,
+            Permission.LOAN_PAYMENT
     })
     @Post("list")
     Mono<RestResponse<List<GetPaymentUCResponse>>> getPayment(@Body GetPaymentUCRequest request) {

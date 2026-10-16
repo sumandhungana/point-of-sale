@@ -11,7 +11,7 @@ import { fetchPurchases, GetAllPurchaseBillResponse } from '@/features/services/
 import { fetchExpenses } from '@/services/expensesListService';
 import { fetchIncomes } from '@/services/incomeService';
 import { fetchCashbooks } from '@/services/cashbookService';
-import { fetchItems } from '@/services/itemService';
+import { getProduct } from '@/features/services/productService';
 import '../styles/Dashboard.css';
 
 interface MonthlyBarPoint {
@@ -78,7 +78,7 @@ const Dashboard: React.FC = () => {
         fetchExpenses(),
         fetchIncomes(),
         fetchCashbooks(),
-        fetchItems(),
+        getProduct(),
       ]);
 
       if (customersData.status === 'fulfilled') {

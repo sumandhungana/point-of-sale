@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
-import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
 import { fetchStaff } from '@/services/staffService';
 import {
@@ -10,6 +9,7 @@ import {
   AttendanceStatusType
 } from '@/services/staffAttendanceService';
 import { toast } from 'react-toastify';
+import { usePermission } from '@/core/rbac/usePermission';
 import '../styles/StaffManagement.css';
 
 export interface StaffSalary {
@@ -61,10 +61,11 @@ export interface Staff {
 
 export const StaffManagement = () => {
   const navigate = useNavigate();
-  const [isPermissionModalOpen, setIsPermissionModalOpen] = useState<boolean>(false);
-  const [selectedStaffId, setSelectedStaffId] = useState<string | number | null>(null);
-  const [permissionInput, setPermissionInput] = useState<string>('');
-  const [staffPermissions, setStaffPermissions] = useState<Record<string | number, string[]>>({});
+  const { hasModule, hasPermission } = usePermission();
+  const canCreateStaff = hasPermission('staff:create');
+  const canViewAttendance = hasModule('staffAttendance') || hasPermission('staffAttendance:list') || hasPermission('staff:list');
+  const canMarkAttendance = hasPermission('staffAttendance:create') || hasPermission('staffAttendance:update') || hasPermission('staff:update') || hasPermission('staff:create');
+
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [attendanceRecords, setAttendanceRecords] = useState<StaffAttendanceRecord[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -88,7 +89,7 @@ export const StaffManagement = () => {
     try {
       const [staffData, attendances] = await Promise.all([
         fetchStaff(),
-        fetchStaffAttendances(),
+        canViewAttendance ? fetchStaffAttendances().catch(() => []) : Promise.resolve([]),
       ]);
       setStaffList(staffData || []);
       setAttendanceRecords(attendances || []);
@@ -168,55 +169,11 @@ export const StaffManagement = () => {
     }
   };
 
-  const handleOpenPermissionModal = (staffId: string | number) => {
-    setSelectedStaffId(staffId);
-    setIsPermissionModalOpen(true);
-  };
-
-  const handleClosePermissionModal = () => {
-    setIsPermissionModalOpen(false);
-    setSelectedStaffId(null);
-    setPermissionInput('');
-  };
-
-  const handleAddPermission = () => {
-    if (!permissionInput.trim() || !selectedStaffId) return;
-
-    setStaffPermissions((prev) => {
-      let currentList = prev[selectedStaffId] || [];
-      if (currentList.includes(permissionInput.trim())) return prev;
-      return {
-        ...prev,
-        [selectedStaffId]: [...currentList, permissionInput.trim()],
-      };
-    });
-
-    setPermissionInput('');
-  };
-
   const totalSalary = staffList.reduce((sum, staff) => {
     const salaries = getSalaries(staff);
     const salary = salaries[0];
     return sum + (salary?.amount || 0);
   }, 0);
-
-  const handlePermissionKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      handleAddPermission();
-    }
-  };
-
-  const handleRemovePermission = (staffId: string | number, permToRemove: string) => {
-    setStaffPermissions((prev) => ({
-      ...prev,
-      [staffId]: (prev[staffId] || []).filter((p) => p !== permToRemove),
-    }));
-  };
-
-  const activePermissions: string[] = selectedStaffId
-      ? staffPermissions[selectedStaffId] || []
-      : [];
 
   const today = new Date().toLocaleDateString('en-US', {
     year: 'numeric',
@@ -374,13 +331,7 @@ export const StaffManagement = () => {
       <div className="staff-management-page-wrapper">
         <Sidebar />
         <div className="staff-management-container">
-          <Navbar />
           <div className="staff-management-card">
-            <div className="staff-management-header">
-              <h1 className="staff-management-title">Staff Management</h1>
-              <p className="staff-management-subtitle">Manage your team members, salaries, and attendance</p>
-            </div>
-
             <div className="staff-summary-container">
               <div className="staff-summary-card">
                 <div className="summary-box due">
@@ -394,35 +345,37 @@ export const StaffManagement = () => {
                 </div>
               </div>
 
-              <div className="attendance-card">
-                <div className="attendance-header">Attendance ({today})</div>
+              {canViewAttendance && (
+                <div className="attendance-card">
+                  <div className="attendance-header">Attendance ({today})</div>
 
-                <div className="attendance-grid">
-                  <div className="attendance-item">
-                    <i className="bi bi-check-circle-fill attendance-icon present"></i>
-                    <span>{todayAttendances["PRESENT"] || todayAttendances["Present"] || 0}</span>
-                    <small>PRESENT</small>
-                  </div>
+                  <div className="attendance-grid">
+                    <div className="attendance-item">
+                      <i className="bi bi-check-circle-fill attendance-icon present"></i>
+                      <span>{todayAttendances["PRESENT"] || todayAttendances["Present"] || 0}</span>
+                      <small>PRESENT</small>
+                    </div>
 
-                  <div className="attendance-item">
-                    <i className="bi bi-x-circle-fill attendance-icon absent"></i>
-                    <span>{todayAttendances["ABSENT"] || todayAttendances["Absent"] || 0}</span>
-                    <small>ABSENT</small>
-                  </div>
+                    <div className="attendance-item">
+                      <i className="bi bi-x-circle-fill attendance-icon absent"></i>
+                      <span>{todayAttendances["ABSENT"] || todayAttendances["Absent"] || 0}</span>
+                      <small>ABSENT</small>
+                    </div>
 
-                  <div className="attendance-item">
-                    <i className="bi bi-clock-fill attendance-icon halfday"></i>
-                    <span>{todayAttendances["HALF_DAY"] || todayAttendances["Half Day"] || 0}</span>
-                    <small>HALF DAY</small>
-                  </div>
+                    <div className="attendance-item">
+                      <i className="bi bi-clock-fill attendance-icon halfday"></i>
+                      <span>{todayAttendances["HALF_DAY"] || todayAttendances["Half Day"] || 0}</span>
+                      <small>HALF DAY</small>
+                    </div>
 
-                  <div className="attendance-item">
-                    <i className="bi bi-calendar-x-fill attendance-icon leave"></i>
-                    <span>{todayAttendances["LEAVE"] || todayAttendances["Leave"] || 0}</span>
-                    <small>LEAVE</small>
+                    <div className="attendance-item">
+                      <i className="bi bi-calendar-x-fill attendance-icon leave"></i>
+                      <span>{todayAttendances["LEAVE"] || todayAttendances["Leave"] || 0}</span>
+                      <small>LEAVE</small>
+                    </div>
                   </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <div className="staff-toolbar">
@@ -432,36 +385,38 @@ export const StaffManagement = () => {
               </button>
 
               <div className="toolbar-search">
-                <i className="bi bi-search"></i>
+                <div className="toolbar-search-input-wrap">
+                  <i className="bi bi-search"></i>
+                  <input
+                      type="text"
+                      placeholder="Search name or phone..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                      <button className="clear-btn" onClick={() => setSearchQuery("")}>
+                        <i className="bi bi-x-lg"></i>
+                      </button>
+                  )}
+                </div>
 
-                <input
-                    type="text"
-                    placeholder="Search name or phone..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                />
+                <div className="toolbar-search-selects-wrap">
+                  <select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
+                    <option value="">Filter</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="daily">Daily</option>
+                    <option value="full">Full Access</option>
+                    <option value="restricted">Restricted</option>
+                  </select>
 
-                <select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
-                  <option value="">Filter</option>
-                  <option value="monthly">Monthly</option>
-                  <option value="daily">Daily</option>
-                  <option value="full">Full Access</option>
-                  <option value="restricted">Restricted</option>
-                </select>
-
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                  <option value="">Sort</option>
-                  <option value="name_asc">A-Z</option>
-                  <option value="name_desc">Z-A</option>
-                  <option value="salary_asc">Low-High</option>
-                  <option value="salary_desc">High-Low</option>
-                </select>
-
-                {searchQuery && (
-                    <button className="clear-btn" onClick={() => setSearchQuery("")}>
-                      <i className="bi bi-x-lg"></i>
-                    </button>
-                )}
+                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+                    <option value="">Sort</option>
+                    <option value="name_asc">A-Z</option>
+                    <option value="name_desc">Z-A</option>
+                    <option value="salary_asc">Low-High</option>
+                    <option value="salary_desc">High-Low</option>
+                  </select>
+                </div>
               </div>
 
               <button className="toolbar-btn reminder-btn">
@@ -591,36 +546,43 @@ export const StaffManagement = () => {
                           </div>
                         </div>
 
-                        <div
-                            className="staff-management-middle-actions"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                          <button
-                              type="button"
-                              className="staff-management-permission-btn"
-                              onClick={() => handleOpenPermissionModal(staff.id)}
+                        {canViewAttendance && (
+                          <div
+                              className="staff-management-middle-actions"
+                              onClick={(e) => e.stopPropagation()}
                           >
-                            <i className="bi bi-shield-plus me-1"></i>
-                            Add Permission
-                          </button>
-                          {(() => {
-                            const todayStatus = getTodayStatusForStaff(staff.id);
-                            return (
-                              <select
-                                className="staff-management-attendance-dropdown"
-                                value={todayStatus}
-                                onChange={(e) => handleAttendanceChange(staff.id, staff.name, e.target.value)}
-                                title="Mark today's attendance"
-                              >
-                                <option value="">Today's Attendance</option>
-                                <option value="PRESENT">✓ Present</option>
-                                <option value="ABSENT">✗ Absent</option>
-                                <option value="HALF_DAY">◷ Half Day</option>
-                                <option value="LEAVE">✈ Leave</option>
-                              </select>
-                            );
-                          })()}
-                        </div>
+                            {(() => {
+                              const todayStatus = getTodayStatusForStaff(staff.id);
+                              return canMarkAttendance ? (
+                                <select
+                                  className="staff-management-attendance-dropdown"
+                                  value={todayStatus}
+                                  onChange={(e) => handleAttendanceChange(staff.id, staff.name, e.target.value)}
+                                  title="Mark today's attendance"
+                                >
+                                  <option value="">Today's Attendance</option>
+                                  <option value="PRESENT">✓ Present</option>
+                                  <option value="ABSENT">✗ Absent</option>
+                                  <option value="HALF_DAY">◷ Half Day</option>
+                                  <option value="LEAVE">✈ Leave</option>
+                                </select>
+                              ) : (
+                                <span
+                                  style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '16px',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 600,
+                                    background: todayStatus === 'PRESENT' ? '#dcfce7' : todayStatus === 'ABSENT' ? '#fee2e2' : todayStatus === 'HALF_DAY' ? '#fef3c7' : '#f1f5f9',
+                                    color: todayStatus === 'PRESENT' ? '#166534' : todayStatus === 'ABSENT' ? '#991b1b' : todayStatus === 'HALF_DAY' ? '#92400e' : '#64748b',
+                                  }}
+                                >
+                                  {todayStatus ? `✓ ${todayStatus.replace('_', ' ')}` : 'No Attendance'}
+                                </span>
+                              );
+                            })()}
+                          </div>
+                        )}
 
                         <div
                             className="staff-management-amount-section"
@@ -639,79 +601,16 @@ export const StaffManagement = () => {
               })
           )}
 
-          {isPermissionModalOpen && (
-              <div className="modal-overlay" onClick={handleClosePermissionModal}>
-                <div className="modal-container" onClick={(e) => e.stopPropagation()}>
-                  <div className="modal-header">
-                    <h5>Manage Permissions</h5>
-                    <button className="modal-close-btn" onClick={handleClosePermissionModal}>
-                      &times;
-                    </button>
-                  </div>
-
-                  <div className="modal-body">
-                    <label className="staff-management-permission-label">Add Permission</label>
-                    <div className="permission-input-group">
-                      <input
-                          type="text"
-                          value={permissionInput}
-                          onChange={(e) => setPermissionInput(e.target.value)}
-                          onKeyDown={handlePermissionKeyDown}
-                          placeholder="Type permission and press Enter..."
-                          className="staff-management-permission-field"
-                          autoFocus
-                      />
-                      <button
-                          type="button"
-                          className="permission-add-btn"
-                          onClick={handleAddPermission}
-                      >
-                        Add
-                      </button>
-                    </div>
-
-                    <div className="staff-management-permission-tags">
-                      {activePermissions.length > 0 ? (
-                          activePermissions.map((permission: string, index: number) => (
-                              <div key={index} className="staff-management-permission-tag">
-                                <i className="bi bi-shield-check me-1"></i>
-                                {permission}
-                                <span
-                                    className="staff-management-remove-tag"
-                                    onClick={() =>
-                                        selectedStaffId && handleRemovePermission(selectedStaffId, permission)
-                                    }
-                                >
-                          ×
-                        </span>
-                              </div>
-                          ))
-                      ) : (
-                          <div className="staff-management-no-permissions">
-                            <i className="bi bi-shield-x me-1"></i>
-                            No permissions added yet
-                          </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="modal-footer">
-                    <button className="modal-secondary-btn" onClick={handleClosePermissionModal}>
-                      Close
-                    </button>
-                  </div>
-                </div>
-              </div>
+          {canCreateStaff && (
+            <button
+                type="button"
+                className="staff-management-add-staff-button"
+                onClick={() => navigate('/staff/add')}
+            >
+              <i className="bi bi-person-plus me-2"></i>
+              Add Staff
+            </button>
           )}
-
-          <button
-              type="button"
-              className="staff-management-add-staff-button"
-              onClick={() => navigate('/staff/add')}
-          >
-            <i className="bi bi-person-plus me-2"></i>
-            Add Staff
-          </button>
         </div>
       </div>
   );

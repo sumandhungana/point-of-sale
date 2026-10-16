@@ -91,10 +91,9 @@ export const Permission = () => {
   }, {} as Record<string, Permission[]>);
 
   return (
-      <div style={{ display: 'flex', minHeight: '100vh' }}>
+      <div style={{ display: 'block', minHeight: '100vh', width: '100%', boxSizing: 'border-box' }}>
         <Sidebar />
         <div className="permission-container">
-          <Navbar />
           <div className="permission-card">
             <div className="permission-select-container">
               <select

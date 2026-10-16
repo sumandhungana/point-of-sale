@@ -44,7 +44,7 @@ export interface RentalItemDto {
   updatedAt?: string;
 }
 
-export const addRental = async (data: AddRentalRequest, isEditMode: boolean, id?: number): Promise<AddRentalResponse> => {
+export const addRental = async (data: AddRentalRequest, isEditMode: boolean = false, id?: number): Promise<AddRentalResponse> => {
   let url: string;
   let res;
 

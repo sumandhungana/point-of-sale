@@ -155,7 +155,7 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                         </p>
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div className="loan-modal-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <button
                             type="button"
                             className="btn-invoice-download"

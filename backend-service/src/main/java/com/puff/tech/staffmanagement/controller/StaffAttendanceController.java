@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 import java.util.List;
 
-@Controller("")
+@Controller("staff-attendance")
 public class StaffAttendanceController {
 
     private final CreateStaffAtendanceUseCase createStaffAtendanceUseCase;
@@ -56,16 +56,16 @@ public class StaffAttendanceController {
         this.deleteStaffAttendanceUseCase = deleteStaffAttendanceUseCase;
     }
 
-    @Secured(permissions = {Permission.STAFF_CREATE, Permission.STAFF_UPDATE, Permission.STAFF_FIND_ALL})
-    @Post("/staff-attendance")
+    @Secured(permissions = {Permission.STAFF_ATTENDANCE_CREATE, Permission.STAFF_CREATE, Permission.STAFF_UPDATE})
+    @Post()
     public Mono<RestResponse<CreateStaffAtendanceUseCaseResponse>> create(@Body CreateStaffAtendanceUseCaseRequest request){
         return createStaffAtendanceUseCase.execute(request)
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error creating attendance: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
-    @Get("/staff-attendance")
+    @Secured(permissions = {Permission.STAFF_ATTENDANCE_FIND_ALL, Permission.STAFF_ATTENDANCE_FIND_ONE, Permission.STAFF_FIND_ALL})
+    @Get()
     public Mono<RestResponse<List<GetStaffAttendanceUseCaseResponse>>> get(){
         return getStaffAttendanceUseCase.execute()
                 .collectList()
@@ -73,8 +73,8 @@ public class StaffAttendanceController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendances: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
-    @Get("/staff-attendance/date/{date}")
+    @Secured(permissions = {Permission.STAFF_ATTENDANCE_FIND_ALL, Permission.STAFF_ATTENDANCE_FIND_ONE, Permission.STAFF_FIND_ALL})
+    @Get("date/{date}")
     public Mono<RestResponse<List<GetStaffAttendanceUseCaseResponse>>> getByDate(@PathVariable Instant date){
         var request = new GetStaffAttendanceByDateUseCaseRequest(date);
         return getStaffAttendanceByDateUseCase.execute(request)
@@ -83,8 +83,8 @@ public class StaffAttendanceController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendances by date: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
-    @Get("/staff-attendance/staff/{staffId}")
+    @Secured(permissions = {Permission.STAFF_ATTENDANCE_FIND_ALL, Permission.STAFF_ATTENDANCE_FIND_ONE, Permission.STAFF_FIND_ALL})
+    @Get("staff/{staffId}")
     public Mono<RestResponse<List<GetStaffAttendanceUseCaseResponse>>> getByStaff(@PathVariable Integer staffId){
         var request = new GetStaffAttendanceBySatffIdUseCaseRequest(staffId);
         return getStaffAttendanceBySatffIdUseCase.execute(request)
@@ -93,8 +93,8 @@ public class StaffAttendanceController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendances by staff: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.STAFF_FIND_ALL, Permission.STAFF_FIND_ONE})
-    @Get("/staff-attendance/{id}")
+    @Secured(permissions = {Permission.STAFF_ATTENDANCE_FIND_ONE, Permission.STAFF_ATTENDANCE_FIND_ALL, Permission.STAFF_FIND_ONE, Permission.STAFF_FIND_ALL})
+    @Get("{id}")
     public Mono<RestResponse<GetStaffAttendanceUseCaseResponse>> getById(@PathVariable Integer id){
         var request = new GetStaffAttendanceByIdUseCaseRequest(id);
         return getStaffAttendanceByIdUseCase.execute(request)
@@ -102,16 +102,16 @@ public class StaffAttendanceController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendance: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.STAFF_UPDATE, Permission.STAFF_CREATE})
-    @Put("/staff-attendance")
+    @Secured(permissions = {Permission.STAFF_ATTENDANCE_UPDATE, Permission.STAFF_ATTENDANCE_CREATE, Permission.STAFF_UPDATE, Permission.STAFF_CREATE})
+    @Put()
     public Mono<RestResponse<UpdateSatffAttendanceUseCaseResponse>> update(@Body UpdateSatffAttendanceUseCaseRequest request){
         return updateSatffAttendanceUseCase.execute(request)
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error updating attendance: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.STAFF_DELETE, Permission.STAFF_UPDATE})
-    @Delete("/staff-attendance/{id}")
+    @Secured(permissions = {Permission.STAFF_ATTENDANCE_DELETE, Permission.STAFF_DELETE})
+    @Delete("{id}")
     public Mono<RestResponse<DeleteStaffAttendanceUseCaseResponse>> delete(@PathVariable Integer id){
         var request = new DeleteStaffAttendanceUseCaseRequest(id);
         return deleteStaffAttendanceUseCase.execute(request)

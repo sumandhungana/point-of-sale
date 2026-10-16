@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePermission } from '@/core/rbac/usePermission';
 import { getKhataBooks, switchKhataBook, getSelectedKhataBook, UserBasedAllMember } from '@/features/services/khataBookService';
@@ -10,6 +11,7 @@ interface NavItem {
 	path: string;
 	icon: string;
 	module?: string;
+	modules?: string[];
 	permission?: string;
 	children?: NavItem[];
 }
@@ -23,8 +25,8 @@ const navItems: NavItem[] = [
 		children: [
 			{ title: 'Customer', path: '/parties/customers', icon: '', module: 'customer' },
 			{ title: 'Suppliers', path: '/parties/suppliers', icon: '', module: 'supplier' },
-			{ title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '' },
-			{ title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '' },
+			// { title: 'Cash In Hand', path: '/parties/cash-bank/cash', icon: '' },
+			// { title: 'Bank Deposit', path: '/parties/cash-bank/bank', icon: '' },
 		],
 	},
 	{
@@ -42,45 +44,45 @@ const navItems: NavItem[] = [
 		path: '/others',
 		icon: '📦',
 		children: [
-			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼', module: 'staffManagement' },
-			{ title: 'Rental Items', path: '/rental-items', icon: '📦' },
-			{ title: 'Note', path: '/others/note', icon: '📝' },
-			{ title: 'Loan MGMT', path: '/others/loan', icon: '🏦' },
+			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼', modules: ['staffManagement', 'staffAttendance'] },
+			{ title: 'Rental Items', path: '/rental-items', icon: '📦', module: 'rental' },
+			// { title: 'Note', path: '/others/note', icon: '📝' },
+			{ title: 'Loan MGMT', path: '/others/loan', icon: '🏦', module: 'loan' },
 		],
 	},
-	{
-		title: 'REPORTS',
-		path: '/reports',
-		icon: '📊',
-		children: [
-			{ title: 'Sales Report', path: '/reports/sales', icon: '💰' },
-			{ title: 'Purchase Report', path: '/reports/purchase', icon: '🛒' },
-			{ title: 'Total Sale Report', path: '/reports/total-sale', icon: '📈' },
-		],
-	},
-	{
-		title: 'SYSTEM',
-		path: '/system',
-		icon: '⚙',
-		children: [
-			{ title: 'Reminder', path: '/system/reminder', icon: '⏰' },
-			{ title: 'Import Data', path: '/system/import', icon: '📥' },
-			{ title: 'Notis', path: '/system/notis', icon: '🔔' },
-		],
-	},
+	// {
+	// 	title: 'REPORTS',
+	// 	path: '/reports',
+	// 	icon: '📊',
+	// 	children: [
+	// 		{ title: 'Sales Report', path: '/reports/sales', icon: '💰' },
+	// 		{ title: 'Purchase Report', path: '/reports/purchase', icon: '🛒' },
+	// 		{ title: 'Total Sale Report', path: '/reports/total-sale', icon: '📈' },
+	// 	],
+	// },
+	// {
+	// 	title: 'SYSTEM',
+	// 	path: '/system',
+	// 	icon: '⚙',
+	// 	children: [
+	// 		{ title: 'Reminder', path: '/system/reminder', icon: '⏰' },
+	// 		{ title: 'Import Data', path: '/system/import', icon: '📥' },
+	// 		{ title: 'Notis', path: '/system/notis', icon: '🔔' },
+	// 	],
+	// },
 	{
 		title: 'SETTINGS',
 		path: '/settings',
 		icon: '⚙️',
 		children: [
-			{ title: 'API', path: '/settings/api', icon: '💬' },
+			// { title: 'API', path: '/settings/api', icon: '💬' },
 			{ title: 'Organization Management', path: '/organization', icon: '🌐', module: 'organization'},
 			{ title: 'User Management', path:'/user-management', icon: '👤', module: 'user'},
-			{ title: 'Backup', path: '/settings/backup', icon: '💾' },
-			{ title: 'Recycle Bin', path: '/settings/recycle-bin', icon: '🗑️' },
+			// { title: 'Backup', path: '/settings/backup', icon: '💾' },
+			// { title: 'Recycle Bin', path: '/settings/recycle-bin', icon: '🗑️' },
 			{ title: 'Role & Permission', path: '/role', icon: '🔒', module: 'roleAndPermissions' },
 			{ title: 'App Setting', path: '/app-settings', icon: '⚙️' },
-			{ title: 'Bills & Print Selling', path: '/bills-and-print-selling', icon: '📄' },
+			// { title: 'Bills & Print Selling', path: '/bills-and-print-selling', icon: '📄' },
 			{ title: 'Business Setting', path: '/settings/business', icon: '🏢' },
 			{ title: 'Dashboard Setting', path: '/settings/dashboard', icon: '📊' },
 		],
@@ -292,6 +294,9 @@ export const Sidebar = () => {
 	const filterAuthorizedNavItems = (items: NavItem[]): NavItem[] => {
 		return items
 			.filter((item) => {
+				if (item.modules && !item.modules.some((m) => hasModule(m))) {
+					return false;
+				}
 				if (item.module && !hasModule(item.module)) {
 					return false;
 				}
@@ -425,13 +430,29 @@ export const Sidebar = () => {
 					</div>
 				</div>
 
-				{isPopupOpen && (
-					<div className="popup-container">
+				{isPopupOpen && ReactDOM.createPortal(
+					<div 
+						className="popup-container"
+						onClick={(e) => {
+							if (e.target === e.currentTarget) {
+								setIsPopupOpen(false);
+							}
+						}}
+					>
 						<div className="popup-content" ref={popupRef}>
 							<div className="popup-header">
-								<h2 className="popup-title">KhataBooks</h2>
-								<button className="close-button" onClick={() => setIsPopupOpen(false)}>
-									×
+								<h2 className="popup-title">
+									<i className="bi bi-buildings-fill popup-title-icon" />
+									KhataBooks
+								</h2>
+								<button 
+									type="button"
+									className="close-button" 
+									onClick={() => setIsPopupOpen(false)}
+									aria-label="Close popup"
+									title="Close"
+								>
+									✕
 								</button>
 							</div>
 							<div className="user-cards-container">
@@ -442,28 +463,42 @@ export const Sidebar = () => {
 								) : khataBooks.length === 0 ? (
 									<p className="loading-text">No KhataBooks found</p>
 								) : (
-									khataBooks.map((khataBook) => (
-										<div
-											key={khataBook.id}
-											className="user-card"
-											onClick={() => handleKhataBookClick(khataBook)}
-										>
-											<div className="user-image">
-												{'👤'}
+									khataBooks.map((khataBook) => {
+										const isSelected =
+											(currentKhataBook && currentKhataBook.id === khataBook.id) ||
+											displayCompanyName === khataBook.organizationName;
+										return (
+											<div
+												key={khataBook.id}
+												className={`user-card ${isSelected ? 'active-org-card' : ''}`}
+												onClick={() => handleKhataBookClick(khataBook)}
+												title={`Switch to ${khataBook.organizationName}`}
+											>
+												<div className="user-image">
+													{'👤'}
+												</div>
+												<div className="user-details">
+													<div className="company-title-wrap">
+														<h3 className="company-name">{khataBook.organizationName}</h3>
+														{isSelected && (
+															<span className="active-org-badge">Current</span>
+														)}
+													</div>
+													<p className="user-info-text">
+														{khataBook.organizationContactNumber || 'No phone'}
+													</p>
+												</div>
 											</div>
-											<div className="user-details">
-												<h3 className="company-name">{khataBook.organizationName}</h3>
-												<p className="user-info-text">{khataBook.organizationContactNumber}</p>
-											</div>
-										</div>
-									))
+										);
+									})
 								)}
 							</div>
-							<button className="add-button" onClick={handleAddKhataBook}>
-								Add New KhataBook
+							<button type="button" className="add-button" onClick={handleAddKhataBook}>
+								<span>Add New KhataBook</span>
 							</button>
 						</div>
-					</div>
+					</div>,
+					document.body
 				)}
 
 				<div className="nav-section">

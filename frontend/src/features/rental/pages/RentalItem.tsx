@@ -1,14 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '@/components/Navbar';
 import { fetchRental, RentalItemDto } from '@/features/services/rentalItemService';
-import { getRentalSummary, getGlobalRentalSummary } from '@/features/services/rentalPaymentService';
+import {
+  getRentalSummary,
+  getGlobalRentalSummary,
+  syncAllRentalPayments,
+  RentalPaymentTransaction
+} from '@/features/services/rentalPaymentService';
+import { usePermission } from '@/core/rbac/usePermission';
 import '@/styles/RentalItem.css';
 
 export const RentalItem: React.FC = () => {
   const navigate = useNavigate();
+  const { hasPermission } = usePermission();
+  const canAddRental = hasPermission('rental:add') || hasPermission('rental:create');
+
   const [rentalItems, setRentalItems] = useState<RentalItemDto[]>([]);
+  const [paymentsMap, setPaymentsMap] = useState<Record<number, RentalPaymentTransaction[]>>({});
   const [totalRentalAmount, setTotalRentalAmount] = useState<number>(0);
   const [totalPaidAmount, setTotalPaidAmount] = useState<number>(0);
   const [totalRemainingDue, setTotalRemainingDue] = useState<number>(0);
@@ -29,11 +38,23 @@ export const RentalItem: React.FC = () => {
         const items = data || [];
         setRentalItems(items);
 
-        // Calculate global totals dynamically including local payments
-        const summary = getGlobalRentalSummary(items);
-        setTotalRentalAmount(summary.totalAmount);
-        setTotalPaidAmount(summary.totalPaid);
-        setTotalRemainingDue(summary.remainingDue);
+        // 1. Calculate initial totals from any existing cached payments
+        const initialSummary = getGlobalRentalSummary(items);
+        setTotalRentalAmount(initialSummary.totalAmount);
+        setTotalPaidAmount(initialSummary.totalPaid);
+        setTotalRemainingDue(initialSummary.remainingDue);
+
+        // 2. Sync all payment records from backend API so Paid data displays immediately
+        if (items.length > 0) {
+          const itemIds = items.map((item) => item.id);
+          const syncedMap = await syncAllRentalPayments(itemIds);
+          setPaymentsMap(syncedMap);
+
+          const syncedSummary = getGlobalRentalSummary(items, syncedMap);
+          setTotalRentalAmount(syncedSummary.totalAmount);
+          setTotalPaidAmount(syncedSummary.totalPaid);
+          setTotalRemainingDue(syncedSummary.remainingDue);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to fetch rental items.');
       } finally {
@@ -59,25 +80,6 @@ export const RentalItem: React.FC = () => {
     return 'In Progress';
   };
 
-  const calculateRentalAmount = (item: RentalItemDto): number => {
-    const startDate = new Date(item.startDate);
-    const endDate = new Date(item.endDate);
-    const currentDate = new Date();
-
-    if (currentDate < startDate) {
-      return 0;
-    }
-    if (currentDate > endDate) {
-      return item.rentalAmount;
-    }
-
-    const totalDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-    const daysPassed = Math.ceil((currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
-
-    if (totalDays <= 0) return item.rentalAmount;
-    const dailyRate = item.rentalAmount / totalDays;
-    return Math.round(dailyRate * daysPassed);
-  };
 
   // Filtering by search query and status
   const filteredItems = rentalItems.filter(item => {
@@ -91,7 +93,7 @@ export const RentalItem: React.FC = () => {
     return matchesSearch && matchesStatus;
   });
 
-  // Sorting logic
+  // Sorting logic (Default: created date desc)
   const sortedItems = [...filteredItems].sort((a, b) => {
     switch (sort) {
       case 'name_asc':
@@ -102,34 +104,36 @@ export const RentalItem: React.FC = () => {
         return new Date(a?.startDate || 0).getTime() - new Date(b?.startDate || 0).getTime();
       case 'date_desc':
         return new Date(b?.startDate || 0).getTime() - new Date(a?.startDate || 0).getTime();
-      default:
-        return 0;
+      case 'created_asc':
+        return new Date(a?.createdAt || 0).getTime() - new Date(b?.createdAt || 0).getTime();
+      case 'created_desc':
+      default: {
+        const timeA = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+        if (timeB !== timeA) return timeB - timeA;
+        return (Number(b?.id) || 0) - (Number(a?.id) || 0);
+      }
     }
   });
 
   if (loading) {
     return (
-        <>
-          <Navbar />
-          <div className="rental-item-container">
-            <Sidebar />
-            <div className="rental-item-main">
-              <div className="rental-item-loading-message">
-                <i className="bi bi-arrow-clockwise spin"></i>
-                Loading rental items...
-              </div>
+        <div className="rental-item-container">
+          <Sidebar />
+          <div className="rental-item-main">
+            <div className="rental-item-loading-message">
+              <i className="bi bi-arrow-clockwise spin"></i>
+              Loading rental items...
             </div>
           </div>
-        </>
+        </div>
     );
   }
 
   return (
-      <>
-        <Navbar />
-        <div className="rental-item-container">
-          <Sidebar />
-          <div className="rental-item-main">
+      <div className="rental-item-container">
+        <Sidebar />
+        <div className="rental-item-main">
 
             {/* Error Banner if any */}
             {error && (
@@ -145,33 +149,46 @@ export const RentalItem: React.FC = () => {
                 <i className="bi bi-search rental-item-search-icon"></i>
                 <input
                     type="text"
-                    placeholder="Search by item name, phone, address..."
+                    placeholder="Search item, phone, address..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="rental-item-search-input"
                 />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery('')}
+                    className="rental-item-clear-btn"
+                    title="Clear search"
+                  >
+                    <i className="bi bi-x-circle-fill"></i>
+                  </button>
+                )}
               </div>
-              <select
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="rental-item-dropdown"
-              >
-                <option value="">All Status</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Not Started">Not Started</option>
-                <option value="Completed">Completed</option>
-              </select>
-              <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="rental-item-dropdown"
-              >
-                <option value="">Sort By</option>
-                <option value="name_asc">Name (A-Z)</option>
-                <option value="name_desc">Name (Z-A)</option>
-                <option value="date_asc">Date (Oldest)</option>
-                <option value="date_desc">Date (Newest)</option>
-              </select>
+              <div className="rental-item-filters-wrap">
+                <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="rental-item-dropdown"
+                >
+                  <option value="">All Status</option>
+                  <option value="In Progress">In Progress</option>
+                  <option value="Not Started">Not Started</option>
+                  <option value="Completed">Completed</option>
+                </select>
+                <select
+                    value={sort}
+                    onChange={(e) => setSort(e.target.value)}
+                    className="rental-item-dropdown"
+                >
+                  <option value="">Created Date (Newest)</option>
+                  <option value="created_asc">Created Date (Oldest)</option>
+                  <option value="name_asc">Name (A-Z)</option>
+                  <option value="name_desc">Name (Z-A)</option>
+                  <option value="date_desc">Rental Start (Newest)</option>
+                  <option value="date_asc">Rental Start (Oldest)</option>
+                </select>
+              </div>
               <button className="rental-item-reminder-button" onClick={() => alert('Reminders feature coming soon!')}>
                 <i className="bi bi-alarm"></i>
                 Reminder
@@ -180,7 +197,7 @@ export const RentalItem: React.FC = () => {
 
             {/* Summary Card */}
             <div className="rental-item-summary-card">
-              <div className="rental-item-summary-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
+              <div className="rental-item-summary-grid">
                 <div className="rental-item-summary-item" style={{ borderLeftColor: '#3b82f6' }}>
                   <span className="rental-item-summary-label">
                     <i className="bi bi-cash-stack me-1"></i>
@@ -192,8 +209,8 @@ export const RentalItem: React.FC = () => {
                 </div>
                 <div className="rental-item-summary-item" style={{ borderLeftColor: '#10b981' }}>
                   <span className="rental-item-summary-label">
-                    <i className="bi bi-arrow-up-circle me-1"></i>
-                    Total Paid (You Gave)
+                    <i className="bi bi-check-circle me-1"></i>
+                    Total Paid / Settled
                   </span>
                   <span className="rental-item-summary-amount" style={{ color: '#10b981' }}>
                     रु {totalPaidAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -220,7 +237,7 @@ export const RentalItem: React.FC = () => {
             ) : (
                 sortedItems.map(item => {
                   const status = getRentalStatus(item);
-                  const itemSummary = getRentalSummary(item.id, item.rentalAmount || 0);
+                  const itemSummary = getRentalSummary(item.id, item.rentalAmount || 0, paymentsMap[item.id]);
                   const isItemSettled = itemSummary.isFullyPaid;
                   
                   const statusClass = isItemSettled ? 'rental-item-status-completed' :
@@ -294,18 +311,19 @@ export const RentalItem: React.FC = () => {
             )}
 
             {/* Add Button Container */}
-            <div className="rental-item-add-button-container">
-              <button
-                  className="rental-item-add-button"
-                  onClick={() => navigate('/rental/add')}
-              >
-                <i className="bi bi-plus-circle"></i>
-                Add Rental Items
-              </button>
-            </div>
+            {canAddRental && (
+              <div className="rental-item-add-button-container">
+                <button
+                    className="rental-item-add-button"
+                    onClick={() => navigate('/rental/add')}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  Add Rental Items
+                </button>
+              </div>
+            )}
 
           </div>
         </div>
-      </>
   );
 };

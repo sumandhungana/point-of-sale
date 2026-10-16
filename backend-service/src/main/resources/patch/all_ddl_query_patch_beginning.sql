@@ -439,8 +439,6 @@ ALTER TABLE payments
                               'RENTAL'
                 )
             );
-
--- 3. Update party relation constraint to support RENTAL
 ALTER TABLE payments
     DROP CONSTRAINT chk_payments_party_relation;
 

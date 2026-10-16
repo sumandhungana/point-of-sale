@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
-import Navbar from '@/components/Navbar';
 import { toast } from 'react-toastify';
 import { fetchRental, RentalItemDto } from '@/features/services/rentalItemService';
 import {
@@ -13,9 +12,13 @@ import {
   RentalPaymentTransaction,
   RentalPaymentSummary,
 } from '@/features/services/rentalPaymentService';
+import { usePermission } from '@/core/rbac/usePermission';
 import '@/styles/RentalStatement.css';
 
 export const RentalStatement: React.FC = () => {
+  const { hasPermission } = usePermission();
+  const canPayRental = hasPermission('rental:payment');
+
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -243,24 +246,19 @@ export const RentalStatement: React.FC = () => {
 
   if (loading) {
     return (
-      <>
-        <Navbar />
-        <div className="rental-statement-container">
-          <Sidebar />
-          <div className="rental-statement-main">
-            <div style={{ textAlign: 'center', padding: '4rem 1rem', color: '#64748b' }}>
-              <i className="bi bi-arrow-clockwise spin" style={{ fontSize: '2rem' }}></i>
-              <p style={{ marginTop: '1rem', fontWeight: 600 }}>Loading rental statement...</p>
-            </div>
+      <div className="rental-statement-container">
+        <Sidebar />
+        <div className="rental-statement-main">
+          <div style={{ textAlign: 'center', padding: '4rem 1rem', color: '#64748b' }}>
+            <i className="bi bi-arrow-clockwise spin" style={{ fontSize: '2rem' }}></i>
+            <p style={{ marginTop: '1rem', fontWeight: 600 }}>Loading rental statement...</p>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
   return (
-    <>
-      <Navbar />
       <div className="rental-statement-container">
         <Sidebar />
         <div className="rental-statement-main">
@@ -285,14 +283,16 @@ export const RentalStatement: React.FC = () => {
                 <i className="bi bi-printer"></i>
                 Print Statement
               </button>
-              <button
-                type="button"
-                className="rental-statement-action-btn primary"
-                onClick={() => handleOpenGaveModal(summary.remainingBalance)}
-              >
-                <i className="bi bi-plus-circle"></i>
-                Pay for Rental
-              </button>
+              {canPayRental && (
+                <button
+                  type="button"
+                  className="rental-statement-action-btn primary"
+                  onClick={() => handleOpenGaveModal(summary.remainingBalance)}
+                >
+                  <i className="bi bi-plus-circle"></i>
+                  Pay for Rental
+                </button>
+              )}
             </div>
           </div>
 
@@ -527,14 +527,16 @@ export const RentalStatement: React.FC = () => {
                       Click the buttons below to record payments or advances made for this rental
                       item.
                     </p>
-                    <button
-                      type="button"
-                      className="rental-statement-action-btn primary"
-                      onClick={() => handleOpenGaveModal(summary.remainingBalance)}
-                    >
-                      <i className="bi bi-plus-circle me-1"></i>
-                      Record First Payment
-                    </button>
+                    {canPayRental && (
+                      <button
+                        type="button"
+                        className="rental-statement-action-btn primary"
+                        onClick={() => handleOpenGaveModal(summary.remainingBalance)}
+                      >
+                        <i className="bi bi-plus-circle me-1"></i>
+                        Record First Payment
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="rental-tx-table-responsive">
@@ -604,25 +606,27 @@ export const RentalStatement: React.FC = () => {
           )}
 
           {/* Sleek Fixed Bottom Action Bar */}
-          <div className="rental-bottom-bar">
-            <button
-              type="button"
-              className="rental-btn-gave"
-              onClick={() => handleOpenGaveModal(summary.remainingBalance)}
-            >
-              <i className="bi bi-arrow-up-circle"></i>
-              You Gave (Pay Rental)
-            </button>
+          {canPayRental && (
+            <div className="rental-bottom-bar">
+              <button
+                type="button"
+                className="rental-btn-gave"
+                onClick={() => handleOpenGaveModal(summary.remainingBalance)}
+              >
+                <i className="bi bi-arrow-up-circle"></i>
+                You Gave (Pay Rental)
+              </button>
 
-            <button
-              type="button"
-              className="rental-btn-received"
-              onClick={handleOpenReceivedModal}
-            >
-              <i className="bi bi-arrow-down-circle"></i>
-              You Received (Advance)
-            </button>
-          </div>
+              <button
+                type="button"
+                className="rental-btn-received"
+                onClick={handleOpenReceivedModal}
+              >
+                <i className="bi bi-arrow-down-circle"></i>
+                You Received (Advance)
+              </button>
+            </div>
+          )}
 
           {/* Modal: You Gave (Pay for Rental) */}
           {showGaveModal && (
@@ -863,6 +867,5 @@ export const RentalStatement: React.FC = () => {
           )}
         </div>
       </div>
-    </>
   );
 };

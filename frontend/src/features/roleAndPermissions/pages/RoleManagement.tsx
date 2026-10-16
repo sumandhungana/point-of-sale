@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { Sidebar } from '@/components/Sidebar';
-import Navbar from '@/components/Navbar';
 import {
     fetchRoles,
     fetchAvailablePermissions,
@@ -205,8 +204,6 @@ export const RoleManagement: React.FC = () => {
         <div className="role-permission-page-wrapper">
             <Sidebar />
             <div className="role-permission-container">
-                <Navbar />
-
                 <div className="role-permission-content">
                     {/* Error Toast / Alert Banner */}
                     {error && (
@@ -218,16 +215,7 @@ export const RoleManagement: React.FC = () => {
                         </div>
                     )}
 
-                    {/* Header */}
-                    <div className="role-page-header">
-                        <div>
-                            <h2>Role & Permission Management</h2>
-                            <p>Manage user access roles and module action privileges</p>
-                        </div>
-                        <button className="btn-primary" onClick={handleOpenAddModal}>
-                            + Add New Role
-                        </button>
-                    </div>
+
 
                     {/* Summary Stat Cards Header */}
                     <div className="role-stats-grid">
@@ -310,6 +298,17 @@ export const RoleManagement: React.FC = () => {
                             })
                         )}
                     </div>
+
+                    {/* Sticky Bottom-Right Add Role Button */}
+                    <button
+                        type="button"
+                        className="role-add-sticky-button"
+                        onClick={handleOpenAddModal}
+                        title="Add New Role"
+                    >
+                        <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+                        <span>Add Role</span>
+                    </button>
                 </div>
 
                 {/* View Permissions Modal */}

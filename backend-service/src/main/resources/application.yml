@@ -42,6 +42,7 @@ r2dbc:
       dialect: POSTGRES
       packages:
         - com.puff.tech.inventorymanagement.repository
+        - com.puff.tech.loanmanagement.repository
       db-type: postgres
       username: postgres
       password: root

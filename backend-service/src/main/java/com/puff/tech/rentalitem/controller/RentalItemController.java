@@ -29,7 +29,7 @@ public class RentalItemController {
         this.getAllRentalUC = getAllRentalUC;
     }
 
-    @Secured(permissions = {Permission.RENTAL_ADD})
+    @Secured(permissions = {Permission.RENTAL_ADD, Permission.RENTAL_CREATE})
     @Post
     public Mono<RestResponse<AddRentalUCResponse>> addRental(@Body AddRentalUCRequest payload) {
         return addRentalUC.execute(payload)
@@ -37,7 +37,7 @@ public class RentalItemController {
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error on Controller:: " + err.getLocalizedMessage())));
     }
 
-    @Secured(permissions = {Permission.RENTAL_GET_ALL})
+    @Secured(permissions = {Permission.RENTAL_GET_ALL, Permission.RENTAL_LIST})
     @Get("list")
     public Mono<RestResponse<List<GetAllRentalUCResponse>>> getAllRentalItems() {
         return getAllRentalUC.execute(new GetAllRentalUCRequest())

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Products } from "./Products";
 import { Categories } from "./Categories";
-import "../../../styles/InventoryModule.css";
+import "../InventoryModule.css";
 
 type TabType = "products" | "categories";
 

@@ -225,13 +225,70 @@
 
 @media (max-width: 768px) {
   .sales-container {
-    padding: 12px;
+    padding: 14px 12px;
   }
   .sales-header-title-row {
     flex-direction: column;
     align-items: stretch;
+    gap: 12px;
   }
-  .sales-header-title-row button {
+  .purchase-header-btn-wrap {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px !important;
+  }
+  .purchase-header-btn-wrap button {
+    width: 100%;
+    justify-content: center;
+  }
+  .sales-stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .sales-filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .search-input-wrapper {
+    width: 100%;
+    min-width: 100%;
+  }
+  .sales-filter-controls-group {
     width: 100%;
   }
+  .sales-filter-controls-group .sales-select {
+    flex: 1;
+    min-width: 130px;
+  }
+  .sales-table th,
+  .sales-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
 }
+
+@media (max-width: 480px) {
+  .sales-container {
+    padding: 10px 8px;
+  }
+  .sales-header-card,
+  .sales-filter-card,
+  .sales-table-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+  .sales-page-title {
+    font-size: 1.25rem;
+  }
+  .sales-stats-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .sales-filter-controls-group {
+    flex-direction: column;
+  }
+  .sales-filter-controls-group .sales-select {
+    width: 100%;
+  }
+}
