@@ -12,6 +12,7 @@ import { fetchExpenses } from '@/services/expensesListService';
 import { fetchIncomes } from '@/services/incomeService';
 import { fetchCashbooks } from '@/services/cashbookService';
 import { getProduct } from '@/features/services/productService';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/Dashboard.css';
 
 interface MonthlyBarPoint {
@@ -38,6 +39,7 @@ const hexToRgba = (hex: string, alpha: number): string => {
 };
 
 const Dashboard: React.FC = () => {
+  const { formatCurrency, formatDate } = useAppSettings();
   // Real Data States from Backend Only
   const [salesBills, setSalesBills] = useState<GetAllSalesBillResponse[]>([]);
   const [purchases, setPurchases] = useState<GetAllPurchaseBillResponse[]>([]);
@@ -139,11 +141,6 @@ const Dashboard: React.FC = () => {
     if (safe === 0) return '0';
     if (safe > 0 && safe < 10) return `0${safe}`;
     return safe.toLocaleString();
-  };
-
-  const formatCurrency = (amount: number): string => {
-    const safe = Number.isFinite(amount) ? amount : 0;
-    return `रु ${safe.toLocaleString('en-IN')}`;
   };
 
   // Card Mouse Move Glow Effects
@@ -309,13 +306,8 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const formattedDate = useMemo(() => {
-    return new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  }, []);
+    return formatDate(new Date());
+  }, [formatDate]);
 
   return (
     <div className="dashboard-page-wrapper">

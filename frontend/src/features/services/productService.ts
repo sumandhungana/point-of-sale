@@ -63,6 +63,14 @@ export interface AddProductResponse {
     message: string;
 }
 
+// In-memory cache for products with 30s TTL
+let productCache: { data: GetAllProductUCResponse; timestamp: number } | null = null;
+const PRODUCT_CACHE_TTL_MS = 30000;
+
+export const invalidateProductCache = (): void => {
+    productCache = null;
+};
+
 export async function addProduct(formData: AddProductRequest): Promise<AddProductResponse | undefined> {
     const res = await apiService.post<RestResponse<AddProductResponse>>(
         'api/v1/product',
@@ -82,13 +90,19 @@ export async function addProduct(formData: AddProductRequest): Promise<AddProduc
     if (res.error) {
         throw new Error(res.error || "Failed to create product");
     } else {
+        invalidateProductCache();
         success("Product created successfully");
         return res.response?.data;
     }
 }
 
 // Updated to return a single ItemsResponse by unwrapping the array
-export async function getProduct(): Promise<GetAllProductUCResponse | undefined> {
+export async function getProduct(forceRefresh: boolean = false): Promise<GetAllProductUCResponse | undefined> {
+    const now = Date.now();
+    if (!forceRefresh && productCache && now - productCache.timestamp < PRODUCT_CACHE_TTL_MS) {
+        return productCache.data;
+    }
+
     try {
         const res = await apiService.get<RestResponse<GetAllProductUCResponse>>('api/v1/product/all-products', {
             headers: {
@@ -98,24 +112,23 @@ export async function getProduct(): Promise<GetAllProductUCResponse | undefined>
 
         console.log("API RAW RESPONSE:", res);
 
-        // Normalize response body structure
-
-
         // Check response success code
         if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
             error("Failed to fetch products");
             throw new Error(res?.error || res?.response?.message || "Failed to fetch products");
         }
 
-        return  res?.response?.data;
+        const data = res?.response?.data;
+        if (data) {
+            productCache = { data, timestamp: Date.now() };
+        }
+        return data;
 
     } catch (err) {
         console.error("Error inside getProduct service:", err);
         throw err;
     }
 }
-
-
 
 export async function updateProduct(id: number, formData: FormData) {
     const res = await apiService.put<RestResponse<AddProductResponse>>(
@@ -136,6 +149,7 @@ export async function updateProduct(id: number, formData: FormData) {
     if (res.error) {
         throw new Error(res.error || "Failed to create product");
     } else {
+        invalidateProductCache();
         success("Product created successfully");
         return res.response?.data;
     }

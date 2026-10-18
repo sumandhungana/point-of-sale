@@ -108,6 +108,11 @@ public enum Permission {
     PURCHASE_BILL_ADD(Module.PURCHASE_BILL_MANAGEMENT, "add"),
     PURCHASE_BILL_GET_ALL(Module.PURCHASE_BILL_MANAGEMENT, "all"),
     PURCHASE_BILL_GENERATION(Module.PURCHASE_BILL_MANAGEMENT, "generate"),
+
+    // App Settings Permissions
+    APP_SETTINGS_VIEW(Module.APP_SETTINGS, "view"),
+    APP_SETTINGS_UPDATE(Module.APP_SETTINGS, "update"),
+    APP_SETTINGS_RESET(Module.APP_SETTINGS, "reset"),
     ;
 
     private final Module module;

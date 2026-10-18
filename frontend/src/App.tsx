@@ -735,7 +735,9 @@ const App: React.FC = () => {
             path="/app-settings" 
             element={
               <PrivateRoute>
-                <AppSetting />
+                <ProtectedRoute requiredModule="appSettings">
+                  <AppSetting />
+                </ProtectedRoute>
               </PrivateRoute>
             } 
           />

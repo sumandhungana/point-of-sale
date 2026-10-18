@@ -44,6 +44,14 @@ export interface RentalItemDto {
   updatedAt?: string;
 }
 
+// Memory cache for rental items
+let rentalCache: { data: RentalItemDto[]; timestamp: number } | null = null;
+const RENTAL_CACHE_TTL_MS = 30000; // 30 seconds
+
+export const invalidateRentalCache = (): void => {
+  rentalCache = null;
+};
+
 export const addRental = async (data: AddRentalRequest, isEditMode: boolean = false, id?: number): Promise<AddRentalResponse> => {
   let url: string;
   let res;
@@ -78,10 +86,19 @@ export const addRental = async (data: AddRentalRequest, isEditMode: boolean = fa
   if (res.error) {
     throw new Error(res.error || "Failed to save rental item");
   }
+
+  // Invalidate cache after create/update
+  invalidateRentalCache();
+
   return res?.response?.data ?? ({} as AddRentalResponse);
 };
 
-export const fetchRental = async (): Promise<RentalItemDto[]> => {
+export const fetchRental = async (forceRefresh: boolean = false): Promise<RentalItemDto[]> => {
+  const now = Date.now();
+  if (!forceRefresh && rentalCache && now - rentalCache.timestamp < RENTAL_CACHE_TTL_MS) {
+    return rentalCache.data;
+  }
+
   const res = await apiService.get<RestResponse<RentalItemDto[]>>(
       `api/v1/rental/list`,
       {
@@ -97,7 +114,10 @@ export const fetchRental = async (): Promise<RentalItemDto[]> => {
   if (res.error) {
     throw new Error(res.error || "Failed to fetch rental items");
   }
-  return res?.response?.data ?? [];
+
+  const items = res?.response?.data ?? [];
+  rentalCache = { data: items, timestamp: Date.now() };
+  return items;
 };
 
 export const fetchRentalItems = fetchRental;

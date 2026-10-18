@@ -187,6 +187,17 @@ export const Products: React.FC = () => {
                                             onChange={handleSearchChange}
                                             className="form-control search-input"
                                         />
+                                        {searchQuery && (
+                                            <button
+                                                type="button"
+                                                className="search-clear-btn"
+                                                onClick={() => setSearchQuery('')}
+                                                aria-label="Clear search"
+                                                title="Clear search"
+                                            >
+                                                <i className="bi bi-x-circle-fill"></i>
+                                            </button>
+                                        )}
                                     </div>
 
                                     <div className="form-group-inline">

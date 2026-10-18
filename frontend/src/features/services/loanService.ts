@@ -1,5 +1,5 @@
 import { apiService } from "@/infrastructure/utils/ApiService";
-import { isCurrentSuperAdmin, hasStoredModule } from '@/core/rbac/usePermission';
+import { hasStoredModule } from "@/core/rbac/usePermission"
 
 let loansCache: { data: Loan[]; timestamp: number } | null = null;
 const LOANS_CACHE_TTL = 15000; // 15 seconds
@@ -371,7 +371,7 @@ export const calculateLoanEmiBackend = async (payload: {
 
 export const fetchAllLoans = async (forceRefresh = false): Promise<Loan[]> => {
     // 1. Role-based guard: only authorized users (Super Admin or user with loan module) can trigger loan API
-    if (!isCurrentSuperAdmin() && !hasStoredModule('loan')) {
+    if (!hasStoredModule('loan')) {
         console.warn('fetchAllLoans skipped: current user is not authorized for loans');
         return [];
     }

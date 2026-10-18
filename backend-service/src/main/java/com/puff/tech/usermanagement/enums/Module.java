@@ -24,6 +24,7 @@ public enum Module {
     PURCHASE_BILL_MANAGEMENT("purchaseBill", "Purchase Bill Management"),
     LOAN_MANAGEMENT("loan", "Loan Management"),
     STAFF_ATTENDANCE("staffAttendance", "Staff Attendance Management"),
+    APP_SETTINGS("appSettings", "App Settings Management"),
     ;
 
     private final String code;

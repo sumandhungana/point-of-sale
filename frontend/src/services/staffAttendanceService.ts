@@ -32,10 +32,23 @@ function getAuthHeaders(): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+// In-memory cache for staff attendances with 30s TTL
+let attendanceCache: { data: StaffAttendanceRecord[]; timestamp: number } | null = null;
+const ATTENDANCE_CACHE_TTL_MS = 30000;
+
+export const invalidateStaffAttendanceCache = (): void => {
+  attendanceCache = null;
+};
+
 /**
  * Fetch all attendance records for the current khata book/organization
  */
-export const fetchStaffAttendances = async (): Promise<StaffAttendanceRecord[]> => {
+export const fetchStaffAttendances = async (forceRefresh: boolean = false): Promise<StaffAttendanceRecord[]> => {
+  const now = Date.now();
+  if (!forceRefresh && attendanceCache && now - attendanceCache.timestamp < ATTENDANCE_CACHE_TTL_MS) {
+    return attendanceCache.data;
+  }
+
   try {
     const res = await apiService.get<RestResponse<StaffAttendanceRecord[]>>(
       'api/v1/staff-attendance',
@@ -49,7 +62,9 @@ export const fetchStaffAttendances = async (): Promise<StaffAttendanceRecord[]> 
       return [];
     }
 
-    return res?.response?.data ?? [];
+    const data = res?.response?.data ?? [];
+    attendanceCache = { data, timestamp: Date.now() };
+    return data;
   } catch (error) {
     console.error('Exception fetching staff attendances:', error);
     return [];
@@ -102,6 +117,7 @@ export const recordStaffAttendance = async (
       return false;
     }
 
+    invalidateStaffAttendanceCache();
     return true;
   } catch (error) {
     console.error('Error recording staff attendance:', error);
@@ -118,7 +134,7 @@ export const updateStaffAttendance = async (
 ): Promise<boolean> => {
   try {
     const res = await apiService.put<RestResponse<{ message: string }>>(
-      'api/v1/staff-attendance',
+      `api/v1/staff-attendance/${payload.id}`,
       payload,
       {
         headers: getAuthHeaders(),
@@ -130,6 +146,7 @@ export const updateStaffAttendance = async (
       return false;
     }
 
+    invalidateStaffAttendanceCache();
     return true;
   } catch (error) {
     console.error('Error updating staff attendance:', error);
@@ -155,6 +172,7 @@ export const deleteStaffAttendance = async (id: number): Promise<boolean> => {
       return false;
     }
 
+    invalidateStaffAttendanceCache();
     return true;
   } catch (error) {
     console.error('Error deleting staff attendance:', error);

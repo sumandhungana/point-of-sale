@@ -25,11 +25,27 @@ export interface RentalPaymentSummary {
 
 const STORAGE_PREFIX = 'pos_rental_payments_';
 
+// In-memory cache for rental payments with 30s TTL
+const paymentMemoryCache: Map<number, { data: RentalPaymentTransaction[]; timestamp: number }> = new Map();
+const PAYMENT_CACHE_TTL_MS = 30000;
+
+export const invalidateRentalPaymentCache = (rentalId?: number): void => {
+  if (rentalId !== undefined) {
+    paymentMemoryCache.delete(rentalId);
+  } else {
+    paymentMemoryCache.clear();
+  }
+};
+
 /**
  * Fetch all payments recorded for a specific rental item synchronously from local cache
  */
 export const getRentalPayments = (rentalId: number): RentalPaymentTransaction[] => {
   try {
+    const memCached = paymentMemoryCache.get(rentalId);
+    if (memCached) {
+      return memCached.data;
+    }
     const raw = localStorage.getItem(`${STORAGE_PREFIX}${rentalId}`);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
@@ -46,7 +62,15 @@ export const getRentalPayments = (rentalId: number): RentalPaymentTransaction[] 
 /**
  * Fetch rental payments from backend API and update local cache
  */
-export const fetchRentalPaymentsApi = async (rentalId: number): Promise<RentalPaymentTransaction[]> => {
+export const fetchRentalPaymentsApi = async (rentalId: number, forceRefresh: boolean = false): Promise<RentalPaymentTransaction[]> => {
+  const now = Date.now();
+  if (!forceRefresh) {
+    const cachedEntry = paymentMemoryCache.get(rentalId);
+    if (cachedEntry && now - cachedEntry.timestamp < PAYMENT_CACHE_TTL_MS) {
+      return cachedEntry.data;
+    }
+  }
+
   try {
     const backendPayments: GetPaymentResponse[] = await getPaymentList({
       paymentParty: 'RENTAL',
@@ -76,6 +100,9 @@ export const fetchRentalPaymentsApi = async (rentalId: number): Promise<RentalPa
           createdAt: item.createdAt,
         };
       });
+
+      // Update in-memory cache
+      paymentMemoryCache.set(rentalId, { data: mapped, timestamp: Date.now() });
 
       // Update local storage cache
       try {
@@ -160,6 +187,9 @@ export const addRentalPayment = async (
     console.error('Failed to save rental payment to localStorage:', error);
   }
 
+  // Invalidate in-memory cache for this rental item
+  invalidateRentalPaymentCache(rentalId);
+
   return newPayment;
 };
 
@@ -171,6 +201,7 @@ export const deleteRentalPayment = (rentalId: number, paymentId: string): boolea
     const existing = getRentalPayments(rentalId);
     const filtered = existing.filter((p) => p.id !== paymentId);
     localStorage.setItem(`${STORAGE_PREFIX}${rentalId}`, JSON.stringify(filtered));
+    invalidateRentalPaymentCache(rentalId);
     return true;
   } catch (error) {
     console.error('Failed to delete rental payment:', error);
@@ -218,7 +249,8 @@ export const getRentalSummary = (
  * Sync payments from backend API for all rental items in parallel and cache them
  */
 export const syncAllRentalPayments = async (
-  rentalIds: number[]
+  rentalIds: number[],
+  forceRefresh: boolean = false
 ): Promise<Record<number, RentalPaymentTransaction[]>> => {
   const result: Record<number, RentalPaymentTransaction[]> = {};
   if (!rentalIds || rentalIds.length === 0) return result;
@@ -226,7 +258,7 @@ export const syncAllRentalPayments = async (
   await Promise.all(
     rentalIds.map(async (id) => {
       try {
-        const txs = await fetchRentalPaymentsApi(id);
+        const txs = await fetchRentalPaymentsApi(id, forceRefresh);
         result[id] = txs;
       } catch (err) {
         console.error(`Error syncing rental payments for item ${id}:`, err);

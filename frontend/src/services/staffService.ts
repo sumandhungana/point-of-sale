@@ -63,8 +63,21 @@ interface RestResponse<T> {
   error?: string;
 }
 
+// In-memory cache for staff list with 30s TTL
+let staffCache: { data: GetStaffResponse[]; timestamp: number } | null = null;
+const STAFF_CACHE_TTL_MS = 30000;
+
+export const invalidateStaffCache = (): void => {
+  staffCache = null;
+};
+
 // 1. Fetch all staff members
-export async function fetchStaff(): Promise<GetStaffResponse[]> {
+export async function fetchStaff(forceRefresh: boolean = false): Promise<GetStaffResponse[]> {
+  const now = Date.now();
+  if (!forceRefresh && staffCache && now - staffCache.timestamp < STAFF_CACHE_TTL_MS) {
+    return staffCache.data;
+  }
+
   const res = await apiService.get<RestResponse<GetStaffResponse[]>>(
       'api/v1/staff/all-staffs',
       {
@@ -80,11 +93,12 @@ export async function fetchStaff(): Promise<GetStaffResponse[]> {
 
   // Handle both res.response?.data and direct res.data structure safely
   const staffList = res?.response?.data || [];
-  return Array.isArray(staffList) ? staffList : [];
+  const result = Array.isArray(staffList) ? staffList : [];
+  staffCache = { data: result, timestamp: Date.now() };
+  return result;
 }
 
 export async function createStaff(formData: any) {
-
   const res = await apiService.post<RestResponse<CreateStaffResponse>>(
       'api/v1/staff',
       formData,
@@ -95,7 +109,8 @@ export async function createStaff(formData: any) {
       }
   );
   if(res.error) throw new Error('Failed to create staff');
-  return res?.response?.data
+  invalidateStaffCache();
+  return res?.response?.data;
 }
 
 export async function createStaffSalary(salaryData: any) {
@@ -109,6 +124,7 @@ export async function createStaffSalary(salaryData: any) {
       }
   );
   if(res.error) throw new Error('Failed to create staff salaries');
+  invalidateStaffCache();
   return res?.response?.data;
 }
 
@@ -149,5 +165,6 @@ export async function updateStaff(id: number, staffData: any): Promise<any> {
   );
 
   if (res.error) throw new Error('Failed to update staff notes/details');
+  invalidateStaffCache();
   return res?.response?.data;
 }

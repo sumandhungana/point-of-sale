@@ -4,10 +4,10 @@ import com.puff.tech.customermanagement.repository.OrganizationCustomerEntity;
 import com.puff.tech.onboarding.repository.MemberEntity;
 import com.puff.tech.onboarding.repository.UserInfoEntity;
 import com.puff.tech.payment.ValidPaymentParty;
-import com.puff.tech.payment.enums.PaymentParty;
 import com.puff.tech.payment.enums.PaymentCategory;
+import com.puff.tech.payment.enums.PaymentParty;
 import com.puff.tech.payment.enums.PaymentType;
-import com.puff.tech.entity.RentalEntity;
+import com.puff.tech.rentalitem.repository.RentalItemEntity;
 import com.puff.tech.staffmanagement.repository.OrganizationStaffEntity;
 import com.puff.tech.suppliermanagement.repository.SupplierEntity;
 import io.micronaut.core.annotation.Introspected;
@@ -72,7 +72,7 @@ public class PaymentEntity {
     @Nullable
     @Relation(value = Relation.Kind.MANY_TO_ONE)
     @MappedProperty("rental_id")
-    private RentalEntity rental;
+    private RentalItemEntity rental;
 
     @NotNull
     @Positive

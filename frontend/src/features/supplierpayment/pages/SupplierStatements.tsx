@@ -1,63 +1,72 @@
-
-import React, { useEffect, useMemo, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getPaymentList, GetPaymentResponse} from '@/features/services/paymentService';
+import { getPaymentList, GetPaymentResponse } from '@/features/services/paymentService';
 import { fetchCustomerData } from '@/features/services/customerService';
 import { getSuppliers, GetSupplierResponse } from '@/features/services/supplierService';
 import { toast } from 'react-toastify';
-
+import '../../../styles/SupplierStatements.css';
 import { YouGave } from '../../supplierpayment/components/YouGave';
 import { YouReceived } from '../../supplierpayment/components/YouReceived';
+import { resolveImageSrc } from '@/utils/ImageResolver';
 
-import '../../../styles/SupplierStatements.css';
+/**
+ * Avatar that validates the resolved image before rendering it.
+ * Shows a truck/initial icon if the image is missing or fails to load.
+ */
+const SupplierAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string }) => {
+    const [status, setStatus] = useState<'loading' | 'ok' | 'failed'>(
+        imageSrc ? 'loading' : 'failed'
+    );
 
-// Helper to decode double Base64 safely
-const formatImageSrc = (src?: string | null): string => {
-    if (!src) return '';
-    let clean = src.trim().replace(/(\r\n|\n|\r)/gm, '');
-
-    if (clean.startsWith('ZGF0YT')) {
-        try {
-            clean = clean.replace(/-/g, '+').replace(/_/g, '/');
-            while (clean.length % 4) {
-                clean += '=';
-            }
-            clean = atob(clean).trim().replace(/(\r\n|\n|\r)/gm, '');
-        } catch (e) {
-            console.error('Failed to decode double-base64 image string:', e);
+    useEffect(() => {
+        if (!imageSrc) {
+            setStatus('failed');
+            return;
         }
+        setStatus('loading');
+
+        let cancelled = false;
+        const probe = new Image();
+        probe.onload = () => { if (!cancelled) setStatus('ok'); };
+        probe.onerror = () => { if (!cancelled) setStatus('failed'); };
+        probe.src = imageSrc;
+
+        return () => {
+            cancelled = true;
+            probe.onload = null;
+            probe.onerror = null;
+        };
+    }, [imageSrc]);
+
+    if (status === 'ok') {
+        return (
+            <img
+                src={imageSrc}
+                alt={name || 'Supplier'}
+                className="supplier-statements-profile-image"
+            />
+        );
     }
 
-    if (clean.startsWith('data:image/') || clean.startsWith('http://') || clean.startsWith('https://')) {
-        return clean;
-    }
-
-    let mimeType = 'image/png';
-    if (clean.startsWith('/9j/')) {
-        mimeType = 'image/jpeg';
-    } else if (clean.startsWith('iVBORw0KGgo')) {
-        mimeType = 'image/png';
-    } else if (clean.startsWith('R0lGOD')) {
-        mimeType = 'image/gif';
-    } else if (clean.startsWith('UklGR')) {
-        mimeType = 'image/webp';
-    }
-
-    return `data:${mimeType};base64,${clean}`;
-};
-
-// Safe date formatter helper
-const safeFormatDate = (dateStr?: string | Date): string => {
-    if (!dateStr) return '-';
-    const d = new Date(dateStr);
-    return isNaN(d.getTime()) ? '-' : d.toLocaleDateString();
-};
-
-const safeFormatTime = (dateStr?: string | Date): string => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return isNaN(d.getTime()) ? '' : d.toLocaleTimeString();
+    return (
+        <div
+            style={{
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                backgroundColor: '#e9ecef',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.25rem',
+                fontWeight: '700',
+                color: '#021861'
+            }}
+        >
+            {name ? name.charAt(0).toUpperCase() : <i className="bi bi-truck"></i>}
+        </div>
+    );
 };
 
 export const SupplierStatements: React.FC = () => {
@@ -65,21 +74,21 @@ export const SupplierStatements: React.FC = () => {
     const { id } = useParams<{ id: string }>();
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isLoadingSupplier, setIsLoadingSupplier] = useState<boolean>(true);
     const [paymentHistory, setPaymentHistory] = useState<GetPaymentResponse[]>([]);
 
     const [reminderDate, setReminderDate] = useState<string>('');
-    const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
-
-    const datePickerRef = useRef<HTMLDivElement>(null);
-    const dateInputRef = useRef<HTMLInputElement>(null);
-
     const [supplierName, setSupplierName] = useState<string>('');
     const [supplierPhone, setSupplierPhone] = useState<string>('');
-
+    const [supplierAddress, setSupplierAddress] = useState<string>('');
     const [supplierProfileImage, setSupplierProfileImage] = useState<string | null>(null);
 
     const [showPopup, setShowPopup] = useState<boolean>(false);
     const [showReceivedPopup, setShowReceivedPopup] = useState<boolean>(false);
+
+    const resolvedImage = useMemo(() => {
+        return resolveImageSrc(supplierProfileImage);
+    }, [supplierProfileImage]);
 
     const fetchPayments = useCallback(async () => {
         if (!id) return;
@@ -103,6 +112,7 @@ export const SupplierStatements: React.FC = () => {
     const loadSupplierData = useCallback(async () => {
         if (!id) return;
 
+        setIsLoadingSupplier(true);
         try {
             const [customerRes, suppliersRes] = await Promise.allSettled([
                 fetchCustomerData(id),
@@ -117,6 +127,7 @@ export const SupplierStatements: React.FC = () => {
 
             const finalName = directSupplier?.name || customerSupplier?.name || '';
             const finalPhone = directSupplier?.phone || customerSupplier?.phoneNumber || customerSupplier?.phone || '';
+            const finalAddress = directSupplier?.address || customerSupplier?.address || '';
 
             const rawImage =
                 directSupplier?.profileImage ||
@@ -127,12 +138,12 @@ export const SupplierStatements: React.FC = () => {
 
             setSupplierName(finalName);
             setSupplierPhone(finalPhone);
-
-            const formatted = formatImageSrc(rawImage);
-            setSupplierProfileImage(formatted || null);
-
+            setSupplierAddress(finalAddress);
+            setSupplierProfileImage(rawImage);
         } catch (err) {
             console.error('Error loading supplier profile:', err);
+        } finally {
+            setIsLoadingSupplier(false);
         }
     }, [id]);
 
@@ -140,22 +151,6 @@ export const SupplierStatements: React.FC = () => {
         loadSupplierData();
         fetchPayments();
     }, [loadSupplierData, fetchPayments]);
-
-    useEffect(() => {
-        const onDocClick = (e: MouseEvent) => {
-            if (
-                datePickerRef.current &&
-                !datePickerRef.current.contains(e.target as Node)
-            ) {
-                setShowDatePicker(false);
-            }
-        };
-
-        document.addEventListener('mousedown', onDocClick);
-        return () => {
-            document.removeEventListener('mousedown', onDocClick);
-        };
-    }, []);
 
     const totals = useMemo(() => {
         if (!Array.isArray(paymentHistory)) return { given: 0, received: 0 };
@@ -198,6 +193,50 @@ export const SupplierStatements: React.FC = () => {
         setReminderDate(e.target.value);
     };
 
+    const handleSetReminder = () => {
+        if (!reminderDate) {
+            toast.error('Please select a reminder date.');
+            return;
+        }
+        toast.success(`Reminder date set for ${reminderDate}`);
+    };
+
+    const handleReport = () => {
+        navigate(`/parties/suppliers/statements/report/${id}`, {
+            state: {
+                supplier: {
+                    id: parseInt(id || '0', 10),
+                    name: supplierName,
+                    phone: supplierPhone,
+                    address: supplierAddress
+                },
+                paymentHistory,
+                totals
+            }
+        });
+    };
+
+    const handleTransactionClick = (transaction: GetPaymentResponse) => {
+        const isReceived = transaction.paymentCategory === 'RECEIVED';
+        const amountAbs = Math.abs(transaction.amount || 0);
+
+        navigate(`/parties/supplier/statement/${transaction.id}`, {
+            state: {
+                transaction: {
+                    customerName: supplierName || 'Supplier',
+                    date: transaction.createdAt,
+                    totalAmount: amountAbs,
+                    phoneNumber: supplierPhone || '',
+                    type: isReceived ? 'payment_in' : 'payment_out',
+                    customerId: parseInt(id || '0', 10),
+                    details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.createdAt).toLocaleDateString()}`,
+                    remarks: transaction.remarks || '',
+                    sms: `Dear ${supplierName || 'Supplier'}, your payment of रु${amountAbs} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
+                }
+            }
+        });
+    };
+
     const handleGaveSuccess = async () => {
         setShowPopup(false);
         await fetchPayments();
@@ -213,7 +252,7 @@ export const SupplierStatements: React.FC = () => {
             <Sidebar />
 
             <main className="supplier-statements-main-content">
-                {/* 1. Sleek Compact Profile Header */}
+                {/* 1. Sleek Profile Header Card */}
                 <div className="statements-profile-card">
                     <div className="statements-profile-info">
                         <div
@@ -221,31 +260,7 @@ export const SupplierStatements: React.FC = () => {
                             onClick={handleProfileClick}
                             title="View supplier profile"
                         >
-                            {supplierProfileImage ? (
-                                <img
-                                    src={supplierProfileImage}
-                                    alt={supplierName || 'Supplier'}
-                                    className="supplier-statements-profile-image"
-                                    onError={() => setSupplierProfileImage(null)}
-                                />
-                            ) : (
-                                <div
-                                    style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        borderRadius: '50%',
-                                        backgroundColor: '#e9ecef',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '1.25rem',
-                                        fontWeight: '700',
-                                        color: '#021861'
-                                    }}
-                                >
-                                    {supplierName ? supplierName.charAt(0).toUpperCase() : <i className="bi bi-truck"></i>}
-                                </div>
-                            )}
+                            <SupplierAvatar name={supplierName} imageSrc={resolvedImage} />
                         </div>
                         <div className="statements-details">
                             <div className="statements-name-row">
@@ -254,7 +269,7 @@ export const SupplierStatements: React.FC = () => {
                                     onClick={handleProfileClick}
                                     title="View supplier profile"
                                 >
-                                    {supplierName || 'Supplier'}
+                                    {isLoadingSupplier ? 'Loading...' : supplierName || 'Supplier'}
                                 </h2>
                                 {id ? (
                                     <span className="statements-id-badge">#SUPP-{id}</span>
@@ -271,6 +286,15 @@ export const SupplierStatements: React.FC = () => {
                                         <i className="bi bi-telephone me-1"></i>
                                         No phone
                                     </span>
+                                )}
+                                {supplierAddress && (
+                                    <>
+                                        <span>•</span>
+                                        <span>
+                                            <i className="bi bi-geo-alt me-1"></i>
+                                            {supplierAddress}
+                                        </span>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -324,171 +348,137 @@ export const SupplierStatements: React.FC = () => {
                     <div className="statements-reminder-strip">
                         <div className="statements-reminder-label">
                             <i className="bi bi-calendar-event me-2"></i>
-                            Set Reminder Date
+                            Set Date Reminder
                         </div>
-                        <div className="statements-reminder-controls">
-                            <input
-                                type="date"
-                                value={reminderDate}
-                                onChange={handleDateChange}
-                                ref={dateInputRef}
-                                className="statements-date-input"
-                            />
-                            <button
-                                type="button"
-                                className="btn-reminder-picker"
-                                onClick={() => {
-                                    const el = dateInputRef.current;
-                                    if (el && typeof el.showPicker === 'function') {
-                                        el.showPicker();
-                                    } else {
-                                        el?.click();
-                                    }
-                                }}
-                                title="Pick reminder date"
-                            >
-                                <i className="bi bi-calendar2-plus"></i>
-                                {reminderDate ? safeFormatDate(reminderDate) : 'Pick Date'}
-                            </button>
-                        </div>
+                        <input
+                            type="date"
+                            value={reminderDate}
+                            onChange={handleDateChange}
+                            className="statements-date-input"
+                        />
                     </div>
                 </div>
 
-                {/* 3. Quick Actions Grid */}
+                {/* 3. Quick Action Buttons */}
                 <div className="statements-quick-actions">
-                    <button
-                        className="btn-quick-action action-report"
-                        onClick={() => navigate(`/parties/suppliers/statements/report/${id}`)}
-                    >
-                        <i className="bi bi-file-earmark-bar-graph"></i>
-                        <span>Report</span>
+                    <button className="btn-quick-action btn-qa-report" onClick={handleReport}>
+                        <i className="bi bi-graph-up"></i>
+                        Report
                     </button>
-                    <button
-                        className="btn-quick-action action-reminder"
-                        onClick={() => {
-                            const el = dateInputRef.current;
-                            if (el && typeof el.showPicker === 'function') {
-                                el.showPicker();
-                            } else {
-                                el?.click();
-                            }
-                        }}
-                    >
+                    <button className="btn-quick-action btn-qa-reminder" onClick={handleSetReminder}>
                         <i className="bi bi-alarm"></i>
-                        <span>Reminder</span>
+                        Reminder
                     </button>
-                    <button className="btn-quick-action action-sms">
+                    <button
+                        className="btn-quick-action btn-qa-sms"
+                        onClick={() => toast.info('SMS notification feature coming soon!')}
+                    >
                         <i className="bi bi-chat-dots"></i>
-                        <span>SMS</span>
+                        SMS
                     </button>
                 </div>
 
-                {/* 4. Transactions List */}
-                <div className="statements-transactions-card">
-                    <div className="statements-transactions-header">
+                {/* 4. Recent Transactions List */}
+                <div className="customer-statements-transactions-container">
+                    <h3 className="customer-statements-transactions-title">
                         <i className="bi bi-clock-history"></i>
-                        <span>Recent Transactions</span>
-                    </div>
+                        Recent Transactions
+                    </h3>
 
-                    <div className="statements-transactions-body">
-                        {isLoading ? (
-                            <div className="statements-state-msg">
-                                <div className="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
-                                Loading transactions...
-                            </div>
-                        ) : !paymentHistory || paymentHistory.length === 0 ? (
-                            <div className="statements-state-msg">
-                                <i className="bi bi-inbox me-2" style={{ fontSize: '18px' }}></i>
-                                No transactions recorded yet
-                            </div>
-                        ) : (
-                            paymentHistory
-                                .slice()
-                                .sort((a, b) => {
-                                    const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                                    const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                                    return timeB - timeA;
-                                })
-                                .map((t) => {
-                                    const isReceived = t.paymentCategory === 'RECEIVED';
-                                    const amountAbs = Math.abs(t.amount || 0);
-
-                                    return (
-                                        <div
-                                            key={t.id}
-                                            className="statement-tx-row"
-                                            onClick={() => {
-                                                navigate(
-                                                    `/parties/supplier/statement/${t.id}`,
-                                                    {
-                                                        state: {
-                                                            transaction: {
-                                                                customerName: supplierName || 'Supplier',
-                                                                date: safeFormatDate(t.createdAt),
-                                                                totalAmount: amountAbs,
-                                                                phoneNumber: supplierPhone || '',
-                                                                type: isReceived ? 'payment_in' : 'payment_out',
-                                                                customerId: parseInt(id || '0', 10),
-                                                                details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${safeFormatDate(t.createdAt)}`,
-                                                                remarks: t.remarks || '',
-                                                                sms: `Dear ${supplierName || 'Supplier'}, your payment of रु${amountAbs} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
-                                                            }
-                                                        }
-                                                    }
-                                                );
-                                            }}
-                                            role="button"
-                                            tabIndex={0}
-                                        >
-                                            <div className="tx-main-col">
-                                                <div className="tx-type-line">
-                                                    <span className={`tx-type-badge ${isReceived ? 'badge-in' : 'badge-out'}`}>
-                                                        <i className={`bi ${isReceived ? 'bi-arrow-down-left' : 'bi-arrow-up-right'} me-1`}></i>
-                                                        {isReceived ? 'Payment In' : 'Payment Out'} ({t.paymentType || 'General'})
-                                                    </span>
-                                                </div>
-                                                <div className="tx-date-line">
-                                                    <i className="bi bi-calendar3 me-1"></i>
-                                                    {safeFormatDate(t.createdAt)}
-                                                    <span className="tx-dot">•</span>
-                                                    <i className="bi bi-clock me-1"></i>
-                                                    {safeFormatTime(t.createdAt)}
-                                                </div>
-                                                {t.remarks && (
-                                                    <div className="tx-remarks-line">
-                                                        <i className="bi bi-chat-left-quote me-1"></i>
-                                                        {t.remarks}
+                    {isLoading ? (
+                        <div className="customer-statements-no-transactions">
+                            <i className="bi bi-hourglass-split me-2"></i>
+                            Loading transactions...
+                        </div>
+                    ) : paymentHistory.length === 0 ? (
+                        <div className="customer-statements-no-transactions">
+                            <i className="bi bi-inbox me-2"></i>
+                            No transactions found
+                        </div>
+                    ) : (
+                        <div>
+                            {Object.entries(
+                                paymentHistory.reduce((groups, transaction) => {
+                                    const date = new Date(transaction.createdAt).toISOString().split('T')[0];
+                                    const isReceived = transaction.paymentCategory === 'RECEIVED';
+                                    if (!groups[date]) groups[date] = [];
+                                    groups[date].push({
+                                        ...transaction,
+                                        isReceived,
+                                        formattedTime: new Date(transaction.createdAt).toLocaleTimeString(),
+                                        timestamp: new Date(transaction.createdAt).getTime()
+                                    });
+                                    return groups;
+                                }, {} as Record<string, any[]>)
+                            )
+                                .sort(([dateA], [dateB]) => new Date(dateB).getTime() - new Date(dateA).getTime())
+                                .map(([date, dateTransactions]) => (
+                                    <div key={date} className="customer-statements-date-group">
+                                        {dateTransactions
+                                            .sort((a, b) => b.timestamp - a.timestamp)
+                                            .map((transaction) => (
+                                                <div
+                                                    key={transaction.id}
+                                                    className="customer-statements-transaction-card"
+                                                    onClick={() => handleTransactionClick(transaction)}
+                                                >
+                                                    <div className="customer-statements-transaction-info">
+                                                        <div className="customer-statements-transaction-row">
+                                                            <div className="customer-statements-transaction-label">Payment Type:</div>
+                                                            <div className="customer-statements-transaction-value">
+                                                                {transaction.isReceived ? (
+                                                                    <span className="customer-statements-payment-in">Payment In ({transaction.paymentType})</span>
+                                                                ) : (
+                                                                    <span className="customer-statements-payment-out">Payment Out ({transaction.paymentType})</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="customer-statements-transaction-row">
+                                                            <div className="customer-statements-transaction-label">Date/Time:</div>
+                                                            <div className="customer-statements-transaction-value">
+                                                                <i className="bi bi-clock me-1"></i>
+                                                                {new Date(transaction.createdAt).toLocaleDateString()} {transaction.formattedTime}
+                                                            </div>
+                                                        </div>
+                                                        <div className="customer-statements-transaction-row">
+                                                            <div className="customer-statements-transaction-label">Remarks:</div>
+                                                            <div className="customer-statements-transaction-value">
+                                                                <i className="bi bi-chat-text me-1"></i>
+                                                                {transaction.remarks || '-'}
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                )}
-                                            </div>
-
-                                            <div className="tx-amount-col">
-                                                <div className={`tx-amount-num ${isReceived ? 'num-received' : 'num-gave'}`}>
-                                                    {isReceived ? '+ ' : '- '}रु{amountAbs.toLocaleString()}
+                                                    <div className="customer-statements-transaction-amounts">
+                                                        <div className={`customer-statements-current-amount ${!transaction.isReceived ? 'customer-statements-current-amount-red' : ''}`}>
+                                                            रु {Math.abs(transaction.amount).toLocaleString()}
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-                                    );
-                                })
-                        )}
-                    </div>
+                                            ))}
+                                    </div>
+                                ))}
+                        </div>
+                    )}
                 </div>
 
-                {/* 5. Fixed Sticky Bottom Action Bar */}
+                {/* 5. Sleek Fixed Bottom Action Bar */}
                 <div className="statements-bottom-bar">
                     <button
-                        className="btn-bottom-action btn-bottom-gave"
+                        type="button"
+                        className="btn-bottom-gave"
                         onClick={() => setShowPopup(true)}
                     >
-                        <i className="bi bi-dash-circle"></i>
-                        <span>You Gave</span>
+                        <i className="bi bi-arrow-up-circle"></i>
+                        You Gave
                     </button>
+
                     <button
-                        className="btn-bottom-action btn-bottom-received"
+                        type="button"
+                        className="btn-bottom-received"
                         onClick={() => setShowReceivedPopup(true)}
                     >
-                        <i className="bi bi-plus-circle"></i>
-                        <span>You Received</span>
+                        <i className="bi bi-arrow-down-circle"></i>
+                        You Received
                     </button>
                 </div>
 
@@ -498,8 +488,8 @@ export const SupplierStatements: React.FC = () => {
                         <div className="popup-content" onClick={(e) => e.stopPropagation()}>
                             <div className="popup-title-container">
                                 <h2 className="popup-title">
-                                    <i className="bi bi-arrow-up-circle me-2" style={{ color: '#DE1110' }}></i>
-                                    Record Payment Given
+                                    <i className="bi bi-arrow-up-circle me-2"></i>
+                                    You Gave
                                 </h2>
                                 <button
                                     type="button"
@@ -528,8 +518,8 @@ export const SupplierStatements: React.FC = () => {
                         <div className="popup-content" onClick={(e) => e.stopPropagation()}>
                             <div className="popup-title-container">
                                 <h2 className="popup-title-received">
-                                    <i className="bi bi-arrow-down-circle me-2" style={{ color: '#10b981' }}></i>
-                                    Record Payment Received
+                                    <i className="bi bi-arrow-down-circle me-2"></i>
+                                    You Received
                                 </h2>
                                 <button
                                     type="button"

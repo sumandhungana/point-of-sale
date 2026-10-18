@@ -127,47 +127,71 @@ export const getOrganizationNotifications = (orgs: GetAllMember[]): AppNotificat
   return notifications;
 };
 
+let cachedNotifications: { data: AppNotification[]; timestamp: number } | null = null;
+const NOTIF_CACHE_TTL_MS = 60000; // 60 seconds
+
+export const invalidateNotificationCache = (): void => {
+  cachedNotifications = null;
+};
+
 /**
  * Global notifications fetch: Only fetches low stock alerts.
  * Strictly NEVER calls loan or organization APIs globally across dashboards.
+ * Bypasses product check on rental routes to avoid unused All Products API requests.
  */
-export const fetchAllAppNotifications = async (): Promise<AppNotification[]> => {
+export const fetchAllAppNotifications = async (forceRefresh: boolean = false): Promise<AppNotification[]> => {
+  const now = Date.now();
+  if (!forceRefresh && cachedNotifications && now - cachedNotifications.timestamp < NOTIF_CACHE_TTL_MS) {
+    return cachedNotifications.data;
+  }
+
   const readIds = getReadIds();
   const notifications: AppNotification[] = [];
 
-  // Low Stock Alerts only
-  try {
-    const items = await getProduct();
-    if (Array.isArray(items)) {
-      items.forEach((item: any) => {
-        const count = Number(item.itemCount ?? item.stock ?? item.quantity ?? 0);
-        const threshold = Number(item.lowStockAlert ?? item.minStock ?? 5);
+  // Rental items module does not use product inventory; skip All Products API call
+  const isRentalRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/rental');
 
-        if (!isNaN(count) && count <= threshold) {
-          const id = `stock-${item.id}`;
-          const isOut = count <= 0;
-          notifications.push({
-            id,
-            type: 'LOW_STOCK',
-            title: isOut ? `Out of Stock: ${item.name}` : `Low Stock: ${item.name}`,
-            message: isOut
-              ? `${item.name} has 0 stock remaining. Immediate restock needed.`
-              : `${item.name} only has ${count} ${item.unit || 'pcs'} left (threshold: ${threshold}).`,
-            timestamp: item.updatedAt || item.createdAt || new Date().toISOString(),
-            link: '/inventory/items',
-            severity: isOut ? 'danger' : 'warning',
-            read: readIds.has(id),
-            countLabel: `${count} left`,
-          });
-        }
-      });
+  // Low Stock Alerts only
+  if (!isRentalRoute) {
+    try {
+      const items = await getProduct();
+      const itemsList = Array.isArray(items)
+        ? items
+        : (items as any)?.itemsResponse || (items as any)?.items || [];
+
+      if (Array.isArray(itemsList)) {
+        itemsList.forEach((item: any) => {
+          const count = Number(item.itemCount ?? item.stock ?? item.quantity ?? 0);
+          const threshold = Number(item.lowStockAlert ?? item.minStock ?? 5);
+
+          if (!isNaN(count) && count <= threshold) {
+            const id = `stock-${item.id}`;
+            const isOut = count <= 0;
+            notifications.push({
+              id,
+              type: 'LOW_STOCK',
+              title: isOut ? `Out of Stock: ${item.name}` : `Low Stock: ${item.name}`,
+              message: isOut
+                ? `${item.name} has 0 stock remaining. Immediate restock needed.`
+                : `${item.name} only has ${count} ${item.unit || 'pcs'} left (threshold: ${threshold}).`,
+              timestamp: item.updatedAt || item.createdAt || new Date().toISOString(),
+              link: '/inventory/items',
+              severity: isOut ? 'danger' : 'warning',
+              read: readIds.has(id),
+              countLabel: `${count} left`,
+            });
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('Notification fetch: Low stock check failed:', err);
     }
-  } catch (err) {
-    console.warn('Notification fetch: Low stock check failed:', err);
   }
 
   // Sort newest first
-  return notifications.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const sorted = notifications.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  cachedNotifications = { data: sorted, timestamp: Date.now() };
+  return sorted;
 };
 
 export const markNotificationAsRead = (id: string): void => {

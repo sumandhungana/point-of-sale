@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { usePermission } from '@/core/rbac/usePermission';
@@ -12,38 +12,43 @@ export const OrganizationManagement: React.FC = () => {
     const [organizations, setOrganizations] = useState<GetAllMember[]>([]);
     const [roles, setRoles] = useState<RoleResponse[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+    const [refreshing, setRefreshing] = useState<boolean>(false);
     const [activeTab, setActiveTab] = useState<'active' | 'draft'>('active');
     const [selectedRoles, setSelectedRoles] = useState<Record<number, string>>({});
     const [approvingOrgId, setApprovingOrgId] = useState<number | null>(null);
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     const navigate = useNavigate();
-    const { hasPermission, isSuperAdmin, hasModule } = usePermission();
-    const canAccessOrg = isSuperAdmin || hasModule('organization');
+    const { hasPermission } = usePermission();
     const canAddOrganization = hasPermission('organization:registration');
 
     useEffect(() => {
-        if (canAccessOrg) {
-            loadData();
-        } else {
-            setLoading(false);
-        }
-    }, [canAccessOrg]);
+        loadData(true);
+    }, []);
 
-    const loadData = async () => {
-        if (!canAccessOrg) return;
-        setLoading(true);
+    const loadData = async (showLoading = true) => {
+        if (showLoading) setLoading(true);
+        setRefreshing(true);
         try {
             const [fetchedOrganizations, fetchedRoles] = await Promise.all([
-                getAllOrganization(),
+                getAllOrganization(true),
                 getRoles().catch(() => [] as RoleResponse[])
             ]);
 
-            setOrganizations(fetchedOrganizations);
-            setRoles(fetchedRoles);
+            const orgList = fetchedOrganizations || [];
+            setOrganizations(orgList);
+            setRoles(fetchedRoles || []);
+
+            // If active tab has no active organizations but drafts exist, auto-select draft tab
+            const hasActive = orgList.some((org) => org.isActive !== false);
+            const hasDraft = orgList.some((org) => org.isActive === false);
+            if (!hasActive && hasDraft) {
+                setActiveTab('draft');
+            }
 
             // Pre-seed selected roles for drafts
             const initialRoles: Record<number, string> = {};
-            fetchedOrganizations.forEach((org) => {
+            orgList.forEach((org) => {
                 if (org.roleId) {
                     initialRoles[org.id] = String(org.roleId);
                 }
@@ -54,6 +59,7 @@ export const OrganizationManagement: React.FC = () => {
             toast.error('Failed to load organization data');
         } finally {
             setLoading(false);
+            setRefreshing(false);
         }
     };
 
@@ -79,7 +85,7 @@ export const OrganizationManagement: React.FC = () => {
                 roleId: roleToAssign,
             });
             toast.success(`Organization "${org.organizationName}" approved and activated!`);
-            await loadData();
+            await loadData(false);
         } catch (err: any) {
             console.error('Failed to approve organization:', err);
             toast.error(err.message || 'Failed to approve organization');
@@ -88,12 +94,51 @@ export const OrganizationManagement: React.FC = () => {
         }
     };
 
-    // Filter organizations by status
-    const activeOrganizations = organizations.filter((org) => org.isActive !== false);
-    const draftOrganizations = organizations.filter((org) => org.isActive === false);
+    const getInitials = (name?: string) => {
+        if (!name) return 'ORG';
+        const words = name.trim().split(/\s+/).filter(Boolean);
+        if (words.length === 0) return 'ORG';
+        if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
+        return (words[0][0] + words[1][0]).toUpperCase();
+    };
 
-    // Calculate Summary Stats
+    const formatDate = (dateStr?: string) => {
+        if (!dateStr) return 'N/A';
+        try {
+            const d = new Date(dateStr);
+            return isNaN(d.getTime()) ? 'N/A' : d.toLocaleDateString();
+        } catch {
+            return 'N/A';
+        }
+    };
+
+    // Filter organizations by search query
+    const filteredOrganizations = useMemo(() => {
+        if (!searchQuery.trim()) return organizations;
+        const q = searchQuery.toLowerCase().trim();
+        return organizations.filter((org) => {
+            return (
+                (org.organizationName && org.organizationName.toLowerCase().includes(q)) ||
+                (org.organizationAddress && org.organizationAddress.toLowerCase().includes(q)) ||
+                (org.branch && org.branch.toLowerCase().includes(q)) ||
+                (org.panVatNumber && org.panVatNumber.toLowerCase().includes(q)) ||
+                (org.organizationType && org.organizationType.toLowerCase().includes(q)) ||
+                (org.organizationEmail && org.organizationEmail.toLowerCase().includes(q)) ||
+                (org.organizationContactNumber && org.organizationContactNumber.toLowerCase().includes(q)) ||
+                (org.userName && org.userName.toLowerCase().includes(q)) ||
+                (org.userEmail && org.userEmail.toLowerCase().includes(q))
+            );
+        });
+    }, [organizations, searchQuery]);
+
+    // Filter organizations by status
+    const activeOrganizations = filteredOrganizations.filter((org) => org.isActive !== false);
+    const draftOrganizations = filteredOrganizations.filter((org) => org.isActive === false);
+
+    // Calculate Summary Stats based on raw organizations list
     const totalOrganizations = organizations.length;
+    const totalActiveCount = organizations.filter((org) => org.isActive !== false).length;
+    const totalDraftCount = organizations.filter((org) => org.isActive === false).length;
     const uniqueTypes = new Set(organizations.map((org) => org.organizationType).filter(Boolean)).size;
 
     return (
@@ -103,7 +148,63 @@ export const OrganizationManagement: React.FC = () => {
                 <Navbar />
 
                 <div className="user-management-content">
-                    {/* Stats Banners in Single Line */}
+                    {/* Header with Title and Actions */}
+                    <div className="org-header-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                        <div>
+                            <h2 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: '#0f172a' }}>Organization Management</h2>
+                            <p style={{ margin: '4px 0 0', fontSize: '14px', color: '#64748b' }}>
+                                View, search, and manage registered and pending organizations
+                            </p>
+                        </div>
+                        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                            <button
+                                type="button"
+                                className="btn-primary"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '8px 16px',
+                                    borderRadius: '8px',
+                                    fontSize: '13px',
+                                    backgroundColor: '#f1f5f9',
+                                    color: '#0f172a',
+                                    border: '1px solid #cbd5e1',
+                                    cursor: 'pointer'
+                                }}
+                                onClick={() => loadData(false)}
+                                disabled={refreshing}
+                                title="Refresh organizations list"
+                            >
+                                <span className={refreshing ? 'spinner-border spinner-border-sm' : ''}>
+                                    {!refreshing && '🔄'}
+                                </span>
+                                <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+                            </button>
+
+                            {canAddOrganization && (
+                                <button
+                                    type="button"
+                                    className="btn-primary"
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        padding: '8px 16px',
+                                        borderRadius: '8px',
+                                        fontSize: '13px',
+                                        cursor: 'pointer'
+                                    }}
+                                    onClick={() => navigate('/add-organization')}
+                                >
+                                    <span>+</span>
+                                    <span>Add Organization</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Stats Banners */}
                     <div className="org-stats-row">
                         <div className="stat-card">
                             <div className="stat-icon-box blue-bg">🏢</div>
@@ -116,7 +217,7 @@ export const OrganizationManagement: React.FC = () => {
                             <div className="stat-icon-box green-bg">✓</div>
                             <div className="stat-info">
                                 <span className="stat-label">Active Organizations</span>
-                                <span className="stat-value green-text">{activeOrganizations.length}</span>
+                                <span className="stat-value green-text">{totalActiveCount}</span>
                             </div>
                         </div>
                         <div className="stat-card">
@@ -124,7 +225,7 @@ export const OrganizationManagement: React.FC = () => {
                             <div className="stat-info">
                                 <span className="stat-label">Draft / Pending</span>
                                 <span className="stat-value" style={{ color: '#d97706' }}>
-                                    {draftOrganizations.length}
+                                    {totalDraftCount}
                                 </span>
                             </div>
                         </div>
@@ -137,46 +238,90 @@ export const OrganizationManagement: React.FC = () => {
                         </div>
                     </div>
 
-                    {/* Tabs */}
-                    <div className="tab-container">
-                        <button
-                            type="button"
-                            className={`tab-btn ${activeTab === 'active' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('active')}
-                        >
-                            Active Organizations
-                            <span className="tab-badge">{activeOrganizations.length}</span>
-                        </button>
-                        <button
-                            type="button"
-                            className={`tab-btn ${activeTab === 'draft' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('draft')}
-                        >
-                            Draft Organizations
-                            <span className={`tab-badge ${draftOrganizations.length > 0 ? 'badge-amber pulse' : ''}`}>
-                                {draftOrganizations.length}
-                            </span>
-                        </button>
+                    {/* Tabs & Search Bar */}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px' }}>
+                        <div className="tab-container" style={{ margin: 0 }}>
+                            <button
+                                type="button"
+                                className={`tab-btn ${activeTab === 'active' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('active')}
+                            >
+                                Active Organizations
+                                <span className="tab-badge">{totalActiveCount}</span>
+                            </button>
+                            <button
+                                type="button"
+                                className={`tab-btn ${activeTab === 'draft' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('draft')}
+                            >
+                                Draft Organizations
+                                <span className={`tab-badge ${totalDraftCount > 0 ? 'badge-amber pulse' : ''}`}>
+                                    {totalDraftCount}
+                                </span>
+                            </button>
+                        </div>
+
+                        {/* Search Box */}
+                        <div style={{ minWidth: '240px', maxWidth: '360px', flex: 1 }}>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="🔍 Search organizations by name, branch, pan..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                style={{
+                                    padding: '8px 14px',
+                                    borderRadius: '8px',
+                                    border: '1px solid #cbd5e1',
+                                    fontSize: '13px',
+                                    width: '100%',
+                                    outline: 'none',
+                                    backgroundColor: '#ffffff'
+                                }}
+                            />
+                        </div>
                     </div>
 
                     {/* Tab Content */}
                     {loading ? (
-                        <div className="loading-container">Loading organization list...</div>
+                        <div className="loading-container" style={{ padding: '60px 20px', textAlign: 'center', color: '#64748b' }}>
+                            <div className="spinner-border text-primary mb-2" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                            <div>Loading organizations...</div>
+                        </div>
                     ) : activeTab === 'active' ? (
                         /* Active Organizations View */
                         <div className="role-list-container">
                             {activeOrganizations.length === 0 ? (
-                                <div className="empty-container">No active organizations found.</div>
+                                <div className="empty-container" style={{ padding: '48px 20px', textAlign: 'center', background: '#ffffff', borderRadius: '12px', border: '1px dashed #cbd5e1' }}>
+                                    <div style={{ fontSize: '42px', marginBottom: '12px' }}>🏢</div>
+                                    <div style={{ fontSize: '16px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                                        No Active Organizations Found
+                                    </div>
+                                    {totalDraftCount > 0 ? (
+                                        <div style={{ marginTop: '10px' }}>
+                                            <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '16px' }}>
+                                                There {totalDraftCount === 1 ? 'is' : 'are'} <strong>{totalDraftCount}</strong> draft organization{totalDraftCount > 1 ? 's' : ''} awaiting approval.
+                                            </p>
+                                            <button
+                                                type="button"
+                                                className="btn-primary"
+                                                style={{ padding: '8px 18px', fontSize: '14px', borderRadius: '8px', cursor: 'pointer' }}
+                                                onClick={() => setActiveTab('draft')}
+                                            >
+                                                View Draft Organizations ({totalDraftCount})
+                                            </button>
+                                        </div>
+                                    ) : (
+                                        <p style={{ color: '#64748b', fontSize: '14px', margin: 0 }}>
+                                            {searchQuery ? 'No organizations match your search query.' : 'There are currently no active organizations registered.'}
+                                        </p>
+                                    )}
+                                </div>
                             ) : (
                                 activeOrganizations.map((org) => {
-                                    const initials = org.organizationName
-                                        ? org.organizationName
-                                            .split(' ')
-                                            .map((word) => word[0])
-                                            .join('')
-                                            .substring(0, 2)
-                                            .toUpperCase()
-                                        : 'ORG';
+                                    const initials = getInitials(org.organizationName);
 
                                     return (
                                         <div className="role-item-card" key={org.id}>
@@ -205,6 +350,12 @@ export const OrganizationManagement: React.FC = () => {
                                                             <span>Phone: {org.organizationContactNumber}</span>
                                                         </>
                                                     )}
+                                                    {org.organizationEmail && (
+                                                        <>
+                                                            <span>•</span>
+                                                            <span>Email: {org.organizationEmail}</span>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -217,11 +368,7 @@ export const OrganizationManagement: React.FC = () => {
 
                                                 <div style={{ textAlign: 'right', fontSize: '12px', color: '#64748b' }}>
                                                     <div>By: <strong>{org.createdBy || 'System'}</strong></div>
-                                                    <div>
-                                                        {org.createdAt
-                                                            ? new Date(org.createdAt).toLocaleDateString()
-                                                            : 'N/A'}
-                                                    </div>
+                                                    <div>{formatDate(org.createdAt)}</div>
                                                 </div>
                                             </div>
                                         </div>

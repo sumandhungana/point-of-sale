@@ -81,7 +81,7 @@ const navItems: NavItem[] = [
 			// { title: 'Backup', path: '/settings/backup', icon: '💾' },
 			// { title: 'Recycle Bin', path: '/settings/recycle-bin', icon: '🗑️' },
 			{ title: 'Role & Permission', path: '/role', icon: '🔒', module: 'roleAndPermissions' },
-			{ title: 'App Setting', path: '/app-settings', icon: '⚙️' },
+			{ title: 'App Setting', path: '/app-settings', icon: '⚙️', module: 'appSettings' },
 			// { title: 'Bills & Print Selling', path: '/bills-and-print-selling', icon: '📄' },
 			{ title: 'Business Setting', path: '/settings/business', icon: '🏢' },
 			{ title: 'Dashboard Setting', path: '/settings/dashboard', icon: '📊' },

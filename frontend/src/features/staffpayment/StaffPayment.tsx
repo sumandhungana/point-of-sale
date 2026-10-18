@@ -115,7 +115,7 @@ export const StaffPayment: React.FC = () => {
         void fetchPayments();
         void fetchStaffDetails();
         void fetchAttendances();
-    }, [fetchPayments, fetchStaffDetails, fetchAttendances]);
+    }, [staffId, canViewAttendance]);
 
     // Helpers to lookup attendance
     const getAttendanceForDate = useCallback((date: Date): StaffAttendanceRecord | undefined => {

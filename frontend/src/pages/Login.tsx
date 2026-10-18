@@ -3,6 +3,7 @@ import { useAuth } from '@/core/auth/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { apiService } from '@/infrastructure/utils/ApiService';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import { RegistrationModal } from './RegistrationModal';
 import logo from '../assets/logo.png';
 import '../styles/Login.css';
@@ -46,6 +47,7 @@ interface UserRegistrationUcResponse {
 
 export const Login = () => {
   const { login, isAuthenticated } = useAuth();
+  const { settings, refreshSettings } = useAppSettings(); // Added fetchSettings here
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState<FieldType>({
@@ -106,14 +108,21 @@ export const Login = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
 
     try {
+      // 1. Perform login to authenticate and store token
       await login(formData.username, formData.password);
+
+      // 2. Fetch app settings using the active authentication session before navigating
+      if (typeof await refreshSettings() === 'function') {
+        await refreshSettings();
+      }
+
+      // 3. Navigate to dashboard with both auth and settings ready
       navigate('/dashboard');
     } catch (err) {
       setError('Invalid username or password');
@@ -230,9 +239,12 @@ export const Login = () => {
   };
 
   return (
-      <div className="login-container">
+      <div
+        className="login-container"
+        style={settings.loginBgPath ? { backgroundImage: `url(${settings.loginBgPath})`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined}
+      >
         <div className="login-card login-centered">
-          <img src={logo} alt="Logo" className="login-logo-image" />
+          <img src={settings.logoPath || logo} alt={'Logo'} className="login-logo-image" />
           <h2 className="login-title">Admin Login</h2>
 
           <form onSubmit={handleSubmit} className="login-form">

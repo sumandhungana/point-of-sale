@@ -15,7 +15,7 @@ export class ApiService {
     private baseUrl: string =
         (typeof process !== 'undefined' && process.env?.REACT_APP_API_BASE_URL) ||
         (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) ||
-        'http://localhost:8080';
+        'http://160.22.164.212';
     // Helper method to append query parameters to endpoint string
     private buildUrlWithParams(endpoint: string, params?: Record<string, any>): string {
         if (!params || Object.keys(params).length === 0) {
@@ -75,8 +75,16 @@ export class ApiService {
         }
     }
 
+    // Track in-flight GET requests to eliminate duplicate simultaneous calls
+    private inFlightGetRequests = new Map<string, Promise<ApiResponse<any>>>();
+
     async get<T>(endpoint: string, options: ApiOptions = {}): Promise<ApiResponse<T>> {
-        return this.request<T>(endpoint, {
+        const cacheKey = this.buildUrlWithParams(endpoint, options.params);
+        if (this.inFlightGetRequests.has(cacheKey)) {
+            return this.inFlightGetRequests.get(cacheKey)! as Promise<ApiResponse<T>>;
+        }
+
+        const requestPromise = this.request<T>(endpoint, {
             ...options,
             method: 'GET'
         })
@@ -89,7 +97,13 @@ export class ApiService {
                 success: false,
                 failure: true,
                 error: `Network Error: ${error?.message || String(error)}`
-            }));
+            }))
+            .finally(() => {
+                this.inFlightGetRequests.delete(cacheKey);
+            });
+
+        this.inFlightGetRequests.set(cacheKey, requestPromise);
+        return requestPromise;
     }
 
     async post<T>(endpoint: string, body: any, options: ApiOptions = {}): Promise<ApiResponse<T>> {

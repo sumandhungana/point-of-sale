@@ -10,7 +10,6 @@ public record AddUserUCRequest(
         String password,
         String phoneNumber,
         String role,
-        Boolean enable,
-        Long memberId
+        Boolean enable
 ) implements UCRequest {
 }

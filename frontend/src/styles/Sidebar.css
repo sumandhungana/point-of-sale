@@ -15,10 +15,8 @@
     /*);*/
     background: linear-gradient(
             180deg,
-            #010A2E 0%,
-            #06164A 40%,
-            #102F78 70%,
-            #8F1118 100%
+            var(--side-menu-bg-color, #010A2E) 0%,
+            var(--side-menu-bg-end-color, #06164A) 100%
     );
     overflow-y: auto;
     overflow-x: hidden;
@@ -27,7 +25,7 @@
     font-family: "Inter", "SF Pro Text", "Segoe UI", Roboto, Arial, sans-serif;
     transition: transform 0.3s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     box-sizing: border-box;
-    color: #ffffff !important;
+    color: var(--side-menu-font-color, #ffffff) !important;
 }
 
 /* Scrollbar Customization */

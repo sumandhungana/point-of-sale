@@ -6,8 +6,8 @@ import com.puff.tech.onboarding.repository.MemberEntity;
 import com.puff.tech.onboarding.repository.UserInfoEntity;
 import com.puff.tech.payment.repository.PaymentEntity;
 import com.puff.tech.payment.repository.PaymentRepository;
+import com.puff.tech.rentalitem.repository.RentalItemEntity;
 import com.puff.tech.security.UseCaseContext;
-import com.puff.tech.entity.RentalEntity;
 import com.puff.tech.staffmanagement.repository.OrganizationStaffEntity;
 import com.puff.tech.suppliermanagement.repository.SupplierEntity;
 import jakarta.inject.Singleton;
@@ -83,8 +83,8 @@ public class AddPaymentUC implements MonoUC<AddPaymentUCRequest, AddPaymentUCRes
 
             case RENTAL -> {
                 if (request.rentalId() != null) {
-                    RentalEntity rental = new RentalEntity();
-                    rental.setId(Math.toIntExact(request.rentalId()));
+                    RentalItemEntity rental = new RentalItemEntity();
+                    rental.setId(request.rentalId());
                     entity.setRental(rental);
                 }
             }

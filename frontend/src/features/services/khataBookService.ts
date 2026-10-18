@@ -178,6 +178,14 @@ const hideFullPageLoader = () => {
   }
 };
 
+// In-memory cache for selected KhataBook with 60s TTL
+let selectedKhataBookCache: { data: UserBasedAllMember; timestamp: number } | null = null;
+const SELECTED_KHATABOOK_TTL_MS = 60000;
+
+export const invalidateSelectedKhataBookCache = (): void => {
+  selectedKhataBookCache = null;
+};
+
 export async function switchKhataBook(memberId: number, refMember: number) {
   showFullPageLoader();
   let refMemberId = refMember == null ? 0 : refMember
@@ -206,6 +214,7 @@ export async function switchKhataBook(memberId: number, refMember: number) {
       localStorage.removeItem('authToken');
       localStorage.setItem('authToken', newToken);
     }
+    invalidateSelectedKhataBookCache();
     window.location.reload();
     return res?.response?.data;
   } catch (error) {
@@ -215,9 +224,13 @@ export async function switchKhataBook(memberId: number, refMember: number) {
   }
 }
 
-export async function getSelectedKhataBook() {
-  try {
+export async function getSelectedKhataBook(forceRefresh: boolean = false): Promise<UserBasedAllMember> {
+  const now = Date.now();
+  if (!forceRefresh && selectedKhataBookCache && now - selectedKhataBookCache.timestamp < SELECTED_KHATABOOK_TTL_MS) {
+    return selectedKhataBookCache.data;
+  }
 
+  try {
     const res = await apiService.get<RestResponse<UserBasedAllMember>>(
         'api/v1/member/selected-member',
         {
@@ -238,6 +251,7 @@ export async function getSelectedKhataBook() {
       throw new Error('Selected KhataBook is null or undefined');
     }
 
+    selectedKhataBookCache = { data: selectedKhataBook, timestamp: Date.now() };
     return selectedKhataBook;
   } catch (error) {
     console.error('Error getting selected KhataBook:', error);

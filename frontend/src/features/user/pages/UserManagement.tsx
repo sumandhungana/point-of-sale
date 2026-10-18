@@ -46,9 +46,8 @@ export const UserManagement: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [phoneNumber, setPhoneNumber] = useState<string>('');
     const [roleId, setRoleId] = useState<number | string>('');
-    const [selectedMemberId, setSelectedMemberId] = useState<number | ''>('');
     const [status, setStatus] = useState<boolean>(true); // true = ACTIVE, false = INACTIVE
-    
+
     // Expandable Password Form State
     const [isPasswordExpanded, setIsPasswordExpanded] = useState<boolean>(true);
     const [password, setPassword] = useState<string>('');
@@ -93,13 +92,6 @@ export const UserManagement: React.FC = () => {
         setEmail('');
         setPhoneNumber('');
         setRoleId(availableRoles.length > 0 ? availableRoles[0].id : '');
-        setSelectedMemberId(
-            selectedOrgFilter !== ''
-                ? selectedOrgFilter
-                : organizations.length > 0
-                ? organizations[0].id
-                : ''
-        );
         setStatus(true); // Default to ACTIVE
         setPassword('');
         setConfirmPassword('');
@@ -117,7 +109,6 @@ export const UserManagement: React.FC = () => {
         setPhoneNumber(user.phoneNumber || '');
         const matchedRole = availableRoles.find((r) => r.name === user.role || String(r.id) === String(user.role));
         setRoleId(matchedRole ? matchedRole.id : user.role);
-        setSelectedMemberId(user.memberId || (selectedOrgFilter !== '' ? selectedOrgFilter : ''));
         setStatus(user.isActive);
         setPassword('');
         setConfirmPassword('');
@@ -157,11 +148,6 @@ export const UserManagement: React.FC = () => {
         e.preventDefault();
         setError('');
 
-        if (!selectedMemberId) {
-            setError('Please select a Member / Organization for this user.');
-            toast.error('Please select a Member / Organization.');
-            return;
-        }
 
         if (!userName.trim()) {
             setError('Username is required.');
@@ -207,7 +193,6 @@ export const UserManagement: React.FC = () => {
             role: String(roleId),
             enable: status,
             password: password.trim(),
-            memberId: Number(selectedMemberId),
         };
 
         try {
@@ -403,30 +388,7 @@ export const UserManagement: React.FC = () => {
                     <form onSubmit={handleSubmitUser} className="modal-form-wrapper">
                         <div className="modal-body custom-scroll">
                             <div className="form-section">
-                                {/* Member / Organization Selection */}
-                                <div className="form-group">
-                                    <label className="form-label">
-                                        Member Organization <span className="required-star">*</span>
-                                    </label>
-                                    <select
-                                        className="form-input"
-                                        value={selectedMemberId}
-                                        onChange={(e) => setSelectedMemberId(Number(e.target.value))}
-                                        required
-                                    >
-                                        <option value="" disabled>Select Member Organization...</option>
-                                        {organizations.map((org) => (
-                                            <option key={org.id} value={org.id}>
-                                                🏢 {org.organizationName} (#{org.id}){org.branch ? ` - ${org.branch}` : ''}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <small className="form-helper-text">
-                                        User account will be stored and linked on the basis of this member.
-                                    </small>
-                                </div>
-
-                                {/* Username */}
+                            
                                 <div className="form-group">
                                     <label className="form-label">
                                         Username <span className="required-star">*</span>

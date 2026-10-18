@@ -62,30 +62,8 @@ export const RentalStatement: React.FC = () => {
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [modeFilter, setModeFilter] = useState<string>('ALL');
 
-  // Load rental item if not in location.state
-  const loadRentalItem = useCallback(async () => {
-    if (rentalItem && rentalItem.id === rentalId) return;
-
-    setLoading(true);
-    setError(null);
-    try {
-      const items = await fetchRental();
-      const found = (items || []).find((item) => Number(item.id) === rentalId);
-      if (found) {
-        setRentalItem(found);
-      } else {
-        setError(`Rental item with ID #${rentalId} not found.`);
-      }
-    } catch (err) {
-      console.error('Failed to fetch rental item:', err);
-      setError('Unable to load rental item details.');
-    } finally {
-      setLoading(false);
-    }
-  }, [rentalId, rentalItem]);
-
   // Refresh payments and balances from backend API (with instant cache fallback)
-  const refreshTransactions = useCallback(async () => {
+  const refreshTransactions = useCallback(async (forceRefresh = false) => {
     if (!rentalId) return;
 
     // 1. Immediately populate from local cache if present
@@ -96,9 +74,9 @@ export const RentalStatement: React.FC = () => {
       setSummary(getRentalSummary(rentalId, rentalAmount, cached));
     }
 
-    // 2. Fetch fresh payment data from the shared backend payments table
+    // 2. Fetch payment data from the shared backend payments table
     try {
-      const freshPayments = await fetchRentalPaymentsApi(rentalId);
+      const freshPayments = await fetchRentalPaymentsApi(rentalId, forceRefresh);
       setPayments(freshPayments);
       const rentalAmount = rentalItem?.rentalAmount || 0;
       setSummary(getRentalSummary(rentalId, rentalAmount, freshPayments));
@@ -108,14 +86,62 @@ export const RentalStatement: React.FC = () => {
   }, [rentalId, rentalItem?.rentalAmount]);
 
   useEffect(() => {
-    loadRentalItem();
-  }, [loadRentalItem]);
+    let isCancelled = false;
 
-  useEffect(() => {
-    if (rentalItem) {
-      refreshTransactions();
-    }
-  }, [rentalItem, refreshTransactions]);
+    const initData = async () => {
+      let currentItem = rentalItem;
+
+      // 1. Fetch item info only if not already loaded in state
+      if (!currentItem || currentItem.id !== rentalId) {
+        setLoading(true);
+        setError(null);
+        try {
+          const items = await fetchRental();
+          if (isCancelled) return;
+          const found = (items || []).find((item) => Number(item.id) === rentalId);
+          if (found) {
+            setRentalItem(found);
+            currentItem = found;
+          } else {
+            setError(`Rental item with ID #${rentalId} not found.`);
+          }
+        } catch (err) {
+          if (isCancelled) return;
+          console.error('Failed to fetch rental item:', err);
+          setError('Unable to load rental item details.');
+        } finally {
+          if (!isCancelled) setLoading(false);
+        }
+      }
+
+      // 2. Fetch payments once for this rental ID
+      if (rentalId && !isCancelled) {
+        // Fast populate from local cache if available
+        const cached = getRentalPayments(rentalId);
+        if (cached && cached.length > 0) {
+          setPayments(cached);
+          const amt = currentItem?.rentalAmount || 0;
+          setSummary(getRentalSummary(rentalId, amt, cached));
+        }
+
+        try {
+          const freshPayments = await fetchRentalPaymentsApi(rentalId);
+          if (isCancelled) return;
+          setPayments(freshPayments);
+          const amt = currentItem?.rentalAmount || 0;
+          setSummary(getRentalSummary(rentalId, amt, freshPayments));
+        } catch (err) {
+          console.error('Failed to load rental payments:', err);
+        }
+      }
+    };
+
+    initData();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [rentalId]);
 
   // Calculate rental status
   const getRentalStatus = (item: RentalItemDto | null): string => {

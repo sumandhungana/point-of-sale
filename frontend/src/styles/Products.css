@@ -158,6 +158,8 @@
     margin-bottom: 20px;
     box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
     border: 1px solid #f1f5f9;
+    box-sizing: border-box;
+    width: 100%;
 }
 
 .filter-controls-grid {
@@ -165,12 +167,16 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .search-input-wrapper {
     position: relative;
-    flex: 1 1 280px;
+    flex: 1 1 300px;
     min-width: 220px;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .search-icon {
@@ -179,24 +185,59 @@
     top: 50%;
     transform: translateY(-50%);
     color: #64748b;
-    font-size: 14px;
+    font-size: 15px;
     pointer-events: none;
+    z-index: 2;
 }
 
 .search-input {
-    padding-left: 38px !important;
-    height: 40px;
+    padding-left: 40px !important;
+    padding-right: 36px !important;
+    height: 42px;
     border-radius: 8px;
     border: 1px solid #cbd5e1;
     font-size: 14px;
     width: 100%;
     box-sizing: border-box;
     outline: none;
-    transition: border-color 0.2s ease;
+    background-color: #ffffff;
+    color: #0f172a;
+    transition: all 0.2s ease;
 }
 
 .search-input:focus {
     border-color: #255DCE;
+    box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12);
+}
+
+.search-input::placeholder {
+    color: #94a3b8;
+    font-size: 13.5px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.search-clear-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s ease;
+    z-index: 2;
+}
+
+.search-clear-btn:hover {
+    color: #DE1110;
 }
 
 .form-group-inline {
@@ -477,6 +518,16 @@
     .stat-value {
         font-size: 1.15rem;
     }
+
+    .filter-controls-grid {
+        gap: 12px;
+    }
+
+    .search-input-wrapper {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 100%;
+    }
 }
 
 /* Tablets & Mobile Screens (<= 768px) */
@@ -501,36 +552,74 @@
     }
 
     .filter-controls-card {
-        padding: 12px 14px;
+        padding: 14px 14px;
         margin-bottom: 16px;
+        border-radius: 12px;
     }
 
     .filter-controls-grid {
+        display: flex;
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
+        gap: 12px;
+        width: 100%;
+        box-sizing: border-box;
     }
 
     .search-input-wrapper {
-        width: 100%;
-        min-width: 100%;
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex: 0 0 auto !important;
+        box-sizing: border-box !important;
+    }
+
+    .search-input {
+        width: 100% !important;
+        height: 44px !important;
+        padding-left: 42px !important;
+        padding-right: 38px !important;
+        font-size: 15px !important;
+        border-radius: 10px !important;
+        box-sizing: border-box !important;
+    }
+
+    .search-icon {
+        left: 14px !important;
+        font-size: 16px !important;
     }
 
     .form-group-inline {
+        display: flex;
         flex-direction: row;
+        align-items: center;
         justify-content: space-between;
         width: 100%;
+        gap: 10px;
+        box-sizing: border-box;
+    }
+
+    .form-group-inline label {
+        min-width: 45px;
+        font-size: 13px;
+        margin: 0;
+        flex-shrink: 0;
     }
 
     .form-group-inline .form-control {
-        flex: 1;
-        width: auto;
-        min-width: unset;
+        flex: 1 1 auto;
+        width: 100%;
+        min-width: 0;
+        height: 42px;
+        border-radius: 8px;
+        box-sizing: border-box;
     }
 
     .btn-secondary {
         width: 100%;
+        height: 42px;
         justify-content: center;
+        box-sizing: border-box;
     }
 
     .user-table td,
@@ -579,7 +668,61 @@
     }
 
     .filter-controls-card {
-        padding: 10px 12px;
+        padding: 12px 10px;
+        border-radius: 10px;
+    }
+
+    .filter-controls-grid {
+        gap: 10px;
+    }
+
+    .search-input-wrapper {
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+        flex: 0 0 auto !important;
+        box-sizing: border-box !important;
+    }
+
+    .search-input {
+        width: 100% !important;
+        height: 42px !important;
+        padding-left: 38px !important;
+        padding-right: 34px !important;
+        font-size: 14px !important;
+        border-radius: 8px !important;
+        box-sizing: border-box !important;
+    }
+
+    .search-icon {
+        left: 12px !important;
+        font-size: 15px !important;
+    }
+
+    .search-input::placeholder {
+        font-size: 13px !important;
+    }
+
+    .form-group-inline {
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-group-inline label {
+        min-width: 40px;
+        font-size: 12px;
+    }
+
+    .form-group-inline .form-control {
+        height: 40px;
+        font-size: 13px;
+        padding: 0 8px;
+    }
+
+    .btn-secondary {
+        height: 40px;
+        font-size: 13px;
     }
 
     .user-table {

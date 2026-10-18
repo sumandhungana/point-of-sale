@@ -1,8 +1,6 @@
-import {apiService} from "@/infrastructure/utils/ApiService";
-import {toast} from "react-toastify";
-import error = toast.error;
+import { apiService } from "@/infrastructure/utils/ApiService";
 
-export interface CreateOrganization{
+export interface CreateOrganization {
     userName: string;
     phoneNumber: string;
     gmail: string;
@@ -18,8 +16,8 @@ export interface CreateOrganization{
     role: string;
 }
 
-export interface GetAllMember{
-    id:number;
+export interface GetAllMember {
+    id: number;
     referenceMemberId: number;
     organizationName: string;
     panVatNumber: string;
@@ -42,13 +40,13 @@ export interface GetAllMember{
 }
 
 
-interface RestResponse<T>{
-    code:number;
-    message :string;
+interface RestResponse<T> {
+    code: number;
+    message: string;
     data: T
 }
 
-export interface CreateOrganizationResponse{
+export interface CreateOrganizationResponse {
     userId?: number;
     gmail?: string;
     userName?: string;
@@ -58,8 +56,8 @@ export interface CreateOrganizationResponse{
     errorMessage?: string;
 }
 
-export async function createOrganization(formData: CreateOrganization): Promise<CreateOrganizationResponse | undefined>{
-    const res= await apiService.post<RestResponse<CreateOrganizationResponse>>(
+export async function createOrganization(formData: CreateOrganization): Promise<CreateOrganizationResponse | undefined> {
+    const res = await apiService.post<RestResponse<CreateOrganizationResponse>>(
         'api/v1/member/organization-register',
         formData,
         {
@@ -69,17 +67,15 @@ export async function createOrganization(formData: CreateOrganization): Promise<
         }
     );
 
-    if(res?.response?.code === 0 && res?.response?.message === 'SUCCESS') {
+    if (res?.response?.code === 0 && res?.response?.message === 'SUCCESS') {
         invalidateOrganizationCache();
-        return  res.response.data;
+        return res.response.data;
     }
-    throw  new Error("Unable to Register Organization")
+    throw new Error("Unable to Register Organization")
 };
 
 
 
-
-import { isCurrentSuperAdmin } from '@/core/rbac/usePermission';
 
 let orgListCache: { data: GetAllMember[]; timestamp: number } | null = null;
 const ORG_CACHE_TTL = 15000; // 15 seconds
@@ -89,20 +85,20 @@ export const invalidateOrganizationCache = (): void => {
 };
 
 export async function getAllOrganization(forceRefresh = false): Promise<GetAllMember[]> {
-    // 1. Strict Role-Based Execution: Only authenticated Super Admin can trigger organization-list
-    if (!isCurrentSuperAdmin()) {
-        console.warn('getAllOrganization skipped: current user is not a Super Admin');
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        console.warn('getAllOrganization skipped: no auth token found');
         return [];
     }
 
-    // 2. Prevent duplicate requests: Return cached data if fresh
+    // Prevent duplicate requests: Return cached data if fresh and forceRefresh is false
     const now = Date.now();
     if (!forceRefresh && orgListCache && now - orgListCache.timestamp < ORG_CACHE_TTL) {
         return orgListCache.data;
     }
 
     try {
-        const res = await apiService.get<RestResponse<GetAllMember[]>>(
+        const res = await apiService.get<RestResponse<GetAllMember[]> | GetAllMember[]>(
             'api/v1/member/organization-list',
             {
                 headers: {
@@ -111,12 +107,24 @@ export async function getAllOrganization(forceRefresh = false): Promise<GetAllMe
             }
         );
 
-        if (res.response?.code === -1 || (res.response?.message && res.response.message !== 'SUCCESS')) {
+        if (res.failure) {
             console.error('Failed to fetch organizations:', res.error);
             throw new Error(res.error || 'Failed to fetch organization');
         }
 
-        const data = res?.response?.data || [];
+        const resp: any = res.response;
+        if (resp && typeof resp === 'object' && 'code' in resp && resp.code === -1) {
+            console.error('Failed to fetch organizations:', resp.message);
+            throw new Error(resp.message || 'Failed to fetch organization');
+        }
+
+        let data: GetAllMember[] = [];
+        if (Array.isArray(resp)) {
+            data = resp;
+        } else if (resp && typeof resp === 'object' && Array.isArray(resp.data)) {
+            data = resp.data;
+        }
+
         orgListCache = { data, timestamp: now };
         return data;
     } catch (error) {

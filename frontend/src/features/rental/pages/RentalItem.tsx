@@ -29,40 +29,45 @@ export const RentalItem: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('');
   const [sort, setSort] = useState<string>('');
 
-  useEffect(() => {
-    const fetchRentalItemsList = async () => {
-      setLoading(true);
-      setError(null);
-      try {
-        const data = await fetchRental();
-        const items = data || [];
-        setRentalItems(items);
+  const loadRentalItems = async (forceRefresh: boolean = false) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchRental(forceRefresh);
+      const items = data || [];
+      setRentalItems(items);
 
-        // 1. Calculate initial totals from any existing cached payments
-        const initialSummary = getGlobalRentalSummary(items);
-        setTotalRentalAmount(initialSummary.totalAmount);
-        setTotalPaidAmount(initialSummary.totalPaid);
-        setTotalRemainingDue(initialSummary.remainingDue);
+      // 1. Calculate initial totals from any existing cached payments
+      const initialSummary = getGlobalRentalSummary(items);
+      setTotalRentalAmount(initialSummary.totalAmount);
+      setTotalPaidAmount(initialSummary.totalPaid);
+      setTotalRemainingDue(initialSummary.remainingDue);
 
-        // 2. Sync all payment records from backend API so Paid data displays immediately
-        if (items.length > 0) {
-          const itemIds = items.map((item) => item.id);
-          const syncedMap = await syncAllRentalPayments(itemIds);
-          setPaymentsMap(syncedMap);
+      // 2. Sync all payment records from backend API so Paid data displays immediately
+      if (items.length > 0) {
+        const itemIds = items.map((item) => item.id);
+        const syncedMap = await syncAllRentalPayments(itemIds, forceRefresh);
+        setPaymentsMap(syncedMap);
 
-          const syncedSummary = getGlobalRentalSummary(items, syncedMap);
-          setTotalRentalAmount(syncedSummary.totalAmount);
-          setTotalPaidAmount(syncedSummary.totalPaid);
-          setTotalRemainingDue(syncedSummary.remainingDue);
-        }
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch rental items.');
-      } finally {
-        setLoading(false);
+        const syncedSummary = getGlobalRentalSummary(items, syncedMap);
+        setTotalRentalAmount(syncedSummary.totalAmount);
+        setTotalPaidAmount(syncedSummary.totalPaid);
+        setTotalRemainingDue(syncedSummary.remainingDue);
       }
-    };
-    fetchRentalItemsList();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch rental items.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRentalItems();
   }, []);
+
+  const handleRefresh = () => {
+    loadRentalItems(true);
+  };
 
   const getRentalStatus = (item: RentalItemDto): string => {
     const currentDate = new Date();
@@ -189,6 +194,15 @@ export const RentalItem: React.FC = () => {
                   <option value="date_asc">Rental Start (Oldest)</option>
                 </select>
               </div>
+              <button
+                type="button"
+                className="rental-item-reminder-button"
+                onClick={handleRefresh}
+                title="Refresh Rental Items"
+              >
+                <i className="bi bi-arrow-clockwise"></i>
+                Refresh
+              </button>
               <button className="rental-item-reminder-button" onClick={() => alert('Reminders feature coming soon!')}>
                 <i className="bi bi-alarm"></i>
                 Reminder

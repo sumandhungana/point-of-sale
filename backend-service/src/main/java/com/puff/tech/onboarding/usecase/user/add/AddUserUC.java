@@ -60,14 +60,13 @@ public class AddUserUC implements MonoUC<AddUserUCRequest, AddUserUCResponse> {
                 .filter(req -> req.password() != null && !req.password().isBlank())
                 .switchIfEmpty(Mono.error(new IllegalArgumentException("Password is required")))
                 .flatMap(validReq -> {
-                    Long targetMemberId = validReq.memberId() != null ? validReq.memberId() : contextMemberId;
-                    if (targetMemberId == null) {
+                    if (contextMemberId == null) {
                         return Mono.error(new IllegalArgumentException("Member ID is required to enroll user"));
                     }
 
                     // 1. Verify Member exists
-                    return Mono.from(memberRepository.findById(targetMemberId))
-                            .switchIfEmpty(Mono.error(new IllegalArgumentException("Organization / Member not found with id: " + targetMemberId)))
+                    return Mono.from(memberRepository.findById(contextMemberId))
+                            .switchIfEmpty(Mono.error(new IllegalArgumentException("Organization / Member not found with id: " + contextMemberId)))
                             .flatMap(member -> {
                                 // 2. Resolve Role
                                 Mono<UserRoleEntity> roleMono;

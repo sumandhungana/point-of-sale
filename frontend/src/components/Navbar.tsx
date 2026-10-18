@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/core/auth/AuthContext';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import { useNavigate } from 'react-router-dom';
 import logo from '../assets/logo.png';
 import {
@@ -50,6 +51,7 @@ const Navbar: React.FC = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notifDropdownRef = useRef<HTMLDivElement>(null);
   const { logout, user } = useAuth();
+  const { settings } = useAppSettings();
   const navigate = useNavigate();
 
   // Load live notifications
@@ -192,8 +194,8 @@ const Navbar: React.FC = () => {
           onClick={() => navigate('/')}
         >
           <img
-            src={logo}
-            alt="Khatabook"
+            src={settings.logoPath || logo}
+            alt={'Khatabook'}
             className="navbar-logo-img"
           />
         </div>
