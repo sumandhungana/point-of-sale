@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Module {
     DASHBOARD("dashboard", "Dashboard Management"),
-    SYSTEM_METRICS("systemMetrics", "System Metrices Managament"),
+    SYSTEM_METRICS("systemMetrics", "System Metrics Management"),
     USER("user", "User Management"),
     CUSTOMER("customer", "Customer Management"),
     SUPPLIER("supplier", "Supplier Management"),

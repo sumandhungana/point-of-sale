@@ -518,6 +518,104 @@ button.staff-payment-calendar-date {
 
 
 /* =========================================
+   ATTENDANCE STATUS DATES & LEGEND
+========================================= */
+
+.staff-payment-calendar-date.attendance-present {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+.staff-payment-calendar-date.attendance-half_day,
+.staff-payment-calendar-date.attendance-half-day {
+  background-color: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
+}
+
+.staff-payment-calendar-date.attendance-absent {
+  background-color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+.staff-payment-calendar-date.attendance-leave {
+  background-color: #6366f1 !important;
+  border-color: #6366f1 !important;
+  color: #ffffff !important;
+}
+
+/* Hover on attendance marked dates */
+.staff-payment-calendar-date.attendance-present:hover {
+  background-color: #047857 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+
+.staff-payment-calendar-date.attendance-half_day:hover,
+.staff-payment-calendar-date.attendance-half-day:hover {
+  background-color: #b45309 !important;
+  border-color: #b45309 !important;
+  color: #ffffff !important;
+}
+
+.staff-payment-calendar-date.attendance-absent:hover {
+  background-color: #b91c1c !important;
+  border-color: #b91c1c !important;
+  color: #ffffff !important;
+}
+
+.staff-payment-calendar-date.attendance-leave:hover {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+/* Selected state for attendance-marked dates: keep status background but show distinct selection ring */
+.staff-payment-calendar-date.staff-payment-selected-date[data-has-attendance="true"] {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4.5px #255DCE, 0 4px 10px rgba(0, 0, 0, 0.25) !important;
+  transform: scale(1.05);
+  z-index: 2;
+}
+
+.staff-payment-calendar-date.staff-payment-selected-date[data-has-attendance="true"]:hover {
+  filter: brightness(0.93);
+}
+
+/* Calendar Legend */
+.staff-payment-calendar-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  margin-top: 0.85rem;
+  padding: 0.55rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.staff-payment-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.staff-payment-legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+
+/* =========================================
    ATTENDANCE SECTION
 ========================================= */
 
@@ -1863,5 +1961,21 @@ button.staff-payment-calendar-date {
     min-height: 32px;
     padding: 0.35rem 0.45rem;
     font-size: 0.68rem;
+  }
+
+  .staff-payment-calendar-legend {
+    gap: 0.5rem;
+    padding: 0.4rem 0.5rem;
+    margin-top: 0.6rem;
+  }
+
+  .staff-payment-legend-item {
+    font-size: 0.7rem;
+    gap: 0.3rem;
+  }
+
+  .staff-payment-legend-color {
+    width: 9px;
+    height: 9px;
   }
 }

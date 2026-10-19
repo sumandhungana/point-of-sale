@@ -27,7 +27,6 @@ public class GetStaffAttendanceByStaffIdUC implements FluxUC<GetStaffAttendanceB
                 .switchIfEmpty(reactor.core.publisher.Mono.error(
                         new RuntimeException("Staff attendance not found")
                 ))
-                .flux()
                 .map(this::toResponse);
 
     }

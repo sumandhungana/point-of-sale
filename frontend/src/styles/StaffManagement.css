@@ -181,10 +181,10 @@
   letter-spacing: 0.4px;
 }
 
-.present { color: #2563eb; }
-.absent  { color: #ef4444; }
-.halfday { color: #22b14c; }
-.leave   { color: #d63ba5; }
+.present { color: #059669; }
+.absent  { color: #dc2626; }
+.halfday { color: #d97706; }
+.leave   { color: #6366f1; }
 
 /* ==========================================================================
    Toolbar

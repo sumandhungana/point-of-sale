@@ -10,7 +10,10 @@ import {
     fetchStaffAttendanceByStaffId,
     recordStaffAttendance,
     StaffAttendanceRecord,
-    AttendanceStatusType
+    AttendanceStatusType,
+    ATTENDANCE_STATUS_LIST,
+    getAttendanceConfig,
+    isSameCalendarDay,
 } from '@/features/services/staffAttendanceService';
 import { usePermission } from '@/core/rbac/usePermission';
 import '../../styles/StaffPayment.css';
@@ -119,17 +122,12 @@ export const StaffPayment: React.FC = () => {
 
     // Helpers to lookup attendance
     const getAttendanceForDate = useCallback((date: Date): StaffAttendanceRecord | undefined => {
-        const targetStr = date.toDateString();
-        return attendanceList.find(
-            (a) => a.date && new Date(a.date).toDateString() === targetStr
-        );
+        return attendanceList.find((a) => isSameCalendarDay(date, a.date));
     }, [attendanceList]);
 
     const todayAttendance = useMemo(() => {
-        const todayStr = new Date().toDateString();
-        return attendanceList.find(
-            (a) => a.date && new Date(a.date).toDateString() === todayStr
-        );
+        const now = new Date();
+        return attendanceList.find((a) => isSameCalendarDay(now, a.date));
     }, [attendanceList]);
 
     // When selected date changes in calendar, sync the form inputs
@@ -147,19 +145,27 @@ export const StaffPayment: React.FC = () => {
         }
     }, [selectedDate, getAttendanceForDate]);
 
-    // Monthly attendance metrics
-    const monthlyStats = useMemo(() => {
-        const thisMonthRecords = attendanceList.filter((a) => {
+    // Helper to compute stats for any month/year
+    const computeStats = useCallback((targetMonth: number, targetYear: number) => {
+        const records = attendanceList.filter((a) => {
             if (!a.date) return false;
+            if (typeof a.date === 'string') {
+                const m = a.date.match(/^(\d{4})-(\d{2})/);
+                if (m) {
+                    const y = parseInt(m[1], 10);
+                    const mo = parseInt(m[2], 10) - 1;
+                    return y === targetYear && mo === targetMonth;
+                }
+            }
             const d = new Date(a.date);
-            return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            return !isNaN(d.getTime()) && d.getMonth() === targetMonth && d.getFullYear() === targetYear;
         });
 
-        const presentCount = thisMonthRecords.filter((a) => a.status === 'PRESENT').length;
-        const absentCount = thisMonthRecords.filter((a) => a.status === 'ABSENT').length;
-        const halfDayCount = thisMonthRecords.filter((a) => a.status === 'HALF_DAY').length;
-        const leaveCount = thisMonthRecords.filter((a) => a.status === 'LEAVE').length;
-        const totalLogged = thisMonthRecords.length;
+        const presentCount = records.filter((a) => a.status === 'PRESENT').length;
+        const absentCount = records.filter((a) => a.status === 'ABSENT').length;
+        const halfDayCount = records.filter((a) => a.status === 'HALF_DAY').length;
+        const leaveCount = records.filter((a) => a.status === 'LEAVE').length;
+        const totalLogged = records.length;
         const effectivePresent = presentCount + halfDayCount * 0.5;
         const percentage = totalLogged > 0 ? Math.round((effectivePresent / totalLogged) * 100) : 0;
 
@@ -171,7 +177,13 @@ export const StaffPayment: React.FC = () => {
             totalLogged,
             percentage,
         };
-    }, [attendanceList, currentMonth, currentYear]);
+    }, [attendanceList]);
+
+    // This Month summary stats (strictly for current calendar month)
+    const thisMonthStats = useMemo(() => {
+        const now = new Date();
+        return computeStats(now.getMonth(), now.getFullYear());
+    }, [computeStats]);
 
     // Save attendance for the selected date
     const handleSaveAttendance = async () => {
@@ -182,9 +194,14 @@ export const StaffPayment: React.FC = () => {
                 selectedStatus === 'halfDay' ? 'HALF_DAY' : selectedStatus.toUpperCase()
             ) as AttendanceStatusType;
 
+            const y = selectedDate.getFullYear();
+            const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+            const d = String(selectedDate.getDate()).padStart(2, '0');
+            const dateStr = `${y}-${m}-${d}T12:00:00.000Z`;
+
             const success = await recordStaffAttendance({
                 staffId,
-                date: selectedDate.toISOString(),
+                date: dateStr,
                 status: statusUpper,
                 note: attendanceNote,
             });
@@ -211,9 +228,15 @@ export const StaffPayment: React.FC = () => {
         if (!staffId) return;
         setIsSavingAttendance(true);
         try {
+            const today = new Date();
+            const y = today.getFullYear();
+            const m = String(today.getMonth() + 1).padStart(2, '0');
+            const d = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${y}-${m}-${d}T12:00:00.000Z`;
+
             const success = await recordStaffAttendance({
                 staffId,
-                date: new Date().toISOString(),
+                date: dateStr,
                 status,
             });
             if (success) {
@@ -456,33 +479,25 @@ export const StaffPayment: React.FC = () => {
                                     <span>Today:</span>
                                 </div>
                                 {todayAttendance ? (
-                                    <span
-                                        style={{
-                                            padding: '0.2rem 0.6rem',
-                                            borderRadius: '6px',
-                                            fontWeight: 700,
-                                            fontSize: '0.78rem',
-                                            letterSpacing: '0.3px',
-                                            background:
-                                                todayAttendance.status === 'PRESENT'
-                                                    ? '#d1fae5'
-                                                    : todayAttendance.status === 'ABSENT'
-                                                    ? '#fee2e2'
-                                                    : todayAttendance.status === 'HALF_DAY'
-                                                    ? '#fef3c7'
-                                                    : '#e0e7ff',
-                                            color:
-                                                todayAttendance.status === 'PRESENT'
-                                                    ? '#065f46'
-                                                    : todayAttendance.status === 'ABSENT'
-                                                    ? '#991b1b'
-                                                    : todayAttendance.status === 'HALF_DAY'
-                                                    ? '#92400e'
-                                                    : '#3730a3',
-                                        }}
-                                    >
-                                        {todayAttendance.status.replace('_', ' ')}
-                                    </span>
+                                    (() => {
+                                        const cfg = getAttendanceConfig(todayAttendance.status);
+                                        return (
+                                            <span
+                                                style={{
+                                                    padding: '0.2rem 0.6rem',
+                                                    borderRadius: '6px',
+                                                    fontWeight: 700,
+                                                    fontSize: '0.78rem',
+                                                    letterSpacing: '0.3px',
+                                                    background: cfg ? cfg.bgColor : '#e2e8f0',
+                                                    color: cfg ? cfg.darkColor : '#334155',
+                                                    border: cfg ? `1px solid ${cfg.color}40` : 'none',
+                                                }}
+                                            >
+                                                {cfg ? cfg.label : todayAttendance.status.replace('_', ' ')}
+                                            </span>
+                                        );
+                                    })()
                                 ) : (
                                     <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>
                                         Not recorded
@@ -492,24 +507,17 @@ export const StaffPayment: React.FC = () => {
                                 {/* Quick Action Buttons */}
                                 {canMarkAttendance && (
                                     <div className="staff-attendance-mark-btns">
-                                        {(
-                                            [
-                                                { status: 'PRESENT' as const, label: 'Present', color: '#059669', bg: '#ecfdf5' },
-                                                { status: 'HALF_DAY' as const, label: 'Half Day', color: '#d97706', bg: '#fffbeb' },
-                                                { status: 'ABSENT' as const, label: 'Absent', color: '#dc2626', bg: '#fef2f2' },
-                                                { status: 'LEAVE' as const, label: 'Leave', color: '#6366f1', bg: '#eef2ff' },
-                                            ]
-                                        ).map((btn) => (
+                                        {ATTENDANCE_STATUS_LIST.map((btn) => (
                                             <button
-                                                key={btn.status}
+                                                key={btn.key}
                                                 type="button"
                                                 disabled={isSavingAttendance}
-                                                onClick={() => void handleQuickMarkToday(btn.status)}
+                                                onClick={() => void handleQuickMarkToday(btn.key)}
                                                 className="staff-attendance-mark-btn"
                                                 style={{
                                                     border: `1px solid ${btn.color}40`,
-                                                    background: todayAttendance?.status === btn.status ? btn.color : btn.bg,
-                                                    color: todayAttendance?.status === btn.status ? '#ffffff' : btn.color,
+                                                    background: todayAttendance?.status === btn.key ? btn.color : btn.bgColor,
+                                                    color: todayAttendance?.status === btn.key ? btn.textColor : btn.color,
                                                 }}
                                             >
                                                 {btn.label}
@@ -522,22 +530,22 @@ export const StaffPayment: React.FC = () => {
                             {/* Monthly summary pill tags */}
                             <div className="staff-attendance-monthly-stats">
                                 <span style={{ color: '#64748b', fontWeight: 600 }}>This Month:</span>
-                                <span style={{ color: '#059669', fontWeight: 700 }}>
-                                    <i className="bi bi-check-circle-fill me-1" />
-                                    {monthlyStats.presentCount} Present
-                                </span>
-                                <span style={{ color: '#d97706', fontWeight: 700 }}>
-                                    <i className="bi bi-clock-fill me-1" />
-                                    {monthlyStats.halfDayCount} Half-day
-                                </span>
-                                <span style={{ color: '#dc2626', fontWeight: 700 }}>
-                                    <i className="bi bi-x-circle-fill me-1" />
-                                    {monthlyStats.absentCount} Absent
-                                </span>
-                                <span style={{ color: '#6366f1', fontWeight: 700 }}>
-                                    <i className="bi bi-calendar2-minus me-1" />
-                                    {monthlyStats.leaveCount} Leave
-                                </span>
+                                {ATTENDANCE_STATUS_LIST.map((statusItem) => {
+                                    const count =
+                                        statusItem.key === 'PRESENT'
+                                            ? thisMonthStats.presentCount
+                                            : statusItem.key === 'HALF_DAY'
+                                            ? thisMonthStats.halfDayCount
+                                            : statusItem.key === 'ABSENT'
+                                            ? thisMonthStats.absentCount
+                                            : thisMonthStats.leaveCount;
+                                    return (
+                                        <span key={statusItem.key} style={{ color: statusItem.color, fontWeight: 700 }}>
+                                            <i className={`bi ${statusItem.icon} me-1`} />
+                                            {count} {statusItem.label}
+                                        </span>
+                                    );
+                                })}
                                 <button
                                     type="button"
                                     onClick={() => setIsAttendanceOpen(true)}
@@ -786,50 +794,66 @@ export const StaffPayment: React.FC = () => {
                             ))}
 
                             {Array.from({ length: daysInMonth }).map((_, index) => {
-                                const date = new Date(currentYear, currentMonth, index + 1);
+                                const date = new Date(currentYear, currentMonth, index + 1, 12, 0, 0);
                                 const isSelected =
                                     selectedDate &&
                                     date.getDate() === selectedDate.getDate() &&
                                     date.getMonth() === selectedDate.getMonth() &&
                                     date.getFullYear() === selectedDate.getFullYear();
                                 const rec = getAttendanceForDate(date);
+                                const statusConfig = rec ? getAttendanceConfig(rec.status) : undefined;
 
-                                let dotColor: string | null = null;
-                                if (rec) {
-                                    if (rec.status === 'PRESENT') dotColor = '#10b981';
-                                    else if (rec.status === 'ABSENT') dotColor = '#ef4444';
-                                    else if (rec.status === 'HALF_DAY') dotColor = '#f59e0b';
-                                    else if (rec.status === 'LEAVE') dotColor = '#6366f1';
-                                }
+                                const dateClassName = [
+                                    'staff-payment-calendar-date',
+                                    statusConfig ? `attendance-${statusConfig.key.toLowerCase().replace('_', '-')}` : '',
+                                    isSelected ? 'staff-payment-selected-date' : '',
+                                ].filter(Boolean).join(' ');
 
                                 return (
                                     <button
                                         type="button"
                                         key={index + 1}
-                                        className={`staff-payment-calendar-date ${
-                                            isSelected ? 'staff-payment-selected-date' : ''
-                                        }`}
+                                        className={dateClassName}
+                                        data-has-attendance={statusConfig ? 'true' : 'false'}
+                                        data-status={statusConfig?.key || 'none'}
                                         onClick={() => setSelectedDate(date)}
-                                        style={{ position: 'relative' }}
+                                        title={
+                                            statusConfig
+                                                ? `${date.toLocaleDateString()}: ${statusConfig.label}${rec?.note ? ` (${rec.note})` : ''}`
+                                                : date.toLocaleDateString()
+                                        }
+                                        style={{
+                                            position: 'relative',
+                                            ...(statusConfig ? {
+                                                backgroundColor: statusConfig.color,
+                                                color: statusConfig.textColor,
+                                                borderColor: statusConfig.color,
+                                                fontWeight: 700,
+                                            } : {}),
+                                            ...(isSelected && statusConfig ? {
+                                                boxShadow: '0 0 0 2px #ffffff, 0 0 0 4.5px #255DCE, 0 4px 10px rgba(0, 0, 0, 0.25)',
+                                                transform: 'scale(1.05)',
+                                                zIndex: 2,
+                                            } : {}),
+                                        }}
                                     >
                                         <span>{index + 1}</span>
-                                        {dotColor && (
-                                            <span
-                                                style={{
-                                                    position: 'absolute',
-                                                    bottom: '3px',
-                                                    left: '50%',
-                                                    transform: 'translateX(-50%)',
-                                                    width: '6px',
-                                                    height: '6px',
-                                                    borderRadius: '50%',
-                                                    backgroundColor: isSelected ? '#ffffff' : dotColor,
-                                                }}
-                                            />
-                                        )}
                                     </button>
                                 );
                             })}
+                        </div>
+
+                        {/* Calendar Attendance Legend */}
+                        <div className="staff-payment-calendar-legend">
+                            {ATTENDANCE_STATUS_LIST.map((item) => (
+                                <span key={item.key} className="staff-payment-legend-item">
+                                    <span
+                                        className="staff-payment-legend-color"
+                                        style={{ backgroundColor: item.color }}
+                                    />
+                                    <span className="staff-payment-legend-label">{item.label}</span>
+                                </span>
+                            ))}
                         </div>
 
                         {/* Attendance Status Radios */}
@@ -840,61 +864,41 @@ export const StaffPayment: React.FC = () => {
                             </div>
 
                             <div className="staff-payment-attendance-status">
-                                <label className="staff-payment-status-item">
-                                    <input
-                                        type="radio"
-                                        name="attendance"
-                                        value="present"
-                                        checked={selectedStatus === 'present'}
-                                        onChange={(e) => setSelectedStatus(e.target.value)}
-                                        className="staff-payment-radio-button"
-                                    />
-                                    <span className="staff-payment-status-label">
-                                        <i className="bi bi-check-circle me-1"></i> Present
-                                    </span>
-                                </label>
-
-                                <label className="staff-payment-status-item">
-                                    <input
-                                        type="radio"
-                                        name="attendance"
-                                        value="absent"
-                                        checked={selectedStatus === 'absent'}
-                                        onChange={(e) => setSelectedStatus(e.target.value)}
-                                        className="staff-payment-radio-button"
-                                    />
-                                    <span className="staff-payment-status-label">
-                                        <i className="bi bi-x-circle me-1"></i> Absent
-                                    </span>
-                                </label>
-
-                                <label className="staff-payment-status-item">
-                                    <input
-                                        type="radio"
-                                        name="attendance"
-                                        value="halfDay"
-                                        checked={selectedStatus === 'halfDay'}
-                                        onChange={(e) => setSelectedStatus(e.target.value)}
-                                        className="staff-payment-radio-button"
-                                    />
-                                    <span className="staff-payment-status-label">
-                                        <i className="bi bi-clock me-1"></i> Half Day
-                                    </span>
-                                </label>
-
-                                <label className="staff-payment-status-item">
-                                    <input
-                                        type="radio"
-                                        name="attendance"
-                                        value="leave"
-                                        checked={selectedStatus === 'leave'}
-                                        onChange={(e) => setSelectedStatus(e.target.value)}
-                                        className="staff-payment-radio-button"
-                                    />
-                                    <span className="staff-payment-status-label">
-                                        <i className="bi bi-calendar-x me-1"></i> Leave
-                                    </span>
-                                </label>
+                                {ATTENDANCE_STATUS_LIST.map((item) => {
+                                    const isChecked = selectedStatus === item.radioValue;
+                                    return (
+                                        <label key={item.key} className="staff-payment-status-item">
+                                            <input
+                                                type="radio"
+                                                name="attendance"
+                                                value={item.radioValue}
+                                                checked={isChecked}
+                                                onChange={(e) => setSelectedStatus(e.target.value)}
+                                                className="staff-payment-radio-button"
+                                            />
+                                            <span
+                                                className={`staff-payment-status-label ${isChecked ? 'active' : ''}`}
+                                                style={
+                                                    isChecked
+                                                        ? {
+                                                              borderColor: item.color,
+                                                              background: item.bgColor,
+                                                              color: item.color,
+                                                              boxShadow: `0 0 0 2px ${item.color}30`,
+                                                              fontWeight: 700,
+                                                          }
+                                                        : undefined
+                                                }
+                                            >
+                                                <i
+                                                    className={`bi ${item.icon} me-1`}
+                                                    style={{ color: item.color }}
+                                                />
+                                                {item.label}
+                                            </span>
+                                        </label>
+                                    );
+                                })}
                             </div>
                         </div>
 
@@ -927,8 +931,19 @@ export const StaffPayment: React.FC = () => {
                                 <input
                                     type="date"
                                     className="staff-payment-date-picker"
-                                    value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
-                                    onChange={(e) => e.target.value && setSelectedDate(new Date(e.target.value))}
+                                    value={
+                                        selectedDate
+                                            ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+                                            : ''
+                                    }
+                                    onChange={(e) => {
+                                        if (e.target.value) {
+                                            const [y, m, d] = e.target.value.split('-').map(Number);
+                                            setSelectedDate(new Date(y, m - 1, d, 12, 0, 0));
+                                            setCurrentMonth(m - 1);
+                                            setCurrentYear(y);
+                                        }
+                                    }}
                                 />
                             </div>
 

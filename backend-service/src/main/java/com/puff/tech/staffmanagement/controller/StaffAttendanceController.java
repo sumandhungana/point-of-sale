@@ -23,6 +23,7 @@ import com.puff.tech.staffmanagement.usecase.staffattendance.update.UpdateSatffA
 import com.puff.tech.staffmanagement.usecase.staffattendance.update.UpdateSatffAttendanceUseCaseResponse;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -95,9 +96,10 @@ public class StaffAttendanceController {
 
     @Secured(permissions = {Permission.STAFF_ATTENDANCE_FIND_ONE, Permission.STAFF_ATTENDANCE_FIND_ALL, Permission.STAFF_FIND_ONE, Permission.STAFF_FIND_ALL})
     @Get("{id}")
-    public Mono<RestResponse<GetStaffAttendanceUCResponse>> getById(@PathVariable Long id){
+    public Mono<RestResponse<List<GetStaffAttendanceUCResponse>>> getById(@PathVariable Long id){
         var request = new GetStaffAttendanceByIdUCRequest(id);
         return getStaffAttendanceByIdUseCase.execute(request)
+                .collectList()
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Error fetching attendance: " + err.getLocalizedMessage())));
     }
