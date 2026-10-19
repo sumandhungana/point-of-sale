@@ -1,9 +1,8 @@
 package com.puff.tech.staffmanagement.usecase.staffattendance.getbydate;
 
-import com.puff.tech.staffmanagement.converter.StaffAttendanceConvertor;
 import com.puff.tech.staffmanagement.repository.StaffAttendanceRepository;
 import com.puff.tech.service.implementation.KhataBookImplementation;
-import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUseCaseResponse;
+import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUCResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Flux;
@@ -23,11 +22,7 @@ public class GetStaffAttendanceByDateUseCase {
     }
 
 
-    public Flux<GetStaffAttendanceUseCaseResponse> execute(GetStaffAttendanceByDateUseCaseRequest request) {
-        return khataBookImplementation.getCurrentKhataBookId()
-                .flatMapMany(khataBookId->
-                        staffAttendanceRepository.findByDateAndMemberIdOrderByStaffIdAsc(request.date(), khataBookId)
-                                .map(StaffAttendanceConvertor::toResponse)
-                                .onErrorResume(err->Flux.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage()))));
+    public Flux<GetStaffAttendanceUCResponse> execute(GetStaffAttendanceByDateUseCaseRequest request) {
+        return null;
     }
 }

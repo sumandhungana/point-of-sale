@@ -20,7 +20,7 @@ public class StaffSalaryEntity {
 
     @Id
     @GeneratedValue(GeneratedValue.Type.IDENTITY)
-    private Integer id;
+    private Long id;
 
     // Micronaut Data will automatically map this relation to "member_id"
     @Relation(Relation.Kind.MANY_TO_ONE)

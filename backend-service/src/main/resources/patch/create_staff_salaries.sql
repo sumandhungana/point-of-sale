@@ -15,13 +15,13 @@ CREATE TABLE staff_salaries (
 
     -- Foreign key constraints for @Relation(Relation.Kind.MANY_TO_ONE)
                                 CONSTRAINT fk_staff_salaries_member
-                                    FOREIGN KEY (member_id)
-                                        REFERENCES members (id)
+                                    FOREIGN KEY (id)
+                                        REFERENCES member (id)
                                         ON DELETE SET NULL,
 
                                 CONSTRAINT fk_staff_salaries_staff
-                                    FOREIGN KEY (staff_id)
-                                        REFERENCES organization_staffs (id)
+                                    FOREIGN KEY (id)
+                                        REFERENCES organization_staff (id)
                                         ON DELETE SET NULL
 );
 

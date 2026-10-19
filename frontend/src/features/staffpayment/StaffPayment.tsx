@@ -5,13 +5,13 @@ import { BackButton } from '@/components/BackButton';
 import { AddPayments } from './AddPayments';
 import { toast } from 'react-toastify';
 import { getPaymentList, GetPaymentResponse } from '../services/paymentService';
-import { fetchStaffById, updateStaff, GetStaffResponse } from '@/services/staffService';
+import { fetchStaffById, updateStaff, GetStaffResponse } from '@/features/services/staffService';
 import {
     fetchStaffAttendanceByStaffId,
     recordStaffAttendance,
     StaffAttendanceRecord,
     AttendanceStatusType
-} from '@/services/staffAttendanceService';
+} from '@/features/services/staffAttendanceService';
 import { usePermission } from '@/core/rbac/usePermission';
 import '../../styles/StaffPayment.css';
 
@@ -278,26 +278,14 @@ export const StaffPayment: React.FC = () => {
 
             <div className="staff-payment-main">
                 {/* Header Navigation & Actions */}
-                <div className="staff-payment-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', width: '100%' }}>
+                <div className="staff-payment-header">
                     <BackButton to="/staff" label="Back to Staff" />
 
-                    <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                    <div className="staff-payment-header-actions">
                         {/* Open Attendance Modal Button */}
                         <button
                             type="button"
-                            className="btn-base btn-info"
-                            style={{
-                                display: 'inline-flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                padding: '0.6rem 1.2rem',
-                                borderRadius: '8px',
-                                backgroundColor: '#0dcaf0',
-                                color: '#000',
-                                border: 'none',
-                                fontWeight: 600,
-                                cursor: 'pointer'
-                            }}
+                            className="staff-payment-btn-attendance"
                             onClick={() => setIsAttendanceOpen(true)}
                         >
                             <i className="bi bi-calendar-check"></i>
@@ -318,69 +306,39 @@ export const StaffPayment: React.FC = () => {
                 </div>
 
                 {/* Staff Profile & Backend Notes Card */}
-                <div
-                    className="staff-profile-notes-banner"
-                    style={{
-                        background: '#ffffff',
-                        borderRadius: '16px',
-                        padding: '1.25rem 1.5rem',
-                        marginBottom: '1.5rem',
-                        boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)',
-                        border: '1px solid #e2e8f0',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '1rem',
-                        width: '100%',
-                        boxSizing: 'border-box',
-                    }}
-                >
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                            <div
-                                style={{
-                                    width: '54px',
-                                    height: '54px',
-                                    borderRadius: '50%',
-                                    backgroundColor: '#e0e7ff',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    color: '#4338ca',
-                                    fontSize: '1.5rem',
-                                    overflow: 'hidden',
-                                    border: '2px solid #c7d2fe',
-                                }}
-                            >
+                <div className="staff-profile-notes-banner">
+                    <div className="staff-profile-header-row">
+                        <div className="staff-profile-user-info">
+                            <div className="staff-profile-avatar">
                                 {staffInfo?.profileImageUrl ? (
                                     <img
                                         src={staffInfo.profileImageUrl}
                                         alt={staffInfo.name}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                                     />
                                 ) : (
                                     <i className="bi bi-person-fill" />
                                 )}
                             </div>
-                            <div>
-                                <h2 style={{ margin: 0, fontSize: '1.35rem', fontWeight: 700, color: '#1e293b' }}>
+                            <div className="staff-profile-meta">
+                                <h2 className="staff-profile-name">
                                     {staffInfo?.name || `Staff Member #${staffId}`}
                                 </h2>
-                                <div style={{ display: 'flex', gap: '1.25rem', marginTop: '4px', fontSize: '0.85rem', color: '#64748b', flexWrap: 'wrap' }}>
+                                <div className="staff-profile-contact-list">
                                     {staffInfo?.phone && (
-                                        <span>
-                                            <i className="bi bi-telephone me-1" />
+                                        <span className="staff-profile-contact-item">
+                                            <i className="bi bi-telephone" />
                                             {staffInfo.phone}
                                         </span>
                                     )}
                                     {staffInfo?.email && (
-                                        <span>
-                                            <i className="bi bi-envelope me-1" />
+                                        <span className="staff-profile-contact-item">
+                                            <i className="bi bi-envelope" />
                                             {staffInfo.email}
                                         </span>
                                     )}
                                     {staffInfo?.address && (
-                                        <span>
-                                            <i className="bi bi-geo-alt me-1" />
+                                        <span className="staff-profile-contact-item">
+                                            <i className="bi bi-geo-alt" />
                                             {staffInfo.address}
                                         </span>
                                     )}
@@ -389,26 +347,14 @@ export const StaffPayment: React.FC = () => {
                         </div>
 
                         {/* Quick Actions (Notes & Attendance) */}
-                        <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center' }}>
+                        <div className="staff-profile-quick-actions">
                             {canViewAttendance && (
                                 <button
                                     type="button"
                                     onClick={() => setIsAttendanceOpen(true)}
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '0.4rem',
-                                        padding: '0.45rem 0.9rem',
-                                        borderRadius: '8px',
-                                        border: '1px solid #10b981',
-                                        background: '#ecfdf5',
-                                        color: '#065f46',
-                                        fontWeight: 600,
-                                        fontSize: '0.85rem',
-                                        cursor: 'pointer',
-                                    }}
+                                    className="staff-profile-btn-attendance"
                                 >
-                                    <i className="bi bi-calendar3" style={{ color: '#059669' }} />
+                                    <i className="bi bi-calendar3" />
                                     Attendance Calendar
                                 </button>
                             )}
@@ -416,21 +362,9 @@ export const StaffPayment: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsEditingNotes(true)}
-                                    style={{
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '0.4rem',
-                                        padding: '0.45rem 0.9rem',
-                                        borderRadius: '8px',
-                                        border: '1px solid #cbd5e1',
-                                        background: '#f8fafc',
-                                        color: '#334155',
-                                        fontWeight: 600,
-                                        fontSize: '0.85rem',
-                                        cursor: 'pointer',
-                                    }}
+                                    className="staff-profile-btn-notes"
                                 >
-                                    <i className="bi bi-pencil-square" style={{ color: '#0d6efd' }} />
+                                    <i className="bi bi-pencil-square" />
                                     {staffInfo?.remarks ? 'Edit Notes' : 'Add Note'}
                                 </button>
                             )}
@@ -438,40 +372,24 @@ export const StaffPayment: React.FC = () => {
                     </div>
 
                     {/* Staff Notes Content Box */}
-                    <div
-                        style={{
-                            background: '#f8fafc',
-                            borderRadius: '10px',
-                            padding: '0.85rem 1.15rem',
-                            border: '1px solid #e2e8f0',
-                        }}
-                    >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '6px' }}>
+                    <div className="staff-profile-notes-box">
+                        <div className="staff-profile-notes-box-header">
                             <i className="bi bi-journal-text" style={{ color: '#2563eb', fontSize: '1rem' }} />
-                            <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                                Staff Notes / Remarks
-                            </span>
+                            <span>Staff Notes / Remarks</span>
                         </div>
 
                         {isEditingNotes ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '0.5rem' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.4rem' }}>
                                 <textarea
                                     value={notesText}
                                     onChange={(e) => setNotesText(e.target.value)}
                                     rows={3}
                                     placeholder="Enter any notes or remarks about this staff member (stored in backend)..."
-                                    style={{
-                                        width: '100%',
-                                        padding: '0.75rem',
-                                        borderRadius: '8px',
-                                        border: '1px solid #94a3b8',
-                                        fontSize: '0.9rem',
-                                        outline: 'none',
-                                    }}
+                                    className="staff-profile-notes-textarea"
                                     disabled={isSavingNotes}
                                     autoFocus
                                 />
-                                <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+                                <div className="staff-profile-notes-actions">
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -512,7 +430,7 @@ export const StaffPayment: React.FC = () => {
                                     >
                                         {isSavingNotes ? (
                                             <>
-                                                <i className="bi bi-arrow-clockwise spinning" /> Saving to Backend...
+                                                <i className="bi bi-arrow-clockwise spinning" /> Saving...
                                             </>
                                         ) : (
                                             <>
@@ -523,7 +441,7 @@ export const StaffPayment: React.FC = () => {
                                 </div>
                             </div>
                         ) : (
-                            <p style={{ margin: 0, fontSize: '0.9rem', color: staffInfo?.remarks ? '#1e293b' : '#94a3b8', fontStyle: staffInfo?.remarks ? 'normal' : 'italic' }}>
+                            <p className="staff-profile-notes-text" style={{ color: staffInfo?.remarks ? '#1e293b' : '#94a3b8', fontStyle: staffInfo?.remarks ? 'normal' : 'italic' }}>
                                 {staffInfo?.remarks || 'No notes added yet for this staff member. Click "Add Note" to record notes in backend.'}
                             </p>
                         )}
@@ -531,34 +449,19 @@ export const StaffPayment: React.FC = () => {
 
                     {/* Attendance Overview & Quick Log Bar */}
                     {canViewAttendance && (
-                        <div
-                            style={{
-                                marginTop: '1rem',
-                                background: '#ffffff',
-                                borderRadius: '10px',
-                                padding: '0.9rem 1.15rem',
-                                border: '1px solid #e2e8f0',
-                                display: 'flex',
-                                flexWrap: 'wrap',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '1rem',
-                            }}
-                        >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                                    <i className="bi bi-calendar-check" style={{ color: '#059669', fontSize: '1.1rem' }} />
-                                    <span style={{ fontWeight: 700, fontSize: '0.88rem', color: '#1e293b' }}>
-                                        Today's Attendance:
-                                    </span>
+                        <div className="staff-attendance-quick-bar">
+                            <div className="staff-attendance-today-section">
+                                <div className="staff-attendance-today-label">
+                                    <i className="bi bi-calendar-check" />
+                                    <span>Today:</span>
                                 </div>
                                 {todayAttendance ? (
                                     <span
                                         style={{
-                                            padding: '0.25rem 0.65rem',
+                                            padding: '0.2rem 0.6rem',
                                             borderRadius: '6px',
                                             fontWeight: 700,
-                                            fontSize: '0.8rem',
+                                            fontSize: '0.78rem',
                                             letterSpacing: '0.3px',
                                             background:
                                                 todayAttendance.status === 'PRESENT'
@@ -581,14 +484,14 @@ export const StaffPayment: React.FC = () => {
                                         {todayAttendance.status.replace('_', ' ')}
                                     </span>
                                 ) : (
-                                    <span style={{ fontSize: '0.82rem', color: '#94a3b8', fontStyle: 'italic' }}>
-                                        Not recorded yet
+                                    <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontStyle: 'italic' }}>
+                                        Not recorded
                                     </span>
                                 )}
 
                                 {/* Quick Action Buttons */}
                                 {canMarkAttendance && (
-                                    <div style={{ display: 'flex', gap: '0.4rem', marginLeft: '0.5rem' }}>
+                                    <div className="staff-attendance-mark-btns">
                                         {(
                                             [
                                                 { status: 'PRESENT' as const, label: 'Present', color: '#059669', bg: '#ecfdf5' },
@@ -602,16 +505,11 @@ export const StaffPayment: React.FC = () => {
                                                 type="button"
                                                 disabled={isSavingAttendance}
                                                 onClick={() => void handleQuickMarkToday(btn.status)}
+                                                className="staff-attendance-mark-btn"
                                                 style={{
                                                     border: `1px solid ${btn.color}40`,
                                                     background: todayAttendance?.status === btn.status ? btn.color : btn.bg,
                                                     color: todayAttendance?.status === btn.status ? '#ffffff' : btn.color,
-                                                    padding: '0.25rem 0.55rem',
-                                                    borderRadius: '6px',
-                                                    fontSize: '0.78rem',
-                                                    fontWeight: 600,
-                                                    cursor: 'pointer',
-                                                    transition: 'all 0.15s ease',
                                                 }}
                                             >
                                                 {btn.label}
@@ -622,7 +520,7 @@ export const StaffPayment: React.FC = () => {
                             </div>
 
                             {/* Monthly summary pill tags */}
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.8rem' }}>
+                            <div className="staff-attendance-monthly-stats">
                                 <span style={{ color: '#64748b', fontWeight: 600 }}>This Month:</span>
                                 <span style={{ color: '#059669', fontWeight: 700 }}>
                                     <i className="bi bi-check-circle-fill me-1" />
@@ -643,17 +541,9 @@ export const StaffPayment: React.FC = () => {
                                 <button
                                     type="button"
                                     onClick={() => setIsAttendanceOpen(true)}
-                                    style={{
-                                        border: 'none',
-                                        background: 'transparent',
-                                        color: '#2563eb',
-                                        fontWeight: 600,
-                                        fontSize: '0.8rem',
-                                        cursor: 'pointer',
-                                        textDecoration: 'underline',
-                                    }}
+                                    className="staff-attendance-calendar-link"
                                 >
-                                    View Calendar &rarr;
+                                    Calendar &rarr;
                                 </button>
                             </div>
                         </div>
@@ -747,11 +637,14 @@ export const StaffPayment: React.FC = () => {
                                                 .map((transaction) => (
                                                     <div key={transaction.id} className="staff-payment-history-item">
                                                         <div className="staff-payment-history-details">
-                                                            {/* Entry Badge */}
-                                                            <div className="staff-payment-history-row">
+                                                            {/* Top Row: Badge & Total Amount */}
+                                                            <div className="staff-payment-history-top-row">
                                                                 <span className="staff-payment-due" style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem' }}>
                                                                     Payment Given
                                                                 </span>
+                                                                <div className="staff-payment-history-total">
+                                                                    रु {Math.abs(transaction.amount).toLocaleString()}
+                                                                </div>
                                                             </div>
 
                                                             {/* Mode / Type */}
@@ -789,11 +682,6 @@ export const StaffPayment: React.FC = () => {
                                                                 </div>
                                                             )}
                                                         </div>
-
-                                                        {/* Statement Balance Badge */}
-                                                        <div className="staff-payment-history-total">
-                                                            रु {Math.abs(transaction.amount).toLocaleString()}
-                                                        </div>
                                                     </div>
                                                 ))}
                                         </div>
@@ -821,60 +709,29 @@ export const StaffPayment: React.FC = () => {
             {/* ATTENDANCE POPUP MODAL */}
             {isAttendanceOpen && (
                 <div
-                    className="popup-overlay"
-                    style={{
-                        position: 'fixed',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        zIndex: 1050,
-                        padding: '1rem'
-                    }}
+                    className="staff-payment-attendance-modal-overlay"
                     onClick={() => setIsAttendanceOpen(false)}
                 >
                     <div
-                        className="popup-content"
-                        style={{
-                            background: '#ffffff',
-                            borderRadius: '16px',
-                            width: '100%',
-                            maxWidth: '650px',
-                            maxHeight: '90vh',
-                            overflowY: 'auto',
-                            position: 'relative',
-                            padding: '1.5rem',
-                            boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
-                        }}
+                        className="staff-payment-attendance-modal-content"
                         onClick={(e) => e.stopPropagation()}
                     >
                         {/* Header & Close Button */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', borderBottom: '1px solid #e9ecef', paddingBottom: '0.75rem' }}>
-                            <div className="staff-payment-calendar-title" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div className="staff-payment-modal-header">
+                            <div className="staff-payment-calendar-title">
                                 <div className="staff-payment-calendar-title-icon">
-                                    <i className="bi bi-calendar3" style={{ fontSize: '1.5rem', color: '#0d6efd' }}></i>
+                                    <i className="bi bi-calendar3"></i>
                                 </div>
                                 <div>
-                                    <h3 style={{ margin: 0, fontSize: '1.25rem' }}>Staff Attendance</h3>
-                                    <span style={{ fontSize: '0.85rem', color: '#6c757d' }}>Track and update staff attendance details</span>
+                                    <h3 style={{ margin: 0 }}>Staff Attendance</h3>
+                                    <span>Track and update staff attendance details</span>
                                 </div>
                             </div>
 
                             <button
                                 type="button"
                                 onClick={() => setIsAttendanceOpen(false)}
-                                style={{
-                                    border: 'none',
-                                    background: 'transparent',
-                                    fontSize: '1.5rem',
-                                    cursor: 'pointer',
-                                    color: '#6c757d',
-                                    lineHeight: 1
-                                }}
+                                className="staff-payment-modal-close"
                                 aria-label="Close"
                             >
                                 <i className="bi bi-x-lg"></i>
@@ -882,12 +739,11 @@ export const StaffPayment: React.FC = () => {
                         </div>
 
                         {/* Calendar Controls */}
-                        <div className="staff-payment-calendar-controls" style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                        <div className="staff-payment-calendar-controls">
                             <select
                                 className="staff-payment-calendar-select"
                                 value={currentMonth}
                                 onChange={(e) => setCurrentMonth(Number(e.target.value))}
-                                style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #ced4da' }}
                             >
                                 {months.map((month, index) => (
                                     <option key={month} value={index}>
@@ -900,7 +756,6 @@ export const StaffPayment: React.FC = () => {
                                 className="staff-payment-calendar-select staff-payment-year-select"
                                 value={currentYear}
                                 onChange={(e) => setCurrentYear(Number(e.target.value))}
-                                style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', border: '1px solid #ced4da' }}
                             >
                                 {years.map((year) => (
                                     <option key={year} value={year}>
@@ -978,13 +833,13 @@ export const StaffPayment: React.FC = () => {
                         </div>
 
                         {/* Attendance Status Radios */}
-                        <div className="staff-payment-attendance-section" style={{ marginTop: '1.25rem' }}>
-                            <div className="staff-payment-section-label" style={{ fontWeight: 600, marginBottom: '0.5rem' }}>
+                        <div className="staff-payment-attendance-section">
+                            <div className="staff-payment-section-label">
                                 <i className="bi bi-person-check me-1"></i>
                                 Attendance Status {selectedDate ? `for ${selectedDate.toLocaleDateString()}` : ''}
                             </div>
 
-                            <div className="staff-payment-attendance-status" style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                            <div className="staff-payment-attendance-status">
                                 <label className="staff-payment-status-item">
                                     <input
                                         type="radio"
@@ -1060,12 +915,13 @@ export const StaffPayment: React.FC = () => {
                                     borderRadius: '8px',
                                     border: '1px solid #cbd5e1',
                                     fontSize: '0.88rem',
+                                    boxSizing: 'border-box',
                                 }}
                             />
                         </div>
 
                         {/* Actions inside Modal */}
-                        <div className="staff-payment-bottom-controls" style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+                        <div className="staff-payment-bottom-controls">
                             <div className="staff-payment-date-input-wrapper">
                                 <i className="bi bi-calendar-date"></i>
                                 <input
@@ -1076,7 +932,7 @@ export const StaffPayment: React.FC = () => {
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '0.6rem' }}>
+                            <div style={{ display: 'flex', gap: '0.6rem', flex: 1, justifyContent: 'flex-end' }}>
                                 <button
                                     type="button"
                                     className="staff-payment-cancel-button"

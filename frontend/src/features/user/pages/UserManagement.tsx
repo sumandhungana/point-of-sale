@@ -3,9 +3,8 @@ import ReactDOM from 'react-dom';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { User, fetchUsers, addUser, deleteUser, AddUserRequest } from '../../services/userService';
-import { fetchRoles, Role } from '@/services/permissionService';
+import { fetchRoles, Role } from '@/features/services/permissionService';
 import { getAllOrganization, GetAllMember } from '@/features/services/organizationService';
-import { usePermission } from '@/core/rbac/usePermission';
 import ViewUserModal from '../components/ViewUserModal';
 import { toast } from 'react-toastify';
 import '@/styles/UserManagement.css';
@@ -31,7 +30,6 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, children }) => {
 };
 
 export const UserManagement: React.FC = () => {
-    const { isSuperAdmin } = usePermission();
     const [users, setUsers] = useState<User[]>([]);
     const [availableRoles, setAvailableRoles] = useState<Role[]>([]);
     const [organizations, setOrganizations] = useState<GetAllMember[]>([]);
@@ -73,7 +71,7 @@ export const UserManagement: React.FC = () => {
             const [fetchedUsers, fetchedRoles, fetchedOrgs] = await Promise.all([
                 fetchUsers(memberIdParam),
                 fetchRoles(),
-                isSuperAdmin ? getAllOrganization() : Promise.resolve([]),
+                getAllOrganization(),
             ]);
             setUsers(fetchedUsers || []);
             setAvailableRoles(fetchedRoles || []);

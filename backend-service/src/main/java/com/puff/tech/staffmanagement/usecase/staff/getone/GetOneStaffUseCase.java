@@ -1,9 +1,9 @@
 package com.puff.tech.staffmanagement.usecase.staff.getone;
 
 import com.puff.tech.core.usecases.MonoUC;
+import com.puff.tech.security.UseCaseContext;
 import com.puff.tech.staffmanagement.converter.StaffConvertor;
 import com.puff.tech.staffmanagement.repository.OrganizationStaffRepository;
-import com.puff.tech.security.UseCaseContext;
 import com.puff.tech.staffmanagement.usecase.staff.get.GetStaffUseCaseResponse;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -22,9 +22,9 @@ public class GetOneStaffUseCase implements MonoUC<GetOneStaffUseCaseRequest, Get
 
     @Override
     public Mono<GetStaffUseCaseResponse> execute(GetOneStaffUseCaseRequest request, UseCaseContext context) {
-        return staffRepository.findByIdAndMemberId(request.id(), context.securityContext().memberId())
+        return staffRepository.findByIdAndMemberId(Long.valueOf(request.id()), context.securityContext().memberId())
                 .map(StaffConvertor::toResponse)
-                .onErrorResume(err -> Mono.error(new RuntimeException("Unexpected happened" +err.getLocalizedMessage())));
+                .onErrorResume(err -> Mono.error(new RuntimeException("Unexpected happened" + err.getLocalizedMessage())));
     }
 
 }

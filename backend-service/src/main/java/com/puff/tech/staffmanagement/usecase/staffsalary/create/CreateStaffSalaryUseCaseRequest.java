@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Serdeable
 public record CreateStaffSalaryUseCaseRequest(
-        Integer staffId,
+        Long staffId,
         Integer month,
         Integer year,
         @Format("yyyy-MM-dd'T'HH:mm:ss[XXX]")

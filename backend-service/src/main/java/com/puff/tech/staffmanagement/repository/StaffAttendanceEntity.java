@@ -20,8 +20,8 @@ import java.time.Instant;
 public class StaffAttendanceEntity {
 
     @Id
-    @Generated
-    private Integer id;
+    @GeneratedValue(GeneratedValue.Type.IDENTITY)
+    private Long id;
 
 
     @Relation(Relation.Kind.MANY_TO_ONE)

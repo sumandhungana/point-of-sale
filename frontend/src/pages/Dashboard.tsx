@@ -5,7 +5,7 @@ import { getCustomers } from '@/features/services/customerService';
 import { getSuppliers } from '@/features/services/supplierService';
 import { SystemMonitor } from '@/components/SystemMonitor';
 import { getDashboardPaymentTotals } from '@/services/paymentService';
-import { fetchStaff } from '@/services/staffService';
+import { fetchStaff } from '@/features/services/staffService';
 import { getAllSalesBill, GetAllSalesBillResponse } from '@/features/services/salesBillService';
 import { fetchPurchases, GetAllPurchaseBillResponse } from '@/features/services/purchaseBillService';
 import { fetchExpenses } from '@/services/expensesListService';

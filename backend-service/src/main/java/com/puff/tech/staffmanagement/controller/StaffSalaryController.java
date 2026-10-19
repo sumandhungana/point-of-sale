@@ -63,7 +63,7 @@ public class StaffSalaryController {
     }
 
     @Get("/staff-salaries/{staffId}")
-    public Flux<RestResponse<GetStaffSalaryUseCaseResponse>> getByStaffId(@PathVariable Integer staffId) {
+    public Flux<RestResponse<GetStaffSalaryUseCaseResponse>> getByStaffId(@PathVariable Long staffId) {
         var request = new GetStaffSalaryByStaffIdUseCaseRequest(staffId);
         return getStaffSalaryByStaffIdUseCase.execute(request)
                 .map(RestResponse::success)

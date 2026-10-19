@@ -20,7 +20,7 @@ import java.util.List;
 public class OrganizationStaffEntity {
     @Id
     @GeneratedValue(GeneratedValue.Type.IDENTITY)
-    private Integer id;
+    private Long id;
 
     private String name;
 

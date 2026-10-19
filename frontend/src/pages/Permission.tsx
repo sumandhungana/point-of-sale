@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../components/Navbar';
-import { fetchRoles } from '@/services/permissionService';
+import { fetchRoles } from '@/features/services/permissionService';
 import '../styles/Permission.css';
 
 interface Permission {

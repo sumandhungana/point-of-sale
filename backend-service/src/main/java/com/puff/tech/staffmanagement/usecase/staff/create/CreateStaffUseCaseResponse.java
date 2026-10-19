@@ -7,6 +7,6 @@ import io.micronaut.serde.annotation.Serdeable;
 @Serdeable
 public record CreateStaffUseCaseResponse(
         String message,
-        Integer id
+        Long id
 ) implements UCResponse {
 }

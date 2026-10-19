@@ -5,6 +5,6 @@ import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
 public record GetStaffSalaryByStaffIdUseCaseRequest(
-        Integer staffId
+        Long staffId
 ) implements UseCases.UseCaseRequest {
 }

@@ -10,7 +10,7 @@ import {
     Role,
     PermissionGroup,
     RolePermission,
-} from '@/services/permissionService';
+} from '@/features/services/permissionService';
 import '@/styles/RoleAndPermission.css';
 import ViewRoleModal from "@/features/roleAndPermissions/components/ViewRoleModal";
 

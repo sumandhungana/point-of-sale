@@ -34,7 +34,7 @@ export const defaultAppSettings: AppSettings = {
   sideMenuHoverFontColor: '#ffffff',
   sideMenuHoverBgColor: '#495057',
   topMenuBgColor: '#010A2E',
-  topMenuFontColor: '#ffffff',
+  topMenuFontColor: '#06164A',
   appBgColor: '#f8f9fa',
   appForegroundColor: '#212529',
   logoPath: null,

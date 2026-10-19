@@ -3,7 +3,7 @@ import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useAppSettings } from '../context/AppSettingsContext';
 import { usePermission } from '@/core/rbac/usePermission';
-import { AppSettings, defaultAppSettings } from '../services/appSettingService';
+import { AppSettings, defaultAppSettings } from '../features/services/appSettingService';
 import { toast } from 'react-toastify';
 import '../styles/AppSetting.css';
 

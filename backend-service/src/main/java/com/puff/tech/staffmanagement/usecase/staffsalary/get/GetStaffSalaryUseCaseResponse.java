@@ -8,8 +8,8 @@ import java.time.Instant;
 
 @Serdeable
 public record GetStaffSalaryUseCaseResponse(
-        Integer id,
-        Integer staffId,
+        Long id,
+        Long staffId,
         Integer month,
         Integer year,
         Instant selectedDate,

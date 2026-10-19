@@ -5,7 +5,7 @@ import {
   fetchAppSettings,
   saveAppSettings as apiSaveAppSettings,
   resetAppSettings as apiResetAppSettings,
-} from '../services/appSettingService';
+} from '../features/services/appSettingService';
 
 interface AppSettingsContextType {
   settings: AppSettings;

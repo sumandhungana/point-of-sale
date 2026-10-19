@@ -6,7 +6,7 @@ import java.time.Instant;
 
 @Serdeable
 public record StaffAttendanceResponse(
-        Integer id,
+        Long id,
         Instant attendanceDate,
         String status,
         String remarks,

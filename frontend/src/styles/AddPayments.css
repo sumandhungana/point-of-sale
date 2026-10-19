@@ -198,8 +198,15 @@
 
 /* Modal Body */
 .add-payments-modal-body {
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem;
   overflow-y: auto;
+}
+
+.add-payments-modal-body .add-payments-card {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: transparent;
 }
 
 /* Animations */
@@ -216,14 +223,63 @@
 /* Responsive Overrides */
 @media (max-width: 576px) {
   .add-payments-modal-overlay {
-    padding: 0.75rem;
-  }
-
-  .add-payments-payment-mode-container {
-    flex-direction: column;
+    padding: 0.5rem;
   }
 
   .add-payments-modal-content {
     max-width: 100%;
+    border-radius: 12px;
+  }
+
+  .add-payments-modal-header {
+    padding: 1rem 1.15rem;
+  }
+
+  .add-payments-modal-header h3 {
+    font-size: 1.1rem;
+  }
+
+  .add-payments-modal-body {
+    padding: 1rem;
+  }
+
+  .add-payments-form-group {
+    margin-bottom: 1rem;
+  }
+
+  .add-payments-label {
+    font-size: 0.82rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .add-payments-input,
+  .add-payments-textarea {
+    padding: 0.7rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .add-payments-payment-mode-container {
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .add-payments-payment-mode-button {
+    padding: 0.65rem;
+    font-size: 0.9rem;
+  }
+
+  .add-payments-save-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.9rem;
   }
 }
+
+@media (max-width: 400px) {
+  .add-payments-modal-overlay {
+    padding: 0.35rem;
+  }
+
+  .add-payments-modal-body {
+    padding: 0.85rem;
+  }
+}

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { useNavigate } from 'react-router-dom';
-import { createStaff, createStaffSalary } from '../services/staffService';
+import { createStaff, createStaffSalary } from '../features/services/staffService';
 import '../styles/AddStaff.css';
 
 const formatDateToYYYYMMDD = (date: Date): string => {

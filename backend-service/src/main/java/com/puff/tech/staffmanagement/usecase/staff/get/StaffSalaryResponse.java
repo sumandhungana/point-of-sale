@@ -6,7 +6,7 @@ import java.time.Instant;
 
 @Serdeable
 public record StaffSalaryResponse(
-        Integer id,
+        Long id,
         Integer month,
         Integer year,
         Instant selectedDate,

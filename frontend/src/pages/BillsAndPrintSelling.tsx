@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { BackButton } from '../components/BackButton';
-import { fetchInvoiceSettings, saveInvoiceSettings } from '../services/appSettingService';
+import { fetchInvoiceSettings, saveInvoiceSettings } from '../features/services/appSettingService';
 import '../styles/BillsAndPrintSelling.css';
 
 export const BillsAndPrintSelling = () => {

@@ -76,7 +76,7 @@ public class AddPaymentUC implements MonoUC<AddPaymentUCRequest, AddPaymentUCRes
             case STAFF -> {
                 if (request.staffId() != null) {
                     OrganizationStaffEntity staff = new OrganizationStaffEntity();
-                    staff.setId(Math.toIntExact(request.staffId()));
+                    staff.setId(request.staffId());
                     entity.setStaff(staff);
                 }
             }

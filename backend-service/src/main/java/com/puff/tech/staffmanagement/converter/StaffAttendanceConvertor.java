@@ -5,8 +5,8 @@ import com.puff.tech.onboarding.repository.MemberEntity;
 import com.puff.tech.staffmanagement.repository.OrganizationStaffEntity;
 import com.puff.tech.staffmanagement.repository.StaffAttendanceEntity;
 import com.puff.tech.staffmanagement.usecase.staff.get.StaffAttendanceResponse;
-import com.puff.tech.staffmanagement.usecase.staffattendance.create.CreateStaffAtendanceUseCaseRequest;
-import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUseCaseResponse;
+import com.puff.tech.staffmanagement.usecase.staffattendance.create.CreateStaffAttendanceUCRequest;
+import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUCResponse;
 import com.puff.tech.staffmanagement.usecase.staffattendance.update.UpdateSatffAttendanceUseCaseRequest;
 
 import java.time.Instant;
@@ -30,12 +30,12 @@ public class StaffAttendanceConvertor {
         );
     }
 
-    public static StaffAttendanceEntity toEntity(CreateStaffAtendanceUseCaseRequest request,
-                                                 Integer khataBookId){
+    public static StaffAttendanceEntity toEntity(CreateStaffAttendanceUCRequest request,
+                                                 Long memberId){
         StaffAttendanceEntity staffAttendanceEntity = new StaffAttendanceEntity();
-        if (khataBookId != null) {
+        if (memberId != null) {
             MemberEntity member = new MemberEntity();
-            member.setId(Long.valueOf(khataBookId));
+            member.setId(memberId);
             staffAttendanceEntity.setMember(member);
         }
         if (request.staffId() != null) {
@@ -50,14 +50,14 @@ public class StaffAttendanceConvertor {
         return staffAttendanceEntity;
     }
 
-    public static GetStaffAttendanceUseCaseResponse toResponse(StaffAttendanceEntity staffAttendanceEntity){
+    public static GetStaffAttendanceUCResponse toResponse(StaffAttendanceEntity staffAttendanceEntity){
         if (staffAttendanceEntity == null) {
             return null;
         }
 
-        Integer staffId = staffAttendanceEntity.getStaff() != null ? staffAttendanceEntity.getStaff().getId() : null;
+        Long staffId = staffAttendanceEntity.getStaff() != null ? staffAttendanceEntity.getStaff().getId() : null;
 
-        return new GetStaffAttendanceUseCaseResponse(
+        return new GetStaffAttendanceUCResponse(
                 staffAttendanceEntity.getId(),
                 staffId,
                 staffAttendanceEntity.getDate(),

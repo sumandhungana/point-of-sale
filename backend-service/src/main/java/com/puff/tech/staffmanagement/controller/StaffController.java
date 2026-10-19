@@ -15,11 +15,10 @@ import com.puff.tech.staffmanagement.usecase.staff.getattendance.GetAttendanceUs
 import com.puff.tech.staffmanagement.usecase.staff.getattendance.GetAttendanceUseCaseRequest;
 import com.puff.tech.staffmanagement.usecase.staff.getone.GetOneStaffUseCase;
 import com.puff.tech.staffmanagement.usecase.staff.getone.GetOneStaffUseCaseRequest;
-import com.puff.tech.staffmanagement.usecase.staff.getsalary.GetStaffSalaryUseCase;
 import com.puff.tech.staffmanagement.usecase.staff.update.UpdateStaffUseCase;
 import com.puff.tech.staffmanagement.usecase.staff.update.UpdateStaffUseCaseRequest;
 import com.puff.tech.staffmanagement.usecase.staff.update.UpdateStaffUseCaseResponse;
-import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUseCaseResponse;
+import com.puff.tech.staffmanagement.usecase.staffattendance.get.GetStaffAttendanceUCResponse;
 import com.puff.tech.usermanagement.enums.Permission;
 import io.micronaut.http.annotation.*;
 import reactor.core.publisher.Flux;
@@ -75,7 +74,7 @@ public class StaffController {
     }
 
     @Get("/{id}/attendance")
-    public Flux<RestResponse<GetStaffAttendanceUseCaseResponse>> getAttendance(@PathVariable Integer id){
+    public Flux<RestResponse<GetStaffAttendanceUCResponse>> getAttendance(@PathVariable Integer id){
         var request= new GetAttendanceUseCaseRequest(id);
         return getAttendanceUseCase.execute(request)
                 .map(RestResponse::success)

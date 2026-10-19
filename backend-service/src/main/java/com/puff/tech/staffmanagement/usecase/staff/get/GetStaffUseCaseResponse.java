@@ -9,7 +9,7 @@ import java.util.List;
 
 @Serdeable
 public record GetStaffUseCaseResponse(
-        Integer id,
+        Long id,
         String name,
         String phone,
         String address,

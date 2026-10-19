@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
-import { fetchStaff } from '@/services/staffService';
+import { fetchStaff } from '@/features/services/staffService';
 import {
   fetchStaffAttendances,
   recordStaffAttendance,
   StaffAttendanceRecord,
   AttendanceStatusType
-} from '@/services/staffAttendanceService';
+} from '@/features/services/staffAttendanceService';
 import { toast } from 'react-toastify';
 import { usePermission } from '@/core/rbac/usePermission';
 import '../styles/StaffManagement.css';
@@ -62,9 +62,9 @@ export interface Staff {
 export const StaffManagement = () => {
   const navigate = useNavigate();
   const { hasModule, hasPermission } = usePermission();
-  const canCreateStaff = hasPermission('staff:create');
-  const canViewAttendance = hasModule('staffAttendance') || hasPermission('staffAttendance:list') || hasPermission('staff:list');
-  const canMarkAttendance = hasPermission('staffAttendance:create') || hasPermission('staffAttendance:update') || hasPermission('staff:update') || hasPermission('staff:create');
+  const canCreateStaff = hasPermission('staffManagement:create');
+  const canViewAttendance = hasModule('staffAttendance') || hasPermission('staffAttendance:list') || hasPermission('staffManagement:list');
+  const canMarkAttendance = hasPermission('staffAttendance:create') || hasPermission('staffAttendance:update') || hasPermission('staffManagement:update') || hasPermission('staffManagement:create');
 
   const [staffList, setStaffList] = useState<Staff[]>([]);
   const [attendanceRecords, setAttendanceRecords] = useState<StaffAttendanceRecord[]>([]);
