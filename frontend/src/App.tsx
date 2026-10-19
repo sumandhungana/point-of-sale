@@ -37,7 +37,6 @@ import { SMS } from './pages/SMS';
 import { AddSMS } from './pages/AddSMS';
 import { PaymentGateway } from './pages/PaymentGateway';
 import { AddPaymentGateway } from './pages/AddPaymentGateway';
-import { Role } from './pages/Role';
 import { AddRole } from './pages/AddRole';
 import { Permission } from './pages/Permission';
 import { BillsAndPrintSelling } from './pages/BillsAndPrintSelling';

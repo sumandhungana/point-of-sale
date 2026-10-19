@@ -32,23 +32,79 @@
   gap: 1rem;
 
   width: 100%;
-  min-height: 42px;
+  min-height: 44px;
 
   margin-top: 0;
   margin-bottom: 1.25rem;
 }
 
-/* Force BackButton to stay visible */
-.staff-payment-header .back-button,
-.staff-payment-header a,
-.staff-payment-header button {
-  position: relative !important;
-  top: auto !important;
-  left: auto !important;
-  right: auto !important;
-  bottom: auto !important;
+.staff-payment-header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  min-width: 0;
+}
 
-  z-index: 20;
+.staff-payment-header-icon {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 12px;
+  background: rgba(37, 93, 206, 0.08);
+  color: #255DCE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  border: 1px solid rgba(37, 93, 206, 0.15);
+  box-shadow: 0 2px 6px rgba(37, 93, 206, 0.06);
+}
+
+.staff-payment-header-title {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #021861;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.staff-payment-header-subtitle {
+  margin: 3px 0 0 0;
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 500;
+  display: block;
+}
+
+/* Close cross button on the right side */
+.staff-payment-close-btn {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(2, 24, 97, 0.04);
+}
+
+.staff-payment-close-btn:hover {
+  background: #fee2e2;
+  border-color: #fecaca;
+  color: #dc2626;
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+}
+
+.staff-payment-close-btn:active {
+  transform: scale(0.95);
 }
 
 
@@ -153,6 +209,12 @@
   background: rgba(37, 93, 206, 0.08);
 }
 
+/* Success icon */
+.staff-payment-icon-success {
+  color: #059669;
+  background: rgba(5, 150, 105, 0.08);
+}
+
 
 /* =========================================
    CARD INFORMATION
@@ -211,9 +273,20 @@
   background: #DE1110;
 }
 
-
-.staff-payment-permission-card::before {
+.staff-payment-advance-card::before {
   background: #255DCE;
+}
+
+.staff-payment-settled-card::before {
+  background: #16a34a;
+}
+
+.staff-payment-transactions-card::before {
+  background: #475569;
+}
+
+.staff-payment-attendance-card::before {
+  background: #059669;
 }
 
 
@@ -1198,6 +1271,45 @@ button.staff-payment-calendar-date {
   transform: translateY(0) scale(0.98);
 }
 
+/* =========================================
+   STICKY BOTTOM-RIGHT ADD PAYMENT BUTTON
+========================================= */
+.staff-payment-sticky-add-button {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 999;
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
+  color: #ffffff;
+  border: none;
+  padding: 13px 24px;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+  box-shadow: 0 8px 24px rgba(2, 24, 97, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: auto;
+}
+
+.staff-payment-sticky-add-button i {
+  font-size: 1.05rem;
+}
+
+.staff-payment-sticky-add-button:hover {
+  background: linear-gradient(135deg, #1f4cb0 0%, #011043 100%);
+  box-shadow: 0 12px 30px rgba(2, 24, 97, 0.5);
+  transform: translateY(-3px) scale(1.02);
+  color: #ffffff;
+}
+
+.staff-payment-sticky-add-button:active {
+  transform: translateY(0) scale(0.98);
+}
+
 
 /* =========================================
    STAFF PAYMENT HEADER ACTIONS
@@ -1585,23 +1697,42 @@ button.staff-payment-calendar-date {
 
   /* Header */
   .staff-payment-header {
-    margin-bottom: 0.85rem;
-    gap: 0.65rem;
+    margin-bottom: 1rem;
+    gap: 0.75rem;
+  }
+
+  .staff-payment-header-left {
+    width: 100%;
   }
 
   .staff-payment-header-actions {
     width: 100%;
-    justify-content: stretch;
+    justify-content: flex-end;
+    gap: 0.65rem;
   }
 
-  .staff-payment-btn-attendance,
-  .staff-payment-header .staff-payment-add-payment-button {
+  .staff-payment-btn-attendance {
     flex: 1;
     justify-content: center;
     font-size: 0.8rem;
     padding: 0.55rem 0.85rem;
     height: 38px;
     box-sizing: border-box;
+  }
+
+  .staff-payment-close-btn {
+    width: 38px;
+    height: 38px;
+    min-width: 38px;
+    font-size: 1.05rem;
+    flex-shrink: 0;
+  }
+
+  .staff-payment-sticky-add-button {
+    bottom: 20px;
+    right: 20px;
+    padding: 11px 18px;
+    font-size: 13px;
   }
 
   /* Staff Profile Banner */
@@ -1620,14 +1751,13 @@ button.staff-payment-calendar-date {
 
   .staff-profile-quick-actions {
     width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
+    display: flex;
     gap: 0.5rem;
   }
 
-  .staff-profile-btn-attendance,
-  .staff-profile-btn-notes {
+  .staff-profile-btn-attendance {
     width: 100%;
+    justify-content: center;
     padding: 0.45rem 0.5rem;
     font-size: 0.78rem;
   }
@@ -1813,6 +1943,31 @@ button.staff-payment-calendar-date {
 @media (max-width: 480px) {
   .staff-payment-main {
     padding: 68px 10px 75px 10px;
+  }
+
+  /* Header in small mobile */
+  .staff-payment-header-title {
+    font-size: 1.12rem;
+  }
+
+  .staff-payment-header-subtitle {
+    font-size: 0.74rem;
+  }
+
+  .staff-payment-header-icon {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    font-size: 1.1rem;
+    border-radius: 9px;
+  }
+
+  .staff-payment-sticky-add-button {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 16px;
+    font-size: 12.5px;
+    gap: 6px;
   }
 
   /* Profile Avatar & Details */

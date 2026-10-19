@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
-import { BackButton } from '@/components/BackButton';
 import { AddPayments } from './AddPayments';
 import { toast } from 'react-toastify';
 import { getPaymentList, GetPaymentResponse } from '../services/paymentService';
-import { fetchStaffById, updateStaff, GetStaffResponse } from '@/features/services/staffService';
+import { fetchStaffById, GetStaffResponse } from '@/features/services/staffService';
 import {
     fetchStaffAttendanceByStaffId,
     recordStaffAttendance,
@@ -16,24 +15,24 @@ import {
     isSameCalendarDay,
 } from '@/features/services/staffAttendanceService';
 import { usePermission } from '@/core/rbac/usePermission';
+import { calculateStaffFinancials } from '@/utils/staffFinancialUtils';
 import '../../styles/StaffPayment.css';
 
 export const StaffPayment: React.FC = () => {
+    const navigate = useNavigate();
+
     // Permission checks
     const { hasModule, hasPermission } = usePermission();
     const canViewAttendance = hasModule('staffAttendance') || hasPermission('staffAttendance:list') || hasPermission('staff:list');
     const canMarkAttendance = hasPermission('staffAttendance:create') || hasPermission('staffAttendance:update') || hasPermission('staff:update') || hasPermission('staff:create');
-    const canMakePayment = hasPermission('staff:payment');
+    const canMakePayment = hasPermission('staff:payment') || hasPermission('staff:update') || hasPermission('staff:create') || hasModule('staff');
 
     // Extract staffId from route parameters
     const { id } = useParams<{ id: string }>();
     const staffId = id ? parseInt(id, 10) : 0;
 
-    // Staff Profile and Notes State
+    // Staff Profile State
     const [staffInfo, setStaffInfo] = useState<GetStaffResponse | null>(null);
-    const [isEditingNotes, setIsEditingNotes] = useState<boolean>(false);
-    const [notesText, setNotesText] = useState<string>('');
-    const [isSavingNotes, setIsSavingNotes] = useState<boolean>(false);
 
     // Attendance Modal & Date State
     const [isAttendanceOpen, setIsAttendanceOpen] = useState<boolean>(false);
@@ -96,7 +95,6 @@ export const StaffPayment: React.FC = () => {
             const data = await fetchStaffById(staffId);
             if (data) {
                 setStaffInfo(data);
-                setNotesText(data.remarks || '');
             }
         } catch (error) {
             console.error('Error fetching staff profile details:', error);
@@ -251,28 +249,6 @@ export const StaffPayment: React.FC = () => {
         }
     };
 
-    // Save notes directly to backend
-    const handleSaveNotes = async () => {
-        if (!staffId || !staffInfo) return;
-        setIsSavingNotes(true);
-        try {
-            await updateStaff(staffId, {
-                ...staffInfo,
-                remarks: notesText,
-            });
-            setStaffInfo((prev) => (prev ? { ...prev, remarks: notesText } : prev));
-            setIsEditingNotes(false);
-            toast.success('Staff notes updated successfully in backend!', {
-                position: 'top-right',
-                autoClose: 3000,
-            });
-        } catch (err: any) {
-            console.error('Failed to update staff notes:', err);
-            toast.error(err.message || 'Failed to save notes to backend');
-        } finally {
-            setIsSavingNotes(false);
-        }
-    };
 
     // Calculate total money given / total paid to staff
     const calculateTotals = (history: GetPaymentResponse[]) => {
@@ -286,6 +262,11 @@ export const StaffPayment: React.FC = () => {
     };
 
     const totals = calculateTotals(paymentHistory);
+
+    // Live financial balance: Due Left or Advance
+    const financials = useMemo(() => {
+        return calculateStaffFinancials(staffInfo, totals.totalGiven);
+    }, [staffInfo, totals.totalGiven]);
 
     const handleOpenAddPayment = () => setIsAddPaymentOpen(true);
     const handleCloseAddPayment = () => setIsAddPaymentOpen(false);
@@ -302,33 +283,46 @@ export const StaffPayment: React.FC = () => {
             <div className="staff-payment-main">
                 {/* Header Navigation & Actions */}
                 <div className="staff-payment-header">
-                    <BackButton to="/staff" label="Back to Staff" />
+                    <div className="staff-payment-header-left">
+                        <div className="staff-payment-header-icon">
+                            <i className="bi bi-wallet2"></i>
+                        </div>
+                        <div>
+                            <h1 className="staff-payment-header-title">Staff Payment & Statements</h1>
+                            <p className="staff-payment-header-subtitle">
+                                Payout records and attendance tracking for {staffInfo?.name || `Staff #${staffId}`}
+                            </p>
+                        </div>
+                    </div>
 
                     <div className="staff-payment-header-actions">
                         {/* Open Attendance Modal Button */}
-                        <button
-                            type="button"
-                            className="staff-payment-btn-attendance"
-                            onClick={() => setIsAttendanceOpen(true)}
-                        >
-                            <i className="bi bi-calendar-check"></i>
-                            Attendance
-                        </button>
+                        {canViewAttendance && (
+                            <button
+                                type="button"
+                                className="staff-payment-btn-attendance"
+                                onClick={() => setIsAttendanceOpen(true)}
+                                title="View Attendance Calendar"
+                            >
+                                <i className="bi bi-calendar-check"></i>
+                                <span>Attendance</span>
+                            </button>
+                        )}
 
-                        {/* Open Add Payment Modal Button */}
+                        {/* Cross Sign on Right Side instead of Back to Staff button */}
                         <button
                             type="button"
-                            className="staff-payment-add-payment-button"
-                            style={{ margin: 0 }}
-                            onClick={handleOpenAddPayment}
+                            className="staff-payment-close-btn"
+                            onClick={() => navigate('/staff')}
+                            aria-label="Back to Staff"
+                            title="Back to Staff"
                         >
-                            <i className="bi bi-plus-circle me-1"></i>
-                            Add Payment
+                            <i className="bi bi-x-lg"></i>
                         </button>
                     </div>
                 </div>
 
-                {/* Staff Profile & Backend Notes Card */}
+                {/* Staff Profile Banner */}
                 <div className="staff-profile-notes-banner">
                     <div className="staff-profile-header-row">
                         <div className="staff-profile-user-info">
@@ -369,104 +363,19 @@ export const StaffPayment: React.FC = () => {
                             </div>
                         </div>
 
-                        {/* Quick Actions (Notes & Attendance) */}
-                        <div className="staff-profile-quick-actions">
-                            {canViewAttendance && (
+                        {/* Quick Action: Attendance Calendar */}
+                        {canViewAttendance && (
+                            <div className="staff-profile-quick-actions">
                                 <button
                                     type="button"
                                     onClick={() => setIsAttendanceOpen(true)}
                                     className="staff-profile-btn-attendance"
+                                    title="Open Attendance Calendar"
                                 >
                                     <i className="bi bi-calendar3" />
-                                    Attendance Calendar
+                                    <span>Attendance Calendar</span>
                                 </button>
-                            )}
-                            {!isEditingNotes && (
-                                <button
-                                    type="button"
-                                    onClick={() => setIsEditingNotes(true)}
-                                    className="staff-profile-btn-notes"
-                                >
-                                    <i className="bi bi-pencil-square" />
-                                    {staffInfo?.remarks ? 'Edit Notes' : 'Add Note'}
-                                </button>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Staff Notes Content Box */}
-                    <div className="staff-profile-notes-box">
-                        <div className="staff-profile-notes-box-header">
-                            <i className="bi bi-journal-text" style={{ color: '#2563eb', fontSize: '1rem' }} />
-                            <span>Staff Notes / Remarks</span>
-                        </div>
-
-                        {isEditingNotes ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem', marginTop: '0.4rem' }}>
-                                <textarea
-                                    value={notesText}
-                                    onChange={(e) => setNotesText(e.target.value)}
-                                    rows={3}
-                                    placeholder="Enter any notes or remarks about this staff member (stored in backend)..."
-                                    className="staff-profile-notes-textarea"
-                                    disabled={isSavingNotes}
-                                    autoFocus
-                                />
-                                <div className="staff-profile-notes-actions">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setNotesText(staffInfo?.remarks || '');
-                                            setIsEditingNotes(false);
-                                        }}
-                                        disabled={isSavingNotes}
-                                        style={{
-                                            padding: '0.4rem 0.85rem',
-                                            borderRadius: '6px',
-                                            border: '1px solid #cbd5e1',
-                                            background: '#fff',
-                                            color: '#64748b',
-                                            fontWeight: 600,
-                                            fontSize: '0.85rem',
-                                            cursor: 'pointer',
-                                        }}
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={handleSaveNotes}
-                                        disabled={isSavingNotes}
-                                        style={{
-                                            padding: '0.4rem 1rem',
-                                            borderRadius: '6px',
-                                            border: 'none',
-                                            background: '#2563eb',
-                                            color: '#fff',
-                                            fontWeight: 600,
-                                            fontSize: '0.85rem',
-                                            cursor: 'pointer',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '0.4rem',
-                                        }}
-                                    >
-                                        {isSavingNotes ? (
-                                            <>
-                                                <i className="bi bi-arrow-clockwise spinning" /> Saving...
-                                            </>
-                                        ) : (
-                                            <>
-                                                <i className="bi bi-check2-circle" /> Save Notes
-                                            </>
-                                        )}
-                                    </button>
-                                </div>
                             </div>
-                        ) : (
-                            <p className="staff-profile-notes-text" style={{ color: staffInfo?.remarks ? '#1e293b' : '#94a3b8', fontStyle: staffInfo?.remarks ? 'normal' : 'italic' }}>
-                                {staffInfo?.remarks || 'No notes added yet for this staff member. Click "Add Note" to record notes in backend.'}
-                            </p>
                         )}
                     </div>
 
@@ -560,38 +469,131 @@ export const StaffPayment: React.FC = () => {
 
                 {/* Summary Cards */}
                 <div className="staff-payment-summary-cards">
+                    {/* Due Left or Advance Balance Card */}
+                    {financials.due > 0 ? (
+                        <div className="staff-payment-summary-card staff-payment-due-card">
+                            <div className="staff-payment-card-content">
+                                <div className="staff-payment-icon staff-payment-icon-danger">
+                                    <i className="bi bi-clock-history"></i>
+                                </div>
+                                <div className="staff-payment-card-info">
+                                    <span className="staff-payment-summary-title">Due Amount Left</span>
+                                    <div className="staff-payment-summary-amount" style={{ color: '#dc2626' }}>
+                                        रु {financials.due.toLocaleString()}
+                                    </div>
+                                    <span className="staff-payment-card-subtitle">
+                                        Accrued रु {financials.accrued.toLocaleString()} − Paid रु {financials.paid.toLocaleString()}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ) : financials.advance > 0 ? (
+                        <div className="staff-payment-summary-card staff-payment-advance-card">
+                            <div className="staff-payment-card-content">
+                                <div className="staff-payment-icon staff-payment-icon-primary">
+                                    <i className="bi bi-arrow-up-right-circle-fill"></i>
+                                </div>
+                                <div className="staff-payment-card-info">
+                                    <span className="staff-payment-summary-title">Advance Payment</span>
+                                    <div className="staff-payment-summary-amount" style={{ color: '#255DCE' }}>
+                                        रु {financials.advance.toLocaleString()}
+                                    </div>
+                                    <span className="staff-payment-card-subtitle">
+                                        Advance payout exceeding accrued salary
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="staff-payment-summary-card staff-payment-settled-card">
+                            <div className="staff-payment-card-content">
+                                <div className="staff-payment-icon" style={{ background: '#dcfce7', color: '#16a34a' }}>
+                                    <i className="bi bi-check-circle-fill"></i>
+                                </div>
+                                <div className="staff-payment-card-info">
+                                    <span className="staff-payment-summary-title">Balance Settled</span>
+                                    <div className="staff-payment-summary-amount" style={{ color: '#16a34a' }}>
+                                        रु 0
+                                    </div>
+                                    <span className="staff-payment-card-subtitle">
+                                        All accrued salary fully paid
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* Total Given / Disbursed Card */}
-                    <div className="staff-payment-summary-card staff-payment-due-card">
+                    <div className="staff-payment-summary-card">
                         <div className="staff-payment-card-content">
-                            <div className="staff-payment-icon staff-payment-icon-danger">
+                            <div className="staff-payment-icon staff-payment-icon-success">
                                 <i className="bi bi-cash-stack"></i>
                             </div>
                             <div className="staff-payment-card-info">
-                                <span className="staff-payment-summary-title">Total Payments Given</span>
-                                <div className="staff-payment-summary-amount">
+                                <span className="staff-payment-summary-title">Payment Given</span>
+                                <div className="staff-payment-summary-amount" style={{ color: '#059669' }}>
                                     रु {totals.totalGiven.toLocaleString()}
                                 </div>
-                                <span className="staff-payment-card-subtitle">Total salary & advance payouts</span>
+                                <span className="staff-payment-card-subtitle">Total payments disbursed to staff</span>
                             </div>
                         </div>
                     </div>
 
-                    {/* Staff View Permission Card */}
-                    <div className="staff-payment-summary-card staff-payment-permission-card">
+                    {/* Accrued Salary to Date Card */}
+                    <div className="staff-payment-summary-card">
                         <div className="staff-payment-card-content">
-                            <div className="staff-payment-icon staff-payment-icon-primary">
-                                <i className="bi bi-eye"></i>
+                            <div className="staff-payment-icon" style={{ background: '#e0f2fe', color: '#0284c7' }}>
+                                <i className="bi bi-calendar3-range"></i>
                             </div>
                             <div className="staff-payment-card-info">
-                                <span className="staff-payment-summary-title">Payment Permission</span>
-                                <span className="staff-payment-card-subtitle">Allow staff to view payment details</span>
+                                <span className="staff-payment-summary-title">Accrued Salary</span>
+                                <div className="staff-payment-summary-amount" style={{ color: '#0284c7' }}>
+                                    रु {financials.accrued.toLocaleString()}
+                                </div>
+                                <span className="staff-payment-card-subtitle">
+                                    {financials.primarySalary?.salaryType || 'Salary'} salary calculated to date
+                                </span>
                             </div>
-                            <button type="button" className="staff-payment-permission-button">
-                                <i className="bi bi-eye me-1"></i>
-                                Show
-                            </button>
                         </div>
                     </div>
+
+                    {/* Total Transactions Card */}
+                    <div className="staff-payment-summary-card staff-payment-transactions-card">
+                        <div className="staff-payment-card-content">
+                            <div className="staff-payment-icon staff-payment-icon-primary">
+                                <i className="bi bi-receipt-cutoff"></i>
+                            </div>
+                            <div className="staff-payment-card-info">
+                                <span className="staff-payment-summary-title">Payment Transactions</span>
+                                <div className="staff-payment-summary-amount" style={{ color: '#021861' }}>
+                                    {paymentHistory.length} {paymentHistory.length === 1 ? 'Record' : 'Records'}
+                                </div>
+                                <span className="staff-payment-card-subtitle">Total payouts recorded</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Attendance Rate Card */}
+                    {canViewAttendance && (
+                        <div className="staff-payment-summary-card staff-payment-attendance-card">
+                            <div className="staff-payment-card-content">
+                                <div className="staff-payment-icon staff-payment-icon-success">
+                                    <i className="bi bi-calendar2-check"></i>
+                                </div>
+                                <div className="staff-payment-card-info">
+                                    <span className="staff-payment-summary-title">Present This Month</span>
+                                    <div className="staff-payment-summary-amount" style={{ color: '#059669' }}>
+                                        {thisMonthStats.presentCount} {thisMonthStats.presentCount === 1 ? 'Day' : 'Days'}
+                                    </div>
+                                    <span className="staff-payment-card-subtitle">
+                                        {thisMonthStats.totalLogged > 0
+                                            ? `${thisMonthStats.percentage}% attendance rate`
+                                            : 'No logs for this month'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Main Content Area: Payment History Statement List */}
@@ -696,23 +698,23 @@ export const StaffPayment: React.FC = () => {
                                     ))
                             )}
                         </div>
-
-                        {/* Footer Action */}
-                        {canMakePayment && (
-                            <div className="staff-payment-history-footer">
-                                <button
-                                    type="button"
-                                    className="staff-payment-add-payment-button"
-                                    onClick={handleOpenAddPayment}
-                                >
-                                    <i className="bi bi-plus-circle me-1"></i>
-                                    Add Payment
-                                </button>
-                            </div>
-                        )}
                     </div>
                 </div>
             </div>
+
+            {/* Sticky Bottom-Right Add Payment Button (Fixed viewport position) */}
+            {canMakePayment && (
+                <button
+                    type="button"
+                    className="staff-payment-sticky-add-button"
+                    onClick={handleOpenAddPayment}
+                    aria-label="Add Payment"
+                    title="Add Payment to Staff"
+                >
+                    <i className="bi bi-plus-lg"></i>
+                    <span>Add Payment</span>
+                </button>
+            )}
 
             {/* ATTENDANCE POPUP MODAL */}
             {isAttendanceOpen && (
