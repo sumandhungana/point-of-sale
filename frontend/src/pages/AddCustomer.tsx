@@ -224,7 +224,8 @@ export const AddCustomer = () => {
                             {/* Phone Number */}
                             <div className="form-field-group">
                                 <label className="form-field-label">
-                                    Phone Number <span className="required-star">*</span>
+                                    Phone Number
+                                    {/*<span className="required-star">*</span>*/}
                                 </label>
                                 <div className="input-with-icon">
                                     <i className="bi bi-telephone field-icon" />
@@ -235,7 +236,7 @@ export const AddCustomer = () => {
                                         onChange={handleChange}
                                         className="form-field-input"
                                         placeholder="Contact Number"
-                                        required
+
                                     />
                                 </div>
                             </div>

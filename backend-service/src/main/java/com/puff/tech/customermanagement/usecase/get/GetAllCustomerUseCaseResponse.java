@@ -4,6 +4,7 @@ import com.puff.tech.core.usecases.UCResponse;
 import io.micronaut.serde.annotation.Serdeable;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 
 @Serdeable
 public record GetAllCustomerUseCaseResponse(
@@ -17,7 +18,11 @@ public record GetAllCustomerUseCaseResponse(
         String contactPerson,
         String bankAccount,
         BigDecimal cashBalance,
-        String profileImage
+        String profileImage,
+        String createdBy,
+        Instant createdAt,
+        String updatedBy,
+        Instant updatedAt
 )
 implements UCResponse {
 }

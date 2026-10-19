@@ -21,6 +21,7 @@ public class AddCustomerUseCase implements MonoUC<AddCustomerUseCaseRequest,AddC
 
     @Override
     public Mono<AddCustomerUseCaseResponse> execute(AddCustomerUseCaseRequest request, UseCaseContext context) {
+
         var customer= CustomerConvertor.toEntity(request, context.securityContext());
         return customerRepository.save(customer)
                 .map(customerData -> AddCustomerUseCaseResponse.builder()

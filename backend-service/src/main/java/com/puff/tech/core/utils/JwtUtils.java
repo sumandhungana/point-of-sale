@@ -2,7 +2,9 @@ package com.puff.tech.core.utils;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.JwtParserBuilder;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.JwkParserBuilder;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.MacAlgorithm;
 
@@ -107,10 +109,10 @@ public class JwtUtils {
     }
    public static Claims getClaims(String token) throws JwtException {
         return Jwts.parser()
-                .setSigningKey(generateSecretKey())
+                .verifyWith(generateSecretKey())
                 .build()
-                .parseClaimsJws(token)
-                .getBody();
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
 }

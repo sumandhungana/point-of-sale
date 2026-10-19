@@ -23,4 +23,8 @@ public class HelperUtils {
             file.delete();
         }
     }
+
+    public static boolean isBlankOrNull(String value) {
+        return value == null || value.isBlank();
+    }
 }
