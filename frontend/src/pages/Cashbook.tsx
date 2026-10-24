@@ -3,6 +3,7 @@ import {useNavigate} from 'react-router-dom';
 import {Sidebar} from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import {fetchCashbooks as fetchCashbooksApi} from '../services/cashbookService';
+import {useAppSettings} from '../context/AppSettingsContext';
 import '../styles/Cashbook.css';
 
 interface Cashbook {
@@ -24,6 +25,7 @@ interface Cashbook {
 
 export const Cashbook = () => {
     const navigate = useNavigate();
+    const { formatCurrency, formatDate } = useAppSettings();
     const [cashbooks, setCashbooks] = useState<Cashbook[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -147,7 +149,7 @@ export const Cashbook = () => {
                                 <div className="cashbook-info-header">
                                     <div className="cashbook-info-title">Total Cashbook</div>
                                 </div>
-                                <div className="cashbook-info-value">Rs.{totalCashbook.toLocaleString()}</div>
+                                <div className="cashbook-info-value">{formatCurrency(totalCashbook)}</div>
                                 <button className="cashbook-view-more-button">
                                     <i className="bi bi-eye"></i>
                                     View More
@@ -160,7 +162,7 @@ export const Cashbook = () => {
                                 <div className="cashbook-info-header">
                                     <div className="cashbook-info-title">Pending Amount</div>
                                 </div>
-                                <div className="cashbook-info-value">Rs.{pendingAmount.toLocaleString()}</div>
+                                <div className="cashbook-info-value">{formatCurrency(pendingAmount)}</div>
                                 <button className="cashbook-view-more-button">
                                     <i className="bi bi-eye"></i>
                                     View More
@@ -240,7 +242,7 @@ export const Cashbook = () => {
                                         </div>
                                         <div className="cashbook-date">
                                             <i className="bi bi-calendar me-1"></i>
-                                            {new Date(cashbook.date).toLocaleDateString()}
+                                            {formatDate(cashbook.date)}
                                         </div>
                                         {cashbook.remarks && (
                                             <div className="cashbook-remarks">
@@ -250,7 +252,7 @@ export const Cashbook = () => {
                                         )}
                                     </div>
                                     <div className="cashbook-amount">
-                                        Rs.{cashbook.amount.toLocaleString()}
+                                        {formatCurrency(cashbook.amount)}
                                     </div>
                                 </div>
                             ))

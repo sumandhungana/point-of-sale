@@ -1,10 +1,12 @@
 import React from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../components/Navbar';
-import { BackButton } from '../components/BackButton';
+import { BackButton } from '@/components/BackButton';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/Branch.css';
 
 export const Branch: React.FC = () => {
+  const { formatCurrency } = useAppSettings();
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
@@ -40,7 +42,7 @@ export const Branch: React.FC = () => {
                   </span>
                   <span className="branch-stat">
                     <i className="bi bi-graph-up"></i>
-                    Sales: Rs.45,000
+                    Sales: {formatCurrency(45000)}
                   </span>
                 </div>
               </div>

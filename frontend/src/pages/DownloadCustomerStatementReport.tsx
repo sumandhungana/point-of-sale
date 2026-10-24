@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Sidebar } from "../components/Sidebar"
 import { useNavigate, useParams } from "react-router-dom"
+import { useAppSettings } from "@/context/AppSettingsContext"
 import '../styles/DownloadCustomerStatementReport.css'
 
 interface Transaction {
@@ -14,6 +15,7 @@ interface Transaction {
 
 export const DownloadCustomerStatementReport = () => {
   const navigate = useNavigate()
+  const { formatCurrency } = useAppSettings()
   const { id } = useParams<{ id: string }>()
   const [printLogo, setPrintLogo] = useState(false)
 
@@ -94,7 +96,7 @@ export const DownloadCustomerStatementReport = () => {
                 <i className="bi bi-calculator me-1"></i>
                 Opening Balance
               </div>
-              <div className="download-statement-summary-item-value">Rs. {openingBalance.toLocaleString()}</div>
+              <div className="download-statement-summary-item-value">{formatCurrency(openingBalance)}</div>
               <div className="download-statement-summary-item-title">Date: {startDate}</div>
             </div>
             <div className="download-statement-summary-divider" />
@@ -103,7 +105,7 @@ export const DownloadCustomerStatementReport = () => {
                 <i className="bi bi-arrow-up-circle me-1"></i>
                 Total Gave
               </div>
-              <div className="download-statement-summary-item-value download-statement-gave-value">Rs. {totalGave.toLocaleString()}</div>
+              <div className="download-statement-summary-item-value download-statement-gave-value">{formatCurrency(totalGave)}</div>
             </div>
             <div className="download-statement-summary-divider" />
             <div className="download-statement-summary-item">
@@ -111,7 +113,7 @@ export const DownloadCustomerStatementReport = () => {
                 <i className="bi bi-arrow-down-circle me-1"></i>
                 Total Received
               </div>
-              <div className="download-statement-summary-item-value download-statement-received-value">Rs. {totalReceived.toLocaleString()}</div>
+              <div className="download-statement-summary-item-value download-statement-received-value">{formatCurrency(totalReceived)}</div>
             </div>
             <div className="download-statement-summary-divider" />
             <div className="download-statement-summary-item">
@@ -119,7 +121,7 @@ export const DownloadCustomerStatementReport = () => {
                 <i className="bi bi-calculator me-1"></i>
                 Net Balance
               </div>
-              <div className="download-statement-summary-item-value download-statement-net-value">Rs. {netBalance.toLocaleString()}</div>
+              <div className="download-statement-summary-item-value download-statement-net-value">{formatCurrency(netBalance)}</div>
               <div className="download-statement-summary-item-title">{netBalance >= 0 ? "Received" : "Gave"}</div>
             </div>
           </div>
@@ -160,7 +162,7 @@ export const DownloadCustomerStatementReport = () => {
                     Full Date Opening Month
                   </th>
                   <th className="download-statement-table-header" colSpan={2}>
-                    Opening Balance: Rs. {openingBalance.toLocaleString()}
+                    Opening Balance: {formatCurrency(openingBalance)}
                   </th>
                 </tr>
               </thead>
@@ -170,19 +172,19 @@ export const DownloadCustomerStatementReport = () => {
                   <td className="download-statement-table-cell">Opening Balance</td>
                   <td className="download-statement-table-cell">-</td>
                   <td className="download-statement-table-cell">-</td>
-                  <td className="download-statement-table-cell">Rs. {openingBalance.toLocaleString()}</td>
+                  <td className="download-statement-table-cell">{formatCurrency(openingBalance)}</td>
                 </tr>
                 {currentMonthTransactions.map((transaction) => (
                   <tr key={transaction.id}>
                     <td className="download-statement-table-cell">{transaction.date}</td>
                     <td className="download-statement-table-cell">{transaction.details}</td>
                     <td className="download-statement-table-cell">
-                      {transaction.gave > 0 ? `Rs. ${transaction.gave.toLocaleString()}` : "-"}
+                      {transaction.gave > 0 ? formatCurrency(transaction.gave) : "-"}
                     </td>
                     <td className="download-statement-table-cell">
-                      {transaction.received > 0 ? `Rs. ${transaction.received.toLocaleString()}` : "-"}
+                      {transaction.received > 0 ? formatCurrency(transaction.received) : "-"}
                     </td>
-                    <td className="download-statement-table-cell">Rs. {transaction.balance.toLocaleString()}</td>
+                    <td className="download-statement-table-cell">{formatCurrency(transaction.balance)}</td>
                   </tr>
                 ))}
                 <tr>
@@ -190,10 +192,10 @@ export const DownloadCustomerStatementReport = () => {
                     <strong>Total</strong>
                   </td>
                   <td className="download-statement-table-cell">
-                    <strong>Rs. {currentMonthTotalGave.toLocaleString()}</strong>
+                    <strong>{formatCurrency(currentMonthTotalGave)}</strong>
                   </td>
                   <td className="download-statement-table-cell">
-                    <strong>Rs. {currentMonthTotalReceived.toLocaleString()}</strong>
+                    <strong>{formatCurrency(currentMonthTotalReceived)}</strong>
                   </td>
                   <td className="download-statement-table-cell"></td>
                 </tr>
@@ -235,7 +237,7 @@ export const DownloadCustomerStatementReport = () => {
                       Full Date Next Month
                     </th>
                     <th className="download-statement-table-header" colSpan={2}>
-                      Opening Balance: Rs. {openingBalance.toLocaleString()}
+                      Opening Balance: {formatCurrency(openingBalance)}
                     </th>
                   </tr>
                 </thead>
@@ -245,12 +247,12 @@ export const DownloadCustomerStatementReport = () => {
                       <td className="download-statement-table-cell">{transaction.date}</td>
                       <td className="download-statement-table-cell">{transaction.details}</td>
                       <td className="download-statement-table-cell">
-                        {transaction.gave > 0 ? `Rs. ${transaction.gave.toLocaleString()}` : "-"}
+                        {transaction.gave > 0 ? formatCurrency(transaction.gave) : "-"}
                       </td>
                       <td className="download-statement-table-cell">
-                        {transaction.received > 0 ? `Rs. ${transaction.received.toLocaleString()}` : "-"}
+                        {transaction.received > 0 ? formatCurrency(transaction.received) : "-"}
                       </td>
-                      <td className="download-statement-table-cell">Rs. {transaction.balance.toLocaleString()}</td>
+                      <td className="download-statement-table-cell">{formatCurrency(transaction.balance)}</td>
                     </tr>
                   ))}
                   <tr>
@@ -258,10 +260,10 @@ export const DownloadCustomerStatementReport = () => {
                       <strong>Total</strong>
                     </td>
                     <td className="download-statement-table-cell">
-                      <strong>Rs. {nextMonthTotalGave.toLocaleString()}</strong>
+                      <strong>{formatCurrency(nextMonthTotalGave)}</strong>
                     </td>
                     <td className="download-statement-table-cell">
-                      <strong>Rs. {nextMonthTotalReceived.toLocaleString()}</strong>
+                      <strong>{formatCurrency(nextMonthTotalReceived)}</strong>
                     </td>
                     <td className="download-statement-table-cell"></td>
                   </tr>

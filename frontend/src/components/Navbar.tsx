@@ -173,8 +173,22 @@ const Navbar: React.FC = () => {
     }
   };
 
+  const logoSrc = settings.logoPath ? resolveImageUrl(settings.logoPath) : logo;
+  const isCustomLogoColor =
+    !!settings.topMenuLogoColor &&
+    settings.topMenuLogoColor !== 'default' &&
+    settings.topMenuLogoColor.trim() !== '';
+
   return (
-    <nav className="navbar-container">
+    <nav
+      className="navbar-container"
+      style={{
+        background: settings.topMenuBgColor || '#ffffff',
+        color: settings.topMenuFontColor || '#000000',
+        '--top-menu-bg-color': settings.topMenuBgColor || '#ffffff',
+        '--top-menu-font-color': settings.topMenuFontColor || '#000000',
+      } as React.CSSProperties}
+    >
       {/* Brand Logo & Mobile Hamburger Trigger */}
       <div className="navbar-brand-section">
         <button
@@ -193,11 +207,25 @@ const Navbar: React.FC = () => {
           className="navbar-logo-wrap"
           onClick={() => navigate('/')}
         >
-          <img
-            src={settings.logoPath || logo}
-            alt={'Khatabook'}
-            className="navbar-logo-img"
-          />
+          {isCustomLogoColor ? (
+            <div
+              className="navbar-logo-colored"
+              style={{
+                backgroundColor: settings.topMenuLogoColor!,
+                WebkitMaskImage: `url("${logoSrc}")`,
+                maskImage: `url("${logoSrc}")`,
+              }}
+              role="img"
+              aria-label="Khatabook"
+              title="Khatabook"
+            />
+          ) : (
+            <img
+              src={logoSrc}
+              alt={'Khatabook'}
+              className="navbar-logo-img"
+            />
+          )}
         </div>
       </div>
 

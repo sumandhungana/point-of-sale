@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/EditCustomerStatement.css';
 
 export const EditCustomerStatement = () => {
     const navigate = useNavigate();
+    const { formatCurrency, currencySymbol } = useAppSettings();
     const { id } = useParams<{ id: string }>();
     const [formData, setFormData] = useState({
         amount: '',
@@ -65,9 +67,9 @@ export const EditCustomerStatement = () => {
 
                     <div className="edit-statement-summary-box">
                         <p className="edit-statement-summary-text">
-                            <i className="bi bi-currency-rupee"></i>
+                            <i className="bi bi-wallet2 me-1"></i>
                             You {transactionType === 'give' ? 'give' : 'receive'} 
-                            <span className="edit-statement-highlighted-amount"> Rs. {totalAmount.toLocaleString()} </span> 
+                            <span className="edit-statement-highlighted-amount"> {formatCurrency(totalAmount)} </span> 
                             from {customerName}
                         </p>
                     </div>
@@ -76,8 +78,8 @@ export const EditCustomerStatement = () => {
                         <div className="edit-statement-form-row">
                             <div className="edit-statement-form-group">
                                 <label className="edit-statement-label">
-                                    <i className="bi bi-currency-rupee me-1"></i>
-                                    Give/Receive Amount (Rs.)
+                                    <i className="bi bi-wallet2 me-1"></i>
+                                    Give/Receive Amount ({currencySymbol})
                                 </label>
                                 <input
                                     type="number"

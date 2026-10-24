@@ -3,10 +3,13 @@ import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import Alert from '../components/Alert';
 import { createCustomer, CreateCustomerRequest } from '@/features/services/customerService';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/AddCustomer.css';
 
 export const AddCustomer = () => {
     const navigate = useNavigate();
+    const { settings } = useAppSettings();
+    const currencySymbol = settings.currency || 'Rs. ';
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [formData, setFormData] = useState<CreateCustomerRequest>({
@@ -339,7 +342,7 @@ export const AddCustomer = () => {
 
                             {/* Opening Cash Balance */}
                             <div className="form-field-group">
-                                <label className="form-field-label">Opening Cash Balance (रु)</label>
+                                <label className="form-field-label">Opening Cash Balance ({currencySymbol})</label>
                                 <div className="input-with-icon">
                                     <i className="bi bi-cash-stack field-icon" />
                                     <input

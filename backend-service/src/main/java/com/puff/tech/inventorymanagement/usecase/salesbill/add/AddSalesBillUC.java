@@ -105,6 +105,7 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
             OrganizationCustomerEntity customer = new OrganizationCustomerEntity();
             customer.setId(Math.toIntExact(request.customerId()));
             entity.setCustomer(customer);
+            entity.setCustomerName(request.customerName());
         } else {
             entity.setCustomerName(
                     request.customerName() != null && !request.customerName().isBlank()

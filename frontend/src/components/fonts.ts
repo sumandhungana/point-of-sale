@@ -82,5 +82,11 @@ export async function registerFonts() {
   }
 }
 
-// Helper to get symbol based on availability
-export const getCurrencySymbol = () => (active ? 'रु' : 'Rs');
+import { getSystemCurrencySymbol } from '@/features/services/appSettingService';
+
+// Helper to get symbol based on availability and app settings
+export const getCurrencySymbol = () => {
+  const configured = getSystemCurrencySymbol();
+  if (configured) return configured;
+  return active ? 'रु' : 'Rs';
+};

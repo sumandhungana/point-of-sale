@@ -8,6 +8,7 @@ import { getCustomers } from '@/features/services/customerService';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 import CustomerStatementsPDFTemplate from '../components/CustomerStatementsPDFTemplate';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../../../styles/CustomerStatementsReport.css';
 
 interface ReportData {
@@ -21,6 +22,7 @@ interface ReportData {
 
 export const CustomerStatementsReport = () => {
     const navigate = useNavigate();
+    const { formatCurrency, formatDate } = useAppSettings();
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
     const contentRef = useRef<HTMLDivElement>(null);
@@ -327,7 +329,7 @@ export const CustomerStatementsReport = () => {
                                 <td className="net-balance" colSpan={3}>
                                     <div className="net-balance-content">
                                         <span>Total Net Balance</span>
-                                        <strong>रु{(netBalance || 0).toLocaleString()}</strong>
+                                        <strong>{formatCurrency(netBalance || 0)}</strong>
                                     </div>
                                 </td>
                             </tr>
@@ -340,19 +342,19 @@ export const CustomerStatementsReport = () => {
                                 <td>
                                     You Gave
                                     <br />
-                                    <strong>रु{(totalGave || 0).toLocaleString()}</strong>
+                                    <strong>{formatCurrency(totalGave || 0)}</strong>
                                 </td>
                                 <td>
                                     You Received
                                     <br />
-                                    <strong>रु{(totalReceived || 0).toLocaleString()}</strong>
+                                    <strong>{formatCurrency(totalReceived || 0)}</strong>
                                 </td>
                             </tr>
 
                             {filteredTransactions.map((item) => (
                                 <tr key={item.id} className="summary-row-details">
                                     <td>
-                                        Date: {new Date(item.createdAt).toLocaleDateString()}
+                                        Date: {formatDate(item.createdAt)}
                                         <br />
                                         Payment Method: {item.paymentType}
                                         <br />
@@ -360,12 +362,12 @@ export const CustomerStatementsReport = () => {
                                     </td>
                                     <td>
                                         {item.paymentCategory === "GIVEN"
-                                            ? "रु " + Math.abs(Number(item.amount) || 0).toLocaleString()
+                                            ? formatCurrency(Math.abs(Number(item.amount) || 0))
                                             : "-"}
                                     </td>
                                     <td>
                                         {item.paymentCategory === "RECEIVED"
-                                            ? "रु " + Math.abs(Number(item.amount) || 0).toLocaleString()
+                                            ? formatCurrency(Math.abs(Number(item.amount) || 0))
                                             : "-"}
                                     </td>
                                 </tr>

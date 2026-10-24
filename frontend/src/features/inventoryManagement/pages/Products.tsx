@@ -5,9 +5,11 @@ import Navbar from '@/components/Navbar';
 import '../../../styles/Products.css';
 import { getProduct, Item } from "@/features/services/productService";
 import { Categories } from './Categories';
+import { useAppSettings } from '@/context/AppSettingsContext';
 
 export const Products: React.FC = () => {
     const navigate = useNavigate();
+    const { formatCurrency, formatNumber } = useAppSettings();
 
     // Module Active Tab State ('products' | 'categories')
     const [activeTab, setActiveTab] = useState<'products' | 'categories'>('products');
@@ -150,7 +152,7 @@ export const Products: React.FC = () => {
                                     </div>
                                     <div>
                                         <div className="stat-label">Total Purchase Valuation</div>
-                                        <div className="stat-value">Rs. {totalPurchaseValuation.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                        <div className="stat-value">{formatCurrency(totalPurchaseValuation)}</div>
                                     </div>
                                 </div>
 
@@ -160,7 +162,7 @@ export const Products: React.FC = () => {
                                     </div>
                                     <div>
                                         <div className="stat-label">Total Realized Sales</div>
-                                        <div className="stat-value">Rs. {totalSalesPrice.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+                                        <div className="stat-value">{formatCurrency(totalSalesPrice)}</div>
                                     </div>
                                 </div>
 
@@ -170,7 +172,7 @@ export const Products: React.FC = () => {
                                     </div>
                                     <div>
                                         <div className="stat-label">Total Unique Items</div>
-                                        <div className="stat-value">{totalItems} Items</div>
+                                        <div className="stat-value">{formatNumber(totalItems, 0)} Items</div>
                                     </div>
                                 </div>
                             </div>
@@ -323,11 +325,11 @@ export const Products: React.FC = () => {
                                                             </div>
                                                         </div>
                                                     </td>
-                                                    <td>Rs. {unitPurchase.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                                                    <td>Rs. {grossPurchase.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
-                                                    <td>Rs. {fixedSelling.toLocaleString(undefined, { minimumFractionDigits: 2 })}</td>
+                                                    <td>{formatCurrency(unitPurchase)}</td>
+                                                    <td>{formatCurrency(grossPurchase)}</td>
+                                                    <td>{formatCurrency(fixedSelling)}</td>
                                                     <td className="fw-semibold" style={{ color: '#255DCE' }}>
-                                                        Rs. {totalSales.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                                        {formatCurrency(totalSales)}
                                                     </td>
                                                 </tr>
                                             );

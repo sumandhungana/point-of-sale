@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import logo from '@/assets/logo.png';
 import { printReportDirectly } from '../utils/printInvoice';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '@/styles/InvoicePdf.css';
 
 export interface ReportRow {
@@ -39,6 +40,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
 }) => {
     const reportRef = useRef<HTMLDivElement>(null);
     const [generating, setGenerating] = useState(false);
+    const { formatCurrency, formatDate, currencySymbol } = useAppSettings();
 
     const companyName =
         localStorage.getItem('organizationName') ||
@@ -204,10 +206,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                                     {isPurchase ? 'Total Purchase Spend' : 'Total Sales Revenue'}
                                 </span>
                                 <span className="report-kpi-val" style={{ color: '#255dce' }}>
-                                    Rs. {data.totalAmount.toLocaleString('en-IN', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                    })}
+                                    {formatCurrency(data.totalAmount)}
                                 </span>
                             </div>
 
@@ -219,10 +218,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                             <div className="report-kpi-item">
                                 <span className="report-kpi-label">Average Bill Size</span>
                                 <span className="report-kpi-val">
-                                    Rs. {averageValue.toLocaleString('en-IN', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                    })}
+                                    {formatCurrency(averageValue)}
                                 </span>
                             </div>
                         </div>
@@ -240,7 +236,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                                         </th>
                                         <th>Details / Items</th>
                                         <th style={{ width: '100px' }}>Mode</th>
-                                        <th style={{ width: '120px' }} className="text-end">Amount (Rs.)</th>
+                                        <th style={{ width: '120px' }} className="text-end">Amount ({currencySymbol})</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -252,7 +248,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                                             </td>
                                             <td>
                                                 {row.date
-                                                    ? new Date(row.date).toLocaleDateString()
+                                                    ? formatDate(row.date)
                                                     : 'N/A'}
                                             </td>
                                             <td>
@@ -269,10 +265,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                                                 </span>
                                             </td>
                                             <td className="text-end fw-bold">
-                                                Rs. {row.amount.toLocaleString('en-IN', {
-                                                    minimumFractionDigits: 2,
-                                                    maximumFractionDigits: 2,
-                                                })}
+                                                {formatCurrency(row.amount)}
                                             </td>
                                         </tr>
                                     ))}
@@ -285,10 +278,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                             <div className="total-summary-line grand" style={{ padding: '12px 14px', background: '#f8fafc', borderRadius: '8px' }}>
                                 <span>Total Grand Summary:</span>
                                 <span className="grand-amount-val">
-                                    Rs. {data.totalAmount.toLocaleString('en-IN', {
-                                        minimumFractionDigits: 2,
-                                        maximumFractionDigits: 2,
-                                    })}
+                                    {formatCurrency(data.totalAmount)}
                                 </span>
                             </div>
 

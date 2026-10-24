@@ -1,5 +1,11 @@
 import { InvoiceModalData } from '../components/InvoiceModal';
 import { ReportModalData } from '../components/ReportPdfModal';
+import {
+    formatSystemCurrency,
+    formatSystemNumber,
+    formatSystemDate,
+    getSystemCurrencySymbol
+} from '@/features/services/appSettingService';
 
 export const printHtmlContent = (htmlContent: string, title: string = 'Invoice') => {
     const iframe = document.createElement('iframe');
@@ -296,9 +302,9 @@ export const printInvoiceDirectly = (data: InvoiceModalData) => {
                         <div style="font-size: 11px; color: #64748b;">${item.category || 'General'}</div>
                     </td>
                     <td class="text-center">${item.quantity}</td>
-                    <td class="text-end">${(item.unitPrice || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td class="text-end">${formatSystemNumber(item.unitPrice || 0, 2)}</td>
                     <td class="text-center">${hasTax ? totalTax + '%' : '-'}</td>
-                    <td class="text-end fw-bold">${(item.totalAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                    <td class="text-end fw-bold">${formatSystemNumber(item.totalAmount || 0, 2)}</td>
                 </tr>
             `;
         })
@@ -370,16 +376,16 @@ export const printInvoiceDirectly = (data: InvoiceModalData) => {
             <div class="totals-box">
                 <div class="total-line">
                     <span>Subtotal:</span>
-                    <span>Rs. ${(data.subtotal || data.grandTotal).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    <span>${formatSystemCurrency(data.subtotal || data.grandTotal)}</span>
                 </div>
                 ${(data.taxTotal || 0) > 0 ? `
                 <div class="total-line">
                     <span>Applicable Tax & VAT:</span>
-                    <span>Rs. ${(data.taxTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    <span>${formatSystemCurrency(data.taxTotal || 0)}</span>
                 </div>` : ''}
                 <div class="total-line grand">
                     <span>Grand Total:</span>
-                    <span class="val">Rs. ${(data.grandTotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                    <span class="val">${formatSystemCurrency(data.grandTotal || 0)}</span>
                 </div>
             </div>
         </div>
@@ -396,7 +402,7 @@ export const printInvoiceDirectly = (data: InvoiceModalData) => {
         </div>
 
         <div class="disclaimer">
-            System Generated Document | POS & Accounting Core | Date: ${new Date().toLocaleDateString()}
+            System Generated Document | POS & Accounting Core | Date: ${formatSystemDate(new Date())}
         </div>
     `;
 
@@ -411,6 +417,7 @@ export const printReportDirectly = (data: ReportModalData) => {
 
     const isPurchase = data.reportType === 'PURCHASE';
     const avg = data.totalCount > 0 ? data.totalAmount / data.totalCount : 0;
+    const currSymbol = getSystemCurrencySymbol();
 
     const rowsHtml = data.rows
         .map(
@@ -418,11 +425,11 @@ export const printReportDirectly = (data: ReportModalData) => {
             <tr>
                 <td class="text-center">${idx + 1}</td>
                 <td class="fw-bold" style="color: #255dce;">${row.number}</td>
-                <td>${row.date ? new Date(row.date).toLocaleDateString() : 'N/A'}</td>
+                <td>${row.date ? formatSystemDate(row.date) : 'N/A'}</td>
                 <td>${row.party}</td>
                 <td>${row.itemsSummary}</td>
                 <td>${row.paymentMode}</td>
-                <td class="text-end fw-bold">Rs. ${row.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                <td class="text-end fw-bold">${formatSystemCurrency(row.amount)}</td>
             </tr>
         `
         )
@@ -436,14 +443,14 @@ export const printReportDirectly = (data: ReportModalData) => {
             </div>
             <div class="invoice-type-banner">
                 <h2>${data.title}</h2>
-                <div class="num">Date: ${new Date().toLocaleDateString()}</div>
+                <div class="num">Date: ${formatSystemDate(new Date())}</div>
             </div>
         </div>
 
         <div class="report-kpis">
             <div class="report-kpi">
                 <span>${isPurchase ? 'Total Purchase Spend' : 'Total Sales Revenue'}</span>
-                <span style="color: #255dce;">Rs. ${data.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                <span style="color: #255dce;">${formatSystemCurrency(data.totalAmount)}</span>
             </div>
             <div class="report-kpi">
                 <span>Total Transactions</span>
@@ -451,7 +458,7 @@ export const printReportDirectly = (data: ReportModalData) => {
             </div>
             <div class="report-kpi">
                 <span>Average Bill Size</span>
-                <span>Rs. ${avg.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                <span>${formatSystemCurrency(avg)}</span>
             </div>
         </div>
 
@@ -464,7 +471,7 @@ export const printReportDirectly = (data: ReportModalData) => {
                     <th style="width: 140px;">${isPurchase ? 'Vendor' : 'Customer'}</th>
                     <th>Details / Items</th>
                     <th style="width: 90px;">Mode</th>
-                    <th style="width: 120px;" class="text-end">Amount (Rs.)</th>
+                    <th style="width: 120px;" class="text-end">Amount (${currSymbol})</th>
                 </tr>
             </thead>
             <tbody>
@@ -474,11 +481,11 @@ export const printReportDirectly = (data: ReportModalData) => {
 
         <div class="total-line grand" style="background: #f8fafc; padding: 10px 14px; border-radius: 6px;">
             <span>Grand Total Summary:</span>
-            <span class="val">Rs. ${data.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+            <span class="val">${formatSystemCurrency(data.totalAmount)}</span>
         </div>
 
         <div class="disclaimer">
-            Official Statement Report | Generated by ${companyName} POS Core | ${new Date().toLocaleString()}
+            Official Statement Report | Generated by ${companyName} POS Core | ${formatSystemDate(new Date())}
         </div>
     `;
 

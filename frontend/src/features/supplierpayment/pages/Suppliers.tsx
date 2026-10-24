@@ -3,6 +3,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { useNavigate } from 'react-router-dom';
 import { getSuppliers, GetSupplierResponse } from '@/features/services/supplierService';
 import { getPaymentList, GetPaymentResponse } from '@/features/services/paymentService';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import { toast } from 'react-toastify';
 import '../../../styles/Suppliers.css';
 
@@ -103,6 +104,7 @@ const SupplierAvatar = ({ imageSrc, name }: { imageSrc?: string; name: string })
 
 export const Suppliers = () => {
     const navigate = useNavigate();
+    const { formatCurrency } = useAppSettings();
     const [searchQuery, setSearchQuery] = useState('');
     const [filterBy, setFilterBy] = useState('all');
     const [sortBy, setSortBy] = useState('name');
@@ -259,7 +261,7 @@ export const Suppliers = () => {
                         <div className="suppliers-stat-content">
                             <div className="suppliers-stat-label">You Gave</div>
                             <div className="suppliers-stat-value" style={{ color: '#DE1110' }}>
-                                रु{overallTotals.given.toLocaleString()}
+                                {formatCurrency(overallTotals.given)}
                             </div>
                         </div>
                     </div>
@@ -270,7 +272,7 @@ export const Suppliers = () => {
                         <div className="suppliers-stat-content">
                             <div className="suppliers-stat-label">You Received</div>
                             <div className="suppliers-stat-value" style={{ color: '#10b981' }}>
-                                रु{overallTotals.received.toLocaleString()}
+                                {formatCurrency(overallTotals.received)}
                             </div>
                         </div>
                     </div>
@@ -281,7 +283,7 @@ export const Suppliers = () => {
                         <div className="suppliers-stat-content">
                             <div className="suppliers-stat-label">Online Collection</div>
                             <div className="suppliers-stat-value" style={{ color: '#021861' }}>
-                                रु{overallTotals.online.toLocaleString()}
+                                {formatCurrency(overallTotals.online)}
                             </div>
                         </div>
                     </div>
@@ -336,7 +338,7 @@ export const Suppliers = () => {
                                         supplier.balance > 0 ? 'balance-positive' : 'balance-negative'
                                 }`}>
                                     {supplier.balance > 0 ? '+ ' : supplier.balance < 0 ? '- ' : ''}
-                                    रु{Math.abs(supplier.balance).toLocaleString()}
+                                    {formatCurrency(Math.abs(supplier.balance))}
                                 </div>
                             </div>
                         ))}

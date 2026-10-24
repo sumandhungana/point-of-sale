@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchExpenses } from '../services/expensesListService';
+import { useAppSettings } from '../context/AppSettingsContext';
 import '../styles/Expenses.css';
 
 interface Expense {
@@ -24,6 +25,7 @@ interface Expense {
 
 export const Expenses = () => {
   const navigate = useNavigate();
+  const { formatCurrency, formatDate } = useAppSettings();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -139,7 +141,7 @@ export const Expenses = () => {
                 <div className="expenses-info-header">
                   <div className="expenses-info-title">Total Expenses</div>
                 </div>
-                <div className="expenses-info-value">Rs.{totalExpenses.toLocaleString()}</div>
+                <div className="expenses-info-value">{formatCurrency(totalExpenses)}</div>
                 <button className="expenses-view-more-button">
                   <i className="bi bi-graph-up"></i>
                   View Report
@@ -152,7 +154,7 @@ export const Expenses = () => {
                 <div className="expenses-info-header">
                   <div className="expenses-info-title">Pending Amount</div>
                 </div>
-                <div className="expenses-info-value">Rs.{pendingAmount.toLocaleString()}</div>
+                <div className="expenses-info-value">{formatCurrency(pendingAmount)}</div>
                 <button className="expenses-view-more-button">
                   <i className="bi bi-clock"></i>
                   View Details
@@ -232,7 +234,7 @@ export const Expenses = () => {
                     </div>
                     <div className="expenses-date">
                       <i className="bi bi-calendar me-1"></i>
-                      {new Date(expense.date).toLocaleDateString()}
+                      {formatDate(expense.date)}
                     </div>
                     {expense.remarks && (
                       <div className="expenses-remarks">
@@ -242,7 +244,7 @@ export const Expenses = () => {
                     )}
                   </div>
                   <div className="expenses-amount">
-                    Rs.{expense.amount.toLocaleString()}
+                    {formatCurrency(expense.amount)}
                   </div>
                 </div>
               ))

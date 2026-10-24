@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePermission } from '@/core/rbac/usePermission';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import { getKhataBooks, switchKhataBook, getSelectedKhataBook, UserBasedAllMember } from '@/features/services/khataBookService';
 import dashboardIcon from '../assets/dashboard.png';
 import '../styles/Sidebar.css';
@@ -93,6 +94,7 @@ export const Sidebar = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const { hasModule, hasPermission } = usePermission();
+	const { settings } = useAppSettings();
 
 	const [isMobileOpen, setIsMobileOpen] = useState(false);
 	const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -396,6 +398,13 @@ export const Sidebar = () => {
 				className={`sidebar ${isMobileOpen ? 'open' : ''}`}
 				ref={sidebarContainerRef}
 				onScroll={handleSidebarScroll}
+				style={{
+					'--side-menu-bg-color': settings.sideMenuBgColor || '#010A2E',
+					'--side-menu-bg-end-color': settings.sideMenuBgEndColor || '#06164A',
+					'--side-menu-font-color': settings.sideMenuFontColor || '#ffffff',
+					'--side-menu-hover-bg-color': settings.sideMenuHoverBgColor || '#495057',
+					'--side-menu-hover-font-color': settings.sideMenuHoverFontColor || '#ffffff',
+				} as React.CSSProperties}
 			>
 				<div className="sidebar-mobile-header">
 					<span className="sidebar-mobile-title">Menu</span>

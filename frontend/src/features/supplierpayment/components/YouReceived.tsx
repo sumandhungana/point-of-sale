@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { createPayment } from '@/features/services/paymentService';
 import { toast } from 'react-toastify';
+import { useAppSettings } from '@/context/AppSettingsContext';
 
 export interface GetSupplierResponse {
     id: number;
@@ -24,6 +25,8 @@ interface YouReceivedSupplierProps {
 }
 
 export const YouReceived: React.FC<YouReceivedSupplierProps> = ({ supplierId, onSuccess, onClose }) => {
+    const { settings } = useAppSettings();
+    const currencySymbol = settings.currency || 'Rs. ';
     // 1. Extract supplier ID from URL route params as primary fallback
     const { id } = useParams<{ id: string }>();
 
@@ -102,7 +105,7 @@ export const YouReceived: React.FC<YouReceivedSupplierProps> = ({ supplierId, on
             <div className="form-group">
                 <label className="form-label">
                     <i className="bi bi-cash-stack me-1 text-success"></i>
-                    Amount (रु) <span className="text-danger ms-1">*</span>
+                    Amount ({currencySymbol}) <span className="text-danger ms-1">*</span>
                 </label>
                 <input
                     type="number"

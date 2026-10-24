@@ -28,6 +28,8 @@ interface ReportData {
     };
 }
 
+import { formatSystemNumber, formatSystemDate } from '@/features/services/appSettingService';
+
 /* ------------------ Helpers ------------------ */
 const toNumber = (val: any): number => {
     if (val === null || val === undefined) return 0;
@@ -39,15 +41,11 @@ const toNumber = (val: any): number => {
 };
 
 const formatNumber = (val: any): string => {
-    return toNumber(val).toLocaleString('en-US', {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0
-    });
+    return formatSystemNumber(toNumber(val), 0);
 };
 
 const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return isNaN(date.getTime()) ? '-' : date.toLocaleDateString('en-US');
+    return formatSystemDate(dateString);
 };
 
 const getReportDateRange = (transactions: GetPaymentResponse[]) => {
@@ -100,7 +98,7 @@ const groupTransactionsByMonth = (txs: GetPaymentResponse[]) => {
     return groups;
 };
 
-const CURRENCY_SYMBOL = getCurrencySymbol() || 'Rs.';
+// const CURRENCY_SYMBOL = getCurrencySymbol() || 'Rs.';
 
 registerFonts();
 
@@ -476,6 +474,7 @@ const SupplierStatementsPDFTemplate: React.FC<{ data: ReportData }> = ({ data })
         openingBalanceDate = '-'
     } = data;
 
+    const CURRENCY_SYMBOL = getCurrencySymbol() || 'Rs.';
     const givenNum = toNumber(totals.given);
     const receivedNum = toNumber(totals.received);
     const netBalanceNum = receivedNum - givenNum;

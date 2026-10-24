@@ -16,16 +16,18 @@ import {
 } from '@/features/services/staffAttendanceService';
 import { usePermission } from '@/core/rbac/usePermission';
 import { calculateStaffFinancials } from '@/utils/staffFinancialUtils';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../../styles/StaffPayment.css';
 
 export const StaffPayment: React.FC = () => {
     const navigate = useNavigate();
+    const { formatCurrency } = useAppSettings();
 
     // Permission checks
     const { hasModule, hasPermission } = usePermission();
     const canViewAttendance = hasModule('staffAttendance') || hasPermission('staffAttendance:list') || hasPermission('staff:list');
     const canMarkAttendance = hasPermission('staffAttendance:create') || hasPermission('staffAttendance:update') || hasPermission('staff:update') || hasPermission('staff:create');
-    const canMakePayment = hasPermission('staff:payment') || hasPermission('staff:update') || hasPermission('staff:create') || hasModule('staff');
+    const canMakePayment = hasPermission('staffManagement:payment') || hasPermission('staffManagement:update') || hasPermission('staffManagement:create') || hasModule('staffManagement');
 
     // Extract staffId from route parameters
     const { id } = useParams<{ id: string }>();
@@ -288,7 +290,7 @@ export const StaffPayment: React.FC = () => {
                             <i className="bi bi-wallet2"></i>
                         </div>
                         <div>
-                            <h1 className="staff-payment-header-title">Staff Payment & Statements</h1>
+                            {/*<h1 className="staff-payment-header-title">Staff Payment & Statements</h1>*/}
                             <p className="staff-payment-header-subtitle">
                                 Payout records and attendance tracking for {staffInfo?.name || `Staff #${staffId}`}
                             </p>
@@ -479,10 +481,10 @@ export const StaffPayment: React.FC = () => {
                                 <div className="staff-payment-card-info">
                                     <span className="staff-payment-summary-title">Due Amount Left</span>
                                     <div className="staff-payment-summary-amount" style={{ color: '#dc2626' }}>
-                                        रु {financials.due.toLocaleString()}
+                                        {formatCurrency(financials.due)}
                                     </div>
                                     <span className="staff-payment-card-subtitle">
-                                        Accrued रु {financials.accrued.toLocaleString()} − Paid रु {financials.paid.toLocaleString()}
+                                        Accrued {formatCurrency(financials.accrued)} − Paid {formatCurrency(financials.paid)}
                                     </span>
                                 </div>
                             </div>
@@ -496,7 +498,7 @@ export const StaffPayment: React.FC = () => {
                                 <div className="staff-payment-card-info">
                                     <span className="staff-payment-summary-title">Advance Payment</span>
                                     <div className="staff-payment-summary-amount" style={{ color: '#255DCE' }}>
-                                        रु {financials.advance.toLocaleString()}
+                                        {formatCurrency(financials.advance)}
                                     </div>
                                     <span className="staff-payment-card-subtitle">
                                         Advance payout exceeding accrued salary
@@ -513,7 +515,7 @@ export const StaffPayment: React.FC = () => {
                                 <div className="staff-payment-card-info">
                                     <span className="staff-payment-summary-title">Balance Settled</span>
                                     <div className="staff-payment-summary-amount" style={{ color: '#16a34a' }}>
-                                        रु 0
+                                        {formatCurrency(0)}
                                     </div>
                                     <span className="staff-payment-card-subtitle">
                                         All accrued salary fully paid
@@ -532,7 +534,7 @@ export const StaffPayment: React.FC = () => {
                             <div className="staff-payment-card-info">
                                 <span className="staff-payment-summary-title">Payment Given</span>
                                 <div className="staff-payment-summary-amount" style={{ color: '#059669' }}>
-                                    रु {totals.totalGiven.toLocaleString()}
+                                    {formatCurrency(totals.totalGiven)}
                                 </div>
                                 <span className="staff-payment-card-subtitle">Total payments disbursed to staff</span>
                             </div>
@@ -548,7 +550,7 @@ export const StaffPayment: React.FC = () => {
                             <div className="staff-payment-card-info">
                                 <span className="staff-payment-summary-title">Accrued Salary</span>
                                 <div className="staff-payment-summary-amount" style={{ color: '#0284c7' }}>
-                                    रु {financials.accrued.toLocaleString()}
+                                    {formatCurrency(financials.accrued)}
                                 </div>
                                 <span className="staff-payment-card-subtitle">
                                     {financials.primarySalary?.salaryType || 'Salary'} salary calculated to date
@@ -653,7 +655,7 @@ export const StaffPayment: React.FC = () => {
                                                                     Payment Given
                                                                 </span>
                                                                 <div className="staff-payment-history-total">
-                                                                    रु {Math.abs(transaction.amount).toLocaleString()}
+                                                                    {formatCurrency(Math.abs(transaction.amount))}
                                                                 </div>
                                                             </div>
 

@@ -13,10 +13,12 @@ import {
   RentalPaymentSummary,
 } from '@/features/services/rentalPaymentService';
 import { usePermission } from '@/core/rbac/usePermission';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '@/styles/RentalStatement.css';
 
 export const RentalStatement: React.FC = () => {
   const { hasPermission } = usePermission();
+  const { formatCurrency, formatDate, currencySymbol } = useAppSettings();
   const canPayRental = hasPermission('rental:payment');
 
   const { id } = useParams<{ id: string }>();
@@ -202,8 +204,8 @@ export const RentalStatement: React.FC = () => {
 
       toast.success(
         category === 'GIVEN'
-          ? `Payment of रु ${amt.toLocaleString()} recorded successfully in payments table!`
-          : `Advance/Deposit of रु ${amt.toLocaleString()} recorded in payments table!`
+          ? `Payment of ${formatCurrency(amt)} recorded successfully in payments table!`
+          : `Advance/Deposit of ${formatCurrency(amt)} recorded in payments table!`
       );
 
       // Close modals
@@ -426,7 +428,7 @@ export const RentalStatement: React.FC = () => {
                       <i className="bi bi-cash-stack rental-metric-icon"></i>
                     </div>
                     <div className="rental-metric-value">
-                      रु {summary.totalRentalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatCurrency(summary.totalRentalAmount)}
                     </div>
                   </div>
                   <div>
@@ -450,7 +452,7 @@ export const RentalStatement: React.FC = () => {
                       <i className="bi bi-arrow-up-circle rental-metric-icon"></i>
                     </div>
                     <div className="rental-metric-value">
-                      रु {summary.totalGiven.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatCurrency(summary.totalGiven)}
                     </div>
                   </div>
                   <div className="rental-metric-subtext">
@@ -466,7 +468,7 @@ export const RentalStatement: React.FC = () => {
                       <i className="bi bi-arrow-down-circle rental-metric-icon"></i>
                     </div>
                     <div className="rental-metric-value">
-                      रु {summary.totalReceived.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatCurrency(summary.totalReceived)}
                     </div>
                   </div>
                   <div className="rental-metric-subtext">
@@ -485,7 +487,7 @@ export const RentalStatement: React.FC = () => {
                       className="rental-metric-value"
                       style={{ color: summary.remainingBalance > 0 ? '#dc2626' : '#16a34a' }}
                     >
-                      रु {summary.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatCurrency(summary.remainingBalance)}
                     </div>
                   </div>
                   <div className="rental-metric-subtext">
@@ -574,7 +576,7 @@ export const RentalStatement: React.FC = () => {
                           <th>Payment Mode</th>
                           <th>Reference / Bill #</th>
                           <th>Remarks</th>
-                          <th style={{ textAlign: 'right' }}>Amount (रु)</th>
+                          <th style={{ textAlign: 'right' }}>Amount ({currencySymbol})</th>
                           <th style={{ textAlign: 'center' }}>Action</th>
                         </tr>
                       </thead>
@@ -583,13 +585,13 @@ export const RentalStatement: React.FC = () => {
                           <tr key={tx.id}>
                             <td>
                               <i className="bi bi-calendar3 me-2 text-muted"></i>
-                              {new Date(tx.date || tx.createdAt).toLocaleDateString()}
+                              {formatDate(tx.date || tx.createdAt)}
                             </td>
                             <td>
                               {tx.paymentCategory === 'GIVEN' ? (
                                 <span className="rental-tx-badge given">
-                                  <i className="bi bi-arrow-up-circle"></i>
-                                  You Gave (Paid)
+                                   <i className="bi bi-arrow-up-circle"></i>
+                                   You Gave (Paid)
                                 </span>
                               ) : (
                                 <span className="rental-tx-badge received">
@@ -609,7 +611,7 @@ export const RentalStatement: React.FC = () => {
                                 tx.paymentCategory === 'GIVEN' ? 'positive' : 'received'
                               }`}
                             >
-                              रु {tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              {formatCurrency(tx.amount)}
                             </td>
                             <td style={{ textAlign: 'center' }}>
                               <button
@@ -681,7 +683,7 @@ export const RentalStatement: React.FC = () => {
                         className="rental-quick-btn"
                         onClick={() => setPaymentAmount(summary.remainingBalance.toString())}
                       >
-                        Full Balance (रु {summary.remainingBalance.toLocaleString()})
+                        Full Balance ({formatCurrency(summary.remainingBalance)})
                       </button>
                       <button
                         type="button"
@@ -690,14 +692,14 @@ export const RentalStatement: React.FC = () => {
                           setPaymentAmount(Math.round(summary.remainingBalance / 2).toString())
                         }
                       >
-                        50% (रु {Math.round(summary.remainingBalance / 2).toLocaleString()})
+                        50% ({formatCurrency(Math.round(summary.remainingBalance / 2))})
                       </button>
                     </div>
                   )}
 
                   <div className="rental-form-group">
                     <label className="rental-form-label">
-                      Payment Amount (रु) <span className="text-danger">*</span>
+                      Payment Amount ({currencySymbol}) <span className="text-danger">*</span>
                     </label>
                     <input
                       type="number"
@@ -805,7 +807,7 @@ export const RentalStatement: React.FC = () => {
                 <div className="rental-popup-body">
                   <div className="rental-form-group">
                     <label className="rental-form-label">
-                      Received Amount (रु) <span className="text-danger">*</span>
+                      Received Amount ({currencySymbol}) <span className="text-danger">*</span>
                     </label>
                     <input
                       type="number"

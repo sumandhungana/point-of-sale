@@ -9,10 +9,12 @@ import {
   RentalPaymentTransaction
 } from '@/features/services/rentalPaymentService';
 import { usePermission } from '@/core/rbac/usePermission';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '@/styles/RentalItem.css';
 
 export const RentalItem: React.FC = () => {
   const navigate = useNavigate();
+  const { formatCurrency } = useAppSettings();
   const { hasPermission } = usePermission();
   const canAddRental = hasPermission('rental:add') || hasPermission('rental:create');
 
@@ -218,7 +220,7 @@ export const RentalItem: React.FC = () => {
                     Total Rental
                   </span>
                   <span className="rental-item-summary-amount" style={{ color: '#1e293b' }}>
-                    रु {totalRentalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatCurrency(totalRentalAmount)}
                   </span>
                 </div>
                 <div className="rental-item-summary-item" style={{ borderLeftColor: '#10b981' }}>
@@ -227,7 +229,7 @@ export const RentalItem: React.FC = () => {
                     Total Paid / Settled
                   </span>
                   <span className="rental-item-summary-amount" style={{ color: '#10b981' }}>
-                    रु {totalPaidAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatCurrency(totalPaidAmount)}
                   </span>
                 </div>
                 <div className="rental-item-summary-item" style={{ borderLeftColor: '#ef4444' }}>
@@ -236,7 +238,7 @@ export const RentalItem: React.FC = () => {
                     Remaining Balance Due
                   </span>
                   <span className="rental-item-summary-amount" style={{ color: totalRemainingDue > 0 ? '#ef4444' : '#10b981' }}>
-                    रु {totalRemainingDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    {formatCurrency(totalRemainingDue)}
                   </span>
                 </div>
               </div>
@@ -298,11 +300,11 @@ export const RentalItem: React.FC = () => {
                         </div>
                         <div className="rental-item-amount">
                           <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>
-                            रु {(item?.rentalAmount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            {formatCurrency(item?.rentalAmount ?? 0)}
                           </div>
                           <div className="rental-card-balance-row">
                             <span className="rental-card-paid-text">
-                              Paid: रु {itemSummary.netPaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              Paid: {formatCurrency(itemSummary.netPaid)}
                             </span>
                             {isItemSettled ? (
                               <span className="rental-card-settled-text">
@@ -310,7 +312,7 @@ export const RentalItem: React.FC = () => {
                               </span>
                             ) : (
                               <span className="rental-card-due-text">
-                                Due: रु {itemSummary.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                Due: {formatCurrency(itemSummary.remainingBalance)}
                               </span>
                             )}
                           </div>

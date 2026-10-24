@@ -10,9 +10,9 @@
 
 .notification-bell-btn {
   position: relative;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #ffffff;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: var(--top-menu-font-color, #000000);
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -26,13 +26,14 @@
 }
 
 .notification-bell-btn:hover {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.08);
+  border-color: rgba(0, 0, 0, 0.22);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .notification-bell-btn.active {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.1);
   border-color: #DE1110;
 }
 

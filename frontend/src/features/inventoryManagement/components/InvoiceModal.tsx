@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import logo from '@/assets/logo.png';
 import { printInvoiceDirectly } from '../utils/printInvoice';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '@/styles/InvoicePdf.css';
 
 export interface InvoiceItem {
@@ -48,6 +49,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 }) => {
     const reportRef = useRef<HTMLDivElement>(null);
     const [generating, setGenerating] = useState(false);
+    const { formatCurrency, formatNumber, formatDate, currencySymbol } = useAppSettings();
 
     const companyName =
         localStorage.getItem('organizationName') ||
@@ -113,13 +115,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     };
 
     const isPurchase = data.type === 'PURCHASE';
-    const formattedDate = data.date
-        ? new Date(data.date).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric',
-          })
-        : new Date().toLocaleDateString();
+    const formattedDate = data.date ? formatDate(data.date) : formatDate(new Date());
 
     return (
         <div className="invoice-modal-backdrop" onClick={onClose}>
@@ -267,11 +263,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                         <th>Description</th>
                                         <th style={{ width: '130px' }}>Category</th>
                                         <th style={{ width: '70px' }} className="text-center">Qty</th>
-                                        <th style={{ width: '110px' }} className="text-end">Rate (Rs.)</th>
+                                        <th style={{ width: '110px' }} className="text-end">Rate ({currencySymbol})</th>
                                         {data.items.some(i => (i.taxPercentage || 0) > 0 || (i.vatPercentage || 0) > 0) && (
                                             <th style={{ width: '90px' }} className="text-center">Tax %</th>
                                         )}
-                                        <th style={{ width: '120px' }} className="text-end">Amount (Rs.)</th>
+                                        <th style={{ width: '120px' }} className="text-end">Amount ({currencySymbol})</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -292,10 +288,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                                 </td>
                                                 <td className="text-center">{item.quantity}</td>
                                                 <td className="text-end">
-                                                    {(item.unitPrice || 0).toLocaleString('en-IN', {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 2,
-                                                    })}
+                                                    {formatNumber(item.unitPrice || 0, 2)}
                                                 </td>
                                                 {data.items.some(i => (i.taxPercentage || 0) > 0 || (i.vatPercentage || 0) > 0) && (
                                                     <td className="text-center">
@@ -303,10 +296,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                                     </td>
                                                 )}
                                                 <td className="text-end fw-bold">
-                                                    {(item.totalAmount || 0).toLocaleString('en-IN', {
-                                                        minimumFractionDigits: 2,
-                                                        maximumFractionDigits: 2,
-                                                    })}
+                                                    {formatNumber(item.totalAmount || 0, 2)}
                                                 </td>
                                             </tr>
                                         );
@@ -332,10 +322,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 <div className="total-summary-line">
                                     <span>Subtotal:</span>
                                     <span>
-                                        Rs. {(data.subtotal || data.grandTotal).toLocaleString('en-IN', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                        })}
+                                        {formatCurrency(data.subtotal || data.grandTotal)}
                                     </span>
                                 </div>
 
@@ -343,10 +330,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                     <div className="total-summary-line">
                                         <span>Applicable Tax & VAT:</span>
                                         <span>
-                                            Rs. {(data.taxTotal || 0).toLocaleString('en-IN', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2,
-                                            })}
+                                            {formatCurrency(data.taxTotal || 0)}
                                         </span>
                                     </div>
                                 )}
@@ -354,10 +338,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                 <div className="total-summary-line grand">
                                     <span>Grand Total:</span>
                                     <span className="grand-amount-val">
-                                        Rs. {(data.grandTotal || 0).toLocaleString('en-IN', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2,
-                                        })}
+                                        {formatCurrency(data.grandTotal || 0)}
                                     </span>
                                 </div>
                             </div>

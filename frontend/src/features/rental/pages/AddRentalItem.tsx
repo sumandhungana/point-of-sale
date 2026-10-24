@@ -5,10 +5,13 @@ import { toast } from 'react-toastify';
 import { addRental } from '@/features/services/rentalItemService';
 import { addRentalPayment } from '@/features/services/rentalPaymentService';
 import { usePermission } from '@/core/rbac/usePermission';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '@/styles/AddRentalItem.css';
 
 export const AddRentalItem: React.FC = () => {
   const navigate = useNavigate();
+  const { formatCurrency, settings } = useAppSettings();
+  const currencySymbol = settings.currency || 'Rs. ';
   const { hasPermission } = usePermission();
   const canAddRental = hasPermission('rental:add') || hasPermission('rental:create');
 
@@ -282,7 +285,7 @@ export const AddRentalItem: React.FC = () => {
             remarks: advanceRemarks.trim() || defaultRemark,
           });
           toast.success(
-            `Rental Item "${formData.rentalItemName}" created with initial advance of रु ${parsedAdvance.toLocaleString()}!`
+            `Rental Item "${formData.rentalItemName}" created with initial advance of ${formatCurrency(parsedAdvance)}!`
           );
         } catch (payErr) {
           console.warn('Advance payment recording failed:', payErr);
@@ -590,10 +593,10 @@ export const AddRentalItem: React.FC = () => {
                       <div className="add-rental-field-group">
                         <label className="add-rental-field-label">
                           <i className="bi bi-tag me-1 text-primary"></i>
-                          Rate per {formData.rentalPeriod === 'Monthly' ? 'Month' : formData.rentalPeriod === 'Weekly' ? 'Week' : 'Day'} (रु)
+                          Rate per {formData.rentalPeriod === 'Monthly' ? 'Month' : formData.rentalPeriod === 'Weekly' ? 'Week' : 'Day'} ({currencySymbol})
                         </label>
                         <div className="input-with-prefix">
-                          <span className="input-currency-prefix">रु</span>
+                          <span className="input-currency-prefix">{currencySymbol}</span>
                           <input
                             type="number"
                             value={unitRate}
@@ -605,7 +608,7 @@ export const AddRentalItem: React.FC = () => {
                           />
                         </div>
                         <span className="field-hint">
-                          {durationAnalysis.totalDays} day{durationAnalysis.totalDays > 1 ? 's' : ''} × रु {unitRate || '0'} = <strong>रु {(parseFloat(formData.rentalAmount) || 0).toLocaleString()}</strong>
+                          {durationAnalysis.totalDays} day{durationAnalysis.totalDays > 1 ? 's' : ''} × {formatCurrency(parseFloat(unitRate) || 0)} = <strong>{formatCurrency(parseFloat(formData.rentalAmount) || 0)}</strong>
                         </span>
                       </div>
                     )}
@@ -613,10 +616,10 @@ export const AddRentalItem: React.FC = () => {
                     <div className="add-rental-field-group">
                       <label className="add-rental-field-label">
                         <i className="bi bi-cash-stack me-1 text-primary"></i>
-                        Total Rental Amount (रु) <span className="required-star">*</span>
+                        Total Rental Amount ({currencySymbol}) <span className="required-star">*</span>
                       </label>
                       <div className="input-with-prefix">
-                        <span className="input-currency-prefix">रु</span>
+                        <span className="input-currency-prefix">{currencySymbol}</span>
                         <input
                           type="number"
                           name="rentalAmount"
@@ -633,7 +636,7 @@ export const AddRentalItem: React.FC = () => {
                       {financialSummary.effectiveDailyRate > 0 && (
                         <span className="field-hint text-success">
                           <i className="bi bi-info-circle me-1"></i>
-                          Effective rate: ~रु {financialSummary.effectiveDailyRate.toLocaleString()} / day for {durationAnalysis.totalDays} days
+                          Effective rate: ~{formatCurrency(financialSummary.effectiveDailyRate)} / day for {durationAnalysis.totalDays} days
                         </span>
                       )}
                     </div>
@@ -696,10 +699,10 @@ export const AddRentalItem: React.FC = () => {
                         <div className="add-rental-field-group">
                           <label className="add-rental-field-label">
                             <i className={`bi ${advanceCategory === 'RECEIVED' ? 'bi-arrow-down-circle text-success' : 'bi-arrow-up-circle text-danger'} me-1`}></i>
-                            {advanceCategory === 'RECEIVED' ? 'Advance Amount Received (रु)' : 'Advance Amount Paid (रु)'} <span className="required-star">*</span>
+                            {advanceCategory === 'RECEIVED' ? `Advance Amount Received (${currencySymbol})` : `Advance Amount Paid (${currencySymbol})`} <span className="required-star">*</span>
                           </label>
                           <div className="input-with-prefix">
-                            <span className="input-currency-prefix">रु</span>
+                            <span className="input-currency-prefix">{currencySymbol}</span>
                             <input
                               type="number"
                               value={advanceAmount}
@@ -764,13 +767,13 @@ export const AddRentalItem: React.FC = () => {
                       <div className="advance-balance-pill">
                         <div>
                           <span>Advance Paid: </span>
-                          <strong className="text-success">रु {financialSummary.advance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
+                          <strong className="text-success">{formatCurrency(financialSummary.advance)}</strong>
                         </div>
                         <div className="divider-dot">•</div>
                         <div>
                           <span>Remaining Balance Due: </span>
                           <strong className={financialSummary.remainingDue > 0 ? 'text-danger' : 'text-success'}>
-                            रु {financialSummary.remainingDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                            {formatCurrency(financialSummary.remainingDue)}
                           </strong>
                         </div>
                       </div>
@@ -895,7 +898,7 @@ export const AddRentalItem: React.FC = () => {
                       <i className="bi bi-cash me-1 text-primary"></i> Total Rental Fee:
                     </span>
                     <span className="financial-value total">
-                      रु {financialSummary.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatCurrency(financialSummary.total)}
                     </span>
                   </div>
 
@@ -906,7 +909,7 @@ export const AddRentalItem: React.FC = () => {
                         {advanceCategory === 'RECEIVED' ? 'Advance Received:' : 'Advance Paid:'}
                       </span>
                       <span className={`financial-value ${advanceCategory === 'RECEIVED' ? 'text-success' : 'text-danger'}`}>
-                        - रु {financialSummary.advance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        - {formatCurrency(financialSummary.advance)}
                       </span>
                     </div>
                   )}
@@ -916,7 +919,7 @@ export const AddRentalItem: React.FC = () => {
                   <div className="financial-row balance-row">
                     <span className="financial-label-bold">Balance Due:</span>
                     <span className={`financial-value-bold ${financialSummary.remainingDue > 0 ? 'text-danger' : 'text-success'}`}>
-                      रु {financialSummary.remainingDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      {formatCurrency(financialSummary.remainingDue)}
                     </span>
                   </div>
 

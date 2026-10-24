@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchIncomes as fetchIncomesService } from '../services/incomeService';
+import { useAppSettings } from '../context/AppSettingsContext';
 import '../styles/Income.css';
 
 interface Income {
@@ -24,6 +25,7 @@ interface Income {
 
 export const Income = () => {
   const navigate = useNavigate();
+  const { formatCurrency, formatDate } = useAppSettings();
   const [incomes, setIncomes] = useState<Income[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -150,7 +152,7 @@ export const Income = () => {
                 <div className="income-info-header">
                   <div className="income-info-title">Total Income</div>
                 </div>
-                <div className="income-info-value">Rs.{totalIncome.toLocaleString()}</div>
+                <div className="income-info-value">{formatCurrency(totalIncome)}</div>
                 <button className="income-view-more-button">
                   <i className="bi bi-eye"></i>
                   View More
@@ -163,7 +165,7 @@ export const Income = () => {
                 <div className="income-info-header">
                   <div className="income-info-title">Pending Amount</div>
                 </div>
-                <div className="income-info-value">Rs.{pendingAmount.toLocaleString()}</div>
+                <div className="income-info-value">{formatCurrency(pendingAmount)}</div>
                 <button className="income-view-more-button">
                   <i className="bi bi-eye"></i>
                   View More
@@ -243,7 +245,7 @@ export const Income = () => {
                     </div>
                     <div className="income-date">
                       <i className="bi bi-calendar me-1"></i>
-                      {new Date(income.date).toLocaleDateString()}
+                      {formatDate(income.date)}
                     </div>
                     {income.remarks && (
                       <div className="income-remarks">
@@ -253,7 +255,7 @@ export const Income = () => {
                     )}
                   </div>
                   <div className="income-amount">
-                    Rs.{income.amount.toLocaleString()}
+                    {formatCurrency(income.amount)}
                   </div>
                 </div>
               ))

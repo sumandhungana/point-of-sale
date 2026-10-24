@@ -66,10 +66,27 @@ export const AppSettingsProvider: React.FC<AppSettingsProviderProps> = ({ childr
     root.style.setProperty('--side-menu-font-color', settings.sideMenuFontColor || '#ffffff');
     root.style.setProperty('--side-menu-hover-font-color', settings.sideMenuHoverFontColor || '#ffffff');
     root.style.setProperty('--side-menu-hover-bg-color', settings.sideMenuHoverBgColor || '#495057');
-    root.style.setProperty('--top-menu-bg-color', settings.topMenuBgColor || '#010A2E');
-    root.style.setProperty('--top-menu-font-color', settings.topMenuFontColor || '#ffffff');
+    root.style.setProperty('--top-menu-bg-color', settings.topMenuBgColor || '#ffffff');
+    root.style.setProperty('--top-menu-font-color', settings.topMenuFontColor || '#000000');
+    root.style.setProperty('--top-menu-logo-color', settings.topMenuLogoColor || 'default');
     root.style.setProperty('--app-bg-color', settings.appBgColor || '#f8f9fa');
     root.style.setProperty('--app-foreground-color', settings.appForegroundColor || '#212529');
+    root.style.setProperty('--app-currency', `"${settings.currency || 'रु'}"`);
+
+    // Update document language attribute
+    const langMap: Record<string, string> = {
+      English: 'en',
+      Spanish: 'es',
+      French: 'fr',
+      German: 'de',
+      Chinese: 'zh',
+    };
+    document.documentElement.lang = langMap[settings.language] || 'en';
+
+    // Synchronize to localStorage cache
+    try {
+      localStorage.setItem('khatabook_app_settings_cache', JSON.stringify(settings));
+    } catch {}
 
     // Update Favicon if provided
     if (settings.faviconPath) {
@@ -85,10 +102,13 @@ export const AppSettingsProvider: React.FC<AppSettingsProviderProps> = ({ childr
   }, [settings]);
 
   const updateSettings = (newSettings: Partial<AppSettings>) => {
-    setSettings((prev) => ({
-      ...prev,
-      ...newSettings,
-    }));
+    setSettings((prev) => {
+      const merged = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem('khatabook_app_settings_cache', JSON.stringify(merged));
+      } catch {}
+      return merged;
+    });
   };
 
   const saveSettings = async (newSettings: Partial<AppSettings>): Promise<AppSettings> => {

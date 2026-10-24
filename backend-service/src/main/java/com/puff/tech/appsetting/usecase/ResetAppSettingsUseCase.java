@@ -43,13 +43,13 @@ public class ResetAppSettingsUseCase implements MonoUC<ResetAppSettingsUCRequest
                     String prevJson = toJson(entity);
 
                     // Reset to default styling and configurations
-                    entity.setSideMenuBgColor("#010A2E");
-                    entity.setSideMenuBgEndColor("#06164A");
-                    entity.setSideMenuFontColor("#ffffff");
+                    entity.setSideMenuBgColor("#ffffff");
+                    entity.setSideMenuBgEndColor("#ffffff");
+                    entity.setSideMenuFontColor("#000000");
                     entity.setSideMenuHoverFontColor("#ffffff");
-                    entity.setSideMenuHoverBgColor("#495057");
-                    entity.setTopMenuBgColor("#021861");
-                    entity.setTopMenuFontColor("#212529");
+                    entity.setSideMenuHoverBgColor("#000000");
+                    entity.setTopMenuBgColor("#ffffff");
+                    entity.setTopMenuFontColor("#000000");
 
                     entity.setAppBgColor("#f8f9fa");
                     entity.setAppForegroundColor("#212529");

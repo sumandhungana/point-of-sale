@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../components/Navbar';
-import { useAppSettings } from '../context/AppSettingsContext';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import { usePermission } from '@/core/rbac/usePermission';
-import { AppSettings, defaultAppSettings } from '../features/services/appSettingService';
+import { AppSettings } from '@/features/services/appSettingService';
 import { toast } from 'react-toastify';
 import '../styles/AppSetting.css';
 
 export const AppSetting: React.FC = () => {
-  const { settings, saveSettings, resetSettings, loading: contextLoading } = useAppSettings();
-  const { hasPermission, isSuperAdmin } = usePermission();
+  const { settings, saveSettings, resetSettings, updateSettings, loading: contextLoading } = useAppSettings();
+  const { hasPermission } = usePermission();
 
-  const canUpdate = isSuperAdmin || hasPermission('appSettings:update');
-  const canReset = isSuperAdmin || hasPermission('appSettings:reset');
+  const canUpdate = hasPermission('appSettings:update');
+  const canReset =  hasPermission('appSettings:reset');
 
   const [saving, setSaving] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -34,6 +34,7 @@ export const AppSetting: React.FC = () => {
       ...prev,
       [name]: value,
     }));
+    updateSettings({ [name]: value });
   };
 
   const handleImageUpload = (
@@ -863,9 +864,16 @@ export const AppSetting: React.FC = () => {
                       Financial Format
                     </div>
                     <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#059669', marginBottom: '0.25rem' }}>
-                      {formData.currencyPosition === 'after'
-                        ? `1,234.56 ${formData.currency}`
-                        : `${formData.currency} 1,234.56`}
+                      {(() => {
+                        const sampleNum = formData.numberFormat === '1.234,56'
+                          ? '1.234,56'
+                          : formData.numberFormat === '1234.56'
+                          ? '1234.56'
+                          : '1,234.56';
+                        return formData.currencyPosition === 'after'
+                          ? `${sampleNum} ${formData.currency || 'रु'}`
+                          : `${formData.currency || 'रु'} ${sampleNum}`;
+                      })()}
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
                       Date: {formData.dateFormat === 'MM/DD/YYYY' ? '10/16/2026' : formData.dateFormat === 'YYYY-MM-DD' ? '2026-10-16' : '16/10/2026'}

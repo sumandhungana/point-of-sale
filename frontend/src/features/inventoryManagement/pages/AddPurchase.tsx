@@ -7,6 +7,7 @@ import {getSuppliers} from '@/features/services/supplierService';
 import '../../../styles/AddPurchase.css';
 import '../../../styles/AddSalesBill.css';
 import {getProduct, Item} from '../../services/productService';
+import { useAppSettings } from '@/context/AppSettingsContext';
 
 interface Supplier {
     id: number;
@@ -30,6 +31,8 @@ interface PurchaseLineItem {
 export const AddPurchase: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
+    const { formatCurrency, settings } = useAppSettings();
+    const currencySymbol = settings.currency || 'Rs. ';
     const initialData = location.state?.purchase;
     const isEditMode = !!initialData;
 
@@ -624,7 +627,7 @@ export const AddPurchase: React.FC = () => {
                                                                 className="item-badge ms-2">{item.category?.name || 'General'}</span>
                                                         </div>
                                                         <span
-                                                            className="item-price">Rs. {item.perUnitPurchasePrice || 0}</span>
+                                                            className="item-price">{formatCurrency(item.perUnitPurchasePrice || 0)}</span>
                                                     </div>
                                                 ))
                                             ) : (
@@ -643,7 +646,7 @@ export const AddPurchase: React.FC = () => {
                                         <tr>
                                             <th style={{width: '40%'}}>Product</th>
                                             <th style={{width: '15%'}}>Qty</th>
-                                            <th style={{width: '25%'}}>Amount (Rs)</th>
+                                            <th style={{width: '25%'}}>Amount ({currencySymbol})</th>
                                             <th style={{width: '16%'}} className="text-end">Total</th>
                                             <th style={{width: '4%'}}></th>
                                         </tr>
@@ -698,7 +701,7 @@ export const AddPurchase: React.FC = () => {
                                                     </td>
 
                                                     <td className="text-end fw-bold" style={{color: '#255dce'}}>
-                                                        Rs. {item.totalPrice.toLocaleString('en-IN', {minimumFractionDigits: 2})}
+                                                        {formatCurrency(item.totalPrice)}
                                                     </td>
 
                                                     <td className="text-center">
@@ -725,35 +728,23 @@ export const AddPurchase: React.FC = () => {
                             <div className="purchase-card summary-card mb-3">
                                 <div className="summary-label">Total Amount Payable</div>
                                 <div className="summary-price-display">
-                                    Rs. {grandTotal.toLocaleString('en-IN', {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2
-                                })}
+                                    {formatCurrency(grandTotal)}
                                 </div>
                                 <div className="summary-breakdown">
                                     <div className="breakdown-row">
                                         <span>Items Subtotal</span>
-                                        <span>Rs. {totalsSummary.subtotal.toLocaleString('en-IN', {
-                                            minimumFractionDigits: 2,
-                                            maximumFractionDigits: 2
-                                        })}</span>
+                                        <span>{formatCurrency(totalsSummary.subtotal)}</span>
                                     </div>
                                     {enableVat && (
                                         <div className="breakdown-row">
                                             <span>VAT ({vatPercentage || 0}%)</span>
-                                            <span>Rs. {totalsSummary.vat.toLocaleString('en-IN', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            })}</span>
+                                            <span>{formatCurrency(totalsSummary.vat)}</span>
                                         </div>
                                     )}
                                     {enableTax && (
                                         <div className="breakdown-row">
                                             <span>Additional Tax ({taxPercentage || 0}%)</span>
-                                            <span>Rs. {totalsSummary.tax.toLocaleString('en-IN', {
-                                                minimumFractionDigits: 2,
-                                                maximumFractionDigits: 2
-                                            })}</span>
+                                            <span>{formatCurrency(totalsSummary.tax)}</span>
                                         </div>
                                     )}
                                     <div className="breakdown-row">
@@ -762,7 +753,7 @@ export const AddPurchase: React.FC = () => {
                                     </div>
                                     <div className="breakdown-row">
                                         <span>Currency</span>
-                                        <span>NPR (Rs.)</span>
+                                        <span>{currencySymbol}</span>
                                     </div>
                                 </div>
                             </div>

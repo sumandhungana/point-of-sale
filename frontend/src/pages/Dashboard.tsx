@@ -11,7 +11,7 @@ import { fetchPurchases, GetAllPurchaseBillResponse } from '@/features/services/
 import { fetchExpenses } from '@/services/expensesListService';
 import { fetchIncomes } from '@/services/incomeService';
 import { fetchCashbooks } from '@/services/cashbookService';
-import { getProduct } from '@/features/services/productService';
+import { getProduct, Item } from '@/features/services/productService';
 import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/Dashboard.css';
 
@@ -39,10 +39,12 @@ const hexToRgba = (hex: string, alpha: number): string => {
 };
 
 const Dashboard: React.FC = () => {
-  const { formatCurrency, formatDate } = useAppSettings();
+  const { settings, formatCurrency, formatNumber, formatDate } = useAppSettings();
+
   // Real Data States from Backend Only
   const [salesBills, setSalesBills] = useState<GetAllSalesBillResponse[]>([]);
   const [purchases, setPurchases] = useState<GetAllPurchaseBillResponse[]>([]);
+  const [inventoryItems, setInventoryItems] = useState<Item[]>([]);
   const [totalCustomers, setTotalCustomers] = useState<number>(0);
   const [totalSuppliers, setTotalSuppliers] = useState<number>(0);
   const [totalStaff, setTotalStaff] = useState<number>(0);
@@ -55,8 +57,15 @@ const Dashboard: React.FC = () => {
   const [totalDue, setTotalDue] = useState<number>(0);
   const [totalPaid, setTotalPaid] = useState<number>(0);
 
-  const [loading, setLoading] = useState<boolean>(true);
-  const [activeBarHover, setActiveBarHover] = useState<number | null>(null);
+  const [, setLoading] = useState<boolean>(true);
+
+  const organizationName = useMemo(() => {
+    return (
+      localStorage.getItem('companyName') ||
+      localStorage.getItem('organizationName') ||
+      'Organization'
+    );
+  }, []);
 
   const fetchData = async () => {
     try {
@@ -112,7 +121,10 @@ const Dashboard: React.FC = () => {
         setTotalCashbook(Array.isArray(cashbooksData.value) ? cashbooksData.value.length : 0);
       }
       if (itemsData.status === 'fulfilled') {
-        setTotalItem(Array.isArray(itemsData.value) ? itemsData.value.length : 0);
+        const pData = itemsData.value;
+        const itemList: Item[] = Array.isArray(pData) ? pData : (pData?.items || []);
+        setInventoryItems(itemList);
+        setTotalItem(itemList.length || pData?.totalItems || 0);
       }
 
       // Raw payment totals from backend
@@ -140,7 +152,7 @@ const Dashboard: React.FC = () => {
     const safe = Number.isFinite(count) ? Math.trunc(count) : 0;
     if (safe === 0) return '0';
     if (safe > 0 && safe < 10) return `0${safe}`;
-    return safe.toLocaleString();
+    return formatNumber(safe, 0);
   };
 
   // Card Mouse Move Glow Effects
@@ -158,13 +170,13 @@ const Dashboard: React.FC = () => {
   };
 
   // Calculations for Charts using Real Backend Data Only
-  const totalSalesRevenue = useMemo(() => {
-    return salesBills.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
-  }, [salesBills]);
-
   const totalPurchaseAmount = useMemo(() => {
     return purchases.reduce((acc, p) => acc + (Number(p.amount) || 0), 0);
   }, [purchases]);
+
+  const totalSalesRevenue = useMemo(() => {
+    return salesBills.reduce((acc, b) => acc + (Number(b.amount) || 0), 0);
+  }, [salesBills]);
 
   const totalFinancial = useMemo(() => {
     return (totalPaid || 0) + (totalDue || 0);
@@ -181,7 +193,7 @@ const Dashboard: React.FC = () => {
   const paidArc = totalFinancial > 0 ? (totalPaid / totalFinancial) * donutCircumference : 0;
   const dueArc = totalFinancial > 0 ? (totalDue / totalFinancial) * donutCircumference : 0;
 
-  // Real Monthly Aggregation from Recorded Bills for Vertical Bar Chart
+  // Real Monthly Aggregation from Recorded Bills for Supplier Payment Chart
   const monthlyData: MonthlyBarPoint[] = useMemo(() => {
     const months: MonthlyBarPoint[] = [];
     const now = new Date();
@@ -237,38 +249,100 @@ const Dashboard: React.FC = () => {
     return months;
   }, [salesBills, purchases]);
 
-  const maxMonthlyVal = useMemo(() => {
-    const max = Math.max(
-      ...monthlyData.map((m) => Math.max(m.salesAmount, m.purchasesAmount)),
-      1000
-    );
-    return max;
+  const maxMonthlyPurchase = useMemo(() => {
+    return Math.max(...monthlyData.map((m) => m.purchasesAmount), 1);
   }, [monthlyData]);
 
-  // Real data for Activity Vertical Column Bar Chart
-  const activityData = useMemo(() => [
-    { label: 'Sales', count: totalSales, color: '#4f46e5' },
-    { label: 'Purchases', count: totalPurchase, color: '#f59e0b' },
-    { label: 'Incomes', count: totalIncome, color: '#10b981' },
-    { label: 'Expenses', count: totalExpenses, color: '#ef4444' },
-    { label: 'Cashbook', count: totalCashbook, color: '#06b6d4' },
-  ], [totalSales, totalPurchase, totalIncome, totalExpenses, totalCashbook]);
+  // Inventory Totals & Category Breakdown
+  const totalStockUnits = useMemo(() => {
+    return inventoryItems.reduce((sum, item) => sum + (Number(item.itemCount) || 0), 0);
+  }, [inventoryItems]);
 
-  const maxActivityCount = useMemo(() => {
-    return Math.max(...activityData.map((d) => d.count), 1);
-  }, [activityData]);
+  const lowStockCount = useMemo(() => {
+    return inventoryItems.filter(
+      (item) => (Number(item.itemCount) || 0) <= (Number(item.lowStockAlert) || 5)
+    ).length;
+  }, [inventoryItems]);
 
-  // Real data for Entity Comparison Chart
-  const entityData = useMemo(() => [
-    { label: 'Customers', count: totalCustomers, color: '#4CAF50' },
-    { label: 'Suppliers', count: totalSuppliers, color: '#2196F3' },
-    { label: 'Staff', count: totalStaff, color: '#FF9800' },
-    { label: 'Items', count: totalItem, color: '#9C27B0' },
-  ], [totalCustomers, totalSuppliers, totalStaff, totalItem]);
+  // Top 4 categories based on large stock and high sales data (strictly limited to 4)
+  const top4Categories = useMemo(() => {
+    // Map productId & productName to category name
+    const productCategoryMap = new Map<number, string>();
+    const productNameCategoryMap = new Map<string, string>();
+    inventoryItems.forEach((it) => {
+      const cat = it.category?.name || 'General';
+      if (it.id) productCategoryMap.set(it.id, cat);
+      if (it.name) productNameCategoryMap.set(it.name.toLowerCase().trim(), cat);
+    });
 
-  const maxEntityCount = useMemo(() => {
-    return Math.max(...entityData.map((d) => d.count), 1);
-  }, [entityData]);
+    // Aggregate sales amount by category
+    const categorySalesMap = new Map<string, number>();
+    salesBills.forEach((bill) => {
+      let cat = 'General';
+      if (bill.productId && productCategoryMap.has(bill.productId)) {
+        cat = productCategoryMap.get(bill.productId)!;
+      } else if (bill.productName && productNameCategoryMap.has(bill.productName.toLowerCase().trim())) {
+        cat = productNameCategoryMap.get(bill.productName.toLowerCase().trim())!;
+      }
+      categorySalesMap.set(cat, (categorySalesMap.get(cat) || 0) + (Number(bill.amount) || 0));
+    });
+
+    // Aggregate stock units by category
+    const categoryStockMap = new Map<string, number>();
+    inventoryItems.forEach((it) => {
+      const cat = it.category?.name || 'General';
+      categoryStockMap.set(cat, (categoryStockMap.get(cat) || 0) + (Number(it.itemCount) || 0));
+    });
+
+    const allCatNames = new Set<string>([
+      ...Array.from(categoryStockMap.keys()),
+      ...Array.from(categorySalesMap.keys()),
+    ]);
+
+    const colors = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b'];
+
+    if (allCatNames.size === 0) {
+      return [
+        { label: 'Standard', stockUnits: totalItem || 0, salesAmount: totalSalesRevenue || 0, color: '#6366f1' },
+      ];
+    }
+
+    const ranked = Array.from(allCatNames).map((label) => {
+      const stockUnits = categoryStockMap.get(label) || 0;
+      const salesAmount = categorySalesMap.get(label) || 0;
+      // Score prioritizes large stock and high sales data
+      const score = salesAmount + (stockUnits * 10);
+      return {
+        label,
+        stockUnits,
+        salesAmount,
+        score,
+      };
+    });
+
+    ranked.sort((a, b) => b.score - a.score);
+
+    // Strictly limit to 4 categories
+    return ranked.slice(0, 4).map((item, idx) => ({
+      ...item,
+      color: colors[idx % colors.length],
+    }));
+  }, [inventoryItems, salesBills, totalItem, totalSalesRevenue]);
+
+  const inventoryArcs = useMemo(() => {
+    const totalScore = top4Categories.reduce((sum, c) => sum + (c.stockUnits || 1), 0) || 1;
+    let currentOffset = 0;
+    return top4Categories.map((cat) => {
+      const arcLength = ((cat.stockUnits || 1) / totalScore) * donutCircumference;
+      const offset = currentOffset;
+      currentOffset += arcLength;
+      return {
+        ...cat,
+        arcLength,
+        offset,
+      };
+    });
+  }, [top4Categories, donutCircumference]);
 
   // Core System Metrics in Modern Cards
   const metrics: Array<{
@@ -291,66 +365,20 @@ const Dashboard: React.FC = () => {
     { title: 'Total Paid', value: totalPaid, icon: 'bi-arrow-down-circle', iconColor: '#4CAF50', isCurrency: true },
   ];
 
-  // Greeting and Current Date based on real-time
-  const greeting = useMemo(() => {
-    const hour = new Date().getHours();
-    if (hour >= 5 && hour < 12) {
-      return { text: 'Good morning', icon: 'bi-sun-fill', color: '#f59e0b' };
-    } else if (hour >= 12 && hour < 17) {
-      return { text: 'Good afternoon', icon: 'bi-brightness-high-fill', color: '#f97316' };
-    } else if (hour >= 17 && hour < 21) {
-      return { text: 'Good evening', icon: 'bi-sunset-fill', color: '#8b5cf6' };
-    } else {
-      return { text: 'Good evening', icon: 'bi-moon-stars-fill', color: '#6366f1' };
-    }
-  }, []);
-
-  const formattedDate = useMemo(() => {
-    return formatDate(new Date());
-  }, [formatDate]);
-
   return (
     <div className="dashboard-page-wrapper">
       <Sidebar />
       <Navbar />
       <main className="dashboard-container">
-        {/* Header with Greeting and Company Name on same line, Date and Sync Button */}
-        <div className="dashboard-top-header">
-          <div className="header-text-block">
-            <h1 className="dashboard-title">
-              <span className="dashboard-greeting-inline">
-                <i className={`bi ${greeting.icon}`} style={{ color: greeting.color }} />
-                <span>{greeting.text},</span>
-              </span>{' '}
-              {localStorage.getItem('companyName') || 'Company Name'}
-            </h1>
-          </div>
-
-          <div className="header-actions-block">
-            <div className="header-date-badge">
-              <i className="bi bi-calendar-check" />
-              <span>{formattedDate}</span>
-            </div>
-            <button
-              type="button"
-              className="dashboard-sync-btn"
-              onClick={fetchData}
-              disabled={loading}
-              title="Sync latest data from server"
-            >
-              <i className={`bi bi-arrow-clockwise ${loading ? 'spinning' : ''}`} />
-              <span>{loading ? 'Refreshing...' : 'Sync Data'}</span>
-            </button>
-          </div>
+        {/* Organization Name Header (Replaces top box and All System Metrics) */}
+        <div className="dashboard-org-header">
+          <h1 className="dashboard-org-title">
+            <i className="bi bi-building-fill" />
+            <span>{organizationName}</span>
+          </h1>
         </div>
 
-        {/* Section 1: All 15 Backend Metric Data Boxes (Original Data in Modern Cards) */}
-        <div className="section-heading-wrap">
-          <h2 className="section-subheading">
-            <i className="bi bi-grid-fill" /> All System Metrics
-          </h2>
-        </div>
-
+        {/* Section 1: All Metric Data Boxes */}
         <div className="dashboard-grid">
           {metrics.map((m) => (
             <div key={m.title} className="dashboard-card-wrapper">
@@ -380,299 +408,261 @@ const Dashboard: React.FC = () => {
           ))}
         </div>
 
-        {/* Section 2: Charts and Graphs (Placed below all system metrics) */}
-        <div className="section-heading-wrap">
-          <h2 className="section-subheading">
-            <i className="bi bi-graph-up-arrow" />  Visual Charts
-          </h2>
-        </div>
-
+        {/* Section 2: 3 Dedicated Charts (Supplier Payment, Customer Payment, Inventory) */}
         <div className="dashboard-charts-layout">
-          {/* Row 1: Large Dual-Bar Monthly Flow Chart + Settlement Donut */}
-          <div className="charts-top-split">
-            {/* Monthly Sales & Purchase Flow Vertical Bar Chart */}
-            <div className="dashboard-chart-card monthly-barchart-card">
-              <div className="chart-card-header">
-                <div>
-                  <h3 className="chart-card-title">
-                    <i className="bi bi-bar-chart-fill" style={{ color: '#6366f1' }} />
-                    Monthly Sales & Purchases Bar Chart
-                  </h3>
-                  <p className="chart-card-sub">
-                    Real monthly timeline comparison from recorded bills
-                  </p>
-                </div>
-                <div className="chart-legend-wrap">
-                  <span className="legend-item">
-                    <span className="legend-dot sales-dot" />
-                    Sales: <strong>{formatCurrency(totalSalesRevenue)}</strong>
-                  </span>
-                  <span className="legend-item">
-                    <span className="legend-dot purchase-dot" />
-                    Purchases: <strong>{formatCurrency(totalPurchaseAmount)}</strong>
-                  </span>
-                </div>
+          {/* Chart 1: Supplier Payment */}
+          <div className="dashboard-chart-card">
+            <div className="chart-card-header">
+              <div>
+                <h3 className="chart-card-title">
+                  <i className="bi bi-truck" style={{ color: '#f59e0b' }} />
+                  Supplier Payment
+                </h3>
+                <p className="chart-card-sub">Monthly purchase payouts & settlements</p>
               </div>
-
-              <div className="monthly-chart-canvas-wrap">
-                <svg viewBox="0 0 650 200" className="monthly-svg-chart">
-                  {/* Grid Lines */}
-                  <line x1="45" y1="25" x2="635" y2="25" stroke="#f1f5f9" strokeDasharray="4 4" />
-                  <line x1="45" y1="85" x2="635" y2="85" stroke="#f1f5f9" strokeDasharray="4 4" />
-                  <line x1="45" y1="145" x2="635" y2="145" stroke="#f1f5f9" strokeDasharray="4 4" />
-                  <line x1="45" y1="168" x2="635" y2="168" stroke="#cbd5e1" strokeWidth="1.5" />
-
-                  {/* Y Axis Labels */}
-                  <text x="38" y="29" className="chart-axis-text" textAnchor="end">
-                    {formatCurrency(maxMonthlyVal).replace('रु ', '')}
-                  </text>
-                  <text x="38" y="89" className="chart-axis-text" textAnchor="end">
-                    {formatCurrency(Math.round(maxMonthlyVal / 2)).replace('रु ', '')}
-                  </text>
-                  <text x="38" y="172" className="chart-axis-text" textAnchor="end">
-                    0
-                  </text>
-
-                  {/* Monthly Bar Columns */}
-                  {monthlyData.map((m, idx) => {
-                    const groupW = 585 / monthlyData.length;
-                    const groupX = 48 + idx * groupW;
-                    const barW = Math.min(20, (groupW - 20) / 2);
-
-                    const sH = (m.salesAmount / maxMonthlyVal) * 138;
-                    const pH = (m.purchasesAmount / maxMonthlyVal) * 138;
-
-                    const sY = 168 - Math.max(sH, 4);
-                    const pY = 168 - Math.max(pH, 4);
-
-                    const isHovered = activeBarHover === idx;
-
-                    return (
-                      <g
-                        key={m.monthKey}
-                        className="chart-svg-group"
-                        onMouseEnter={() => setActiveBarHover(idx)}
-                        onMouseLeave={() => setActiveBarHover(null)}
-                      >
-                        {/* Hover Column Background */}
-                        <rect
-                          x={groupX}
-                          y="15"
-                          width={groupW - 8}
-                          height="153"
-                          fill={isHovered ? 'rgba(99, 102, 241, 0.05)' : 'transparent'}
-                          rx="6"
-                        />
-
-                        {/* Sales Bar */}
-                        <rect
-                          x={groupX + (groupW - 8) / 2 - barW - 2}
-                          y={sY}
-                          width={barW}
-                          height={Math.max(sH, 4)}
-                          fill={isHovered ? '#4338ca' : '#6366f1'}
-                          rx="4"
-                          className="chart-column-rect"
-                        />
-
-                        {/* Purchases Bar */}
-                        <rect
-                          x={groupX + (groupW - 8) / 2 + 2}
-                          y={pY}
-                          width={barW}
-                          height={Math.max(pH, 4)}
-                          fill={isHovered ? '#d97706' : '#f59e0b'}
-                          rx="4"
-                          className="chart-column-rect"
-                        />
-
-                        {/* Month Label */}
-                        <text
-                          x={groupX + (groupW - 8) / 2}
-                          y="188"
-                          textAnchor="middle"
-                          className={`chart-month-lbl ${isHovered ? 'active' : ''}`}
-                        >
-                          {m.label}
-                        </text>
-                      </g>
-                    );
-                  })}
-                </svg>
-
-                {/* Floating Tooltip */}
-                {activeBarHover !== null && monthlyData[activeBarHover] && (
-                  <div className="monthly-chart-tooltip">
-                    <div className="tooltip-month-title">
-                      {monthlyData[activeBarHover].label} Overview
-                    </div>
-                    <div className="tooltip-line sales">
-                      <span>Sales:</span>
-                      <strong>{formatCurrency(monthlyData[activeBarHover].salesAmount)}</strong>
-                      <span>({monthlyData[activeBarHover].salesCount} bills)</span>
-                    </div>
-                    <div className="tooltip-line purchase">
-                      <span>Purchases:</span>
-                      <strong>{formatCurrency(monthlyData[activeBarHover].purchasesAmount)}</strong>
-                      <span>({monthlyData[activeBarHover].purchasesCount} bills)</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <span className="chart-card-tag">Suppliers</span>
             </div>
 
-            {/* Financial Settlement Donut Chart (Paid vs Due) */}
-            <div className="dashboard-chart-card donut-chart-card">
-              <div className="chart-card-header">
-                <div>
-                  <h3 className="chart-card-title">
-                    <i className="bi bi-pie-chart-fill" style={{ color: '#10b981' }} />
-                    Cash Settlement Ratio
-                  </h3>
-                  <p className="chart-card-sub">Paid vs Due customer balance</p>
+            <div className="vertical-barchart-container">
+              {monthlyData.map((m) => {
+                const pct = Math.max(12, Math.round((m.purchasesAmount / maxMonthlyPurchase) * 100));
+                return (
+                  <div key={m.monthKey} className="vertical-bar-col">
+                    <span className="vertical-bar-val">
+                      {m.purchasesAmount > 0 ? formatNumber(m.purchasesAmount, 0) : '0'}
+                    </span>
+                    <div className="vertical-bar-track">
+                      <div
+                        className="vertical-bar-fill"
+                        style={{
+                          height: `${pct}%`,
+                          backgroundColor: '#f59e0b',
+                        }}
+                      />
+                    </div>
+                    <span className="vertical-bar-label">{m.label}</span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Supplier Financial Summary Cards */}
+            <div className="financial-summary-cards">
+              <div className="financial-mini-card supplier-card">
+                <div className="mini-card-header">
+                  <div className="mini-card-title-wrap">
+                    <span className="mini-card-dot" style={{ backgroundColor: '#f59e0b' }} />
+                    <span className="mini-card-label">Total Supplier Payout</span>
+                  </div>
+                  <span className="mini-card-pct-badge supplier-badge">Payout</span>
                 </div>
-                <span className="chart-card-tag">Payments</span>
+                <div className="mini-card-amount" style={{ color: '#b45309' }}>
+                  {formatCurrency(totalPurchaseAmount)}
+                </div>
               </div>
 
-              <div className="donut-chart-wrapper">
-                <svg viewBox="0 0 160 160" className="donut-svg">
+              <div className="financial-mini-card bills-card">
+                <div className="mini-card-header">
+                  <div className="mini-card-title-wrap">
+                    <span className="mini-card-dot" style={{ backgroundColor: '#d97706' }} />
+                    <span className="mini-card-label">Total Purchase Bills</span>
+                  </div>
+                  <span className="mini-card-pct-badge bills-badge">Bills</span>
+                </div>
+                <div className="mini-card-amount" style={{ color: '#1e293b' }}>
+                  {formatCount(totalPurchase)} bills
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Chart 2: Customer Payment */}
+          <div className="dashboard-chart-card">
+            <div className="chart-card-header">
+              <div>
+                <h3 className="chart-card-title">
+                  <i className="bi bi-wallet2" style={{ color: '#10b981' }} />
+                  Customer Payment
+                </h3>
+                <p className="chart-card-sub">Paid vs Due customer balance</p>
+              </div>
+              <span className="chart-card-tag">Customers</span>
+            </div>
+
+            <div className="donut-chart-wrapper">
+              <svg viewBox="0 0 160 160" className="donut-svg">
+                <circle
+                  cx="80"
+                  cy="80"
+                  r={donutRadius}
+                  fill="transparent"
+                  stroke="#e2e8f0"
+                  strokeWidth="16"
+                />
+                {totalFinancial > 0 && (
                   <circle
                     cx="80"
                     cy="80"
                     r={donutRadius}
                     fill="transparent"
-                    stroke="#e2e8f0"
+                    stroke="#10b981"
                     strokeWidth="16"
+                    strokeDasharray={`${paidArc} ${donutCircumference}`}
+                    strokeDashoffset="0"
+                    strokeLinecap="round"
+                    transform="rotate(-90 80 80)"
                   />
-                  {totalFinancial > 0 && (
-                    <circle
-                      cx="80"
-                      cy="80"
-                      r={donutRadius}
-                      fill="transparent"
-                      stroke="#10b981"
-                      strokeWidth="16"
-                      strokeDasharray={`${paidArc} ${donutCircumference}`}
-                      strokeDashoffset="0"
-                      strokeLinecap="round"
-                      transform="rotate(-90 80 80)"
-                    />
-                  )}
-                  {totalFinancial > 0 && totalDue > 0 && (
-                    <circle
-                      cx="80"
-                      cy="80"
-                      r={donutRadius}
-                      fill="transparent"
-                      stroke="#ef4444"
-                      strokeWidth="16"
-                      strokeDasharray={`${dueArc} ${donutCircumference}`}
-                      strokeDashoffset={`-${paidArc}`}
-                      strokeLinecap="round"
-                      transform="rotate(-90 80 80)"
-                    />
-                  )}
-                </svg>
-                <div className="donut-center-stat">
-                  <span className="donut-pct">{recoveryRate}%</span>
-                  <span className="donut-label">Recovered</span>
+                )}
+                {totalFinancial > 0 && totalDue > 0 && (
+                  <circle
+                    cx="80"
+                    cy="80"
+                    r={donutRadius}
+                    fill="transparent"
+                    stroke="#ef4444"
+                    strokeWidth="16"
+                    strokeDasharray={`${dueArc} ${donutCircumference}`}
+                    strokeDashoffset={`-${paidArc}`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 80 80)"
+                  />
+                )}
+              </svg>
+              <div className="donut-center-stat">
+                <span className="donut-pct">{recoveryRate}%</span>
+                <span className="donut-label">Recovered</span>
+              </div>
+            </div>
+
+            {/* Customer Financial Summary Cards */}
+            <div className="financial-summary-cards">
+              <div className="financial-mini-card paid-card">
+                <div className="mini-card-header">
+                  <div className="mini-card-title-wrap">
+                    <span className="mini-card-dot" style={{ backgroundColor: '#10b981' }} />
+                    <span className="mini-card-label">Total Paid (Received)</span>
+                  </div>
+                  <span className="mini-card-pct-badge">{recoveryRate}%</span>
+                </div>
+                <div className="mini-card-amount" style={{ color: '#047857' }}>
+                  {formatCurrency(totalPaid)}
                 </div>
               </div>
 
-              <div className="chart-legends-container">
-                <div className="legend-row">
-                  <div className="legend-label">
-                    <span className="legend-color-dot" style={{ backgroundColor: '#10b981' }} />
-                    <span>Total Paid (Received)</span>
+              <div className="financial-mini-card due-card">
+                <div className="mini-card-header">
+                  <div className="mini-card-title-wrap">
+                    <span className="mini-card-dot" style={{ backgroundColor: '#ef4444' }} />
+                    <span className="mini-card-label">Total Due (Receivable)</span>
                   </div>
-                  <span className="legend-value">{formatCurrency(totalPaid)}</span>
+                  <span className="mini-card-pct-badge due-badge">
+                    {totalFinancial > 0 ? 100 - recoveryRate : 0}%
+                  </span>
                 </div>
-                <div className="legend-row">
-                  <div className="legend-label">
-                    <span className="legend-color-dot" style={{ backgroundColor: '#ef4444' }} />
-                    <span>Total Due (Receivable)</span>
-                  </div>
-                  <span className="legend-value">{formatCurrency(totalDue)}</span>
+                <div className="mini-card-amount" style={{ color: '#b91c1c' }}>
+                  {formatCurrency(totalDue)}
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Row 2: Vertical Column Bar Chart for Ledgers + Entity Distribution */}
-          <div className="charts-bottom-split">
-            {/* Vertical Column Bar Chart: Ledger Records Activity */}
-            <div className="dashboard-chart-card">
-              <div className="chart-card-header">
-                <div>
-                  <h3 className="chart-card-title">
-                    <i className="bi bi-bar-chart-line-fill" style={{ color: '#4f46e5' }} />
-                    Ledger Activity Column Bar Chart
-                  </h3>
-                  <p className="chart-card-sub">Recorded entries across accounting ledgers</p>
-                </div>
-                <span className="chart-card-tag">Records</span>
+          {/* Chart 3: Inventory */}
+          <div className="dashboard-chart-card">
+            <div className="chart-card-header">
+              <div>
+                <h3 className="chart-card-title">
+                  <i className="bi bi-box-seam" style={{ color: '#6366f1' }} />
+                  Inventory
+                </h3>
+                <p className="chart-card-sub">Top 4 stock & sales categories</p>
               </div>
+              <span className="chart-card-tag">Inventory</span>
+            </div>
 
-              <div className="vertical-barchart-container">
-                {activityData.map((item) => {
-                  const pct = Math.max(10, Math.round((item.count / maxActivityCount) * 100));
-                  return (
-                    <div key={item.label} className="vertical-bar-col">
-                      <span className="vertical-bar-val">{formatCount(item.count)}</span>
-                      <div className="vertical-bar-track">
-                        <div
-                          className="vertical-bar-fill"
-                          style={{
-                            height: `${pct}%`,
-                            backgroundColor: item.color,
-                          }}
-                        />
-                      </div>
-                      <span className="vertical-bar-label">{item.label}</span>
-                    </div>
-                  );
-                })}
+            {/* Premium Category Distribution Donut */}
+            <div className="donut-chart-wrapper">
+              <svg viewBox="0 0 160 160" className="donut-svg">
+                <circle
+                  cx="80"
+                  cy="80"
+                  r={donutRadius}
+                  fill="transparent"
+                  stroke="#f1f5f9"
+                  strokeWidth="16"
+                />
+                {inventoryArcs.map((arc) => (
+                  <circle
+                    key={arc.label}
+                    cx="80"
+                    cy="80"
+                    r={donutRadius}
+                    fill="transparent"
+                    stroke={arc.color}
+                    strokeWidth="16"
+                    strokeDasharray={`${arc.arcLength} ${donutCircumference}`}
+                    strokeDashoffset={`-${arc.offset}`}
+                    strokeLinecap="round"
+                    transform="rotate(-90 80 80)"
+                  />
+                ))}
+              </svg>
+              <div className="donut-center-stat">
+                <span className="donut-pct">{formatCount(totalStockUnits)}</span>
+                <span className="donut-label">Total Units</span>
               </div>
             </div>
 
-            {/* Entity Network Distribution Chart */}
-            <div className="dashboard-chart-card">
-              <div className="chart-card-header">
-                <div>
-                  <h3 className="chart-card-title">
-                    <i className="bi bi-people-fill" style={{ color: '#255DCE' }} />
-                    Entity Distribution Scale
-                  </h3>
-                  <p className="chart-card-sub">Registered parties & inventory items</p>
+            {/* Top 4 Categories with Large Stock & High Sales (Strictly 4, Fixed Height) */}
+            <div className="top-categories-grid">
+              {top4Categories.map((cat) => (
+                <div key={cat.label} className="top-category-card">
+                  <div className="top-cat-header">
+                    <span className="category-dot" style={{ backgroundColor: cat.color }} />
+                    <span className="top-cat-name" title={cat.label}>{cat.label}</span>
+                  </div>
+                  <div className="top-cat-stat-line">
+                    <span className="stat-muted">Stock:</span>
+                    <span className="stat-bold">{formatCount(cat.stockUnits)}</span>
+                  </div>
+                  <div className="top-cat-stat-line">
+                    <span className="stat-muted">Sales:</span>
+                    <span className="stat-bold sales-val" title={formatCurrency(cat.salesAmount)}>
+                      {formatCurrency(Math.round(cat.salesAmount)).replace(/\.00$/, '')}
+                    </span>
+                  </div>
                 </div>
-                <span className="chart-card-tag">Network</span>
-              </div>
+              ))}
+            </div>
 
-              <div className="barchart-container">
-                {entityData.map((item) => {
-                  const fillPercent = Math.max(8, Math.round((item.count / maxEntityCount) * 100));
-                  return (
-                    <div key={item.label} className="bar-row">
-                      <span className="bar-label-name">{item.label}</span>
-                      <div className="bar-track">
-                        <div
-                          className="bar-fill"
-                          style={{
-                            width: `${fillPercent}%`,
-                            backgroundColor: item.color,
-                          }}
-                        />
-                      </div>
-                      <span className="bar-value-number">{formatCount(item.count)}</span>
-                    </div>
-                  );
-                })}
+            {/* Inventory Metrics Footer */}
+            <div className="chart-legends-container">
+              <div className="legend-row">
+                <div className="legend-label">
+                  <span className="legend-color-dot" style={{ backgroundColor: '#6366f1' }} />
+                  <span>Total Products</span>
+                </div>
+                <span className="legend-value">{formatCount(totalItem)} items</span>
+              </div>
+              <div className="legend-row">
+                <div className="legend-label">
+                  <span className="legend-color-dot" style={{ backgroundColor: lowStockCount > 0 ? '#ef4444' : '#10b981' }} />
+                  <span>Stock Health</span>
+                </div>
+                {lowStockCount > 0 ? (
+                  <span className="inventory-status-badge badge-warning">
+                    <i className="bi bi-exclamation-triangle-fill" /> {lowStockCount} Low Stock
+                  </span>
+                ) : (
+                  <span className="inventory-status-badge badge-success">
+                    <i className="bi bi-check-circle-fill" /> Optimal Stock
+                  </span>
+                )}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Section 3: System Performance Monitor with Original Telemetry Graph and Gauges */}
+        {/* Section 3: System Performance Monitor */}
         <div className="system-monitor-section">
           <div className="system-monitor-header">
             <h2 className="system-monitor-title">

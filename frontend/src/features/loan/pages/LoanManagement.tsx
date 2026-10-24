@@ -18,10 +18,12 @@ import { EmiCalculatorModal } from '../components/EmiCalculatorModal';
 import { LoanDetailModal } from '../components/LoanDetailModal';
 import { printHtmlContent } from '@/features/inventoryManagement/utils/printInvoice';
 import { usePermission } from '@/core/rbac/usePermission';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '@/styles/RentalItem.css';
 import '@/styles/LoanManagement.css';
 
 export const LoanManagement: React.FC = () => {
+    const { formatCurrency, formatDate } = useAppSettings();
     const { hasPermission, isSuperAdmin, hasModule } = usePermission();
     const canAccessLoan = isSuperAdmin || hasModule('loan') || hasPermission('loan:list');
     const canCreateLoan = hasPermission('loan:create');
@@ -151,11 +153,11 @@ export const LoanManagement: React.FC = () => {
                 <td class="text-center">${idx + 1}</td>
                 <td class="fw-bold" style="color: #255dce;">${l.loanNumber}</td>
                 <td><strong>${l.lenderName}</strong> (${l.lenderType})</td>
-                <td class="text-end">Rs. ${l.principalAmount.toLocaleString('en-IN')}</td>
+                <td class="text-end">${formatCurrency(l.principalAmount)}</td>
                 <td class="text-center">${l.interestRate}% (${l.interestType})</td>
-                <td class="text-end fw-bold" style="color: #255dce;">Rs. ${l.monthlyEmi.toLocaleString('en-IN')}</td>
-                <td class="text-end" style="color: #16a34a;">Rs. ${l.totalPaid.toLocaleString('en-IN')}</td>
-                <td class="text-end fw-bold" style="color: #dc2626;">Rs. ${l.remainingBalance.toLocaleString('en-IN')}</td>
+                <td class="text-end fw-bold" style="color: #255dce;">${formatCurrency(l.monthlyEmi)}</td>
+                <td class="text-end" style="color: #16a34a;">${formatCurrency(l.totalPaid)}</td>
+                <td class="text-end fw-bold" style="color: #dc2626;">${formatCurrency(l.remainingBalance)}</td>
                 <td class="text-center">
                     <span style="padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; background: ${
                         l.status === 'ACTIVE' ? '#dcfce7; color: #15803d;' : '#f1f5f9; color: #475569;'
@@ -174,26 +176,26 @@ export const LoanManagement: React.FC = () => {
                 </div>
                 <div class="invoice-type-banner">
                     <h2>DEBT PORTFOLIO</h2>
-                    <div class="num">Generated: ${new Date().toLocaleDateString()}</div>
+                    <div class="num">Generated: ${formatDate(new Date())}</div>
                 </div>
             </div>
 
             <div class="report-kpis">
                 <div class="report-kpi">
                     <span>Total Borrowed</span>
-                    <span style="color: #0f172a;">Rs. ${totalBorrowed.toLocaleString('en-IN')}</span>
+                    <span style="color: #0f172a;">${formatCurrency(totalBorrowed)}</span>
                 </div>
                 <div class="report-kpi">
                     <span>Total Repaid</span>
-                    <span style="color: #16a34a;">Rs. ${totalRepaid.toLocaleString('en-IN')}</span>
+                    <span style="color: #16a34a;">${formatCurrency(totalRepaid)}</span>
                 </div>
                 <div class="report-kpi">
                     <span>Total Outstanding</span>
-                    <span style="color: #dc2626;">Rs. ${totalOutstanding.toLocaleString('en-IN')}</span>
+                    <span style="color: #dc2626;">${formatCurrency(totalOutstanding)}</span>
                 </div>
                 <div class="report-kpi">
                     <span>Monthly EMI Burden</span>
-                    <span style="color: #255dce;">Rs. ${totalMonthlyEmi.toLocaleString('en-IN')} / mo</span>
+                    <span style="color: #255dce;">${formatCurrency(totalMonthlyEmi)} / mo</span>
                 </div>
             </div>
 
@@ -258,7 +260,7 @@ export const LoanManagement: React.FC = () => {
                                 <div>
                                     <div className="loan-stat-label">Total Borrowed</div>
                                     <div className="loan-stat-value">
-                                        Rs. {totalBorrowed.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        {formatCurrency(totalBorrowed)}
                                     </div>
                                 </div>
                             </div>
@@ -270,7 +272,7 @@ export const LoanManagement: React.FC = () => {
                                 <div>
                                     <div className="loan-stat-label">Total Repaid (Given)</div>
                                     <div className="loan-stat-value" style={{ color: '#16a34a' }}>
-                                        Rs. {totalRepaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        {formatCurrency(totalRepaid)}
                                     </div>
                                 </div>
                             </div>
@@ -282,7 +284,7 @@ export const LoanManagement: React.FC = () => {
                                 <div>
                                     <div className="loan-stat-label">Outstanding Debt</div>
                                     <div className="loan-stat-value" style={{ color: '#d97706' }}>
-                                        Rs. {totalOutstanding.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        {formatCurrency(totalOutstanding)}
                                     </div>
                                 </div>
                             </div>
@@ -294,7 +296,7 @@ export const LoanManagement: React.FC = () => {
                                 <div>
                                     <div className="loan-stat-label">Monthly EMI Outflow</div>
                                     <div className="loan-stat-value" style={{ color: '#255dce' }}>
-                                        Rs. {totalMonthlyEmi.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                        {formatCurrency(totalMonthlyEmi)}
                                     </div>
                                 </div>
                             </div>
@@ -413,10 +415,10 @@ export const LoanManagement: React.FC = () => {
                                                 </div>
                                                 <div className="rental-item-time">
                                                     <i className="bi bi-calendar-event me-1"></i>
-                                                    Start: {loan.startDate ? new Date(loan.startDate).toLocaleDateString() : 'N/A'} |
+                                                    Start: {loan.startDate ? formatDate(loan.startDate) : 'N/A'} |
                                                     Tenure: {loan.tenureMonths} Months |
                                                     Rate: {loan.interestRate}% ({loan.interestType}) |
-                                                    Monthly EMI: <strong>रु {loan.monthlyEmi.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
+                                                    Monthly EMI: <strong>{formatCurrency(loan.monthlyEmi)}</strong>
                                                 </div>
                                                 <div className="rental-item-time">
                                                     {loan.accountNumber && (
@@ -475,11 +477,11 @@ export const LoanManagement: React.FC = () => {
 
                                         <div className="rental-item-amount">
                                             <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0f172a' }}>
-                                                रु {loan.principalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                {formatCurrency(loan.principalAmount)}
                                             </div>
                                             <div className="rental-card-balance-row">
                                                 <span className="rental-card-paid-text">
-                                                    Repaid: रु {loan.totalPaid.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                    Repaid: {formatCurrency(loan.totalPaid)}
                                                 </span>
                                                 {isClosed ? (
                                                     <span className="rental-card-settled-text">
@@ -487,7 +489,7 @@ export const LoanManagement: React.FC = () => {
                                                     </span>
                                                 ) : (
                                                     <span className="rental-card-due-text">
-                                                        Due: रु {loan.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                        Due: {formatCurrency(loan.remainingBalance)}
                                                     </span>
                                                 )}
                                             </div>

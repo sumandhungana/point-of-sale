@@ -11,6 +11,7 @@ export interface AppSettings {
   sideMenuHoverBgColor: string;
   topMenuBgColor: string;
   topMenuFontColor: string;
+  topMenuLogoColor?: string | null;
   appBgColor: string;
   appForegroundColor: string;
   logoPath?: string | null;
@@ -33,8 +34,9 @@ export const defaultAppSettings: AppSettings = {
   sideMenuFontColor: '#ffffff',
   sideMenuHoverFontColor: '#ffffff',
   sideMenuHoverBgColor: '#495057',
-  topMenuBgColor: '#010A2E',
-  topMenuFontColor: '#06164A',
+  topMenuBgColor: '#ffffff',
+  topMenuFontColor: '#000000',
+  topMenuLogoColor: 'default',
   appBgColor: '#f8f9fa',
   appForegroundColor: '#212529',
   logoPath: null,
@@ -49,6 +51,97 @@ export const defaultAppSettings: AppSettings = {
 };
 
 const LOCAL_STORAGE_KEY = 'khatabook_app_settings_cache';
+
+export function getCachedAppSettings(): AppSettings {
+  try {
+    const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (cached) {
+      return { ...defaultAppSettings, ...JSON.parse(cached) };
+    }
+  } catch {}
+  return defaultAppSettings;
+}
+
+export function getSystemCurrencySymbol(): string {
+  return getCachedAppSettings().currency || 'Rs.';
+}
+
+export function getSystemCurrencyPosition(): 'before' | 'after' {
+  return getCachedAppSettings().currencyPosition || 'before';
+}
+
+export function formatSystemNumber(value: number | string | null | undefined, decimals = 2): string {
+  if (value === null || value === undefined || value === '') return '0.00';
+  const num = typeof value === 'number' ? value : parseFloat(String(value));
+  if (isNaN(num)) return '0.00';
+
+  const settings = getCachedAppSettings();
+  const format = settings.numberFormat || '1,234.56';
+  const fixed = num.toFixed(decimals);
+  const [intPart, decPart] = fixed.split('.');
+
+  if (format === '1.234,56') {
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return decPart ? `${formattedInt},${decPart}` : formattedInt;
+  } else if (format === '1234.56') {
+    return fixed;
+  } else {
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return decPart ? `${formattedInt}.${decPart}` : formattedInt;
+  }
+}
+
+export function formatSystemCurrency(amount: number | string | null | undefined, decimals = 2): string {
+  const settings = getCachedAppSettings();
+  const formatted = formatSystemNumber(amount, decimals);
+  const curr = settings.currency || 'रु';
+  const pos = settings.currencyPosition || 'before';
+  return pos === 'after' ? `${formatted} ${curr}` : `${curr} ${formatted}`;
+}
+
+export function formatSystemDate(dateInput: Date | string | null | undefined): string {
+  if (!dateInput) return '';
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return String(dateInput);
+
+  const settings = getCachedAppSettings();
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+
+  switch (settings.dateFormat) {
+    case 'MM/DD/YYYY':
+      return `${month}/${day}/${year}`;
+    case 'YYYY-MM-DD':
+      return `${year}-${month}-${day}`;
+    case 'DD/MM/YYYY':
+    default:
+      return `${day}/${month}/${year}`;
+  }
+}
+
+export function formatSystemTime(timeInput: Date | string | null | undefined): string {
+  if (!timeInput) return '';
+  const d = typeof timeInput === 'string' && timeInput.includes(':') && !timeInput.includes('T')
+    ? new Date(`1970-01-01T${timeInput}`)
+    : new Date(timeInput);
+
+  if (isNaN(d.getTime())) return String(timeInput);
+  const settings = getCachedAppSettings();
+
+  if (settings.timeFormat === 'hh:mm A') {
+    let hours = d.getHours();
+    const minutes = String(d.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    return `${String(hours).padStart(2, '0')}:${minutes} ${ampm}`;
+  }
+
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('authToken');

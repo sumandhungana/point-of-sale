@@ -1,10 +1,12 @@
 import React from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../components/Navbar';
-import { BackButton } from '../components/BackButton';
+import { BackButton } from '@/components/BackButton';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/Bills.css';
 
 export const Bills: React.FC = () => {
+  const { formatCurrency } = useAppSettings();
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <Sidebar />
@@ -39,7 +41,7 @@ export const Bills: React.FC = () => {
               </div>
               <div className="bills-stat-info">
                 <h3>Total Amount</h3>
-                <p className="bills-stat-number">Rs.2,45,000</p>
+                <p className="bills-stat-number">{formatCurrency(245000)}</p>
                 <span className="bills-stat-change positive">+8% this month</span>
               </div>
             </div>

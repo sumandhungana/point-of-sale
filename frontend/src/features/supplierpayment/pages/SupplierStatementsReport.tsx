@@ -9,6 +9,7 @@ import { pdf } from '@react-pdf/renderer';
 import { toast } from 'react-toastify';
 import '../../../styles/CustomerStatementsReport.css';
 import SupplierStatementsPDFTemplate from "@/features/supplierpayment/components/SupplierStatementsPDFTemplate";
+import { useAppSettings } from '@/context/AppSettingsContext';
 
 
 interface ReportData {
@@ -22,6 +23,7 @@ interface ReportData {
 
 export const SupplierStatementsReport = () => {
     const navigate = useNavigate();
+    const { formatCurrency, formatDate } = useAppSettings();
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
     const contentRef = useRef<HTMLDivElement>(null);
@@ -291,21 +293,21 @@ export const SupplierStatementsReport = () => {
                         <div className="customer-statements-report-summary-item">
                             <div className="customer-statements-report-summary-title">Total Given</div>
                             <div className="customer-statements-report-summary-value customer-statements-report-gave-value">
-                                रु{totalGave.toLocaleString()}
+                                {formatCurrency(totalGave)}
                             </div>
                         </div>
                         <div className="customer-statements-report-summary-divider"></div>
                         <div className="customer-statements-report-summary-item">
                             <div className="customer-statements-report-summary-title">Total Received</div>
                             <div className="customer-statements-report-summary-value customer-statements-report-received-value">
-                                रु{totalReceived.toLocaleString()}
+                                {formatCurrency(totalReceived)}
                             </div>
                         </div>
                         <div className="customer-statements-report-summary-divider"></div>
                         <div className="customer-statements-report-summary-item">
                             <div className="customer-statements-report-summary-title">Net Balance</div>
                             <div className="customer-statements-report-summary-value customer-statements-report-net-value">
-                                रु{netBalance.toLocaleString()}
+                                {formatCurrency(netBalance)}
                             </div>
                         </div>
                     </div>
@@ -340,7 +342,7 @@ export const SupplierStatementsReport = () => {
                                 {filteredTransactions.map((transaction) => (
                                     <tr key={transaction.id} className="customer-statements-report-table-row">
                                         <td className="customer-statements-report-table-cell">
-                                            {new Date(transaction.createdAt).toLocaleDateString()}
+                                            {formatDate(transaction.createdAt)}
                                         </td>
                                         <td className="customer-statements-report-table-cell">
                                             <span className={`customer-statements-report-transaction-type ${
@@ -350,13 +352,13 @@ export const SupplierStatementsReport = () => {
                                             </span>
                                         </td>
                                         <td className="customer-statements-report-table-cell">
-                                            रु{Math.abs(transaction.amount).toLocaleString()}
+                                            {formatCurrency(Math.abs(transaction.amount))}
                                         </td>
                                         <td className="customer-statements-report-table-cell">
                                             {transaction.remarks || 'No remarks'}
                                         </td>
                                         <td className="customer-statements-report-table-cell">
-                                            रु{transaction.newBalance.toLocaleString()}
+                                            {formatCurrency(transaction.newBalance)}
                                         </td>
                                     </tr>
                                 ))}
@@ -393,11 +395,11 @@ export const SupplierStatementsReport = () => {
                         </div>
                         <div className="customer-statements-report-footer-item">
                             <i className="bi bi-arrow-up-circle me-1"></i>
-                            Total Given: रु{totalGave.toLocaleString()}
+                            Total Given: {formatCurrency(totalGave)}
                         </div>
                         <div className="customer-statements-report-footer-item">
                             <i className="bi bi-arrow-down-circle me-1"></i>
-                            Total Received: रु{totalReceived.toLocaleString()}
+                            Total Received: {formatCurrency(totalReceived)}
                         </div>
                     </div>
                 </div>

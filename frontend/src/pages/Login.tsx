@@ -319,7 +319,7 @@ export const Login = () => {
 
         <div className="login-footer">
           <p className="login-tagline">"Simple, Smart & Secure POS System!"</p>
-          <p className="login-copyright">© 2024 POS System · All rights reserved.</p>
+          <p className="login-copyright">© 2024 Khatabook · All rights reserved.</p>
         </div>
 
         {/* User Registration Modal Component */}

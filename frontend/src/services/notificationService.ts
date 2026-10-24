@@ -1,6 +1,7 @@
 import { getProduct } from '@/features/services/productService';
 import type { Loan } from '@/features/services/loanService';
 import type { GetAllMember } from '@/features/services/organizationService';
+import { formatSystemCurrency, formatSystemDate } from '@/features/services/appSettingService';
 
 export interface AppNotification {
   id: string;
@@ -51,16 +52,18 @@ export const getLoanNotifications = (loans: Loan[]): AppNotification[] => {
       loan.schedule.forEach((scheduleItem) => {
         if (scheduleItem.status === 'OVERDUE') {
           const id = `loan-overdue-${loan.id}-${scheduleItem.installmentNo}`;
+          const formattedAmount = formatSystemCurrency(scheduleItem.emiAmount);
+          const formattedDueDate = formatSystemDate(scheduleItem.dueDate);
           notifications.push({
             id,
             type: 'LOAN_EMI',
             title: `Overdue Loan EMI: ${loan.lenderName}`,
-            message: `Installment #${scheduleItem.installmentNo} of रु ${scheduleItem.emiAmount?.toLocaleString()} was due on ${scheduleItem.dueDate}.`,
+            message: `Installment #${scheduleItem.installmentNo} of ${formattedAmount} was due on ${formattedDueDate}.`,
             timestamp: scheduleItem.dueDate || new Date().toISOString(),
             link: '/others/loan',
             severity: 'danger',
             read: readIds.has(id),
-            countLabel: `रु ${scheduleItem.emiAmount?.toLocaleString()}`,
+            countLabel: formattedAmount,
           });
         } else if (scheduleItem.status === 'PENDING' && scheduleItem.dueDate) {
           const due = new Date(scheduleItem.dueDate);
@@ -70,6 +73,7 @@ export const getLoanNotifications = (loans: Loan[]): AppNotification[] => {
 
           if (diffDays <= 7 && diffDays >= -1) {
             const id = `loan-due-${loan.id}-${scheduleItem.installmentNo}`;
+            const formattedDueDate = formatSystemDate(scheduleItem.dueDate);
             const dueText =
               diffDays < 0
                 ? 'is overdue'
@@ -77,18 +81,19 @@ export const getLoanNotifications = (loans: Loan[]): AppNotification[] => {
                 ? 'is due today!'
                 : diffDays === 1
                 ? 'is due tomorrow'
-                : `is due in ${diffDays} days (${scheduleItem.dueDate})`;
+                : `is due in ${diffDays} days (${formattedDueDate})`;
 
+            const formattedAmount = formatSystemCurrency(scheduleItem.emiAmount);
             notifications.push({
               id,
               type: 'LOAN_EMI',
               title: `Loan EMI Schedule: ${loan.lenderName}`,
-              message: `Installment #${scheduleItem.installmentNo} of रु ${scheduleItem.emiAmount?.toLocaleString()} ${dueText}.`,
+              message: `Installment #${scheduleItem.installmentNo} of ${formattedAmount} ${dueText}.`,
               timestamp: scheduleItem.dueDate,
               link: '/others/loan',
               severity: diffDays <= 1 ? 'danger' : 'warning',
               read: readIds.has(id),
-              countLabel: `रु ${scheduleItem.emiAmount?.toLocaleString()}`,
+              countLabel: formattedAmount,
             });
           }
         }

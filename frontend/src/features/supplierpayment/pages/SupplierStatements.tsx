@@ -9,6 +9,7 @@ import '../../../styles/SupplierStatements.css';
 import { YouGave } from '../../supplierpayment/components/YouGave';
 import { YouReceived } from '../../supplierpayment/components/YouReceived';
 import { resolveImageSrc } from '@/utils/ImageResolver';
+import { useAppSettings } from '@/context/AppSettingsContext';
 
 /**
  * Avatar that validates the resolved image before rendering it.
@@ -71,6 +72,7 @@ const SupplierAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string })
 
 export const SupplierStatements: React.FC = () => {
     const navigate = useNavigate();
+    const { formatCurrency, formatDate } = useAppSettings();
     const { id } = useParams<{ id: string }>();
 
     const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -229,9 +231,9 @@ export const SupplierStatements: React.FC = () => {
                     phoneNumber: supplierPhone || '',
                     type: isReceived ? 'payment_in' : 'payment_out',
                     customerId: parseInt(id || '0', 10),
-                    details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.createdAt).toLocaleDateString()}`,
+                    details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${formatDate(transaction.createdAt)}`,
                     remarks: transaction.remarks || '',
-                    sms: `Dear ${supplierName || 'Supplier'}, your payment of रु${amountAbs} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
+                    sms: `Dear ${supplierName || 'Supplier'}, your payment of ${formatCurrency(amountAbs)} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
                 }
             }
         });
@@ -331,7 +333,7 @@ export const SupplierStatements: React.FC = () => {
                                 You Gave
                             </div>
                             <div className="statements-amount-val val-gave">
-                                रु{(totals.given || 0).toLocaleString()}
+                                {formatCurrency(totals.given || 0)}
                             </div>
                         </div>
                         <div className="statements-amount-box box-received">
@@ -340,7 +342,7 @@ export const SupplierStatements: React.FC = () => {
                                 You Received
                             </div>
                             <div className="statements-amount-val val-received">
-                                रु{(totals.received || 0).toLocaleString()}
+                                {formatCurrency(totals.received || 0)}
                             </div>
                         </div>
                     </div>
@@ -437,7 +439,7 @@ export const SupplierStatements: React.FC = () => {
                                                             <div className="customer-statements-transaction-label">Date/Time:</div>
                                                             <div className="customer-statements-transaction-value">
                                                                 <i className="bi bi-clock me-1"></i>
-                                                                {new Date(transaction.createdAt).toLocaleDateString()} {transaction.formattedTime}
+                                                                {formatDate(transaction.createdAt)} {transaction.formattedTime}
                                                             </div>
                                                         </div>
                                                         <div className="customer-statements-transaction-row">
@@ -450,7 +452,7 @@ export const SupplierStatements: React.FC = () => {
                                                     </div>
                                                     <div className="customer-statements-transaction-amounts">
                                                         <div className={`customer-statements-current-amount ${!transaction.isReceived ? 'customer-statements-current-amount-red' : ''}`}>
-                                                            रु {Math.abs(transaction.amount).toLocaleString()}
+                                                            {formatCurrency(Math.abs(transaction.amount))}
                                                         </div>
                                                     </div>
                                                 </div>

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { fetchCustomers, Customer } from '@/features/services/customerService';
 import {getPaymentList, GetPaymentResponse} from "@/features/services/paymentService";
 import { toast } from 'react-toastify';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../../../styles/Customers.css';
 
 interface CustomerWithBalance extends Customer {
@@ -265,6 +266,7 @@ const CustomerAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string })
 
 export const Customers = () => {
     const navigate = useNavigate();
+    const { formatCurrency } = useAppSettings();
     const [searchQuery, setSearchQuery] = useState('');
     const [filterBy] = useState('all');
     const [sortBy, setSortBy] = useState('mostRecent');
@@ -492,7 +494,7 @@ export const Customers = () => {
                         <div className="customers-card-content">
                             <div className="customers-card-header">You Gave</div>
                             <div className="customers-card-amount" style={{ color: '#DE1110' }}>
-                                रु{overallTotals.given.toLocaleString()}
+                                {formatCurrency(overallTotals.given)}
                             </div>
                         </div>
                     </div>
@@ -503,7 +505,7 @@ export const Customers = () => {
                         <div className="customers-card-content">
                             <div className="customers-card-header">You Received</div>
                             <div className="customers-card-amount" style={{ color: '#10b981' }}>
-                                रु{overallTotals.received.toLocaleString()}
+                                {formatCurrency(overallTotals.received)}
                             </div>
                         </div>
                     </div>
@@ -514,7 +516,7 @@ export const Customers = () => {
                         <div className="customers-card-content">
                             <div className="customers-card-header">Online Collection</div>
                             <div className="customers-card-amount" style={{ color: '#021861' }}>
-                                रु{overallTotals.online.toLocaleString()}
+                                {formatCurrency(overallTotals.online)}
                             </div>
                         </div>
                     </div>
@@ -582,7 +584,7 @@ export const Customers = () => {
                                             isPositive ? 'balance-positive' : 'balance-negative'
                                     }`}>
                                         {isPositive ? '+ ' : isNegative ? '- ' : ''}
-                                        रु{Math.abs(balanceVal).toLocaleString()}
+                                        {formatCurrency(Math.abs(balanceVal))}
                                     </div>
                                 </div>
                             );

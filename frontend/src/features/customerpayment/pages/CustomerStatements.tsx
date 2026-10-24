@@ -8,6 +8,7 @@ import '../../../styles/CustomerStatements.css';
 import { YouGave } from '../components/YouGave';
 import { YouReceived } from '../components/YouReceived';
 import { resolveImageSrc } from '@/utils/ImageResolver';
+import { useAppSettings } from '@/context/AppSettingsContext';
 
 interface CustomerData {
     id: number;
@@ -91,6 +92,7 @@ const CustomerAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string })
 
 export const CustomerStatements = () => {
     const navigate = useNavigate();
+    const { formatCurrency, formatDate } = useAppSettings();
     const { id } = useParams<{ id: string }>();
     const location = useLocation();
 
@@ -274,9 +276,9 @@ export const CustomerStatements = () => {
                     phoneNumber: customerData.phone,
                     type: transaction.paymentCategory === 'RECEIVED' ? 'payment_in' : 'payment_out',
                     customerId: activeCustId,
-                    details: `${transaction.paymentCategory === 'RECEIVED' ? 'Payment Received' : 'Payment Given'} - ${new Date(transaction.createdAt).toLocaleDateString()}`,
+                    details: `${transaction.paymentCategory === 'RECEIVED' ? 'Payment Received' : 'Payment Given'} - ${formatDate(transaction.createdAt)}`,
                     remarks: transaction.remarks,
-                    sms: `Dear ${customerData.name || 'Customer'}, your payment of रु${Math.abs(transaction.amount)} has been ${transaction.paymentCategory === 'RECEIVED' ? 'received' : 'processed'}. Thank you for your business.`
+                    sms: `Dear ${customerData.name || 'Customer'}, your payment of ${formatCurrency(Math.abs(transaction.amount))} has been ${transaction.paymentCategory === 'RECEIVED' ? 'received' : 'processed'}. Thank you for your business.`
                 }
             }
         });
@@ -431,7 +433,7 @@ export const CustomerStatements = () => {
                                 You Gave
                             </div>
                             <div className="statements-amount-val val-gave">
-                                रु{totals.given.toLocaleString()}
+                                {formatCurrency(totals.given)}
                             </div>
                         </div>
                         <div className="statements-amount-box box-received">
@@ -440,7 +442,7 @@ export const CustomerStatements = () => {
                                 You Received
                             </div>
                             <div className="statements-amount-val val-received">
-                                रु{totals.received.toLocaleString()}
+                                {formatCurrency(totals.received)}
                             </div>
                         </div>
                     </div>
@@ -534,7 +536,7 @@ export const CustomerStatements = () => {
                                                             <div className="customer-statements-transaction-label">Date/Time:</div>
                                                             <div className="customer-statements-transaction-value">
                                                                 <i className="bi bi-clock me-1"></i>
-                                                                {new Date(transaction.createdAt).toLocaleDateString()} {transaction.formattedTime}
+                                                                {formatDate(transaction.createdAt)} {transaction.formattedTime}
                                                             </div>
                                                         </div>
                                                         <div className="customer-statements-transaction-row">
@@ -547,7 +549,7 @@ export const CustomerStatements = () => {
                                                     </div>
                                                     <div className="customer-statements-transaction-amounts">
                                                         <div className={`customer-statements-current-amount ${!transaction.isReceived ? 'customer-statements-current-amount-red' : ''}`}>
-                                                            रु {Math.abs(transaction.amount).toLocaleString()}
+                                                            {formatCurrency(Math.abs(transaction.amount))}
                                                         </div>
                                                     </div>
                                                 </div>

@@ -11,6 +11,7 @@ import {
 } from '@/features/services/staffAttendanceService';
 import { toast } from 'react-toastify';
 import { usePermission } from '@/core/rbac/usePermission';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import { calculateStaffFinancials } from '@/utils/staffFinancialUtils';
 import '../styles/StaffManagement.css';
 
@@ -57,6 +58,7 @@ export interface Staff {
 
 export const StaffManagement = () => {
   const navigate = useNavigate();
+  const { formatCurrency } = useAppSettings();
   const { hasModule, hasPermission } = usePermission();
   const canCreateStaff = hasPermission('staffManagement:create');
   const canViewAttendance =
@@ -266,11 +268,26 @@ export const StaffManagement = () => {
   const filteredStaff = useMemo(() => {
     return staffList
       .filter((staff) => {
-        const matchesSearch =
-          !searchQuery ||
-          staff.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          staff.phone?.toLowerCase().includes(searchQuery.toLowerCase());
-        if (!matchesSearch) return false;
+        if (searchQuery.trim()) {
+          const q = searchQuery.trim().toLowerCase();
+          const qDigits = q.replace(/[^0-9]/g, '');
+
+          const nameMatch = staff.name?.toLowerCase().includes(q);
+          const emailMatch = staff.email?.toLowerCase().includes(q);
+          const addressMatch = staff.address?.toLowerCase().includes(q);
+          const idMatch = String(staff.id).includes(q);
+
+          // Phone matching: direct string or digits only
+          const phoneRaw = (staff.phone || '').toLowerCase();
+          const phoneDigits = phoneRaw.replace(/[^0-9]/g, '');
+          const phoneMatch =
+            phoneRaw.includes(q) ||
+            (qDigits.length > 0 && phoneDigits.includes(qDigits));
+
+          if (!nameMatch && !phoneMatch && !emailMatch && !addressMatch && !idMatch) {
+            return false;
+          }
+        }
 
         if (!filterBy) return true;
 
@@ -387,34 +404,32 @@ export const StaffManagement = () => {
       <div className="staff-management-container">
         <div className="staff-management-card">
           <div className="staff-summary-container">
-            <div className="staff-summary-card">
-              <div
-                className={`summary-box due ${filterBy === 'due' ? 'active-filter' : ''}`}
-                onClick={() => setFilterBy((prev) => (prev === 'due' ? '' : 'due'))}
-                title="Click to filter staff with due payment"
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="summary-title-row">
-                  <span className="summary-title">Total Due</span>
-                  {filterBy === 'due' && <span className="summary-active-pill">Filtered</span>}
-                </div>
-                <span className="summary-value">Rs.{totalDue.toLocaleString()}</span>
-                <span className="summary-count-sub">{dueCount} staff with due</span>
+            <div
+              className={`summary-box due ${filterBy === 'due' ? 'active-filter' : ''}`}
+              onClick={() => setFilterBy((prev) => (prev === 'due' ? '' : 'due'))}
+              title="Click to filter staff with due payment"
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="summary-title-row">
+                <span className="summary-title">Total Due</span>
+                {filterBy === 'due' && <span className="summary-active-pill">Filtered</span>}
               </div>
+              <span className="summary-value">{formatCurrency(totalDue)}</span>
+              <span className="summary-count-sub">{dueCount} staff with due</span>
+            </div>
 
-              <div
-                className={`summary-box advance ${filterBy === 'advance' ? 'active-filter' : ''}`}
-                onClick={() => setFilterBy((prev) => (prev === 'advance' ? '' : 'advance'))}
-                title="Click to filter staff with advance payment"
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="summary-title-row">
-                  <span className="summary-title">Total Advance</span>
-                  {filterBy === 'advance' && <span className="summary-active-pill">Filtered</span>}
-                </div>
-                <span className="summary-value">Rs.{totalAdvance.toLocaleString()}</span>
-                <span className="summary-count-sub">{advanceCount} staff with advance</span>
+            <div
+              className={`summary-box advance ${filterBy === 'advance' ? 'active-filter' : ''}`}
+              onClick={() => setFilterBy((prev) => (prev === 'advance' ? '' : 'advance'))}
+              title="Click to filter staff with advance payment"
+              style={{ cursor: 'pointer' }}
+            >
+              <div className="summary-title-row">
+                <span className="summary-title">Total Advance</span>
+                {filterBy === 'advance' && <span className="summary-active-pill">Filtered</span>}
               </div>
+              <span className="summary-value">{formatCurrency(totalAdvance)}</span>
+              <span className="summary-count-sub">{advanceCount} staff with advance</span>
             </div>
 
             {canViewAttendance && (
@@ -463,23 +478,31 @@ export const StaffManagement = () => {
               For Staff ({staffList.length})
             </button>
 
-            <div className="toolbar-search">
-              <div className="toolbar-search-input-wrap">
-                <i className="bi bi-search"></i>
-                <input
-                  type="text"
-                  placeholder="Search name or phone..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-                {searchQuery && (
-                  <button className="clear-btn" onClick={() => setSearchQuery('')}>
-                    <i className="bi bi-x-lg"></i>
-                  </button>
-                )}
-              </div>
+            {/* Dedicated Search Box */}
+            <div className="toolbar-search-box">
+              <i className="bi bi-search search-icon"></i>
+              <input
+                type="text"
+                placeholder="Search staff by name, phone, email..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+              {searchQuery && (
+                <button
+                  type="button"
+                  className="clear-btn"
+                  onClick={() => setSearchQuery('')}
+                  title="Clear search"
+                >
+                  <i className="bi bi-x-circle-fill"></i>
+                </button>
+              )}
+            </div>
 
-              <div className="toolbar-search-selects-wrap">
+            {/* Filter and Sort Group */}
+            <div className="toolbar-filter-group">
+              <div className="toolbar-select-wrap">
+                <i className="bi bi-funnel"></i>
                 <select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
                   <option value="">Filter (All)</option>
                   <option value="due">Due Payments ({dueCount})</option>
@@ -489,7 +512,10 @@ export const StaffManagement = () => {
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
                 </select>
+              </div>
 
+              <div className="toolbar-select-wrap">
+                <i className="bi bi-sort-down"></i>
                 <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
                   <option value="">Sort</option>
                   <option value="name_asc">A-Z</option>
@@ -516,7 +542,7 @@ export const StaffManagement = () => {
             <div className="toolbar-info">
               <div className="total-salary-highlight">
                 <i className="bi bi-cash-stack"></i>
-                Total Salary: Rs. {totalSalary.toLocaleString()}
+                Total Salary: {formatCurrency(totalSalary)}
               </div>
 
               <div>
@@ -632,32 +658,7 @@ export const StaffManagement = () => {
                         <i className="bi bi-calendar-event me-1"></i>
                         Salary from {formatRelativeTime(getSalaryStartDate(staff))}
                       </div>
-                      {staff.remarks && (
-                        <div
-                          className="staff-management-staff-notes"
-                          title={staff.remarks}
-                          style={{
-                            marginTop: '4px',
-                            fontSize: '0.78rem',
-                            color: '#334155',
-                            background: 'rgba(13, 110, 253, 0.08)',
-                            padding: '2px 8px',
-                            borderRadius: '6px',
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '4px',
-                            maxWidth: '320px',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          <i className="bi bi-journal-text" style={{ color: '#0d6efd' }} />
-                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                            Note: {staff.remarks}
-                          </span>
-                        </div>
-                      )}
+                      {/* Note removed from list view as requested */}
                     </div>
                   </div>
 
@@ -670,44 +671,58 @@ export const StaffManagement = () => {
                       >
                         {(() => {
                           const todayStatus = getTodayStatusForStaff(staff.id);
+                          const statusKey = todayStatus?.toUpperCase() || '';
+                          const statusClass = statusKey
+                            ? `status-${statusKey.toLowerCase()}`
+                            : 'status-none';
+
+                          const statusColors: Record<string, { bg: string; color: string; border: string }> = {
+                            PRESENT: { bg: '#dcfce7', color: '#15803d', border: '#86efac' },
+                            ABSENT: { bg: '#fee2e2', color: '#b91c1c', border: '#fca5a5' },
+                            HALF_DAY: { bg: '#fef3c7', color: '#b45309', border: '#fde047' },
+                            LEAVE: { bg: '#f3e8ff', color: '#7e22ce', border: '#d8b4fe' },
+                          };
+                          const activeColor = statusColors[statusKey];
+
                           return canMarkAttendance ? (
                             <select
-                              className="staff-management-attendance-dropdown"
-                              value={todayStatus}
+                              className={`staff-management-attendance-dropdown ${statusClass}`}
+                              value={todayStatus || ''}
                               onChange={(e) =>
                                 handleAttendanceChange(staff.id, staff.name, e.target.value)
                               }
                               title="Mark today's attendance"
+                              style={{
+                                backgroundColor: activeColor ? activeColor.bg : '#f8fafc',
+                                color: activeColor ? activeColor.color : '#475569',
+                                borderColor: activeColor ? activeColor.border : '#cbd5e1',
+                                fontWeight: activeColor ? 700 : 600,
+                              }}
                             >
-                              <option value="">Today's Attendance</option>
-                              <option value="PRESENT">✓ Present</option>
-                              <option value="ABSENT">✗ Absent</option>
-                              <option value="HALF_DAY">◷ Half Day</option>
-                              <option value="LEAVE">✈ Leave</option>
+                              <option value="" style={{ color: '#475569', backgroundColor: '#ffffff' }}>
+                                Today's Attendance
+                              </option>
+                              <option value="PRESENT" style={{ color: '#15803d', backgroundColor: '#ffffff', fontWeight: 600 }}>
+                                ✓ Present
+                              </option>
+                              <option value="ABSENT" style={{ color: '#b91c1c', backgroundColor: '#ffffff', fontWeight: 600 }}>
+                                ✗ Absent
+                              </option>
+                              <option value="HALF_DAY" style={{ color: '#b45309', backgroundColor: '#ffffff', fontWeight: 600 }}>
+                                ◷ Half Day
+                              </option>
+                              <option value="LEAVE" style={{ color: '#7e22ce', backgroundColor: '#ffffff', fontWeight: 600 }}>
+                                ✈ Leave
+                              </option>
                             </select>
                           ) : (
                             <span
+                              className={`staff-management-attendance-static ${statusClass}`}
                               style={{
-                                padding: '6px 12px',
-                                borderRadius: '16px',
-                                fontSize: '0.8rem',
-                                fontWeight: 600,
-                                background:
-                                  todayStatus === 'PRESENT'
-                                    ? '#dcfce7'
-                                    : todayStatus === 'ABSENT'
-                                    ? '#fee2e2'
-                                    : todayStatus === 'HALF_DAY'
-                                    ? '#fef3c7'
-                                    : '#f1f5f9',
-                                color:
-                                  todayStatus === 'PRESENT'
-                                    ? '#166534'
-                                    : todayStatus === 'ABSENT'
-                                    ? '#991b1b'
-                                    : todayStatus === 'HALF_DAY'
-                                    ? '#92400e'
-                                    : '#64748b',
+                                backgroundColor: activeColor ? activeColor.bg : '#f1f5f9',
+                                color: activeColor ? activeColor.color : '#64748b',
+                                border: `1px solid ${activeColor ? activeColor.border : '#cbd5e1'}`,
+                                fontWeight: activeColor ? 700 : 600,
                               }}
                             >
                               {todayStatus ? `✓ ${todayStatus.replace('_', ' ')}` : 'No Attendance'}
@@ -725,50 +740,38 @@ export const StaffManagement = () => {
                           onClick={() => navigate(`/staff/payment/${staff.id}`)}
                           title="Click to view payment statement"
                         >
-                          <div className="staff-payment-given-row">
-                            <span className="staff-payment-label">Payment Given:</span>
-                            <span className="staff-payment-val">Rs.{fin.paid.toLocaleString()}</span>
-                          </div>
-                          <div className="staff-status-balance-row">
-                            {fin.due > 0 ? (
-                              <span className="staff-due-badge">
-                                <i className="bi bi-clock-history"></i>
-                                Due Left: Rs.{fin.due.toLocaleString()}
-                              </span>
-                            ) : fin.advance > 0 ? (
-                              <span className="staff-advance-badge">
-                                <i className="bi bi-arrow-up-right-circle-fill"></i>
-                                Advance: Rs.{fin.advance.toLocaleString()}
-                              </span>
-                            ) : (
-                              <span className="staff-settled-badge">
-                                <i className="bi bi-check-circle-fill"></i>
-                                Settled (Rs.0)
-                              </span>
-                            )}
-                            {fin.accrued > 0 && (
-                              <span className="staff-accrued-badge">
-                                <i className="bi bi-calendar-check"></i>
-                                Accrued: Rs.{fin.accrued.toLocaleString()}
-                              </span>
-                            )}
-                          </div>
+                          {fin.due > 0 ? (
+                            <span className="staff-due-badge">
+                              <i className="bi bi-clock-history"></i>
+                              Due Left: {formatCurrency(fin.due)}
+                            </span>
+                          ) : fin.advance > 0 ? (
+                            <span className="staff-advance-badge">
+                              <i className="bi bi-arrow-up-right-circle-fill"></i>
+                              Advance Given: {formatCurrency(fin.advance)}
+                            </span>
+                          ) : (
+                            <span className="staff-settled-badge">
+                              <i className="bi bi-check-circle-fill"></i>
+                              Settled ({formatCurrency(0)})
+                            </span>
+                          )}
                         </div>
                       );
                     })()}
                   </div>
 
-                  {/* Right: Salary Type and Amount only */}
+                  {/* Right: Salary Type and Amount in small box */}
                   <div
-                    className="staff-management-amount-section"
+                    className="staff-management-salary-box"
                     onClick={() => navigate(`/staff/payment/${staff.id}`)}
                     title="Click to view payment statement"
                   >
                     <span className="staff-management-salary-type">
-                      {primarySalary?.salaryType || 'Salary'}:
+                      {primarySalary?.salaryType || 'Salary'}
                     </span>
                     <span className="staff-management-amount">
-                      Rs.{primarySalary?.amount?.toLocaleString() || '0'}
+                      {formatCurrency(primarySalary?.amount || 0)}
                     </span>
                   </div>
                 </div>
