@@ -41,11 +41,15 @@ export interface Item {
     itemCount: number;
     unit?: string;
     fixedSellingPrice?: number;
+    salesPrice?: number;
     perUnitPurchasePrice?: number;
     grossPurchasePrice?: number;
     totalSalesAmount?: number;
     taxPercentage?: number;
     vatPercentage?: number;
+    lowStockAlert?: number;
+    isTaxIncluded?: boolean;
+    categoryId?: number;
     imageUrl?: string;
     category?: CategoryDto;
     createdAt?: string;
@@ -59,6 +63,27 @@ export interface CategoryDto {
 }
 
 export interface AddProductResponse {
+    id: number;
+    message: string;
+}
+
+export interface EditProductUCRequest {
+    itemId: number;
+    name: string;
+    categoryId: number;
+    itemCount: number;
+    unit: string;
+    perUnitPurchasePrice: number;
+    grossPurchasePrice: number;
+    fixedSellingPrice: number;
+    isTaxIncluded?: boolean;
+    lowStockAlert: number;
+    vatPercentage?: number;
+    taxPercentage?: number;
+    imageUrl: string;
+}
+
+export interface EditProductUCResponse {
     id: number;
     message: string;
 }
@@ -130,10 +155,18 @@ export async function getProduct(forceRefresh: boolean = false): Promise<GetAllP
     }
 }
 
-export async function updateProduct(id: number, formData: FormData) {
-    const res = await apiService.put<RestResponse<AddProductResponse>>(
-        'api/v1/product/' + id,
-        formData,
+export async function updateProduct(
+    idOrData: number | EditProductUCRequest,
+    data?: Partial<EditProductUCRequest> | AddProductRequest
+): Promise<EditProductUCResponse | undefined> {
+    const payload: EditProductUCRequest =
+        typeof idOrData === 'number'
+            ? ({ ...data, itemId: idOrData } as EditProductUCRequest)
+            : idOrData;
+
+    let res = await apiService.put<RestResponse<EditProductUCResponse>>(
+        'api/v1/product',
+        payload,
         {
             headers: {
                 ...getAuthHeaders()
@@ -141,16 +174,31 @@ export async function updateProduct(id: number, formData: FormData) {
         }
     );
 
-    if (res.response?.code === -1 || res.response?.message !== 'SUCCESS') {
-        error("Failed to create product");
-        throw new Error(res.error || "Failed to create product");
+    // Fallback if backend was configured with POST instead of PUT
+    if (res.failure && (res.error?.includes('405') || res.error?.includes('Method Not Allowed'))) {
+        res = await apiService.post<RestResponse<EditProductUCResponse>>(
+            'api/v1/product',
+            payload,
+            {
+                headers: {
+                    ...getAuthHeaders()
+                },
+            }
+        );
+    }
+
+    if (res.response?.code === -1 || (res.response?.message && res.response.message !== 'SUCCESS')) {
+        const errorMsg = res.response?.message || res.error || "Failed to update product";
+        error(errorMsg);
+        throw new Error(errorMsg);
     }
 
     if (res.error) {
-        throw new Error(res.error || "Failed to create product");
+        error(res.error || "Failed to update product");
+        throw new Error(res.error || "Failed to update product");
     } else {
         invalidateProductCache();
-        success("Product created successfully");
+        success(res.response?.data?.message || "Product updated successfully");
         return res.response?.data;
     }
 }

@@ -1,9 +1,11 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Sidebar} from '@/components/Sidebar';
+import React, { useEffect, useRef, useState } from 'react';
+import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
-import {useLocation, useNavigate} from 'react-router-dom';
-import {fetchCategories} from '../../services/categoryService';
-import {addProduct, getProduct, AddProductRequest, updateProduct} from '../../services/productService';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { fetchCategories } from '../../services/categoryService';
+import { addProduct, getProduct, updateProduct, AddProductRequest, EditProductUCRequest, Item } from '../../services/productService';
+import { resolveImageSrc } from '@/utils/ImageResolver';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../../../styles/AddItem.css';
 
 interface Category {
@@ -12,70 +14,141 @@ interface Category {
 }
 
 interface LocationState {
-    isEdit: boolean;
-    initialValues: {
-        id: number;
-        name: string;
-        salesPrice: number;
-        imageUrl: string;
-        category: {
-            name: string;
-        };
+    isEdit?: boolean;
+    initialValues?: Item & {
+        salesPrice?: number;
     };
 }
 
-export const AddItem = () => {
+export const AddItem: React.FC = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const locationState = location.state as LocationState;
-    const isEdit = locationState?.isEdit || false;
-    const initialValues = locationState?.initialValues;
+    const { id: paramId } = useParams<{ id: string }>();
+    const { formatCurrency } = useAppSettings();
 
+    const locationState = location.state as LocationState | undefined;
+    const isEditMode = Boolean(locationState?.isEdit || paramId);
+    const passedInitialValues = locationState?.initialValues;
+
+    const [activeItem, setActiveItem] = useState<Item | undefined>(passedInitialValues);
+    const resolvedItemId = activeItem?.id || (paramId ? Number(paramId) : undefined);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [fetchingItem, setFetchingItem] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
     // Switch between 'gross' and 'perUnit'
     const [priceType, setPriceType] = useState<'gross' | 'perUnit'>('gross');
 
     // Control state for enabling/disabling Fixed Selling Price input
-    const [isFixedPriceEnabled, setIsFixedPriceEnabled] = useState<boolean>(
-        Boolean(initialValues?.salesPrice && initialValues.salesPrice > 0)
-    );
+    const [isFixedPriceEnabled, setIsFixedPriceEnabled] = useState<boolean>(false);
 
     const [formDataState, setFormDataState] = useState({
-        name: initialValues?.name || '',
+        name: '',
         itemCount: '',
         unit: 'pcs',
         lowStockAlert: '',
         categoryId: '',
-        salesPrice: initialValues?.salesPrice?.toString() || '',
+        salesPrice: '',
         grossPurchasePrice: '',
         perUnitPurchasePrice: '',
         isTaxIncluded: false,
         taxPercentage: '',
         vatPercentage: '13',
-        imageUrl: initialValues?.imageUrl || '',
+        imageUrl: '',
     });
 
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [imagePreview, setImagePreview] = useState<string | null>(initialValues?.imageUrl || null);
-    const [, setItems] = useState<any[]>([]);
-    const [, setTotalSalesPrice] = useState(0);
-    const [, setTotalItems] = useState(0);
+    const [, setSelectedFile] = useState<File | null>(null);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
 
+    // Populate all form fields from an Item object
+    const populateFormData = (item: any) => {
+        if (!item) return;
+
+        const fixedPrice = item.fixedSellingPrice ?? item.salesPrice;
+        const hasFixedPrice = Boolean(fixedPrice !== undefined && fixedPrice !== null && Number(fixedPrice) > 0);
+        const gross = item.grossPurchasePrice;
+        const perUnit = item.perUnitPurchasePrice;
+        const catId = item.categoryId ? String(item.categoryId) : (item.category?.id ? String(item.category.id) : '');
+
+        const hasPerUnitOnly = Boolean(perUnit && !gross);
+        setPriceType(hasPerUnitOnly ? 'perUnit' : 'gross');
+        setIsFixedPriceEnabled(hasFixedPrice);
+
+        setFormDataState({
+            name: item.name || '',
+            itemCount: item.itemCount !== undefined && item.itemCount !== null ? String(item.itemCount) : '',
+            unit: item.unit || 'pcs',
+            lowStockAlert: item.lowStockAlert !== undefined && item.lowStockAlert !== null ? String(item.lowStockAlert) : '',
+            categoryId: catId,
+            salesPrice: hasFixedPrice ? String(fixedPrice) : '',
+            grossPurchasePrice: gross !== undefined && gross !== null ? String(gross) : '',
+            perUnitPurchasePrice: perUnit !== undefined && perUnit !== null ? String(perUnit) : '',
+            isTaxIncluded: Boolean(item.isTaxIncluded || (item.taxPercentage && Number(item.taxPercentage) > 0)),
+            taxPercentage: item.taxPercentage !== undefined && item.taxPercentage !== null ? String(item.taxPercentage) : '',
+            vatPercentage: item.vatPercentage !== undefined && item.vatPercentage !== null ? String(item.vatPercentage) : '13',
+            imageUrl: item.imageUrl || '',
+        });
+
+        if (item.imageUrl) {
+            setImagePreview(resolveImageSrc(item.imageUrl));
+        }
+    };
+
+    // Initialize with passed state if present
+    useEffect(() => {
+        if (passedInitialValues) {
+            setActiveItem(passedInitialValues);
+            populateFormData(passedInitialValues);
+        }
+    }, [passedInitialValues]);
+
+    // If edit mode via URL param but no state was passed, fetch the product
+    useEffect(() => {
+        if (isEditMode && !passedInitialValues && paramId) {
+            setFetchingItem(true);
+            getProduct(true)
+                .then((data) => {
+                    const found = data?.items?.find((it) => String(it.id) === String(paramId));
+                    if (found) {
+                        setActiveItem(found);
+                        populateFormData(found);
+                    } else {
+                        setError(`Item with ID #${paramId} not found.`);
+                    }
+                })
+                .catch((err) => {
+                    console.error('Error fetching product for edit:', err);
+                    setError('Failed to fetch product details.');
+                })
+                .finally(() => setFetchingItem(false));
+        }
+    }, [isEditMode, passedInitialValues, paramId]);
+
+    // Fetch Categories and reconcile selected categoryId
     useEffect(() => {
         const fetchCategoriesData = async () => {
             try {
                 const data = await fetchCategories();
-                setCategories(data);
-                if (isEdit && initialValues?.category) {
-                    const category = data.find((c: Category) => c.name === initialValues.category.name);
-                    if (category) {
-                        setFormDataState(prev => ({
+                setCategories(data || []);
+
+                // If editing and categoryId not yet selected, resolve by category name or id
+                if (activeItem) {
+                    const targetCategory = activeItem.category;
+                    const targetCatId = activeItem.categoryId || targetCategory?.id;
+                    const targetCatName = targetCategory?.name;
+
+                    const matched = data?.find(
+                        (c: Category) =>
+                            (targetCatId && c.id === Number(targetCatId)) ||
+                            (targetCatName && c.name?.toLowerCase() === targetCatName.toLowerCase())
+                    );
+
+                    if (matched) {
+                        setFormDataState((prev) => ({
                             ...prev,
-                            categoryId: String(category.id)
+                            categoryId: String(matched.id),
                         }));
                     }
                 }
@@ -85,30 +158,14 @@ export const AddItem = () => {
             }
         };
         fetchCategoriesData();
-    }, [isEdit, initialValues]);
-
-    useEffect(() => {
-        const fetchItemsData = async () => {
-            try {
-                const data = await getProduct();
-              setItems(data?.items ?? []);
-              setTotalSalesPrice(data?.totalSalesPrice ?? 0);
-              setTotalItems(data?.totalItems ?? 0);
-            } catch (err) {
-                console.error('Error fetching items:', err);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchItemsData();
-    }, []);
+    }, [activeItem]);
 
     // Toggle Fixed Selling Price state
     const handleFixedPriceToggle = () => {
-        setIsFixedPriceEnabled(prev => {
+        setIsFixedPriceEnabled((prev) => {
             const nextState = !prev;
             if (!nextState) {
-                setFormDataState(f => ({...f, salesPrice: ''}));
+                setFormDataState((f) => ({ ...f, salesPrice: '' }));
             }
             return nextState;
         });
@@ -116,23 +173,23 @@ export const AddItem = () => {
 
     // Toggle Tax Included to enable/disable TAX % field
     const handleTaxToggle = () => {
-        setFormDataState(prev => {
+        setFormDataState((prev) => {
             const nextTaxIncluded = !prev.isTaxIncluded;
             return {
                 ...prev,
                 isTaxIncluded: nextTaxIncluded,
-                taxPercentage: nextTaxIncluded ? (prev.taxPercentage || '13') : ''
+                taxPercentage: nextTaxIncluded ? prev.taxPercentage || '13' : '',
             };
         });
     };
 
     // Handle Input Changes & Synchronize Calculated Prices
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         if (error) setError(null);
 
-        setFormDataState(prev => {
-            const updated = {...prev, [name]: value};
+        setFormDataState((prev) => {
+            const updated = { ...prev, [name]: value };
             const count = parseFloat(updated.itemCount) || 0;
 
             if (name === 'grossPurchasePrice' && priceType === 'gross' && count > 0) {
@@ -159,13 +216,13 @@ export const AddItem = () => {
         setPriceType(newType);
         const count = parseFloat(formDataState.itemCount) || 0;
 
-        setFormDataState(prev => {
+        setFormDataState((prev) => {
             if (newType === 'gross' && count > 0 && prev.grossPurchasePrice) {
                 const gross = parseFloat(prev.grossPurchasePrice) || 0;
-                return {...prev, perUnitPurchasePrice: (gross / count).toFixed(2)};
+                return { ...prev, perUnitPurchasePrice: (gross / count).toFixed(2) };
             } else if (newType === 'perUnit' && count > 0 && prev.perUnitPurchasePrice) {
                 const unitPrice = parseFloat(prev.perUnitPurchasePrice) || 0;
-                return {...prev, grossPurchasePrice: (unitPrice * count).toFixed(2)};
+                return { ...prev, grossPurchasePrice: (unitPrice * count).toFixed(2) };
             }
             return prev;
         });
@@ -187,60 +244,73 @@ export const AddItem = () => {
             return;
         }
 
-        try {
-            if (isEdit) {
-                const formData = new FormData();
-                Object.entries(formDataState).forEach(([key, value]) => {
-                    if (value !== null && value !== undefined) {
-                        formData.append(key, value.toString());
-                    }
-                });
-                formData.append('priceType', priceType);
-                formData.append('isFixedPriceEnabled', String(isFixedPriceEnabled));
+        if (isEditMode && !resolvedItemId) {
+            setError('Product ID is missing for update.');
+            setLoading(false);
+            return;
+        }
 
-                if (selectedFile) {
-                    formData.append('image', selectedFile);
-                }
-                await updateProduct(initialValues?.id, formData);
-            } else {
-                const productPayload: AddProductRequest = {
-                    name: formDataState.name,
+        const countVal = parseFloat(formDataState.itemCount) || 0;
+        const grossVal = parseFloat(formDataState.grossPurchasePrice) || 0;
+        const perUnitVal = parseFloat(formDataState.perUnitPurchasePrice) || 0;
+
+        const effectivePerUnitPrice =
+            priceType === 'perUnit'
+                ? perUnitVal
+                : grossVal && countVal
+                ? grossVal / countVal
+                : 0;
+
+        const effectiveGrossPrice =
+            priceType === 'gross'
+                ? grossVal
+                : perUnitVal && countVal
+                ? perUnitVal * countVal
+                : 0;
+
+        const fixedSelling = isFixedPriceEnabled ? parseFloat(formDataState.salesPrice) || 0 : 0;
+        const vat = formDataState.vatPercentage ? parseFloat(formDataState.vatPercentage) : 13;
+        const tax = formDataState.isTaxIncluded ? (parseFloat(formDataState.taxPercentage) || 0) : 0;
+
+        try {
+            if (isEditMode && resolvedItemId) {
+                const editPayload: EditProductUCRequest = {
+                    itemId: resolvedItemId,
+                    name: formDataState.name.trim(),
                     categoryId: parsedCategoryId,
-                    itemCount: parseFloat(formDataState.itemCount) || 0,
-                    unit: formDataState.unit,
-                    perUnitPurchasePrice: priceType === 'perUnit' ? (parseFloat(formDataState.perUnitPurchasePrice) || 0) : 0,
-                    grossPurchasePrice: priceType === 'gross' ? (parseFloat(formDataState.grossPurchasePrice) || 0) : 0,
-                    fixedSellingPrice: isFixedPriceEnabled ? (parseFloat(formDataState.salesPrice) || 0) : 0,
+                    itemCount: countVal,
+                    unit: formDataState.unit || 'pcs',
+                    perUnitPurchasePrice: effectivePerUnitPrice,
+                    grossPurchasePrice: effectiveGrossPrice,
+                    fixedSellingPrice: fixedSelling,
                     isTaxIncluded: formDataState.isTaxIncluded,
                     lowStockAlert: parseFloat(formDataState.lowStockAlert) || 0,
-                    vatPercentage: formDataState.vatPercentage ? parseFloat(formDataState.vatPercentage) : 13,
-                    taxPercentage: formDataState.taxPercentage ? parseFloat(formDataState.taxPercentage) : 0,
+                    vatPercentage: vat,
+                    taxPercentage: tax,
                     imageUrl: formDataState.imageUrl || '',
                 };
-
-                await addProduct(productPayload);
+                await updateProduct(editPayload);
+            } else {
+                const addPayload: AddProductRequest = {
+                    name: formDataState.name.trim(),
+                    categoryId: parsedCategoryId,
+                    itemCount: countVal,
+                    unit: formDataState.unit || 'pcs',
+                    perUnitPurchasePrice: effectivePerUnitPrice,
+                    grossPurchasePrice: effectiveGrossPrice,
+                    fixedSellingPrice: fixedSelling,
+                    isTaxIncluded: formDataState.isTaxIncluded,
+                    lowStockAlert: parseFloat(formDataState.lowStockAlert) || 0,
+                    vatPercentage: vat,
+                    taxPercentage: tax,
+                    imageUrl: formDataState.imageUrl || '',
+                };
+                await addProduct(addPayload);
             }
 
-            setFormDataState({
-                name: '',
-                itemCount: '',
-                unit: 'pcs',
-                lowStockAlert: '',
-                categoryId: '',
-                salesPrice: '',
-                grossPurchasePrice: '',
-                perUnitPurchasePrice: '',
-                isTaxIncluded: false,
-                taxPercentage: '',
-                vatPercentage: '13',
-                imageUrl: '',
-            });
-            setIsFixedPriceEnabled(false);
-            setSelectedFile(null);
-            setImagePreview(null);
             navigate('/inventory/items');
         } catch (err) {
-            setError(err instanceof Error ? err.message : `Failed to ${isEdit ? 'update' : 'create'} item`);
+            setError(err instanceof Error ? err.message : `Failed to ${isEditMode ? 'update' : 'create'} item`);
         } finally {
             setLoading(false);
         }
@@ -253,14 +323,21 @@ export const AddItem = () => {
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
+            if (file.size > 2 * 1024 * 1024) {
+                setError('Item image must be less than 2MB');
+                return;
+            }
             setSelectedFile(file);
-            setFormDataState(prev => ({
-                ...prev,
-                imageUrl: file.name
-            }));
-
-            const previewUrl = URL.createObjectURL(file);
-            setImagePreview(previewUrl);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const base64String = reader.result as string;
+                setImagePreview(base64String);
+                setFormDataState((prev) => ({
+                    ...prev,
+                    imageUrl: base64String,
+                }));
+            };
+            reader.readAsDataURL(file);
         }
     };
 
@@ -268,497 +345,534 @@ export const AddItem = () => {
         if (e) e.stopPropagation();
         setSelectedFile(null);
         setImagePreview(null);
-        setFormDataState(prev => ({
+        setFormDataState((prev) => ({
             ...prev,
-            imageUrl: ''
+            imageUrl: '',
         }));
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
         }
     };
 
-    useEffect(() => {
-        return () => {
-            if (imagePreview && imagePreview.startsWith('blob:')) {
-                URL.revokeObjectURL(imagePreview);
-            }
-        };
-    }, [imagePreview]);
-
     // Derived calculations for summary display
     const itemCountVal = parseFloat(formDataState.itemCount) || 0;
     const grossVal = parseFloat(formDataState.grossPurchasePrice) || 0;
     const perUnitVal = parseFloat(formDataState.perUnitPurchasePrice) || 0;
-    const calculatedGrossPrice = priceType === 'gross' ? grossVal : (perUnitVal * itemCountVal);
-    const calculatedUnitPrice = priceType === 'perUnit' ? perUnitVal : (itemCountVal > 0 ? grossVal / itemCountVal : 0);
-    const salesPriceVal = isFixedPriceEnabled ? (parseFloat(formDataState.salesPrice) || 0) : 0;
+    const calculatedGrossPrice = priceType === 'gross' ? grossVal : perUnitVal * itemCountVal;
+    const calculatedUnitPrice = priceType === 'perUnit' ? perUnitVal : itemCountVal > 0 ? grossVal / itemCountVal : 0;
+    const salesPriceVal = isFixedPriceEnabled ? parseFloat(formDataState.salesPrice) || 0 : 0;
+    const profitMargin = salesPriceVal - calculatedUnitPrice;
 
     return (
         <div className="add-item-page-wrapper">
-            <Sidebar/>
+            <Sidebar />
 
             <div className="add-item-container">
                 <Navbar />
 
                 <main className="add-item-main-content">
                     <div className="add-item-card">
-                    {/* Header with Title and Top-Right Cross Button */}
-                    <div className="form-card-header">
-                        <div className="form-card-header-left">
-                            <div className="form-header-icon-wrap item-theme">
-                                <i className="bi bi-box-seam"/>
-                            </div>
-                            <div>
-                                <h1 className="form-header-title">{isEdit ? 'Update Item' : 'Add New Item'}</h1>
-                                <p className="form-header-subtitle">
-                                    Configure item specifications, category, valuation and stock thresholds
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Top Right Cross Button */}
-                        <button
-                            type="button"
-                            className="form-close-btn"
-                            onClick={handleCancel}
-                            aria-label="Close"
-                            title="Close"
-                        >
-                            <i className="bi bi-x-lg"/>
-                        </button>
-                    </div>
-
-                    {error && (
-                        <div className="form-alert-box error">
-                            <i className="bi bi-exclamation-triangle-fill"/>
-                            <span>{error}</span>
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit} className="form-body">
-                        {/* Interactive Avatar Upload Card Banner */}
-                        <div className="avatar-card-banner">
-                            <div
-                                className="avatar-preview-wrapper"
-                                onClick={handlePhotoClick}
-                                role="button"
-                                tabIndex={0}
-                            >
-                                <div className="avatar-display-frame">
+                        {/* Header with Title, Mode Badge, Compact Thumbnail, and Top-Right Controls */}
+                        <div className="form-card-header">
+                            <div className="form-card-header-left">
+                                <div
+                                    className="form-header-avatar-wrap"
+                                    onClick={handlePhotoClick}
+                                    title="Click to upload or change product photo"
+                                    role="button"
+                                    tabIndex={0}
+                                >
                                     {imagePreview ? (
-                                        <img src={imagePreview} alt="Item Preview" className="avatar-img-preview"/>
+                                        <img
+                                            src={imagePreview}
+                                            alt="Product"
+                                            className="form-header-avatar-img"
+                                            onError={() => setImagePreview(null)}
+                                        />
                                     ) : (
-                                        <div className="avatar-icon-fallback">
-                                            <i className="bi bi-box-seam"/>
-                                        </div>
+                                        <i className="bi bi-box-seam" />
                                     )}
-                                    <div className="avatar-hover-overlay">
-                                        <i className="bi bi-camera-fill"/>
-                                        <span>Change</span>
+                                    <div className="form-header-avatar-badge" title="Upload Photo">
+                                        <i className="bi bi-camera-fill" />
                                     </div>
                                 </div>
-                                <div className="avatar-camera-badge" title="Upload Photo">
-                                    <i className="bi bi-camera-fill"/>
+                                <div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                        <h1 className="form-header-title">
+                                            {isEditMode ? 'Edit Product' : 'Add New Item'}
+                                        </h1>
+                                        {isEditMode && resolvedItemId && (
+                                            <span className="item-id-badge-header">
+                                                #ITEM-{resolvedItemId}
+                                            </span>
+                                        )}
+                                    </div>
+                                    <p className="form-header-subtitle">
+                                        {isEditMode
+                                            ? `Specifications, pricing, and stock settings for "${formDataState.name || 'Product'}"`
+                                            : 'Configure item specifications, category, valuation and stock thresholds'}
+                                    </p>
                                 </div>
                             </div>
 
-                            <div className="avatar-meta-info">
-                                <h3 className="avatar-meta-title">Item Photo</h3>
-                                <p className="avatar-meta-hint">Upload a product picture or catalog thumbnail (max
-                                    2MB)</p>
-                                <div className="avatar-action-buttons">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                {imagePreview && (
                                     <button
                                         type="button"
-                                        className="btn-upload-avatar"
-                                        onClick={handlePhotoClick}
+                                        className="btn-header-remove-photo"
+                                        onClick={handleRemoveImage}
+                                        title="Remove Photo"
                                     >
-                                        <i className="bi bi-cloud-arrow-up me-1"/>
-                                        {imagePreview ? 'Replace Photo' : 'Choose Photo'}
+                                        <i className="bi bi-trash3 me-1" />
+                                        Remove Photo
                                     </button>
-                                    {imagePreview && (
+                                )}
+                                <button
+                                    type="button"
+                                    className="form-close-btn"
+                                    onClick={handleCancel}
+                                    aria-label="Close"
+                                    title="Close"
+                                >
+                                    <i className="bi bi-x-lg" />
+                                </button>
+                            </div>
+                        </div>
+
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            style={{ display: 'none' }}
+                        />
+
+                        {fetchingItem ? (
+                            <div style={{ padding: '60px 20px', textAlign: 'center', color: '#64748b' }}>
+                                <div className="spinner-border text-primary mb-2" role="status">
+                                    <span className="visually-hidden">Loading...</span>
+                                </div>
+                                <div>Loading product data...</div>
+                            </div>
+                        ) : (
+                            <>
+                                {error && (
+                                    <div className="form-alert-box error">
+                                        <i className="bi bi-exclamation-triangle-fill" />
+                                        <span>{error}</span>
+                                    </div>
+                                )}
+
+                                <form onSubmit={handleSubmit} className="form-body">
+
+                                    {/* Section 1: Basic Details */}
+                                    <div className="form-section-header">
+                                        <div className="form-section-icon-badge">
+                                            <i className="bi bi-info-circle-fill" />
+                                        </div>
+                                        <div>
+                                            <h3 className="form-section-title">General Specifications</h3>
+                                            <p className="form-section-subtitle">
+                                                Item identity, category categorization, and stock alerts
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid">
+                                        {/* Item Name */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Item Name <span className="required-star">*</span>
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-box field-icon" />
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    value={formDataState.name}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-input"
+                                                    placeholder="e.g. Wireless Mouse, Cotton T-Shirt"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Category */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Category <span className="required-star">*</span>
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-folder field-icon" />
+                                                <select
+                                                    name="categoryId"
+                                                    value={formDataState.categoryId}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-select"
+                                                    required
+                                                >
+                                                    <option value="">Select category</option>
+                                                    {categories.map((category) => (
+                                                        <option key={category.id} value={String(category.id)}>
+                                                            {category.name}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Item Count */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Item Count (Quantity) <span className="required-star">*</span>
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-hash field-icon" />
+                                                <input
+                                                    type="number"
+                                                    name="itemCount"
+                                                    value={formDataState.itemCount}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-input"
+                                                    placeholder="e.g. 10"
+                                                    required
+                                                    min="0"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Unit Type */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Unit Type <span className="required-star">*</span>
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-rulers field-icon" />
+                                                <select
+                                                    name="unit"
+                                                    value={formDataState.unit}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-select"
+                                                    required
+                                                >
+                                                    <option value="pcs">Pcs (Pieces)</option>
+                                                    <option value="kg">kg (Kilograms)</option>
+                                                    <option value="g">g (Grams)</option>
+                                                    <option value="ml">ml (Milliliters)</option>
+                                                    <option value="l">l (Liters)</option>
+                                                    <option value="box">Box</option>
+                                                    <option value="dozen">Dozen</option>
+                                                    <option value="meter">Meter</option>
+                                                    <option value="packet">Packet</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Low Stock Alert */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Low Stock Alert Threshold <span className="required-star">*</span>
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-exclamation-triangle field-icon" />
+                                                <input
+                                                    type="number"
+                                                    name="lowStockAlert"
+                                                    value={formDataState.lowStockAlert}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-input"
+                                                    placeholder="Notify when stock drops to or below (e.g. 5)"
+                                                    required
+                                                    step="0.01"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Product Photo Upload Field */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">Product Photo</label>
+                                            <div className="compact-image-picker">
+                                                <button
+                                                    type="button"
+                                                    className="btn-upload-compact"
+                                                    onClick={handlePhotoClick}
+                                                >
+                                                    <i className="bi bi-camera me-1" />
+                                                    {imagePreview ? 'Change Photo' : 'Upload Photo'}
+                                                </button>
+                                                {imagePreview && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn-remove-compact"
+                                                        onClick={handleRemoveImage}
+                                                    >
+                                                        <i className="bi bi-trash3 me-1" />
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Section 2: Pricing & Valuation */}
+                                    <div className="form-section-header">
+                                        <div className="form-section-icon-badge">
+                                            <i className="bi bi-currency-dollar" />
+                                        </div>
+                                        <div>
+                                            <h3 className="form-section-title">Pricing & Cost Calculation</h3>
+                                            <p className="form-section-subtitle">
+                                                Select pricing mode, purchase rates, and fixed selling price
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    {/* Pricing Mode Segmented Tabs */}
+                                    <div className="pricing-mode-container">
+                                        <label className="form-field-label">Pricing Mode Selection</label>
+                                        <div className="pricing-mode-tabs">
+                                            <button
+                                                type="button"
+                                                className={`pricing-mode-tab ${priceType === 'gross' ? 'active' : ''}`}
+                                                onClick={() => handlePriceTypeChange('gross')}
+                                            >
+                                                <i className="bi bi-cash-stack" />
+                                                Gross Purchase Price Mode
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={`pricing-mode-tab ${priceType === 'perUnit' ? 'active' : ''}`}
+                                                onClick={() => handlePriceTypeChange('perUnit')}
+                                            >
+                                                <i className="bi bi-tag" />
+                                                Per Unit Price Mode
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid">
+                                        {/* Gross Purchase Price */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Gross Purchase Price{' '}
+                                                {priceType === 'gross' && <span className="required-star">*</span>}
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-cash field-icon" />
+                                                <input
+                                                    type="number"
+                                                    name="grossPurchasePrice"
+                                                    value={formDataState.grossPurchasePrice}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-input"
+                                                    placeholder="0.00"
+                                                    step="0.01"
+                                                    disabled={priceType !== 'gross'}
+                                                    required={priceType === 'gross'}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Per Unit Purchase Price */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Per Unit Purchase Price{' '}
+                                                {priceType === 'perUnit' && <span className="required-star">*</span>}
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-receipt field-icon" />
+                                                <input
+                                                    type="number"
+                                                    name="perUnitPurchasePrice"
+                                                    value={formDataState.perUnitPurchasePrice}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-input"
+                                                    placeholder="0.00"
+                                                    step="0.01"
+                                                    disabled={priceType !== 'perUnit'}
+                                                    required={priceType === 'perUnit'}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Fixed Selling Price Card */}
+                                        <div className="form-field-group form-field-full">
+                                            <div className="fixed-price-toggle-card">
+                                                <div className="fixed-price-toggle-info">
+                                                    <div>
+                                                        <h4 className="toggle-card-title">Fixed Selling Price</h4>
+                                                        <p className="toggle-card-desc">
+                                                            Lock a fixed retail selling price for this product, or leave dynamic for POS
+                                                        </p>
+                                                    </div>
+                                                    <div
+                                                        className={`form-switch ${isFixedPriceEnabled ? 'active' : ''}`}
+                                                        onClick={handleFixedPriceToggle}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                    >
+                                                        <div className="form-switch-handle" />
+                                                    </div>
+                                                </div>
+                                                {isFixedPriceEnabled && (
+                                                    <div className="input-with-icon" style={{ marginTop: '1rem' }}>
+                                                        <i className="bi bi-tag-fill field-icon" />
+                                                        <input
+                                                            type="number"
+                                                            name="salesPrice"
+                                                            value={formDataState.salesPrice}
+                                                            onChange={handleInputChange}
+                                                            className="form-field-input"
+                                                            placeholder="Enter fixed selling price"
+                                                            required={isFixedPriceEnabled}
+                                                            step="0.01"
+                                                        />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Overall Financial Summary */}
+                                    <div className="financial-summary-card">
+                                        <h4 className="financial-summary-title">
+                                            <i className="bi bi-calculator" />
+                                            Overall Financial Summary
+                                        </h4>
+                                        <div className="financial-summary-grid">
+                                            <div className="financial-summary-item">
+                                                <span className="financial-summary-label">Total Purchase Price</span>
+                                                <span className="financial-summary-value">
+                                                    {formatCurrency(calculatedGrossPrice)}
+                                                </span>
+                                            </div>
+                                            <div className="financial-summary-item">
+                                                <span className="financial-summary-label">Calculated Unit Cost</span>
+                                                <span className="financial-summary-value">
+                                                    {formatCurrency(calculatedUnitPrice)}
+                                                </span>
+                                            </div>
+                                            <div className="financial-summary-item">
+                                                <span className="financial-summary-label">Unit Profit Margin</span>
+                                                <span
+                                                    className={`financial-summary-value ${
+                                                        profitMargin >= 0 ? 'positive' : 'negative'
+                                                    }`}
+                                                >
+                                                    {isFixedPriceEnabled ? formatCurrency(profitMargin) : 'N/A (Dynamic)'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Section 3: Tax & VAT Settings */}
+                                    <div className="form-section-header">
+                                        <div className="form-section-icon-badge">
+                                            <i className="bi bi-percent" />
+                                        </div>
+                                        <div>
+                                            <h3 className="form-section-title">Tax & VAT Settings</h3>
+                                            <p className="form-section-subtitle">
+                                                Configure VAT percentage and optional included tax rates
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="form-grid">
+                                        {/* VAT Percentage */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                VAT Percentage (%) <span className="required-star">*</span>
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-percent field-icon" />
+                                                <input
+                                                    type="number"
+                                                    name="vatPercentage"
+                                                    value={formDataState.vatPercentage}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-input"
+                                                    placeholder="e.g. 13"
+                                                    step="0.01"
+                                                    required
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Tax Included & Tax % */}
+                                        <div className="form-field-group">
+                                            <div className="tax-toggle-wrapper">
+                                                <div className="tax-toggle-header">
+                                                    <label className="form-field-label" style={{ marginBottom: 0 }}>
+                                                        Tax Included
+                                                    </label>
+                                                    <div
+                                                        className={`form-switch ${formDataState.isTaxIncluded ? 'active' : ''}`}
+                                                        onClick={handleTaxToggle}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                    >
+                                                        <div className="form-switch-handle" />
+                                                    </div>
+                                                </div>
+                                                <div className="input-with-icon" style={{ marginTop: '0.5rem' }}>
+                                                    <i className="bi bi-percent field-icon" />
+                                                    <input
+                                                        type="number"
+                                                        name="taxPercentage"
+                                                        value={formDataState.taxPercentage}
+                                                        onChange={handleInputChange}
+                                                        className="form-field-input"
+                                                        placeholder="Tax % (e.g. 13)"
+                                                        step="0.01"
+                                                        disabled={!formDataState.isTaxIncluded}
+                                                        required={formDataState.isTaxIncluded}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Action Footer */}
+                                    <div className="form-action-footer">
                                         <button
                                             type="button"
-                                            className="btn-remove-avatar"
-                                            onClick={handleRemoveImage}
+                                            className="btn-form-cancel"
+                                            onClick={handleCancel}
                                         >
-                                            <i className="bi bi-trash3 me-1"/>
-                                            Remove
+                                            Cancel
                                         </button>
-                                    )}
-                                </div>
-                            </div>
-
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={handleFileChange}
-                                style={{display: 'none'}}
-                            />
-                        </div>
-
-                        {/* Section 1: Basic Details */}
-                        <div className="form-section-header">
-                            <div className="form-section-icon-badge">
-                                <i className="bi bi-info-circle-fill"/>
-                            </div>
-                            <div>
-                                <h3 className="form-section-title">General Specifications</h3>
-                                <p className="form-section-subtitle">Item identity, category categorization, and stock
-                                    alerts</p>
-                            </div>
-                        </div>
-
-                        <div className="form-grid">
-                            {/* Item Name */}
-                            <div className="form-field-group">
-                                <label className="form-field-label">
-                                    Item Name <span className="required-star">*</span>
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-box field-icon"/>
-                                    <input
-                                        type="text"
-                                        name="name"
-                                        value={formDataState.name}
-                                        onChange={handleInputChange}
-                                        className="form-field-input"
-                                        placeholder="e.g. Wireless Mouse, Cotton T-Shirt"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Category */}
-                            <div className="form-field-group">
-                                <label className="form-field-label">
-                                    Category <span className="required-star">*</span>
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-folder field-icon"/>
-                                    <select
-                                        name="categoryId"
-                                        value={formDataState.categoryId}
-                                        onChange={handleInputChange}
-                                        className="form-field-select"
-                                        required
-                                    >
-                                        <option value="">Select category</option>
-                                        {categories.map(category => (
-                                            <option key={category.id} value={String(category.id)}>
-                                                {category.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Item Count */}
-                            <div className="form-field-group">
-                                <label className="form-field-label">
-                                    Item Count (Quantity) <span className="required-star">*</span>
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-hash field-icon"/>
-                                    <input
-                                        type="number"
-                                        name="itemCount"
-                                        value={formDataState.itemCount}
-                                        onChange={handleInputChange}
-                                        className="form-field-input"
-                                        placeholder="e.g. 10"
-                                        required
-                                        min="1"
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Unit Type */}
-                            <div className="form-field-group">
-                                <label className="form-field-label">
-                                    Unit Type <span className="required-star">*</span>
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-rulers field-icon"/>
-                                    <select
-                                        name="unit"
-                                        value={formDataState.unit}
-                                        onChange={handleInputChange}
-                                        className="form-field-select"
-                                        required
-                                    >
-                                        <option value="pcs">Pcs (Pieces)</option>
-                                        <option value="kg">kg (Kilograms)</option>
-                                        <option value="g">g (Grams)</option>
-                                        <option value="ml">ml (Milliliters)</option>
-                                        <option value="l">l (Liters)</option>
-                                        <option value="box">Box</option>
-                                        <option value="dozen">Dozen</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            {/* Low Stock Alert */}
-                            <div className="form-field-group form-field-full">
-                                <label className="form-field-label">
-                                    Low Stock Alert Threshold <span className="required-star">*</span>
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-exclamation-triangle field-icon"/>
-                                    <input
-                                        type="number"
-                                        name="lowStockAlert"
-                                        value={formDataState.lowStockAlert}
-                                        onChange={handleInputChange}
-                                        className="form-field-input"
-                                        placeholder="Notify when stock drops to or below (e.g. 5)"
-                                        required
-                                        step="0.01"
-                                    />
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Section 2: Pricing & Valuation */}
-                        <div className="form-section-header">
-                            <div className="form-section-icon-badge">
-                                <i className="bi bi-currency-dollar"/>
-                            </div>
-                            <div>
-                                <h3 className="form-section-title">Pricing & Cost Calculation</h3>
-                                <p className="form-section-subtitle">Select pricing mode, purchase rates, and fixed
-                                    selling price</p>
-                            </div>
-                        </div>
-
-                        {/* Pricing Mode Segmented Tabs */}
-                        <div className="pricing-mode-container">
-                            <label className="form-field-label">Pricing Mode Selection</label>
-                            <div className="pricing-mode-tabs">
-                                <button
-                                    type="button"
-                                    className={`pricing-mode-tab ${priceType === 'gross' ? 'active' : ''}`}
-                                    onClick={() => handlePriceTypeChange('gross')}
-                                >
-                                    <i className="bi bi-cash-stack"/>
-                                    Gross Purchase Price Mode
-                                </button>
-                                <button
-                                    type="button"
-                                    className={`pricing-mode-tab ${priceType === 'perUnit' ? 'active' : ''}`}
-                                    onClick={() => handlePriceTypeChange('perUnit')}
-                                >
-                                    <i className="bi bi-tag"/>
-                                    Per Unit Price Mode
-                                </button>
-                            </div>
-                        </div>
-
-                        <div className="form-grid">
-                            {/* Gross Purchase Price */}
-                            <div className="form-field-group">
-                                <label className="form-field-label">
-                                    Gross Purchase Price {priceType === 'gross' &&
-                                    <span className="required-star">*</span>}
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-currency-dollar field-icon"/>
-                                    <input
-                                        type="number"
-                                        name="grossPurchasePrice"
-                                        value={formDataState.grossPurchasePrice}
-                                        onChange={handleInputChange}
-                                        className="form-field-input"
-                                        placeholder="0.00"
-                                        step="0.01"
-                                        disabled={priceType !== 'gross'}
-                                        required={priceType === 'gross'}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Per Unit Purchase Price */}
-                            <div className="form-field-group">
-                                <label className="form-field-label">
-                                    Per Unit Purchase Price {priceType === 'perUnit' &&
-                                    <span className="required-star">*</span>}
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-receipt field-icon"/>
-                                    <input
-                                        type="number"
-                                        name="perUnitPurchasePrice"
-                                        value={formDataState.perUnitPurchasePrice}
-                                        onChange={handleInputChange}
-                                        className="form-field-input"
-                                        placeholder="0.00"
-                                        step="0.01"
-                                        disabled={priceType !== 'perUnit'}
-                                        required={priceType === 'perUnit'}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Fixed Selling Price Card */}
-                            <div className="form-field-group form-field-full">
-                                <div className="fixed-price-toggle-card">
-                                    <div className="fixed-price-toggle-info">
-                                        <div>
-                                            <h4 className="toggle-card-title">Fixed Selling Price</h4>
-                                            <p className="toggle-card-desc">Lock a fixed retail selling price for this
-                                                product, or leave dynamic for POS</p>
-                                        </div>
-                                        <div
-                                            className={`form-switch ${isFixedPriceEnabled ? 'active' : ''}`}
-                                            onClick={handleFixedPriceToggle}
-                                            role="button"
-                                            tabIndex={0}
+                                        <button
+                                            type="submit"
+                                            className="btn-form-submit"
+                                            disabled={loading}
                                         >
-                                            <div className="form-switch-handle"/>
-                                        </div>
+                                            {loading ? (
+                                                <>
+                                                    <span
+                                                        className="spinner-border spinner-border-sm me-2"
+                                                        role="status"
+                                                        aria-hidden="true"
+                                                    />
+                                                    {isEditMode ? 'Updating Product...' : 'Saving Product...'}
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <i className="bi bi-check2-circle me-1" />
+                                                    {isEditMode ? 'Update Product' : 'Save Product'}
+                                                </>
+                                            )}
+                                        </button>
                                     </div>
-                                    {isFixedPriceEnabled && (
-                                        <div className="input-with-icon" style={{marginTop: '1rem'}}>
-                                            <i className="bi bi-tag-fill field-icon"/>
-                                            <input
-                                                type="number"
-                                                name="salesPrice"
-                                                value={formDataState.salesPrice}
-                                                onChange={handleInputChange}
-                                                className="form-field-input"
-                                                placeholder="Enter fixed selling price"
-                                                required={isFixedPriceEnabled}
-                                                step="0.01"
-                                            />
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Overall Financial Summary */}
-                        <div className="financial-summary-card">
-                            <h4 className="financial-summary-title">
-                                <i className="bi bi-calculator"/>
-                                Overall Financial Summary
-                            </h4>
-                            <div className="financial-summary-grid">
-                                <div className="financial-summary-item">
-                                    <span className="financial-summary-label">Total Purchase Price</span>
-                                    <span className="financial-summary-value">${calculatedGrossPrice.toFixed(2)}</span>
-                                </div>
-                                <div className="financial-summary-item">
-                                    <span className="financial-summary-label">Calculated Unit Cost</span>
-                                    <span className="financial-summary-value">${calculatedUnitPrice.toFixed(2)}</span>
-                                </div>
-                                <div className="financial-summary-item">
-                                    <span className="financial-summary-label">Unit Profit Margin</span>
-                                    <span
-                                        className={`financial-summary-value ${salesPriceVal - calculatedUnitPrice >= 0 ? 'positive' : 'negative'}`}>
-                    {isFixedPriceEnabled ? `$${(salesPriceVal - calculatedUnitPrice).toFixed(2)}` : 'N/A (Dynamic)'}
-                  </span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Section 3: Tax & VAT Settings */}
-                        <div className="form-section-header">
-                            <div className="form-section-icon-badge">
-                                <i className="bi bi-percent"/>
-                            </div>
-                            <div>
-                                <h3 className="form-section-title">Tax & VAT Settings</h3>
-                                <p className="form-section-subtitle">Configure VAT percentage and optional included tax
-                                    rates</p>
-                            </div>
-                        </div>
-
-                        <div className="form-grid">
-                            {/* VAT Percentage */}
-                            <div className="form-field-group">
-                                <label className="form-field-label">
-                                    VAT Percentage (%) <span className="required-star">*</span>
-                                </label>
-                                <div className="input-with-icon">
-                                    <i className="bi bi-percent field-icon"/>
-                                    <input
-                                        type="number"
-                                        name="vatPercentage"
-                                        value={formDataState.vatPercentage}
-                                        onChange={handleInputChange}
-                                        className="form-field-input"
-                                        placeholder="e.g. 13"
-                                        step="0.01"
-                                        required
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Tax Included & Tax % */}
-                            <div className="form-field-group">
-                                <div className="tax-toggle-wrapper">
-                                    <div className="tax-toggle-header">
-                                        <label className="form-field-label" style={{marginBottom: 0}}>Tax
-                                            Included</label>
-                                        <div
-                                            className={`form-switch ${formDataState.isTaxIncluded ? 'active' : ''}`}
-                                            onClick={handleTaxToggle}
-                                            role="button"
-                                            tabIndex={0}
-                                        >
-                                            <div className="form-switch-handle"/>
-                                        </div>
-                                    </div>
-                                    <div className="input-with-icon" style={{marginTop: '0.5rem'}}>
-                                        <i className="bi bi-percent field-icon"/>
-                                        <input
-                                            type="number"
-                                            name="taxPercentage"
-                                            value={formDataState.taxPercentage}
-                                            onChange={handleInputChange}
-                                            className="form-field-input"
-                                            placeholder="Tax % (e.g. 13)"
-                                            step="0.01"
-                                            disabled={!formDataState.isTaxIncluded}
-                                            required={formDataState.isTaxIncluded}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Action Footer Matching AddSupplier */}
-                        <div className="form-action-footer">
-                            <button
-                                type="button"
-                                className="btn-form-cancel"
-                                onClick={handleCancel}
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="submit"
-                                className="btn-form-submit"
-                                disabled={loading}
-                            >
-                                {loading ? (
-                                    <>
-                                        <span className="spinner-border spinner-border-sm me-2" role="status"
-                                              aria-hidden="true"/>
-                                        {isEdit ? 'Updating Item...' : 'Saving Item...'}
-                                    </>
-                                ) : (
-                                    <>
-                                        <i className="bi bi-check2-circle me-1"/>
-                                        {isEdit ? 'Update Item' : 'Save Item'}
-                                    </>
-                                )}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </main>
+                                </form>
+                            </>
+                        )}
+                    </div>
+                </main>
             </div>
         </div>
     );
 };
+
+export default AddItem;

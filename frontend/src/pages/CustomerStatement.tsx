@@ -1,12 +1,7 @@
 import { useState } from 'react';
 import { Sidebar } from '../components/Sidebar';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
-import { pdf } from '@react-pdf/renderer';
-import StatementPDFTemplate from '../components/StatementPDFTemplate';
-import ConfirmationModal from '../components/ConfirmationModal';
-import { deletePaymentGiven, deletePaymentReceived } from '../services/paymentService';
-import { toast } from 'react-toastify';
-import '../styles/CustomerStatement.css';
+import { TransactionDetailModal, TransactionDetailData } from '../components/TransactionDetailModal';
 
 interface TransactionData {
     customerId: number;
@@ -27,16 +22,26 @@ export const CustomerStatement = () => {
     const transactionData = location.state?.transaction as TransactionData;
 
     const [formData] = useState({
-        type: transactionData?.type || '',
+        type: transactionData?.type || 'payment_in',
         customerName: transactionData?.customerName || '',
-        totalAmount: transactionData?.totalAmount?.toString() || '',
+        totalAmount: transactionData?.totalAmount?.toString() || '0',
         phoneNumber: transactionData?.phoneNumber || '',
         details: transactionData?.details || '',
         remarks: transactionData?.remarks || '',
         customerId: transactionData?.customerId || '',
         sms: transactionData?.sms || '',
-        date: transactionData?.date || '',
+        date: transactionData?.date || new Date().toISOString(),
     });
+
+    const handleClose = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
+        } else if (formData.customerId) {
+            navigate(`/parties/customers/statements/${formData.customerId}`);
+        } else {
+            navigate('/parties/customers');
+        }
+    };
 
     const handleEdit = () => {
         const editData = {
@@ -48,7 +53,7 @@ export const CustomerStatement = () => {
             phoneNumber: formData.phoneNumber
         };
 
-        if (transactionData.type === 'payment_in') {
+        if (formData.type === 'payment_in') {
             navigate(`/parties/customers/statements/you-received/${id}`, {
                 state: { initialData: editData }
             });
@@ -59,242 +64,33 @@ export const CustomerStatement = () => {
         }
     };
 
-    const [showConfirm, setShowConfirm] = useState(false);
-
-    const performDelete = async () => {
-        try {
-            if (transactionData.type === 'payment_in') {
-                await deletePaymentReceived(parseInt(id || '0'));
-            } else {
-                await deletePaymentGiven(parseInt(id || '0'));
-            }
-            toast.success('Payment deleted successfully');
-            navigate(-1);
-        } catch (error) {
-            console.error('Error deleting payment:', error);
-            toast.error('Failed to delete payment');
-        }
-    };
-
-    const handleDelete = () => {
-        setShowConfirm(true);
-    };
-
-    const handlePrintPDF = async () => {
-        try {
-            const blob = await pdf(<StatementPDFTemplate formData={formData} />).toBlob();
-            const url = URL.createObjectURL(blob);
-            const iframe = document.createElement('iframe');
-            iframe.style.display = 'none';
-            iframe.src = url;
-            document.body.appendChild(iframe);
-            iframe.onload = () => {
-                iframe.contentWindow?.print();
-                setTimeout(() => {
-                    document.body.removeChild(iframe);
-                    URL.revokeObjectURL(url);
-                }, 1000);
-            };
-        } catch (error) {
-            console.error('Error printing PDF:', error);
-        }
-    };
-
-    const handleDownloadPDF = async () => {
-        try {
-            const blob = await pdf(<StatementPDFTemplate formData={formData} />).toBlob();
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = `statement_${formData.customerName}_${formData.date}.pdf`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-        }
-    };
-
-    const handleShare = () => {
-        // Handle share functionality
-        console.log('Share clicked');
+    const txnDetail: TransactionDetailData = {
+        id: id || '',
+        partyId: formData.customerId,
+        partyName: formData.customerName || 'Customer',
+        partyPhone: formData.phoneNumber,
+        partyType: 'Customer',
+        amount: parseFloat(formData.totalAmount) || 0,
+        paymentCategory: formData.type === 'payment_in' ? 'RECEIVED' : 'GIVEN',
+        date: formData.date,
+        details: formData.details,
+        remarks: formData.remarks,
+        sms: formData.sms,
     };
 
     return (
-        <div className="customer-statement-container">
+        <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
             <Sidebar />
-            <button 
-                className="customer-statement-back-button" 
-                onClick={() => navigate(-1)}
-            >
-                <i className="bi bi-arrow-left"></i>
-                Back
-            </button>
-            <main className="customer-statement-main-content">
-                <div className="customer-statement-form-container">
-                    <h2 className="customer-statement-form-title">
-                        <i className="bi bi-file-text"></i>
-                        Customer Statement Details
-                    </h2>
-                    
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
-                                <i className="bi bi-person me-1"></i>
-                                Customer Name
-                            </label>
-                            <input
-                                type="text"
-                                name="customerName"
-                                disabled
-                                value={formData.customerName}
-                                className="customer-statement-input"
-                            />
-                        </div>
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
-                                <i className="bi bi-currency-rupee me-1"></i>
-                                Rs Total
-                            </label>
-                            <input
-                                type="number"
-                                name="totalAmount"
-                                disabled
-                                value={formData.totalAmount}
-                                className="customer-statement-input"
-                            />
-                        </div>
-                    </div>
 
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
-                                <i className="bi bi-telephone me-1"></i>
-                                Phone Number
-                            </label>
-                            <input
-                                disabled
-                                type="tel"
-                                name="phoneNumber"
-                                value={formData.phoneNumber}
-                                className="customer-statement-input"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
-                                <i className="bi bi-info-circle me-1"></i>
-                                Details
-                            </label>
-                            <input
-                                type="text"
-                                disabled
-                                name="details"
-                                value={formData.details}
-                                className="customer-statement-input"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
-                                <i className="bi bi-calendar-event me-1"></i>
-                                Date
-                            </label>
-                            <input
-                                type="date"
-                                name="date"
-                                disabled
-                                value={formData.date}
-                                className="customer-statement-input"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
-                                <i className="bi bi-chat-text me-1"></i>
-                                Remarks
-                            </label>
-                            <input
-                                type="text"
-                                name="remarks"
-                                disabled
-                                value={formData.remarks}
-                                className="customer-statement-input"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="customer-statement-form-row">
-                        <div className="customer-statement-form-group">
-                            <label className="customer-statement-label">
-                                <i className="bi bi-envelope me-1"></i>
-                                SMS
-                            </label>
-                            <textarea
-                                disabled
-                                name="sms"
-                                value={formData.sms}
-                                className="customer-statement-textarea"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="customer-statement-button-container">
-                        <button 
-                            className="customer-statement-button customer-statement-delete-button"
-                            onClick={handleDelete}
-                        >
-                            <i className="bi bi-trash"></i>
-                            Delete
-                        </button>
-                        <button 
-                            className="customer-statement-button customer-statement-edit-button"
-                            onClick={handleEdit}
-                        >
-                            <i className="bi bi-pencil"></i>
-                            Edit
-                        </button>
-                        <button 
-                            className="customer-statement-button customer-statement-print-button"
-                            onClick={handlePrintPDF}
-                        >
-                            <i className="bi bi-printer"></i>
-                            Print PDF
-                        </button>
-                        <button 
-                            className="customer-statement-button customer-statement-download-button"
-                            onClick={handleDownloadPDF}
-                        >
-                            <i className="bi bi-download"></i>
-                            Download PDF
-                        </button>
-                        <button 
-                            className="customer-statement-button customer-statement-share-button"
-                            onClick={handleShare}
-                        >
-                            <i className="bi bi-share"></i>
-                            Share
-                        </button>
-                    </div>
-                </div>
-            </main>
-            <ConfirmationModal
-                isOpen={showConfirm}
-                onClose={() => setShowConfirm(false)}
-                onConfirm={async () => { await performDelete(); setShowConfirm(false); }}
-                title="Confirm Deletion"
-                message="Are you sure you want to delete this payment? This action cannot be undone."
-                confirmText="Yes, Delete"
-                cancelText="No, Keep it"
-                type="danger"
+            <TransactionDetailModal
+                isOpen={true}
+                onClose={handleClose}
+                transaction={txnDetail}
+                onDeleteSuccess={handleClose}
+                onEdit={handleEdit}
             />
         </div>
     );
-}; 
+};
+
+export default CustomerStatement;

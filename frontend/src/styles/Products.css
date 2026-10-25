@@ -749,3 +749,314 @@
         font-size: 12px;
     }
 }
+
+/* ==========================================================================
+   INVENTORY LIST VIEW - MATCHING ORGANIZATION & CUSTOMERS DESIGN SYSTEM
+   ========================================================================== */
+
+.inventory-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+}
+
+.inventory-item-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 16px 20px;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 8px rgba(2, 24, 97, 0.05);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+}
+
+.inventory-item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(2, 24, 97, 0.09);
+    border-color: rgba(37, 93, 206, 0.35);
+}
+
+.inventory-item-main {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    min-width: 0;
+}
+
+.inventory-item-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(37, 93, 206, 0.08) 0%, rgba(2, 24, 97, 0.12) 100%);
+    border: 1px solid rgba(37, 93, 206, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    color: #255DCE;
+    font-size: 22px;
+}
+
+.inventory-item-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.inventory-item-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+    flex: 1;
+}
+
+.inventory-item-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.inventory-item-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #021861;
+    margin: 0;
+    transition: color 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.inventory-item-card:hover .inventory-item-name {
+    color: #255DCE;
+}
+
+.item-id-badge {
+    font-size: 11px;
+    color: #64748b;
+    font-weight: 600;
+    background: #f1f5f9;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 0.3px;
+    border: 1px solid #e2e8f0;
+}
+
+.badge-stock {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.badge-stock.in-stock {
+    color: #059669;
+    background-color: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.badge-stock.low-stock {
+    color: #d97706;
+    background-color: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.badge-stock.out-of-stock {
+    color: #dc2626;
+    background-color: rgba(220, 38, 38, 0.1);
+    border: 1px solid rgba(220, 38, 38, 0.25);
+}
+
+.inventory-item-meta {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.inventory-item-meta strong {
+    color: #0f172a;
+    font-weight: 600;
+}
+
+.inventory-item-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+}
+
+.inventory-price-box {
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.inventory-price-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
+.inventory-price-value {
+    font-size: 17px;
+    font-weight: 700;
+    color: #255DCE;
+    white-space: nowrap;
+}
+
+.inventory-edit-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #255DCE;
+    background: rgba(37, 93, 206, 0.08);
+    border: 1px solid rgba(37, 93, 206, 0.18);
+    transition: all 0.2s ease;
+}
+
+.inventory-item-card:hover .inventory-edit-action {
+    background: #255DCE;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(37, 93, 206, 0.25);
+}
+
+.view-mode-toggle {
+    display: inline-flex;
+    align-items: center;
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 3px;
+    gap: 3px;
+    margin-left: auto;
+}
+
+.view-mode-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    font-size: 13px;
+    font-weight: 600;
+    color: #64748b;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: all 0.15s ease;
+}
+
+.view-mode-btn.active {
+    background: #ffffff;
+    color: #021861;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+@media (max-width: 768px) {
+    .inventory-item-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+    }
+    .inventory-item-right {
+        width: 100%;
+        justify-content: space-between;
+        border-top: 1px dashed #e2e8f0;
+        padding-top: 10px;
+    }
+    .inventory-price-box {
+        align-items: flex-start;
+        text-align: left;
+    }
+    .view-mode-toggle {
+        margin-left: 0;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+.inventory-actions-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.inventory-view-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.inventory-view-action:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+.table-action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid transparent;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.15s ease;
+}
+
+.table-action-btn.view {
+    background: rgba(37, 93, 206, 0.08);
+    color: #255DCE;
+    border-color: rgba(37, 93, 206, 0.2);
+}
+
+.table-action-btn.view:hover {
+    background: #255DCE;
+    color: #ffffff;
+}
+
+.table-action-btn.edit {
+    background: rgba(16, 185, 129, 0.08);
+    color: #059669;
+    border-color: rgba(16, 185, 129, 0.2);
+}
+
+.table-action-btn.edit:hover {
+    background: #059669;
+    color: #ffffff;
+}

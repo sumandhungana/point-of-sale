@@ -478,54 +478,60 @@ export const StaffManagement = () => {
               For Staff ({staffList.length})
             </button>
 
-            {/* Dedicated Search Box */}
-            <div className="toolbar-search-box">
-              <i className="bi bi-search search-icon"></i>
-              <input
-                type="text"
-                placeholder="Search staff by name, phone, email..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  className="clear-btn"
-                  onClick={() => setSearchQuery('')}
-                  title="Clear search"
+            {/* Search Box with Integrated Sort */}
+            <div className="toolbar-search">
+              <div className="toolbar-search-input-wrap">
+                <i className="bi bi-search staff-search-icon"></i>
+                <input
+                  type="text"
+                  placeholder="Search staff by name, phone, email..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className="clear-btn"
+                    onClick={() => setSearchQuery('')}
+                    title="Clear search"
+                  >
+                    <i className="bi bi-x-circle-fill"></i>
+                  </button>
+                )}
+              </div>
+
+              <div className="toolbar-search-selects-wrap">
+                <i className="bi bi-sort-down search-sort-icon"></i>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  title="Sort staff"
                 >
-                  <i className="bi bi-x-circle-fill"></i>
-                </button>
-              )}
+                  <option value="">Sort</option>
+                  <option value="name_asc">A-Z</option>
+                  <option value="name_desc">Z-A</option>
+                  <option value="due_desc">High Due</option>
+                  <option value="advance_desc">High Advance</option>
+                  <option value="salary_asc">Salary: Low</option>
+                  <option value="salary_desc">Salary: High</option>
+                  <option value="date_desc">Newest</option>
+                  <option value="date_asc">Oldest</option>
+                </select>
+              </div>
             </div>
 
-            {/* Filter and Sort Group */}
+            {/* Filter Dropdown */}
             <div className="toolbar-filter-group">
               <div className="toolbar-select-wrap">
                 <i className="bi bi-funnel"></i>
                 <select value={filterBy} onChange={(e) => setFilterBy(e.target.value)}>
                   <option value="">Filter (All)</option>
-                  <option value="due">Due Payments ({dueCount})</option>
-                  <option value="advance">Advance Payments ({advanceCount})</option>
+                  <option value="due">Due ({dueCount})</option>
+                  <option value="advance">Advance ({advanceCount})</option>
                   <option value="settled">Settled</option>
                   <option value="monthly">Monthly</option>
                   <option value="daily">Daily</option>
                   <option value="weekly">Weekly</option>
-                </select>
-              </div>
-
-              <div className="toolbar-select-wrap">
-                <i className="bi bi-sort-down"></i>
-                <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-                  <option value="">Sort</option>
-                  <option value="name_asc">A-Z</option>
-                  <option value="name_desc">Z-A</option>
-                  <option value="due_desc">Highest Due</option>
-                  <option value="advance_desc">Highest Advance</option>
-                  <option value="salary_asc">Salary: Low-High</option>
-                  <option value="salary_desc">Salary: High-Low</option>
-                  <option value="date_desc">Newest</option>
-                  <option value="date_asc">Oldest</option>
                 </select>
               </div>
             </div>
@@ -540,14 +546,30 @@ export const StaffManagement = () => {
             </button>
 
             <div className="toolbar-info">
-              <div className="total-salary-highlight">
+              <div
+                className="total-salary-highlight"
+                title={`Total Salary: ${formatCurrency(totalSalary)}`}
+              >
                 <i className="bi bi-cash-stack"></i>
-                Total Salary: {formatCurrency(totalSalary)}
+                <span className="toolbar-info-text">
+                  <span className="toolbar-info-label">
+                    <span className="toolbar-info-label-total">Total </span>Salary:{' '}
+                  </span>
+                  <strong className="toolbar-info-value">{formatCurrency(totalSalary)}</strong>
+                </span>
               </div>
 
-              <div>
+              <div
+                className="total-attendance-highlight"
+                title={`Total Attendance: ${Object.values(todayAttendances).reduce((a, b) => a + b, 0)}`}
+              >
                 <i className="bi bi-calendar-check"></i>
-                Total Attendance: {Object.values(todayAttendances).reduce((a, b) => a + b, 0)}
+                <span className="toolbar-info-text">
+                  <span className="toolbar-info-label">
+                    <span className="toolbar-info-label-total">Total </span>Attendance:{' '}
+                  </span>
+                  <strong className="toolbar-info-value">{Object.values(todayAttendances).reduce((a, b) => a + b, 0)}</strong>
+                </span>
               </div>
             </div>
           </div>
@@ -598,7 +620,7 @@ export const StaffManagement = () => {
                       {(() => {
                         const todayStatus = getTodayStatusForStaff(staff.id);
                         return (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                          <div className="staff-management-name-wrap">
                             <div className="staff-management-staff-name">{staff.name}</div>
                             {todayStatus && (
                               <span

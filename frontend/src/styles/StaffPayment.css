@@ -115,9 +115,9 @@
 .staff-payment-summary-cards {
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
 }
 
 
@@ -127,11 +127,11 @@
 
 .staff-payment-summary-card {
   position: relative;
-  min-height: 125px;
-  padding: 1.25rem 1.35rem;
+  min-height: 88px;
+  padding: 0.85rem 1rem;
   background: #ffffff;
   border: 1px solid #e7eaf0;
-  border-radius: 14px;
+  border-radius: 12px;
   box-shadow: 0 2px 8px rgba(2, 24, 97, 0.04);
 
   display: flex;
@@ -182,17 +182,17 @@
 ========================================= */
 
 .staff-payment-icon {
-  width: 52px;
-  height: 52px;
-  min-width: 52px;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
 
-  border-radius: 12px;
+  border-radius: 10px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  font-size: 1.35rem;
+  font-size: 1.15rem;
 }
 
 
@@ -233,18 +233,20 @@
 .staff-payment-summary-title {
   display: block;
 
-  font-size: 0.82rem;
-  font-weight: 600;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
   line-height: 1.2;
 
   color: #021861;
 
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.2rem;
 }
 
 
 .staff-payment-summary-amount {
-  font-size: 1.65rem;
+  font-size: 1.35rem;
   line-height: 1.2;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -256,10 +258,10 @@
 .staff-payment-card-subtitle {
   display: block;
 
-  margin-top: 0.3rem;
+  margin-top: 0.2rem;
 
-  font-size: 0.75rem;
-  line-height: 1.3;
+  font-size: 0.68rem;
+  line-height: 1.25;
 
   color: #64748b;
 }
@@ -1092,6 +1094,15 @@ button.staff-payment-calendar-date {
   z-index: 2;
 }
 
+.staff-payment-history-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  margin-bottom: 0.35rem;
+  gap: 0.5rem;
+}
+
 .staff-payment-history-row {
   display: flex;
   align-items: center;
@@ -1682,10 +1693,23 @@ button.staff-payment-calendar-date {
    COMPREHENSIVE RESPONSIVE DESIGN
 ========================================= */
 
+/* Tablets & Small Desktops (<= 1200px) */
+@media (max-width: 1200px) {
+  .staff-payment-summary-cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+}
+
 /* Tablets & Small Desktops (<= 992px) */
 @media (max-width: 992px) {
   .staff-payment-main {
     padding: 76px 20px 85px 20px;
+  }
+
+  .staff-payment-summary-cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.65rem;
   }
 }
 
@@ -1794,11 +1818,15 @@ button.staff-payment-calendar-date {
     gap: 0.45rem 0.65rem;
   }
 
-  /* Summary Cards - Compact & Sleek on Mobile */
+  /* Summary Cards - 2 Column Grid on Mobile */
   .staff-payment-summary-cards {
-    grid-template-columns: 1fr;
-    gap: 0.65rem;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.55rem;
     margin-bottom: 0.85rem;
+  }
+
+  .staff-payment-summary-cards > :nth-child(5):last-child {
+    grid-column: span 2;
   }
 
   .staff-payment-summary-card {
@@ -2001,8 +2029,13 @@ button.staff-payment-calendar-date {
 
   /* Compact Summary Box Height & Gap */
   .staff-payment-summary-cards {
+    grid-template-columns: repeat(2, 1fr);
     gap: 0.45rem;
     margin-bottom: 0.75rem;
+  }
+
+  .staff-payment-summary-cards > :nth-child(5):last-child {
+    grid-column: span 2;
   }
 
   .staff-payment-summary-card {

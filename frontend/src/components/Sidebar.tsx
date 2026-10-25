@@ -31,7 +31,7 @@ const navItems: NavItem[] = [
 		],
 	},
 	{
-		title: 'Inventory Management',
+		title: 'Inventory MGMT',
 		path: '/inventory',
 		icon: '📦',
 		children: [
@@ -45,10 +45,10 @@ const navItems: NavItem[] = [
 		path: '/others',
 		icon: '📦',
 		children: [
-			{ title: 'Staff MGMT', path: '/staff', icon: '👨‍💼', modules: ['staffManagement', 'staffAttendance'] },
+			{ title: 'Staff', path: '/staff', icon: '👨‍💼', modules: ['staffManagement', 'staffAttendance'] },
 			{ title: 'Rental Items', path: '/rental-items', icon: '📦', module: 'rental' },
 			// { title: 'Note', path: '/others/note', icon: '📝' },
-			{ title: 'Loan MGMT', path: '/others/loan', icon: '🏦', module: 'loan' },
+			{ title: 'Loan', path: '/others/loan', icon: '🏦', module: 'loan' },
 		],
 	},
 	// {
@@ -77,8 +77,8 @@ const navItems: NavItem[] = [
 		icon: '⚙️',
 		children: [
 			// { title: 'API', path: '/settings/api', icon: '💬' },
-			{ title: 'Organization Management', path: '/organization', icon: '🌐', module: 'organization'},
-			{ title: 'User Management', path:'/user-management', icon: '👤', module: 'user'},
+			{ title: 'Organization', path: '/organization', icon: '🌐', module: 'organization'},
+			{ title: 'User', path:'/user-management', icon: '👤', module: 'user'},
 			// { title: 'Backup', path: '/settings/backup', icon: '💾' },
 			// { title: 'Recycle Bin', path: '/settings/recycle-bin', icon: '🗑️' },
 			{ title: 'Role & Permission', path: '/role', icon: '🔒', module: 'roleAndPermissions' },

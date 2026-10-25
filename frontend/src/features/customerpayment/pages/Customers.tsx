@@ -547,7 +547,6 @@ export const Customers = () => {
                             const imageSrc = resolveImageSrc(customer.profileImage);
                             const balanceVal = Number(customer.balance) || 0;
                             const isPositive = balanceVal > 0;
-                            const isNegative = balanceVal < 0;
 
                             return (
                                 <div
@@ -561,9 +560,9 @@ export const Customers = () => {
                                         <div className="customers-customer-details">
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                                                 <h3 className="customers-customer-name">{customer.name || 'Unnamed Customer'}</h3>
-                                                {customer.id ? (
-                                                    <span className="customer-id-badge">#CUST-{customer.id}</span>
-                                                ) : null}
+                                                {/*{customer.id ? (*/}
+                                                {/*    <span className="customer-id-badge">#CUST-{customer.id}</span>*/}
+                                                {/*) : null}*/}
                                             </div>
                                             <div className="customers-working-hours">
                                                 <span>
@@ -583,7 +582,6 @@ export const Customers = () => {
                                         balanceVal === 0 ? 'balance-zero' :
                                             isPositive ? 'balance-positive' : 'balance-negative'
                                     }`}>
-                                        {isPositive ? '+ ' : isNegative ? '- ' : ''}
                                         {formatCurrency(Math.abs(balanceVal))}
                                     </div>
                                 </div>

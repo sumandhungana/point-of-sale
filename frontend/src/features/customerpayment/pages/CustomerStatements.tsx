@@ -7,8 +7,80 @@ import { toast } from 'react-toastify';
 import '../../../styles/CustomerStatements.css';
 import { YouGave } from '../components/YouGave';
 import { YouReceived } from '../components/YouReceived';
-import { resolveImageSrc } from '@/utils/ImageResolver';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import { ReminderModal } from '@/components/ReminderModal';
+import { TransactionDetailModal, TransactionDetailData } from '@/components/TransactionDetailModal';
+
+// Helper to handle double Base64 encoding and ensure valid Data URI scheme
+const formatImageSrc = (src?: string | null): string => {
+    if (!src) return '';
+    let clean = src.trim().replace(/(\r\n|\n|\r)/gm, '');
+
+    if (clean.startsWith('ZGF0YT')) {
+        try {
+            clean = atob(clean).trim().replace(/(\r\n|\n|\r)/gm, '');
+        } catch (e) {
+            console.error('Failed to decode double-base64 string:', e);
+        }
+    }
+
+    if (clean.startsWith('data:image/') || clean.startsWith('http://') || clean.startsWith('https://')) {
+        return clean;
+    }
+
+    let mimeType = 'image/png';
+    if (clean.startsWith('/9j/')) {
+        mimeType = 'image/jpeg';
+    } else if (clean.startsWith('iVBORw0KGgo')) {
+        mimeType = 'image/png';
+    } else if (clean.startsWith('R0lGOD')) {
+        mimeType = 'image/gif';
+    } else if (clean.startsWith('UklGR')) {
+        mimeType = 'image/webp';
+    }
+
+    return `data:${mimeType};base64,${clean}`;
+};
+
+/**
+ * Avatar with fallback
+ */
+const CustomerAvatar = ({ name, imageSrc }: { name?: string; imageSrc?: string | null }) => {
+    const [imgError, setImgError] = useState(false);
+    const formattedSrc = React.useMemo(() => formatImageSrc(imageSrc), [imageSrc]);
+
+    if (!formattedSrc || imgError) {
+        return (
+            <div
+                style={{
+                    backgroundColor: '#e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.2rem',
+                    fontWeight: '700',
+                    color: '#021861',
+                    borderRadius: '50%',
+                    width: '100%',
+                    height: '100%',
+                    userSelect: 'none',
+                }}
+            >
+                {name ? name.charAt(0).toUpperCase() : <i className="bi bi-person"></i>}
+            </div>
+        );
+    }
+
+    return (
+        <img
+            src={formattedSrc}
+            alt={name || 'Customer'}
+            className="customer-statements-profile-image"
+            style={{ objectFit: 'cover', display: 'block', width: '100%', height: '100%', borderRadius: '50%' }}
+            onError={() => setImgError(true)}
+        />
+    );
+};
 
 interface CustomerData {
     id: number;
@@ -33,63 +105,6 @@ interface CustomerData {
     paymentDateReminder: string | null;
 }
 
-/**
- * Avatar that validates the resolved image before rendering it.
- * Shows a person icon if the image is missing or fails to load.
- */
-const CustomerAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string }) => {
-    const [status, setStatus] = useState<'loading' | 'ok' | 'failed'>(
-        imageSrc ? 'loading' : 'failed'
-    );
-
-    useEffect(() => {
-        if (!imageSrc) {
-            setStatus('failed');
-            return;
-        }
-        setStatus('loading');
-
-        let cancelled = false;
-        const probe = new Image();
-        probe.onload = () => { if (!cancelled) setStatus('ok'); };
-        probe.onerror = () => { if (!cancelled) setStatus('failed'); };
-        probe.src = imageSrc;
-
-        return () => {
-            cancelled = true;
-            probe.onload = null;
-            probe.onerror = null;
-        };
-    }, [imageSrc]);
-
-    if (status !== 'ok') {
-        return (
-            <div
-                style={{
-                    fontSize: '2.5rem',
-                    color: '#6c757d',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%',
-                    height: '100%',
-                }}
-            >
-                <i className="bi bi-person"></i>
-            </div>
-        );
-    }
-
-    return (
-        <img
-            src={imageSrc}
-            alt={name || 'Customer'}
-            className="customer-statements-profile-image"
-            style={{ objectFit: 'cover', display: 'block', width: '100%', height: '100%' }}
-        />
-    );
-};
-
 export const CustomerStatements = () => {
     const navigate = useNavigate();
     const { formatCurrency, formatDate } = useAppSettings();
@@ -104,7 +119,9 @@ export const CustomerStatements = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
     const [showReceivedPopup, setShowReceivedPopup] = useState(false);
-    const [showBottomButtons, setShowBottomButtons] = useState(false);
+    const [showReminderModal, setShowReminderModal] = useState(false);
+    const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetailData | null>(null);
+    const [showTransactionModal, setShowTransactionModal] = useState(false);
 
     const [customerData, setCustomerData] = useState<CustomerData>({
         id: numericUrlId,
@@ -130,23 +147,6 @@ export const CustomerStatements = () => {
     const [customerLoading, setCustomerLoading] = useState(true);
 
     const activeId = numericUrlId || customerData.id || customerData.customerId || 0;
-    console.log("adctive i" + activeId)
-    useEffect(() => {
-        const handleScroll = () => {
-            const cards = document.querySelectorAll(".customer-statements-transaction-card");
-            if (cards.length === 0) {
-                setShowBottomButtons(true);
-                return;
-            }
-            const fourthLastCard = cards[Math.max(0, cards.length - 4)];
-            const rect = fourthLastCard.getBoundingClientRect();
-            setShowBottomButtons(rect.top < window.innerHeight);
-        };
-
-        window.addEventListener("scroll", handleScroll);
-        handleScroll();
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, []);
 
     useEffect(() => {
         if (location.state?.customer) {
@@ -267,25 +267,44 @@ export const CustomerStatements = () => {
 
     const handleTransactionClick = (transaction: GetPaymentResponse) => {
         const activeCustId = customerData.id || numericUrlId;
-        navigate(`/parties/customers/statement/${transaction.id}`, {
-            state: {
-                transaction: {
-                    customerName: customerData.name || 'Customer',
-                    date: transaction.createdAt,
-                    totalAmount: Math.abs(transaction.amount),
-                    phoneNumber: customerData.phone,
-                    type: transaction.paymentCategory === 'RECEIVED' ? 'payment_in' : 'payment_out',
-                    customerId: activeCustId,
-                    details: `${transaction.paymentCategory === 'RECEIVED' ? 'Payment Received' : 'Payment Given'} - ${formatDate(transaction.createdAt)}`,
-                    remarks: transaction.remarks,
-                    sms: `Dear ${customerData.name || 'Customer'}, your payment of ${formatCurrency(Math.abs(transaction.amount))} has been ${transaction.paymentCategory === 'RECEIVED' ? 'received' : 'processed'}. Thank you for your business.`
-                }
-            }
+        const isReceived = transaction.paymentCategory === 'RECEIVED';
+        const amountAbs = Math.abs(transaction.amount || 0);
+
+        setSelectedTransaction({
+            id: transaction.id,
+            partyId: activeCustId,
+            partyName: customerData.name || 'Customer',
+            partyPhone: customerData.phone,
+            partyType: 'Customer',
+            amount: amountAbs,
+            paymentCategory: transaction.paymentCategory || 'RECEIVED',
+            date: transaction.createdAt,
+            details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${formatDate(transaction.createdAt)}`,
+            remarks: transaction.remarks,
+            sms: `Dear ${customerData.name || 'Customer'}, your payment of ${formatCurrency(amountAbs)} has been ${isReceived ? 'received' : 'processed'}. Thank you for your business.`
         });
+        setShowTransactionModal(true);
     };
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setReminderDate(e.target.value);
+    const handleEditTransaction = (txn: TransactionDetailData) => {
+        const editData = {
+            customerId: txn.partyId,
+            customerName: txn.partyName,
+            amount: txn.amount,
+            remarks: txn.remarks,
+            date: txn.date,
+            phoneNumber: txn.partyPhone
+        };
+
+        if (txn.paymentCategory === 'RECEIVED') {
+            navigate(`/parties/customers/statements/you-received/${txn.id}`, {
+                state: { initialData: editData }
+            });
+        } else {
+            navigate(`/parties/customers/statements/you-gave/${txn.id}`, {
+                state: { initialData: editData }
+            });
+        }
     };
 
     useEffect(() => {
@@ -296,13 +315,9 @@ export const CustomerStatements = () => {
         }
     }, [customerData.paymentDateReminder]);
 
-    const handleSetReminder = async () => {
+    const handleSaveReminder = async (newDate: string) => {
         if (!activeId) return;
 
-        if (!reminderDate) {
-            toast.error("Please select a reminder date.");
-            return;
-        }
         try {
             const response = await fetch(`/api/v1/customer/${activeId}`, {
                 method: "PUT",
@@ -311,20 +326,50 @@ export const CustomerStatements = () => {
                     "Authorization": `Bearer ${localStorage.getItem('authToken')}`
                 },
                 body: JSON.stringify({
-                    paymentDateReminder: reminderDate
+                    paymentDateReminder: newDate
                 })
             });
 
             if (!response.ok) throw new Error("Failed to update reminder");
 
             toast.success("Reminder date updated successfully.");
+            setReminderDate(newDate);
             setCustomerData(prev => ({
                 ...prev,
-                paymentDateReminder: `${reminderDate}T00:00:00`
+                paymentDateReminder: `${newDate}T00:00:00`
             }));
         } catch (error) {
             console.error(error);
             toast.error("Failed to update reminder.");
+        }
+    };
+
+    const handleClearReminder = async () => {
+        if (!activeId) return;
+
+        try {
+            const response = await fetch(`/api/v1/customer/${activeId}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({
+                    paymentDateReminder: null
+                })
+            });
+
+            if (!response.ok) throw new Error("Failed to clear reminder");
+
+            toast.success("Reminder cleared successfully.");
+            setReminderDate("");
+            setCustomerData(prev => ({
+                ...prev,
+                paymentDateReminder: null
+            }));
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to clear reminder.");
         }
     };
 
@@ -338,7 +383,13 @@ export const CustomerStatements = () => {
         });
     };
 
-    const resolvedImage = resolveImageSrc(customerData.profileImage);
+    const handleInvoice = () => {
+        navigate('/bills/sales');
+    };
+
+    const handleSMS = () => {
+        toast.info('SMS notification feature coming soon!');
+    };
 
     return (
         <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
@@ -347,13 +398,25 @@ export const CustomerStatements = () => {
             <main className="customer-statements-main-content">
                 {/* 1. Sleek Compact Profile Header */}
                 <div className="statements-profile-card">
+                    <div className="statements-header-left">
+                        <button
+                            type="button"
+                            className="btn-statement-action btn-deposit"
+                            onClick={() => navigate(`/parties/customers/deposit/${activeId}`)}
+                            title="Make a deposit"
+                        >
+                            <i className="bi bi-cash-coin"></i>
+                            Deposit
+                        </button>
+                    </div>
+
                     <div className="statements-profile-info">
                         <div
                             className="statements-avatar-wrapper"
                             onClick={handleProfileClick}
                             title="View customer profile"
                         >
-                            <CustomerAvatar name={customerData.name} imageSrc={resolvedImage} />
+                            <CustomerAvatar name={customerData.name} imageSrc={customerData.profileImage} />
                         </div>
                         <div className="statements-details">
                             <div className="statements-name-row">
@@ -364,9 +427,9 @@ export const CustomerStatements = () => {
                                 >
                                     {customerLoading ? 'Loading...' : customerData.name || 'Customer'}
                                 </h2>
-                                {activeId ? (
-                                    <span className="statements-id-badge">#CUST-{activeId}</span>
-                                ) : null}
+                                {/*{activeId ? (*/}
+                                {/*    <span className="statements-id-badge">#CUST-{activeId}</span>*/}
+                                {/*) : null}*/}
                             </div>
                             <div className="statements-meta-row">
                                 {customerData.phone ? (
@@ -393,16 +456,7 @@ export const CustomerStatements = () => {
                         </div>
                     </div>
 
-                    <div className="statements-header-actions">
-                        <button
-                            type="button"
-                            className="btn-statement-action btn-deposit"
-                            onClick={() => navigate(`/parties/customers/deposit/${activeId}`)}
-                            title="Make a deposit"
-                        >
-                            <i className="bi bi-cash-coin"></i>
-                            Deposit
-                        </button>
+                    <div className="statements-header-right">
                         <button
                             type="button"
                             className="btn-statement-action btn-call"
@@ -424,7 +478,7 @@ export const CustomerStatements = () => {
                     </div>
                 </div>
 
-                {/* 2. Amount Summary & Reminder Card */}
+                {/* 2. Amount Summary Card */}
                 <div className="statements-amount-card">
                     <div className="statements-amount-grid">
                         <div className="statements-amount-box box-gave">
@@ -446,19 +500,6 @@ export const CustomerStatements = () => {
                             </div>
                         </div>
                     </div>
-
-                    <div className="statements-reminder-strip">
-                        <div className="statements-reminder-label">
-                            <i className="bi bi-calendar-event me-2"></i>
-                            Set Date Reminder
-                        </div>
-                        <input
-                            type="date"
-                            value={reminderDate}
-                            onChange={handleDateChange}
-                            className="statements-date-input"
-                        />
-                    </div>
                 </div>
 
                 {/* 3. Quick Action Buttons */}
@@ -467,13 +508,23 @@ export const CustomerStatements = () => {
                         <i className="bi bi-graph-up"></i>
                         Report
                     </button>
-                    <button className="btn-quick-action btn-qa-reminder" onClick={handleSetReminder}>
-                        <i className="bi bi-alarm"></i>
-                        Reminder
+                    <button
+                        type="button"
+                        className={`btn-quick-action btn-qa-reminder ${reminderDate ? 'has-reminder' : ''}`}
+                        onClick={() => setShowReminderModal(true)}
+                        title={reminderDate ? `Reminder set for ${reminderDate}` : 'Set Reminder Date'}
+                    >
+                        <i className="bi bi-calendar-event"></i>
+                        <span>Set Reminder</span>
+                        {reminderDate && <span className="reminder-indicator-dot" title={`Active: ${reminderDate}`}></span>}
                     </button>
-                    <button className="btn-quick-action btn-qa-sms">
+                    <button className="btn-quick-action btn-qa-sms" onClick={handleSMS}>
                         <i className="bi bi-chat-dots"></i>
                         SMS
+                    </button>
+                    <button className="btn-quick-action btn-qa-invoice" onClick={handleInvoice}>
+                        <i className="bi bi-receipt"></i>
+                        Invoice
                     </button>
                 </div>
 
@@ -646,6 +697,29 @@ export const CustomerStatements = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Modal: Set Reminder */}
+                <ReminderModal
+                    isOpen={showReminderModal}
+                    onClose={() => setShowReminderModal(false)}
+                    initialDate={reminderDate || customerData.paymentDateReminder}
+                    partyName={customerData.name}
+                    partyType="Customer"
+                    onSave={handleSaveReminder}
+                    onClear={handleClearReminder}
+                />
+
+                {/* Modal: Transaction Details */}
+                <TransactionDetailModal
+                    isOpen={showTransactionModal}
+                    onClose={() => {
+                        setShowTransactionModal(false);
+                        setSelectedTransaction(null);
+                    }}
+                    transaction={selectedTransaction}
+                    onDeleteSuccess={fetchPayments}
+                    onEdit={handleEditTransaction}
+                />
             </main>
         </div>
     );

@@ -337,7 +337,7 @@ export const Suppliers = () => {
                                     supplier.balance === 0 ? 'balance-zero' :
                                         supplier.balance > 0 ? 'balance-positive' : 'balance-negative'
                                 }`}>
-                                    {supplier.balance > 0 ? '+ ' : supplier.balance < 0 ? '- ' : ''}
+                                    {supplier.balance < 0 ? '- ' : ''}
                                     {formatCurrency(Math.abs(supplier.balance))}
                                 </div>
                             </div>

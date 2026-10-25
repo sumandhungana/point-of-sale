@@ -49,12 +49,19 @@ export class ApiService {
             //     ? endpoint
             //     : `${this.baseUrl}${endpoint.startsWith('/') ? '' : '/'}${endpoint}`;
 
+            const isFormData = typeof FormData !== 'undefined' && fetchOptions.body instanceof FormData;
+            const defaultHeaders: Record<string, string> = {
+                "X-Requested-With": "XMLHttpRequest",
+            };
+            if (!isFormData) {
+                defaultHeaders["Content-Type"] = "application/json";
+            }
+
             const response = await fetch(url, {
                 ...fetchOptions,
                 credentials: 'include',
                 headers: {
-                    "Content-Type": "application/json",
-                    "X-Requested-With": "XMLHttpRequest",
+                    ...defaultHeaders,
                     ...(fetchOptions.headers || {}),
                 },
             });
@@ -107,10 +114,11 @@ export class ApiService {
     }
 
     async post<T>(endpoint: string, body: any, options: ApiOptions = {}): Promise<ApiResponse<T>> {
+        const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
         return this.request<T>(endpoint, {
             ...options,
             method: 'POST',
-            body: JSON.stringify(body)
+            body: isFormData ? body : JSON.stringify(body)
         })
             .then((resp) => ({
                 success: true,
@@ -125,10 +133,11 @@ export class ApiService {
     }
 
     async put<T>(endpoint: string, body: any, options: ApiOptions = {}): Promise<ApiResponse<T>> {
+        const isFormData = typeof FormData !== 'undefined' && body instanceof FormData;
         return this.request<T>(endpoint, {
             ...options,
             method: 'PUT',
-            body: JSON.stringify(body)
+            body: isFormData ? body : JSON.stringify(body)
         })
             .then((resp) => ({
                 success: true,

@@ -387,6 +387,14 @@ const App: React.FC = () => {
             }
           />
           <Route
+            path="/inventory/items/edit/:id"
+            element={
+              <PrivateRoute>
+                <AddItem />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/others/bills"
             element={
               <PrivateRoute>

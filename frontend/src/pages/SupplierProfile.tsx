@@ -116,8 +116,6 @@ export const SupplierProfile = () => {
     });
 
     const [partyType, setPartyType] = useState<'customer' | 'supplier'>('supplier');
-
-    // Holds the image currently active in state (can be existing or newly picked)
     const [currentImage, setCurrentImage] = useState<string | null>(null);
 
     const [formData, setFormData] = useState({
@@ -137,6 +135,29 @@ export const SupplierProfile = () => {
     });
 
     const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+    const activeId = numericId || supplierData.id;
+
+    const handleClose = () => {
+        if (window.history.length > 1) {
+            navigate(-1);
+        } else if (activeId) {
+            navigate(`/parties/suppliers/statements/${activeId}`);
+        } else {
+            navigate('/parties/suppliers');
+        }
+    };
+
+    // Close on Escape key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
+                handleClose();
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [activeId]);
 
     const populateForm = (data: GetSupplierResponse) => {
         const resolvedId = data.id ?? numericId;
@@ -158,8 +179,14 @@ export const SupplierProfile = () => {
             contactPerson: data.contactPerson || ''
         });
 
-        // Store the existing image directly so it is never lost on text updates
+        setSettings({
+            supplierSmsSetting: Boolean((data as any).supplierSmsSetting ?? (data as any).customerSmsSetting ?? false),
+            smsLanguage: Boolean((data as any).smsLanguage ?? false),
+            transactionHistoryCheck: Boolean((data as any).transactionHistoryCheck ?? false)
+        });
+
         setCurrentImage(rawImg);
+        setPartyType('supplier');
     };
 
     useEffect(() => {
@@ -170,6 +197,7 @@ export const SupplierProfile = () => {
         }
 
         if (!isValidId) {
+            console.error('SupplierProfile: Invalid id in URL:', id);
             toast.error('Supplier ID is missing in URL');
             setIsLoading(false);
             return;
@@ -178,7 +206,7 @@ export const SupplierProfile = () => {
         const fetchSupplier = async () => {
             try {
                 setIsLoading(true);
-                const data = await fetchSingleSupplierData(id!);
+                const data: any = await fetchSingleSupplierData(id!);
 
                 if (!data) {
                     toast.error('Supplier not found');
@@ -231,7 +259,6 @@ export const SupplierProfile = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const activeId = numericId || supplierData.id;
 
         if (!activeId) {
             toast.error('Cannot update: Missing supplier ID');
@@ -246,7 +273,6 @@ export const SupplierProfile = () => {
         setIsSubmitting(true);
 
         try {
-            // Priority: current state image -> original fetched image -> null
             const finalImage = currentImage || supplierData.profileImage || null;
 
             await updateSupplier({
@@ -262,7 +288,7 @@ export const SupplierProfile = () => {
             });
 
             toast.success('Supplier updated successfully');
-            navigate(`/parties/supplier/statements/${activeId}`);
+            handleClose();
         } catch (error: any) {
             console.error('Error updating supplier:', error);
             toast.error(error?.message || 'Failed to update supplier');
@@ -276,7 +302,6 @@ export const SupplierProfile = () => {
     };
 
     const performDelete = async () => {
-        const activeId = numericId || supplierData.id;
         if (!activeId) {
             toast.error('Cannot delete: Missing supplier ID');
             return;
@@ -296,270 +321,309 @@ export const SupplierProfile = () => {
         }
     };
 
-    if (isLoading) {
-        return (
-            <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
-                <Sidebar />
-                <main className="customer-profile-main-content">
-                    <div style={{ textAlign: 'center', padding: '4rem', color: '#6c757d' }}>
-                        Loading supplier details...
-                    </div>
-                </main>
-            </div>
-        );
-    }
-
-    // Resolves both double-base64 and normal base64 strings
     const resolvedImage = formatImageSrc(currentImage);
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f8f9fa' }}>
+        <div className="customer-profile-page-shell">
             <Sidebar />
 
-            <main className="customer-profile-main-content">
-                <div className="customer-profile-container">
-                    <button
-                        className="customer-profile-back-button"
-                        onClick={() => navigate(-1)}
-                    >
-                        <i className="bi bi-arrow-left"></i>
-                        Back
-                    </button>
-
-                    <div className="customer-profile-image-container">
-                        <ProfileAvatar name={supplierData.name} imageSrc={resolvedImage} />
-
-                        <label htmlFor="profile-image" className="customer-profile-add-photo-button">
-                            <i className="bi bi-camera"></i>
-                            {resolvedImage ? 'Change Photo' : 'Add Photo'}
-                        </label>
-                        <input
-                            id="profile-image"
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageChange}
-                            className="customer-profile-file-input"
-                        />
+            {/* Modal Popup Overlay */}
+            <div className="customer-profile-modal-overlay" onClick={handleClose}>
+                <div
+                    className="customer-profile-modal-container"
+                    onClick={(e) => e.stopPropagation()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="supplier-profile-modal-title"
+                >
+                    {/* Modal Header with Title & Cross Button on Top Right */}
+                    <div className="customer-profile-modal-header">
+                        <div className="customer-profile-modal-title-box">
+                            <div className="customer-profile-modal-icon-badge">
+                                <i className="bi bi-truck"></i>
+                            </div>
+                            <div>
+                                <h2 id="supplier-profile-modal-title" className="customer-profile-modal-title">
+                                    {partyType === 'customer' ? 'Customer Profile' : 'Supplier Profile'}
+                                </h2>
+                                <p className="customer-profile-modal-subtitle">
+                                    {activeId ? `#${activeId} • ` : ''}
+                                    {supplierData.name || (isLoading ? 'Loading...' : 'Profile Details')}
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            className="customer-profile-modal-close-btn"
+                            onClick={handleClose}
+                            aria-label="Close"
+                            title="Close popup"
+                        >
+                            <i className="bi bi-x-lg"></i>
+                        </button>
                     </div>
 
-                    <div className="customer-profile-party-type-container">
-                        <div className="customer-profile-party-type-label">
-                            <i className="bi bi-people me-2"></i>
-                            Change Party
-                        </div>
-                        <div className="customer-profile-party-type-buttons">
-                            <button
-                                type="button"
-                                className={`customer-profile-party-type-button ${partyType === 'customer' ? 'customer-profile-active-party-type-button' : ''}`}
-                                onClick={() => handlePartyTypeChange('customer')}
-                            >
-                                <i className="bi bi-person me-1"></i>
-                                Customer
-                            </button>
-                            <button
-                                type="button"
-                                className={`customer-profile-party-type-button ${partyType === 'supplier' ? 'customer-profile-active-party-type-button' : ''}`}
-                                onClick={() => handlePartyTypeChange('supplier')}
-                            >
-                                <i className="bi bi-truck me-1"></i>
-                                Supplier
-                            </button>
-                        </div>
+                    {/* Modal Body */}
+                    <div className="customer-profile-modal-body">
+                        {isLoading ? (
+                            <div style={{ textAlign: 'center', padding: '3.5rem 1rem', color: '#64748b' }}>
+                                <div className="spinner-border text-primary mb-3" role="status"></div>
+                                <p style={{ margin: 0, fontWeight: 500 }}>Loading supplier details...</p>
+                            </div>
+                        ) : (
+                            <>
+                                {/* Avatar */}
+                                <div className="customer-profile-image-container">
+                                    <ProfileAvatar name={supplierData.name} imageSrc={resolvedImage} />
+
+                                    <label htmlFor="supplier-profile-image-upload" className="customer-profile-add-photo-button">
+                                        <i className="bi bi-camera"></i>
+                                        {resolvedImage ? 'Change Photo' : 'Add Photo'}
+                                    </label>
+                                    <input
+                                        id="supplier-profile-image-upload"
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={handleImageChange}
+                                        className="customer-profile-file-input"
+                                    />
+                                </div>
+
+                                {/* Party Type Switcher */}
+                                <div className="customer-profile-party-type-container">
+                                    <div className="customer-profile-party-type-label">
+                                        <i className="bi bi-people me-2"></i>
+                                        Party Type
+                                    </div>
+                                    <div className="customer-profile-party-type-buttons">
+                                        <button
+                                            type="button"
+                                            className={`customer-profile-party-type-button ${partyType === 'customer' ? 'customer-profile-active-party-type-button' : ''}`}
+                                            onClick={() => handlePartyTypeChange('customer')}
+                                        >
+                                            <i className="bi bi-person me-1"></i>
+                                            Customer
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={`customer-profile-party-type-button ${partyType === 'supplier' ? 'customer-profile-active-party-type-button' : ''}`}
+                                            onClick={() => handlePartyTypeChange('supplier')}
+                                        >
+                                            <i className="bi bi-truck me-1"></i>
+                                            Supplier
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="customer-profile-section-divider"></div>
+
+                                <h3 className="customer-profile-section-title">
+                                    <i className="bi bi-person-badge me-2"></i>
+                                    Supplier Info
+                                </h3>
+
+                                <form onSubmit={handleSubmit}>
+                                    <div className="customer-profile-form-row">
+                                        <div className="customer-profile-form-group">
+                                            <label className="customer-profile-label">
+                                                <i className="bi bi-person me-1"></i>
+                                                Supplier Name <span style={{ color: '#dc2626' }}>*</span>
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="supplierName"
+                                                value={formData.supplierName}
+                                                onChange={handleChange}
+                                                className="customer-profile-input"
+                                                placeholder="Enter supplier name"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="customer-profile-form-group">
+                                            <label className="customer-profile-label">
+                                                <i className="bi bi-telephone me-1"></i>
+                                                Mobile Number
+                                            </label>
+                                            <input
+                                                type="tel"
+                                                name="mobileNumber"
+                                                value={formData.mobileNumber}
+                                                onChange={handleChange}
+                                                className="customer-profile-input"
+                                                placeholder="Enter mobile number"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="customer-profile-form-row">
+                                        <div className="customer-profile-form-group">
+                                            <label className="customer-profile-label">
+                                                <i className="bi bi-building me-1"></i>
+                                                Company Name
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="company"
+                                                value={formData.company}
+                                                onChange={handleChange}
+                                                className="customer-profile-input"
+                                                placeholder="Enter company name"
+                                            />
+                                        </div>
+                                        <div className="customer-profile-form-group">
+                                            <label className="customer-profile-label">
+                                                <i className="bi bi-card-text me-1"></i>
+                                                PAN Number
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="panNumber"
+                                                value={formData.panNumber}
+                                                onChange={handleChange}
+                                                className="customer-profile-input"
+                                                placeholder="Enter PAN number"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="customer-profile-form-row">
+                                        <div className="customer-profile-form-group">
+                                            <label className="customer-profile-label">
+                                                <i className="bi bi-geo-alt me-1"></i>
+                                                Address
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                                className="customer-profile-input"
+                                                placeholder="Enter address"
+                                            />
+                                        </div>
+                                        <div className="customer-profile-form-group">
+                                            <label className="customer-profile-label">
+                                                <i className="bi bi-envelope me-1"></i>
+                                                Email Address
+                                            </label>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                className="customer-profile-input"
+                                                placeholder="Enter email address"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="customer-profile-form-row">
+                                        <div className="customer-profile-form-group">
+                                            <label className="customer-profile-label">
+                                                <i className="bi bi-person-badge me-1"></i>
+                                                Contact Person
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="contactPerson"
+                                                value={formData.contactPerson}
+                                                onChange={handleChange}
+                                                className="customer-profile-input"
+                                                placeholder="Enter contact person name"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="customer-profile-section-divider"></div>
+
+                                    <h3 className="customer-profile-section-title">
+                                        <i className="bi bi-gear me-2"></i>
+                                        Settings
+                                    </h3>
+
+                                    <div className="customer-profile-checkbox-container" onClick={() => setSettings(prev => ({ ...prev, supplierSmsSetting: !prev.supplierSmsSetting }))}>
+                                        <input
+                                            type="checkbox"
+                                            id="supplierSmsSetting"
+                                            name="supplierSmsSetting"
+                                            checked={settings.supplierSmsSetting}
+                                            onChange={handleCheckboxChange}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="customer-profile-checkbox"
+                                        />
+                                        <label htmlFor="supplierSmsSetting" className="customer-profile-checkbox-label">
+                                            <i className="bi bi-chat-dots me-2 text-primary"></i>
+                                            Supplier SMS Notification
+                                        </label>
+                                    </div>
+
+                                    <div className="customer-profile-checkbox-container" onClick={() => setSettings(prev => ({ ...prev, smsLanguage: !prev.smsLanguage }))}>
+                                        <input
+                                            type="checkbox"
+                                            id="smsLanguage"
+                                            name="smsLanguage"
+                                            checked={settings.smsLanguage}
+                                            onChange={handleCheckboxChange}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="customer-profile-checkbox"
+                                        />
+                                        <label htmlFor="smsLanguage" className="customer-profile-checkbox-label">
+                                            <i className="bi bi-translate me-2 text-primary"></i>
+                                            SMS Language (Nepali)
+                                        </label>
+                                    </div>
+
+                                    <div className="customer-profile-checkbox-container" onClick={() => setSettings(prev => ({ ...prev, transactionHistoryCheck: !prev.transactionHistoryCheck }))}>
+                                        <input
+                                            type="checkbox"
+                                            id="transactionHistoryCheck"
+                                            name="transactionHistoryCheck"
+                                            checked={settings.transactionHistoryCheck}
+                                            onChange={handleCheckboxChange}
+                                            onClick={(e) => e.stopPropagation()}
+                                            className="customer-profile-checkbox"
+                                        />
+                                        <label htmlFor="transactionHistoryCheck" className="customer-profile-checkbox-label">
+                                            <i className="bi bi-clock-history me-2 text-primary"></i>
+                                            Transaction History Check
+                                        </label>
+                                    </div>
+
+                                    {/* Action Buttons */}
+                                    <div className="customer-profile-button-container">
+                                        <button
+                                            type="button"
+                                            onClick={handleDelete}
+                                            className="customer-profile-delete-button"
+                                            disabled={isDeleting || isSubmitting}
+                                        >
+                                            <i className="bi bi-trash"></i>
+                                            Delete
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="customer-profile-save-button"
+                                            disabled={isSubmitting || isDeleting}
+                                        >
+                                            {isSubmitting ? (
+                                                <>
+                                                    <span className="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                                                    Saving...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <i className="bi bi-check-circle"></i>
+                                                    Save Changes
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            </>
+                        )}
                     </div>
-
-                    <div className="customer-profile-section-divider"></div>
-
-                    <h3 className="customer-profile-section-title">
-                        <i className="bi bi-person-badge me-2"></i>
-                        Supplier Info
-                    </h3>
-
-                    <form onSubmit={handleSubmit}>
-                        <div className="customer-profile-form-row">
-                            <div className="customer-profile-form-group">
-                                <label className="customer-profile-label">
-                                    <i className="bi bi-person me-1"></i>
-                                    Supplier Name <span style={{ color: '#dc3545' }}>*</span>
-                                </label>
-                                <input
-                                    type="text"
-                                    name="supplierName"
-                                    value={formData.supplierName}
-                                    onChange={handleChange}
-                                    className="customer-profile-input"
-                                    placeholder="Enter supplier name"
-                                    required
-                                />
-                            </div>
-                            <div className="customer-profile-form-group">
-                                <label className="customer-profile-label">
-                                    <i className="bi bi-telephone me-1"></i>
-                                    Mobile Number
-                                </label>
-                                <input
-                                    type="tel"
-                                    name="mobileNumber"
-                                    value={formData.mobileNumber}
-                                    onChange={handleChange}
-                                    className="customer-profile-input"
-                                    placeholder="Enter mobile number"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="customer-profile-form-row">
-                            <div className="customer-profile-form-group">
-                                <label className="customer-profile-label">
-                                    <i className="bi bi-building me-1"></i>
-                                    Company Name
-                                </label>
-                                <input
-                                    type="text"
-                                    name="company"
-                                    value={formData.company}
-                                    onChange={handleChange}
-                                    className="customer-profile-input"
-                                    placeholder="Enter company name"
-                                />
-                            </div>
-                            <div className="customer-profile-form-group">
-                                <label className="customer-profile-label">
-                                    <i className="bi bi-card-text me-1"></i>
-                                    PAN Number
-                                </label>
-                                <input
-                                    type="text"
-                                    name="panNumber"
-                                    value={formData.panNumber}
-                                    onChange={handleChange}
-                                    className="customer-profile-input"
-                                    placeholder="Enter PAN number"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="customer-profile-form-row">
-                            <div className="customer-profile-form-group">
-                                <label className="customer-profile-label">
-                                    <i className="bi bi-geo-alt me-1"></i>
-                                    Address
-                                </label>
-                                <input
-                                    type="text"
-                                    name="address"
-                                    value={formData.address}
-                                    onChange={handleChange}
-                                    className="customer-profile-input"
-                                    placeholder="Enter address"
-                                />
-                            </div>
-                            <div className="customer-profile-form-group">
-                                <label className="customer-profile-label">
-                                    <i className="bi bi-envelope me-1"></i>
-                                    Email Address
-                                </label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    className="customer-profile-input"
-                                    placeholder="Enter email address"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="customer-profile-form-row">
-                            <div className="customer-profile-form-group">
-                                <label className="customer-profile-label">
-                                    <i className="bi bi-person-badge me-1"></i>
-                                    Contact Person
-                                </label>
-                                <input
-                                    type="text"
-                                    name="contactPerson"
-                                    value={formData.contactPerson}
-                                    onChange={handleChange}
-                                    className="customer-profile-input"
-                                    placeholder="Enter contact person name"
-                                />
-                            </div>
-                        </div>
-
-                        <div className="customer-profile-section-divider"></div>
-
-                        <h3 className="customer-profile-section-title">
-                            <i className="bi bi-gear me-2"></i>
-                            Supplier Settings
-                        </h3>
-
-                        <div className="customer-profile-checkbox-container">
-                            <input
-                                type="checkbox"
-                                id="supplierSmsSetting"
-                                name="supplierSmsSetting"
-                                checked={settings.supplierSmsSetting}
-                                onChange={handleCheckboxChange}
-                                className="customer-profile-checkbox"
-                            />
-                            <label htmlFor="supplierSmsSetting" className="customer-profile-checkbox-label">
-                                <i className="bi bi-chat-dots me-2"></i>
-                                Supplier SMS Setting
-                            </label>
-                        </div>
-
-                        <div className="customer-profile-checkbox-container">
-                            <input
-                                type="checkbox"
-                                id="smsLanguage"
-                                name="smsLanguage"
-                                checked={settings.smsLanguage}
-                                onChange={handleCheckboxChange}
-                                className="customer-profile-checkbox"
-                            />
-                            <label htmlFor="smsLanguage" className="customer-profile-checkbox-label">
-                                <i className="bi bi-translate me-2"></i>
-                                SMS Language
-                            </label>
-                        </div>
-
-                        <div className="customer-profile-checkbox-container">
-                            <input
-                                type="checkbox"
-                                id="transactionHistoryCheck"
-                                name="transactionHistoryCheck"
-                                checked={settings.transactionHistoryCheck}
-                                onChange={handleCheckboxChange}
-                                className="customer-profile-checkbox"
-                            />
-                            <label htmlFor="transactionHistoryCheck" className="customer-profile-checkbox-label">
-                                <i className="bi bi-clock-history me-2"></i>
-                                Transaction History Check
-                            </label>
-                        </div>
-
-                        <div className="customer-profile-button-container">
-                            <button
-                                type="button"
-                                onClick={handleDelete}
-                                className="customer-profile-delete-button"
-                                disabled={isDeleting || isSubmitting}
-                            >
-                                <i className="bi bi-trash"></i>
-                                Delete
-                            </button>
-                            <button
-                                type="submit"
-                                className="customer-profile-save-button"
-                                disabled={isSubmitting || isDeleting}
-                            >
-                                <i className="bi bi-check-circle"></i>
-                                {isSubmitting ? 'Saving...' : 'Save'}
-                            </button>
-                        </div>
-                    </form>
                 </div>
-            </main>
+            </div>
 
             <ConfirmationModal
                 isOpen={showDeleteModal}

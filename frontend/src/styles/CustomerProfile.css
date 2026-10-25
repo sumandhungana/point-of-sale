@@ -1,76 +1,136 @@
-/* Modern Customer Profile Page Styles - Palette Aligned */
+/* Modern Customer & Supplier Profile Popup Modal Styles */
 
-.customer-profile-main-content {
-  overflow: visible !important;
-  padding-bottom: 2rem !important;
-  padding-top: 3rem !important;
-  background: #f4f6f9 !important;
-  min-height: 100vh !important;
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding-left: 2rem !important;
-  padding-right: 2rem !important;
+/* Modal Backdrop Overlay */
+.customer-profile-modal-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background-color: rgba(2, 24, 97, 0.6) !important;
+  backdrop-filter: blur(6px) !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  z-index: 1200 !important;
+  padding: 16px !important;
+  box-sizing: border-box !important;
+  animation: profileFadeIn 0.2s ease-out !important;
 }
 
-/* Back Button */
-.customer-profile-back-button {
+@keyframes profileFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Box Container */
+.customer-profile-modal-container {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 640px !important;
+  max-height: 90vh !important;
+  background: #ffffff !important;
+  border-radius: 18px !important;
+  box-shadow: 0 25px 60px rgba(2, 24, 97, 0.25) !important;
+  border: 1px solid #e2e8f0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  animation: profileSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+@keyframes profileSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal Header */
+.customer-profile-modal-header {
   display: flex !important;
   align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0.75rem 1.5rem !important;
-  background: linear-gradient(135deg, #5a6a85, #021861) !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  cursor: pointer !important;
-  position: absolute !important;
-  top: 5rem !important;
-  left: 2rem !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(2, 24, 97, 0.1) !important;
-  z-index: 10 !important;
-}
-
-.customer-profile-back-button:hover {
-  background: linear-gradient(135deg, #424e63, #011043) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(2, 24, 97, 0.2) !important;
-}
-
-/* Profile Container */
-.customer-profile-container {
+  justify-content: space-between !important;
+  padding: 16px 20px !important;
+  border-bottom: 1px solid #f1f5f9 !important;
   background: #ffffff !important;
-  padding: 3rem !important;
-  border-radius: 20px !important;
-  box-shadow: 0 12px 35px rgba(2, 24, 97, 0.08) !important;
-  border: 1px solid #e1e6ef !important;
-  max-width: 900px !important;
-  margin: 0 auto !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
+  flex-shrink: 0 !important;
 }
 
-.customer-profile-container::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  height: 4px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  transform: scaleX(0) !important;
-  transition: transform 0.3s ease !important;
+.customer-profile-modal-title-box {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
 }
 
-.customer-profile-container:hover::before {
-  transform: scaleX(1) !important;
+.customer-profile-modal-icon-badge {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 10px !important;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
+  color: #255DCE !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 19px !important;
+  border: 1px solid #bfdbfe !important;
+  box-shadow: 0 2px 6px rgba(37, 93, 206, 0.12) !important;
+  flex-shrink: 0 !important;
 }
 
-.customer-profile-container:hover {
-  box-shadow: 0 16px 45px rgba(37, 93, 206, 0.12) !important;
+.customer-profile-modal-title {
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  color: #021861 !important;
+  margin: 0 !important;
+  line-height: 1.25 !important;
+}
+
+.customer-profile-modal-subtitle {
+  font-size: 12px !important;
+  color: #64748b !important;
+  margin: 2px 0 0 0 !important;
+  font-weight: 500 !important;
+}
+
+/* Cross Button on Top Right */
+.customer-profile-modal-close-btn {
+  width: 36px !important;
+  height: 36px !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 50% !important;
+  background-color: #f8fafc !important;
+  color: #64748b !important;
+  font-size: 15px !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s ease !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+}
+
+.customer-profile-modal-close-btn:hover {
+  background-color: #fee2e2 !important;
+  color: #dc2626 !important;
+  border-color: #fca5a5 !important;
+  transform: scale(1.06) !important;
+}
+
+/* Modal Body */
+.customer-profile-modal-body {
+  padding: 20px 24px !important;
+  overflow-y: auto !important;
+  flex: 1 1 auto !important;
+  box-sizing: border-box !important;
 }
 
 /* Image Container */
@@ -79,79 +139,77 @@
   flex-direction: column !important;
   align-items: center !important;
   position: relative !important;
-  width: 110px !important;
-  height: 110px !important;
+  width: 96px !important;
+  height: 96px !important;
   aspect-ratio: 1 / 1 !important;
-  margin: 0 auto 2.5rem auto !important;
+  margin: 0 auto 1.5rem auto !important;
   border-radius: 50% !important;
 }
 
 .customer-profile-image {
-  width: 110px !important;
-  height: 110px !important;
-  min-width: 110px !important;
-  min-height: 110px !important;
+  width: 96px !important;
+  height: 96px !important;
+  min-width: 96px !important;
+  min-height: 96px !important;
   aspect-ratio: 1 / 1 !important;
   box-sizing: border-box !important;
   border-radius: 50% !important;
   object-fit: cover !important;
   background: linear-gradient(135deg, #255DCE, #021861) !important;
-  margin-bottom: 0 !important;
   border: 3px solid #255DCE !important;
   cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 6px 18px rgba(37, 93, 206, 0.25) !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(37, 93, 206, 0.25) !important;
   overflow: hidden !important;
 }
 
 .customer-profile-image:hover {
-  transform: scale(1.05) rotate(5deg) !important;
-  box-shadow: 0 12px 35px rgba(37, 93, 206, 0.35) !important;
+  transform: scale(1.03) !important;
+  box-shadow: 0 8px 20px rgba(37, 93, 206, 0.3) !important;
 }
 
 .customer-profile-image-placeholder {
-  width: 110px !important;
-  height: 110px !important;
+  width: 96px !important;
+  height: 96px !important;
   border-radius: 50% !important;
   background: linear-gradient(135deg, #255DCE, #021861) !important;
-  margin-bottom: 0 !important;
   border: 3px solid #255DCE !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  font-size: 2.5rem !important;
+  font-size: 2.2rem !important;
   color: #ffffff !important;
   cursor: pointer !important;
   overflow: hidden !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 6px 18px rgba(37, 93, 206, 0.25) !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 4px 14px rgba(37, 93, 206, 0.25) !important;
 }
 
 .customer-profile-image-placeholder:hover {
-  transform: scale(1.05) rotate(5deg) !important;
-  box-shadow: 0 12px 35px rgba(37, 93, 206, 0.35) !important;
+  transform: scale(1.03) !important;
 }
 
 /* Add Photo Button */
 .customer-profile-add-photo-button {
   position: absolute !important;
-  bottom: 4px !important;
+  bottom: -4px !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  padding: 6px 10px !important;
-  background: rgba(2, 24, 97, 0.8) !important;
+  padding: 4px 9px !important;
+  background: rgba(2, 24, 97, 0.85) !important;
   color: #ffffff !important;
-  border: none !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
   border-radius: 20px !important;
-  font-size: 0.7rem !important;
+  font-size: 0.68rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   display: flex !important;
   align-items: center !important;
-  gap: 5px !important;
-  margin: 0 !important;
+  gap: 4px !important;
+  white-space: nowrap !important;
   z-index: 10 !important;
-  transition: all 0.3s ease !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
 }
 
 .customer-profile-add-photo-button:hover {
@@ -168,381 +226,285 @@
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  justify-content: center !important;
-  margin-top: 1rem !important;
-  margin-bottom: 2.5rem !important;
-  gap: 1rem !important;
-  padding: 1.5rem !important;
+  justify-content: space-between !important;
+  margin-bottom: 1.5rem !important;
+  gap: 12px !important;
+  padding: 10px 14px !important;
   background: #f8fafc !important;
-  border-radius: 16px !important;
-  border: 1px solid #e1e6ef !important;
-  transition: all 0.3s ease !important;
-}
-
-.customer-profile-party-type-container:hover {
-  border-color: #255DCE !important;
-  transform: translateY(-1px) !important;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
 }
 
 .customer-profile-party-type-label {
-  font-size: 1rem !important;
+  font-size: 0.875rem !important;
   color: #021861 !important;
   font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
 }
 
 .customer-profile-party-type-buttons {
   display: flex !important;
-  gap: 1rem !important;
+  gap: 8px !important;
 }
 
 .customer-profile-party-type-button {
-  padding: 0.75rem 1.5rem !important;
-  border: 2px solid #e1e6ef !important;
-  border-radius: 12px !important;
-  font-size: 0.875rem !important;
+  padding: 6px 14px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  font-size: 0.8rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   background: #ffffff !important;
-  color: #5a6a85 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.customer-profile-party-type-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(37, 93, 206, 0.1), transparent) !important;
-  transition: left 0.5s !important;
-}
-
-.customer-profile-party-type-button:hover::before {
-  left: 100% !important;
+  color: #475569 !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
 }
 
 .customer-profile-party-type-button:hover {
   border-color: #255DCE !important;
   color: #255DCE !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.15) !important;
 }
 
 .customer-profile-active-party-type-button {
   background: linear-gradient(135deg, #255DCE, #021861) !important;
   color: #ffffff !important;
-  border: 2px solid #255DCE !important;
-  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.25) !important;
+  border-color: #255DCE !important;
+  box-shadow: 0 2px 8px rgba(37, 93, 206, 0.25) !important;
 }
 
 .customer-profile-active-party-type-button:hover {
-  background: linear-gradient(135deg, #1f4cb0, #011043) !important;
-  transform: translateY(-2px) !important;
-  box-shadow: 0 6px 20px rgba(37, 93, 206, 0.35) !important;
+  color: #ffffff !important;
 }
 
 /* Section Divider */
 .customer-profile-section-divider {
-  border-top: 2px solid #e1e6ef !important;
-  margin: 2.5rem 0 !important;
-  position: relative !important;
-}
-
-.customer-profile-section-divider::after {
-  content: '' !important;
-  position: absolute !important;
-  top: -2px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 60px !important;
-  height: 3px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  border-radius: 2px !important;
+  border-top: 1px solid #f1f5f9 !important;
+  margin: 1.25rem 0 !important;
 }
 
 /* Section Title */
 .customer-profile-section-title {
-  font-size: 1.5rem !important;
+  font-size: 0.95rem !important;
   font-weight: 700 !important;
   color: #021861 !important;
-  margin-bottom: 2rem !important;
-  text-align: center !important;
-  padding-bottom: 1rem !important;
-  border-bottom: 2px solid #e1e6ef !important;
-  line-height: 1.5 !important;
+  margin-bottom: 1rem !important;
+  padding-bottom: 6px !important;
+  border-bottom: 2px solid #e2e8f0 !important;
   display: flex !important;
   align-items: center !important;
-  justify-content: center !important;
-  position: relative !important;
+  letter-spacing: 0.2px !important;
 }
 
-.customer-profile-section-title::after {
-  content: '' !important;
-  position: absolute !important;
-  bottom: -2px !important;
-  left: 50% !important;
-  transform: translateX(-50%) !important;
-  width: 60px !important;
-  height: 3px !important;
-  background: linear-gradient(90deg, #021861, #255DCE) !important;
-  border-radius: 2px !important;
-}
-
-/* Form Row */
+/* Responsive Form Rows (2 columns on desktop/tablet, 1 column on mobile) */
 .customer-profile-form-row {
-  display: flex !important;
-  gap: 2rem !important;
-  margin-bottom: 1.5rem !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 14px !important;
+  margin-bottom: 12px !important;
 }
 
-/* Form Group */
 .customer-profile-form-group {
-  flex: 1 !important;
-  position: relative !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
 }
 
-/* Label */
 .customer-profile-label {
-  display: block !important;
-  margin-bottom: 0.75rem !important;
-  font-size: 0.875rem !important;
-  color: #5a6a85 !important;
+  display: flex !important;
+  align-items: center !important;
+  font-size: 0.78rem !important;
+  color: #475569 !important;
   font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 0.5px !important;
+  margin: 0 !important;
+  text-transform: none !important;
+  letter-spacing: 0.2px !important;
 }
 
-.customer-profile-form-group:focus-within .customer-profile-label {
-  color: #255DCE !important;
-}
-
-/* Input */
 .customer-profile-input {
   width: 100% !important;
-  padding: 0.875rem 1.25rem !important;
-  border: 2px solid #e1e6ef !important;
-  border-radius: 12px !important;
-  font-size: 0.95rem !important;
+  padding: 8px 12px !important;
+  border: 1.5px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  font-size: 0.88rem !important;
   background: #ffffff !important;
   color: #021861 !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  position: relative !important;
+  transition: all 0.2s ease !important;
+  box-sizing: border-box !important;
+  outline: none !important;
+  font-family: inherit !important;
 }
 
 .customer-profile-input:focus {
-  outline: none !important;
   border-color: #255DCE !important;
-  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.15) !important;
-  transform: translateY(-2px) !important;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12) !important;
 }
 
 .customer-profile-input:hover {
-  border-color: #255DCE !important;
+  border-color: #94a3b8 !important;
 }
 
 /* Checkbox Container */
 .customer-profile-checkbox-container {
   display: flex !important;
   align-items: center !important;
-  margin-bottom: 1rem !important;
-  padding: 1rem !important;
+  margin-bottom: 8px !important;
+  padding: 8px 12px !important;
   background: #f8fafc !important;
-  border-radius: 12px !important;
-  border: 2px solid #e1e6ef !important;
-  transition: all 0.3s ease !important;
+  border-radius: 8px !important;
+  border: 1px solid #e2e8f0 !important;
+  transition: all 0.2s ease !important;
   cursor: pointer !important;
 }
 
 .customer-profile-checkbox-container:hover {
-  border-color: #255DCE !important;
-  transform: translateY(-1px) !important;
-  box-shadow: 0 4px 15px rgba(37, 93, 206, 0.08) !important;
+  border-color: #cbd5e1 !important;
+  background: #f1f5f9 !important;
 }
 
 .customer-profile-checkbox {
-  margin-right: 0.75rem !important;
-  width: 18px !important;
-  height: 18px !important;
+  margin-right: 10px !important;
+  width: 16px !important;
+  height: 16px !important;
   accent-color: #255DCE !important;
   cursor: pointer !important;
 }
 
 .customer-profile-checkbox-label {
-  font-size: 0.875rem !important;
-  color: #021861 !important;
+  font-size: 0.82rem !important;
+  color: #1e293b !important;
   font-weight: 600 !important;
   cursor: pointer !important;
   flex: 1 !important;
+  margin: 0 !important;
 }
 
-/* Button Container */
+/* Footer / Button Container */
 .customer-profile-button-container {
   display: flex !important;
   justify-content: space-between !important;
-  margin-top: 2.5rem !important;
-  gap: 1rem !important;
+  align-items: center !important;
+  margin-top: 1.5rem !important;
+  padding-top: 14px !important;
+  border-top: 1px solid #f1f5f9 !important;
+  gap: 12px !important;
 }
 
-/* Save Button */
 .customer-profile-save-button {
-  padding: 1rem 2rem !important;
-  background: linear-gradient(135deg, #28a745, #1e7e34) !important;
+  padding: 9px 20px !important;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
   color: #ffffff !important;
   border: none !important;
-  border-radius: 12px !important;
-  font-size: 1rem !important;
+  border-radius: 8px !important;
+  font-size: 0.88rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.25) !important;
-  display: flex !important;
+  transition: all 0.2s ease !important;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25) !important;
+  display: inline-flex !important;
   align-items: center !important;
-  gap: 0.5rem !important;
-  position: relative !important;
-  overflow: hidden !important;
+  gap: 6px !important;
 }
 
-.customer-profile-save-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
-  transition: left 0.5s !important;
+.customer-profile-save-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35) !important;
 }
 
-.customer-profile-save-button:hover::before {
-  left: 100% !important;
+.customer-profile-save-button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
 }
 
-.customer-profile-save-button:hover {
-  background: linear-gradient(135deg, #218838, #19692c) !important;
-  transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(40, 167, 69, 0.35) !important;
-}
-
-/* Delete Button */
 .customer-profile-delete-button {
-  padding: 1rem 2rem !important;
-  background: linear-gradient(135deg, #DE1110, #9e0b0a) !important;
-  color: #ffffff !important;
-  border: none !important;
-  border-radius: 12px !important;
-  font-size: 1rem !important;
+  padding: 9px 18px !important;
+  background: #ffffff !important;
+  color: #dc2626 !important;
+  border: 1.5px solid #fca5a5 !important;
+  border-radius: 8px !important;
+  font-size: 0.88rem !important;
   font-weight: 600 !important;
   cursor: pointer !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  box-shadow: 0 4px 15px rgba(222, 17, 16, 0.25) !important;
-  display: flex !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
   align-items: center !important;
-  gap: 0.5rem !important;
+  gap: 6px !important;
+}
+
+.customer-profile-delete-button:hover:not(:disabled) {
+  background: #fee2e2 !important;
+  border-color: #dc2626 !important;
+  color: #b91c1c !important;
+}
+
+.customer-profile-delete-button:disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
+/* Background Shell when directly viewing the page */
+.customer-profile-page-shell {
+  min-height: 100vh !important;
+  background: #f8fafc !important;
   position: relative !important;
-  overflow: hidden !important;
 }
 
-.customer-profile-delete-button::before {
-  content: '' !important;
-  position: absolute !important;
-  top: 0 !important;
-  left: -100% !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
-  transition: left 0.5s !important;
+/* Ensure Delete Confirmation Modal renders cleanly above profile popup */
+.confirm-modal-backdrop {
+  z-index: 1400 !important;
 }
 
-.customer-profile-delete-button:hover::before {
-  left: 100% !important;
-}
-
-.customer-profile-delete-button:hover {
-  background: linear-gradient(135deg, #c40e0d, #7d0807) !important;
-  transform: translateY(-3px) !important;
-  box-shadow: 0 8px 25px rgba(222, 17, 16, 0.35) !important;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-  .customer-profile-main-content {
-    padding: 1rem !important;
-    padding-top: 2rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+/* Responsive Breakpoints */
+@media (max-width: 640px) {
+  .customer-profile-modal-overlay {
+    padding: 8px !important;
+    align-items: flex-end !important;
   }
 
-  .customer-profile-back-button {
-    position: relative !important;
-    top: auto !important;
-    left: auto !important;
-    margin-bottom: 1rem !important;
-    width: 100% !important;
-    justify-content: center !important;
+  .customer-profile-modal-container {
+    max-height: 94vh !important;
+    border-radius: 16px 16px 0 0 !important;
   }
 
-  .customer-profile-container {
-    padding: 1.5rem !important;
+  .customer-profile-modal-header {
+    padding: 14px 16px !important;
+  }
+
+  .customer-profile-modal-body {
+    padding: 16px !important;
   }
 
   .customer-profile-form-row {
-    flex-direction: column !important;
-    gap: 1rem !important;
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+    margin-bottom: 10px !important;
   }
 
   .customer-profile-party-type-container {
     flex-direction: column !important;
-    gap: 1rem !important;
+    align-items: stretch !important;
+    gap: 8px !important;
   }
 
   .customer-profile-party-type-buttons {
-    width: 100% !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  .customer-profile-party-type-button {
     justify-content: center !important;
   }
 
   .customer-profile-button-container {
-    flex-direction: column !important;
-    gap: 1rem !important;
+    flex-direction: column-reverse !important;
+    gap: 10px !important;
   }
 
-  .customer-profile-save-button,
-  .customer-profile-delete-button {
+  .customer-profile-button-container button {
     width: 100% !important;
     justify-content: center !important;
   }
-}
-
-/* Additional mobile optimizations */
-@media (max-width: 480px) {
-  .customer-profile-main-content {
-    padding: 0.5rem !important;
-    padding-top: 1rem !important;
-    padding-left: 0.5rem !important;
-    padding-right: 0.5rem !important;
-  }
-
-  .customer-profile-container {
-    padding: 1rem !important;
-  }
-
-  .customer-profile-image-container,
-  .customer-profile-image,
-  .customer-profile-image-placeholder {
-    width: 100px !important;
-    height: 100px !important;
-    min-width: 100px !important;
-    min-height: 100px !important;
-  }
-
-  .customer-profile-section-title {
-    font-size: 1.25rem !important;
-  }
-}
-
-/* Smooth transitions */
-* {
-  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
 }

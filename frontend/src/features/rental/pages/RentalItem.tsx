@@ -150,7 +150,41 @@ export const RentalItem: React.FC = () => {
                 </div>
             )}
 
-            {/* Search and Filters Toolbar */}
+           
+
+            {/* Summary Card */}
+            <div className="rental-item-summary-card">
+              <div className="rental-item-summary-grid">
+                <div className="rental-item-summary-item" style={{ borderLeftColor: '#3b82f6' }}>
+                  <span className="rental-item-summary-label">
+                    <i className="bi bi-cash-stack me-1"></i>
+                    Total Rental
+                  </span>
+                  <span className="rental-item-summary-amount" style={{ color: '#1e293b' }}>
+                    {formatCurrency(totalRentalAmount)}
+                  </span>
+                </div>
+                <div className="rental-item-summary-item" style={{ borderLeftColor: '#10b981' }}>
+                  <span className="rental-item-summary-label">
+                    <i className="bi bi-check-circle me-1"></i>
+                    Total Paid / Settled
+                  </span>
+                  <span className="rental-item-summary-amount" style={{ color: '#10b981' }}>
+                    {formatCurrency(totalPaidAmount)}
+                  </span>
+                </div>
+                <div className="rental-item-summary-item" style={{ borderLeftColor: '#ef4444' }}>
+                  <span className="rental-item-summary-label">
+                    <i className="bi bi-exclamation-circle me-1"></i>
+                    Remaining Balance Due
+                  </span>
+                  <span className="rental-item-summary-amount" style={{ color: totalRemainingDue > 0 ? '#ef4444' : '#10b981' }}>
+                    {formatCurrency(totalRemainingDue)}
+                  </span>
+                </div>
+              </div>
+            </div>
+             {/* Search and Filters Toolbar */}
             <div className="rental-item-search-container">
               <div className="rental-item-search-bar">
                 <i className="bi bi-search rental-item-search-icon"></i>
@@ -210,40 +244,6 @@ export const RentalItem: React.FC = () => {
                 Reminder
               </button>
             </div>
-
-            {/* Summary Card */}
-            <div className="rental-item-summary-card">
-              <div className="rental-item-summary-grid">
-                <div className="rental-item-summary-item" style={{ borderLeftColor: '#3b82f6' }}>
-                  <span className="rental-item-summary-label">
-                    <i className="bi bi-cash-stack me-1"></i>
-                    Total Rental
-                  </span>
-                  <span className="rental-item-summary-amount" style={{ color: '#1e293b' }}>
-                    {formatCurrency(totalRentalAmount)}
-                  </span>
-                </div>
-                <div className="rental-item-summary-item" style={{ borderLeftColor: '#10b981' }}>
-                  <span className="rental-item-summary-label">
-                    <i className="bi bi-check-circle me-1"></i>
-                    Total Paid / Settled
-                  </span>
-                  <span className="rental-item-summary-amount" style={{ color: '#10b981' }}>
-                    {formatCurrency(totalPaidAmount)}
-                  </span>
-                </div>
-                <div className="rental-item-summary-item" style={{ borderLeftColor: '#ef4444' }}>
-                  <span className="rental-item-summary-label">
-                    <i className="bi bi-exclamation-circle me-1"></i>
-                    Remaining Balance Due
-                  </span>
-                  <span className="rental-item-summary-amount" style={{ color: totalRemainingDue > 0 ? '#ef4444' : '#10b981' }}>
-                    {formatCurrency(totalRemainingDue)}
-                  </span>
-                </div>
-              </div>
-            </div>
-
             {/* Rental Items List or Empty State */}
             {sortedItems.length === 0 ? (
                 <div className="rental-item-loading-message">

@@ -8,65 +8,78 @@ import { toast } from 'react-toastify';
 import '../../../styles/SupplierStatements.css';
 import { YouGave } from '../../supplierpayment/components/YouGave';
 import { YouReceived } from '../../supplierpayment/components/YouReceived';
-import { resolveImageSrc } from '@/utils/ImageResolver';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import { ReminderModal } from '@/components/ReminderModal';
+import { TransactionDetailModal, TransactionDetailData } from '@/components/TransactionDetailModal';
+
+// Helper to handle double Base64 encoding and ensure valid Data URI scheme
+const formatImageSrc = (src?: string | null): string => {
+    if (!src) return '';
+    let clean = src.trim().replace(/(\r\n|\n|\r)/gm, '');
+
+    if (clean.startsWith('ZGF0YT')) {
+        try {
+            clean = atob(clean).trim().replace(/(\r\n|\n|\r)/gm, '');
+        } catch (e) {
+            console.error('Failed to decode double-base64 string:', e);
+        }
+    }
+
+    if (clean.startsWith('data:image/') || clean.startsWith('http://') || clean.startsWith('https://')) {
+        return clean;
+    }
+
+    let mimeType = 'image/png';
+    if (clean.startsWith('/9j/')) {
+        mimeType = 'image/jpeg';
+    } else if (clean.startsWith('iVBORw0KGgo')) {
+        mimeType = 'image/png';
+    } else if (clean.startsWith('R0lGOD')) {
+        mimeType = 'image/gif';
+    } else if (clean.startsWith('UklGR')) {
+        mimeType = 'image/webp';
+    }
+
+    return `data:${mimeType};base64,${clean}`;
+};
 
 /**
- * Avatar that validates the resolved image before rendering it.
- * Shows a truck/initial icon if the image is missing or fails to load.
+ * Avatar with fallback
  */
-const SupplierAvatar = ({ name, imageSrc }: { name?: string; imageSrc: string }) => {
-    const [status, setStatus] = useState<'loading' | 'ok' | 'failed'>(
-        imageSrc ? 'loading' : 'failed'
-    );
+const SupplierAvatar = ({ name, imageSrc }: { name?: string; imageSrc?: string | null }) => {
+    const [imgError, setImgError] = useState(false);
+    const formattedSrc = useMemo(() => formatImageSrc(imageSrc), [imageSrc]);
 
-    useEffect(() => {
-        if (!imageSrc) {
-            setStatus('failed');
-            return;
-        }
-        setStatus('loading');
-
-        let cancelled = false;
-        const probe = new Image();
-        probe.onload = () => { if (!cancelled) setStatus('ok'); };
-        probe.onerror = () => { if (!cancelled) setStatus('failed'); };
-        probe.src = imageSrc;
-
-        return () => {
-            cancelled = true;
-            probe.onload = null;
-            probe.onerror = null;
-        };
-    }, [imageSrc]);
-
-    if (status === 'ok') {
+    if (!formattedSrc || imgError) {
         return (
-            <img
-                src={imageSrc}
-                alt={name || 'Supplier'}
-                className="supplier-statements-profile-image"
-            />
+            <div
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '50%',
+                    backgroundColor: '#e9ecef',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '1.25rem',
+                    fontWeight: '700',
+                    color: '#021861',
+                    userSelect: 'none',
+                }}
+            >
+                {name ? name.charAt(0).toUpperCase() : <i className="bi bi-truck"></i>}
+            </div>
         );
     }
 
     return (
-        <div
-            style={{
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                backgroundColor: '#e9ecef',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.25rem',
-                fontWeight: '700',
-                color: '#021861'
-            }}
-        >
-            {name ? name.charAt(0).toUpperCase() : <i className="bi bi-truck"></i>}
-        </div>
+        <img
+            src={formattedSrc}
+            alt={name || 'Supplier'}
+            className="supplier-statements-profile-image"
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', borderRadius: '50%' }}
+            onError={() => setImgError(true)}
+        />
     );
 };
 
@@ -87,10 +100,9 @@ export const SupplierStatements: React.FC = () => {
 
     const [showPopup, setShowPopup] = useState<boolean>(false);
     const [showReceivedPopup, setShowReceivedPopup] = useState<boolean>(false);
-
-    const resolvedImage = useMemo(() => {
-        return resolveImageSrc(supplierProfileImage);
-    }, [supplierProfileImage]);
+    const [showReminderModal, setShowReminderModal] = useState<boolean>(false);
+    const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetailData | null>(null);
+    const [showTransactionModal, setShowTransactionModal] = useState<boolean>(false);
 
     const fetchPayments = useCallback(async () => {
         if (!id) return;
@@ -142,6 +154,13 @@ export const SupplierStatements: React.FC = () => {
             setSupplierPhone(finalPhone);
             setSupplierAddress(finalAddress);
             setSupplierProfileImage(rawImage);
+
+            const savedReminder = (customerSupplier as any)?.paymentDateReminder
+                ? (customerSupplier as any).paymentDateReminder.split('T')[0]
+                : (localStorage.getItem(`supplier_reminder_${id}`) || '');
+            if (savedReminder) {
+                setReminderDate(savedReminder);
+            }
         } catch (err) {
             console.error('Error loading supplier profile:', err);
         } finally {
@@ -191,16 +210,48 @@ export const SupplierStatements: React.FC = () => {
         navigate(`/parties/supplier/profile/${id}`);
     };
 
-    const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setReminderDate(e.target.value);
+    const handleSaveReminder = async (newDate: string) => {
+        if (!id) return;
+        try {
+            await fetch(`/api/v1/customer/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({
+                    paymentDateReminder: newDate
+                })
+            }).catch(() => {});
+            localStorage.setItem(`supplier_reminder_${id}`, newDate);
+            setReminderDate(newDate);
+            toast.success(`Reminder date set for ${newDate}`);
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to set reminder.');
+        }
     };
 
-    const handleSetReminder = () => {
-        if (!reminderDate) {
-            toast.error('Please select a reminder date.');
-            return;
+    const handleClearReminder = async () => {
+        if (!id) return;
+        try {
+            await fetch(`/api/v1/customer/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${localStorage.getItem('authToken')}`
+                },
+                body: JSON.stringify({
+                    paymentDateReminder: null
+                })
+            }).catch(() => {});
+            localStorage.removeItem(`supplier_reminder_${id}`);
+            setReminderDate('');
+            toast.success('Reminder cleared successfully.');
+        } catch (error) {
+            console.error(error);
+            toast.error('Failed to clear reminder.');
         }
-        toast.success(`Reminder date set for ${reminderDate}`);
     };
 
     const handleReport = () => {
@@ -222,21 +273,41 @@ export const SupplierStatements: React.FC = () => {
         const isReceived = transaction.paymentCategory === 'RECEIVED';
         const amountAbs = Math.abs(transaction.amount || 0);
 
-        navigate(`/parties/supplier/statement/${transaction.id}`, {
-            state: {
-                transaction: {
-                    customerName: supplierName || 'Supplier',
-                    date: transaction.createdAt,
-                    totalAmount: amountAbs,
-                    phoneNumber: supplierPhone || '',
-                    type: isReceived ? 'payment_in' : 'payment_out',
-                    customerId: parseInt(id || '0', 10),
-                    details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${formatDate(transaction.createdAt)}`,
-                    remarks: transaction.remarks || '',
-                    sms: `Dear ${supplierName || 'Supplier'}, your payment of ${formatCurrency(amountAbs)} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
-                }
-            }
+        setSelectedTransaction({
+            id: transaction.id,
+            partyId: parseInt(id || '0', 10),
+            partyName: supplierName || 'Supplier',
+            partyPhone: supplierPhone || '',
+            partyType: 'Supplier',
+            amount: amountAbs,
+            paymentCategory: transaction.paymentCategory || 'RECEIVED',
+            date: transaction.createdAt,
+            details: `${isReceived ? 'Payment Received' : 'Payment Given'} - ${formatDate(transaction.createdAt)}`,
+            remarks: transaction.remarks || '',
+            sms: `Dear ${supplierName || 'Supplier'}, your payment of ${formatCurrency(amountAbs)} has been ${isReceived ? 'received' : 'processed'}. Thank you.`
         });
+        setShowTransactionModal(true);
+    };
+
+    const handleEditTransaction = (txn: TransactionDetailData) => {
+        const editData = {
+            customerId: txn.partyId,
+            customerName: txn.partyName,
+            amount: txn.amount,
+            remarks: txn.remarks,
+            date: txn.date,
+            phoneNumber: txn.partyPhone
+        };
+
+        if (txn.paymentCategory === 'RECEIVED') {
+            navigate(`/parties/supplier/statements/you-received/${txn.id}`, {
+                state: { initialData: editData }
+            });
+        } else {
+            navigate(`/parties/supplier/statements/you-gave/${txn.id}`, {
+                state: { initialData: editData }
+            });
+        }
     };
 
     const handleGaveSuccess = async () => {
@@ -256,13 +327,25 @@ export const SupplierStatements: React.FC = () => {
             <main className="supplier-statements-main-content">
                 {/* 1. Sleek Profile Header Card */}
                 <div className="statements-profile-card">
+                    <div className="statements-header-left">
+                        <button
+                            type="button"
+                            className="btn-statement-action btn-deposit"
+                            onClick={() => navigate(`/parties/supplier/deposit/${id}`)}
+                            title="Make a deposit"
+                        >
+                            <i className="bi bi-cash-coin"></i>
+                            Deposit
+                        </button>
+                    </div>
+
                     <div className="statements-profile-info">
                         <div
                             className="statements-avatar-wrapper"
                             onClick={handleProfileClick}
                             title="View supplier profile"
                         >
-                            <SupplierAvatar name={supplierName} imageSrc={resolvedImage} />
+                            <SupplierAvatar name={supplierName} imageSrc={supplierProfileImage} />
                         </div>
                         <div className="statements-details">
                             <div className="statements-name-row">
@@ -273,9 +356,6 @@ export const SupplierStatements: React.FC = () => {
                                 >
                                     {isLoadingSupplier ? 'Loading...' : supplierName || 'Supplier'}
                                 </h2>
-                                {id ? (
-                                    <span className="statements-id-badge">#SUPP-{id}</span>
-                                ) : null}
                             </div>
                             <div className="statements-meta-row">
                                 {supplierPhone ? (
@@ -302,7 +382,7 @@ export const SupplierStatements: React.FC = () => {
                         </div>
                     </div>
 
-                    <div className="statements-header-actions">
+                    <div className="statements-header-right">
                         <button
                             type="button"
                             className="btn-statement-action btn-call"
@@ -324,7 +404,7 @@ export const SupplierStatements: React.FC = () => {
                     </div>
                 </div>
 
-                {/* 2. Amount Summary & Reminder Card */}
+                {/* 2. Amount Summary Card */}
                 <div className="statements-amount-card">
                     <div className="statements-amount-grid">
                         <div className="statements-amount-box box-gave">
@@ -346,19 +426,6 @@ export const SupplierStatements: React.FC = () => {
                             </div>
                         </div>
                     </div>
-
-                    <div className="statements-reminder-strip">
-                        <div className="statements-reminder-label">
-                            <i className="bi bi-calendar-event me-2"></i>
-                            Set Date Reminder
-                        </div>
-                        <input
-                            type="date"
-                            value={reminderDate}
-                            onChange={handleDateChange}
-                            className="statements-date-input"
-                        />
-                    </div>
                 </div>
 
                 {/* 3. Quick Action Buttons */}
@@ -367,9 +434,15 @@ export const SupplierStatements: React.FC = () => {
                         <i className="bi bi-graph-up"></i>
                         Report
                     </button>
-                    <button className="btn-quick-action btn-qa-reminder" onClick={handleSetReminder}>
-                        <i className="bi bi-alarm"></i>
-                        Reminder
+                    <button
+                        type="button"
+                        className={`btn-quick-action btn-qa-reminder ${reminderDate ? 'has-reminder' : ''}`}
+                        onClick={() => setShowReminderModal(true)}
+                        title={reminderDate ? `Reminder set for ${reminderDate}` : 'Set Reminder Date'}
+                    >
+                        <i className="bi bi-calendar-event"></i>
+                        <span>Set Reminder</span>
+                        {reminderDate && <span className="reminder-indicator-dot" title={`Active: ${reminderDate}`}></span>}
                     </button>
                     <button
                         className="btn-quick-action btn-qa-sms"
@@ -377,6 +450,14 @@ export const SupplierStatements: React.FC = () => {
                     >
                         <i className="bi bi-chat-dots"></i>
                         SMS
+                    </button>
+                    <button
+                        className="btn-quick-action btn-qa-invoice"
+                        onClick={() => navigate('/bills/purchase')}
+                        title="View Invoices"
+                    >
+                        <i className="bi bi-receipt"></i>
+                        Invoice
                     </button>
                 </div>
 
@@ -543,6 +624,29 @@ export const SupplierStatements: React.FC = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Modal: Set Reminder */}
+                <ReminderModal
+                    isOpen={showReminderModal}
+                    onClose={() => setShowReminderModal(false)}
+                    initialDate={reminderDate}
+                    partyName={supplierName}
+                    partyType="Supplier"
+                    onSave={handleSaveReminder}
+                    onClear={handleClearReminder}
+                />
+
+                {/* Modal: Transaction Details */}
+                <TransactionDetailModal
+                    isOpen={showTransactionModal}
+                    onClose={() => {
+                        setShowTransactionModal(false);
+                        setSelectedTransaction(null);
+                    }}
+                    transaction={selectedTransaction}
+                    onDeleteSuccess={fetchPayments}
+                    onEdit={handleEditTransaction}
+                />
             </main>
         </div>
     );
