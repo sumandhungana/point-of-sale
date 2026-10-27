@@ -28,6 +28,7 @@ public record GetAllProductUCResponse(
             Double vatPercentage,
             String imageUrl,
             CategoryDto category,
+            Long lowStockAlert,
             Instant createdAt,
             Instant updatedAt,
             String createdBy,

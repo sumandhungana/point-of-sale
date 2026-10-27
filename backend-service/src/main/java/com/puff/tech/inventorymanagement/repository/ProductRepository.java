@@ -13,6 +13,9 @@ public interface ProductRepository extends ReactorCrudRepository<ProductEntity, 
     @Join(value = "category", type = Join.Type.LEFT_FETCH)
     Flux<ProductEntity> findByMemberId(Long memberId);
 
+    @Join(value = "category", type = Join.Type.LEFT_FETCH)
+    Mono<ProductEntity> findByIdAndMemberId(Long id, Long memberId);
+
     @Query("""
         UPDATE products 
         SET item_count = item_count - :quantity 

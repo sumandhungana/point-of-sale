@@ -29,4 +29,8 @@ public interface SalesBillRepository  extends ReactorCrudRepository<SalesBillEnt
 
     @Query("SELECT COALESCE(SUM(sb.amount), 0) FROM sales_bill sb WHERE sb.product_id = :productId AND sb.member_id = :memberId")
     Mono<BigDecimal> findTotalAmountByProductIdAndMemberId(Long productId, Long memberId);
+
+    // --- Added Delete Method ---
+    @Query("DELETE FROM sales_bill WHERE product_id = :productId AND member_id = :memberId")
+    Mono<Long> deleteByProductIdAndMemberId(Long productId, Long memberId);
 }

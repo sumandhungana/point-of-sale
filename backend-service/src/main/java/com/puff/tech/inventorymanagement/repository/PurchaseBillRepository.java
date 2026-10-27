@@ -26,4 +26,8 @@ public interface PurchaseBillRepository extends ReactorCrudRepository<PurchaseBi
     Mono<Long> findLastSequenceByMemberId(Long memberId);
 
     Flux<PurchaseBillEntity> findByMemberId(Long memberId);
+
+    // --- Added Delete Method ---
+    @Query("DELETE FROM purchase_bill WHERE product_id = :productId AND member_id = :memberId")
+    Mono<Long> deleteByProductIdAndMemberId(Long productId, Long memberId);
 }
