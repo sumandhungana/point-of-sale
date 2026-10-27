@@ -35,7 +35,7 @@ public class EditProductUC implements MonoUC<EditProductUCRequest, EditProductUC
                     }
                     return Mono.just(ProductConvertor.updateEntity(existingProduct, request, memberId, userId, null));
                 })
-                .flatMap(productRepository::save)
+                .flatMap(productRepository::update)
                 .map(this::toResponse);
     }
 

@@ -107,7 +107,9 @@ public class GetAllProductUC implements MonoUC<GetAllProductUCRequest, GetAllPro
                 entity.getVatPercentage(),
                 entity.getImageUrl(),
                 categoryDto,
-                entity.getLowStockAlert() != null ? Long.parseLong(String.valueOf(entity.getLowStockAlert())) : 0L,
+                entity.getLowStockAlert() != null
+                        ? Double.valueOf(String.valueOf(entity.getLowStockAlert())).longValue()
+                        : 0L,
                 entity.getCreatedAt(),
                 entity.getUpdatedAt(),
                 entity.getCreatedBy(),

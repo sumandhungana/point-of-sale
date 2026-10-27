@@ -203,6 +203,56 @@ export async function updateProduct(
     }
 }
 
+export interface DeleteProductResponse {
+    message: string;
+}
+
+export async function getSingleProduct(id: number): Promise<Item | undefined> {
+    try {
+        const res = await apiService.get<RestResponse<Item>>('api/v1/product', {
+            params: { id },
+            headers: {
+                ...getAuthHeaders()
+            },
+        });
+
+        if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+            const errorMsg = res?.response?.message || res?.error || "Failed to fetch product details";
+            error(errorMsg);
+            throw new Error(errorMsg);
+        }
+
+        return res?.response?.data;
+    } catch (err) {
+        console.error("Error fetching single product:", err);
+        throw err;
+    }
+}
+
+export async function deleteProduct(id: number): Promise<DeleteProductResponse | undefined> {
+    try {
+        const res = await apiService.delete<RestResponse<DeleteProductResponse>>('api/v1/product', {
+            params: { id },
+            headers: {
+                ...getAuthHeaders()
+            },
+        });
+
+        if (res?.response?.code === -1 || (res?.response?.message && res.response.message !== 'SUCCESS')) {
+            const errorMsg = res?.response?.message || res?.error || "Failed to delete product";
+            error(errorMsg);
+            throw new Error(errorMsg);
+        }
+
+        invalidateProductCache();
+        success(res?.response?.data?.message || "Product deleted successfully");
+        return res?.response?.data;
+    } catch (err) {
+        console.error("Error deleting product:", err);
+        throw err;
+    }
+}
+
 function getAuthHeaders(): Record<string, string> {
     const token = localStorage.getItem('authToken');
     return token ? { Authorization: `Bearer ${token}` } : {};

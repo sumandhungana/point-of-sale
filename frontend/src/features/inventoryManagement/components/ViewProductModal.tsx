@@ -8,7 +8,11 @@ interface ViewProductModalProps {
     isOpen: boolean;
     onClose: () => void;
     item: Item | null;
-    onEdit: (item: Item) => void;
+    onEdit?: (item: Item) => void;
+    onDelete?: (item: Item) => void;
+    canEdit?: boolean;
+    canDelete?: boolean;
+    isLoading?: boolean;
 }
 
 export const ViewProductModal: React.FC<ViewProductModalProps> = ({
@@ -16,6 +20,10 @@ export const ViewProductModal: React.FC<ViewProductModalProps> = ({
     onClose,
     item,
     onEdit,
+    onDelete,
+    canEdit = true,
+    canDelete = true,
+    isLoading = false,
 }) => {
     const { formatCurrency, formatNumber } = useAppSettings();
 
@@ -300,6 +308,7 @@ export const ViewProductModal: React.FC<ViewProductModalProps> = ({
                         background: '#f8fafc',
                         borderTop: '1px solid #e2e8f0',
                         borderRadius: '0 0 14px 14px',
+                        gap: '12px',
                     }}
                 >
                     <button
@@ -310,23 +319,54 @@ export const ViewProductModal: React.FC<ViewProductModalProps> = ({
                         Close
                     </button>
 
-                    <button
-                        type="button"
-                        className="btn-primary"
-                        style={{
-                            display: 'inline-flex',
-                            alignItems: 'center',
-                            gap: '6px',
-                            padding: '9px 20px',
-                            borderRadius: '8px',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                        }}
-                        onClick={() => onEdit(item)}
-                    >
-                        <i className="bi bi-pencil-square"></i>
-                        Edit Product
-                    </button>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        {canDelete && onDelete && (
+                            <button
+                                type="button"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '9px 16px',
+                                    borderRadius: '8px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                    background: '#fef2f2',
+                                    border: '1px solid #fecaca',
+                                    color: '#dc2626',
+                                    transition: 'all 0.2s ease',
+                                }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onDelete(item);
+                                }}
+                                title="Delete Product"
+                            >
+                                <i className="bi bi-trash3"></i>
+                                Delete Product
+                            </button>
+                        )}
+
+                        {canEdit && onEdit && (
+                            <button
+                                type="button"
+                                className="btn-primary"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '9px 20px',
+                                    borderRadius: '8px',
+                                    fontWeight: 600,
+                                    cursor: 'pointer',
+                                }}
+                                onClick={() => onEdit(item)}
+                            >
+                                <i className="bi bi-pencil-square"></i>
+                                Edit Product
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>,

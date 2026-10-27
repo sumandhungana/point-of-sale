@@ -3,9 +3,11 @@ import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { fetchCategories } from '../../services/categoryService';
-import { addProduct, getProduct, updateProduct, AddProductRequest, EditProductUCRequest, Item } from '../../services/productService';
+import { addProduct, getProduct, getSingleProduct, updateProduct, AddProductRequest, EditProductUCRequest, Item } from '../../services/productService';
 import { resolveImageSrc } from '@/utils/ImageResolver';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import { usePermission } from '@/core/rbac/usePermission';
+import AccessDenied from '@/shared/components/AccessDenied';
 import '../../../styles/AddItem.css';
 
 interface Category {
@@ -29,6 +31,10 @@ export const AddItem: React.FC = () => {
     const locationState = location.state as LocationState | undefined;
     const isEditMode = Boolean(locationState?.isEdit || paramId);
     const passedInitialValues = locationState?.initialValues;
+
+    const { hasPermission, isSuperAdmin } = usePermission();
+    const canAdd = isSuperAdmin || hasPermission('product:add');
+    const canEdit = isSuperAdmin || hasPermission('product:edit');
 
     const [activeItem, setActiveItem] = useState<Item | undefined>(passedInitialValues);
     const resolvedItemId = activeItem?.id || (paramId ? Number(paramId) : undefined);
@@ -119,27 +125,31 @@ export const AddItem: React.FC = () => {
         }
     }, [passedInitialValues]);
 
-    // If edit mode via URL param but no state was passed, fetch the product
+    // If edit mode via URL param, fetch the product using getSingleProduct
     useEffect(() => {
-        if (isEditMode && !passedInitialValues && paramId) {
-            setFetchingItem(true);
-            getProduct(true)
-                .then((data) => {
-                    const found = data?.items?.find((it) => String(it.id) === String(paramId));
-                    if (found) {
-                        setActiveItem(found);
-                        populateFormData(found);
-                    } else {
-                        setError(`Item with ID #${paramId} not found.`);
-                    }
-                })
-                .catch((err) => {
-                    console.error('Error fetching product for edit:', err);
-                    setError('Failed to fetch product details.');
-                })
-                .finally(() => setFetchingItem(false));
+        if (isEditMode && paramId) {
+            const numericId = Number(paramId);
+            if (!isNaN(numericId) && numericId > 0) {
+                setFetchingItem(true);
+                getSingleProduct(numericId)
+                    .then((product) => {
+                        if (product) {
+                            setActiveItem(product);
+                            populateFormData(product);
+                        } else if (!passedInitialValues) {
+                            setError(`Item with ID #${paramId} not found.`);
+                        }
+                    })
+                    .catch((err) => {
+                        console.error('Error fetching product for edit:', err);
+                        if (!passedInitialValues) {
+                            setError('Failed to fetch product details.');
+                        }
+                    })
+                    .finally(() => setFetchingItem(false));
+            }
         }
-    }, [isEditMode, passedInitialValues, paramId]);
+    }, [isEditMode, paramId]);
 
     // Fetch Categories and reconcile selected categoryId
     useEffect(() => {
@@ -551,6 +561,34 @@ export const AddItem: React.FC = () => {
     const calculatedUnitPrice = priceType === 'perUnit' ? perUnitVal : itemCountVal > 0 ? grossVal / itemCountVal : 0;
     const salesPriceVal = isFixedPriceEnabled ? parseFloat(formDataState.salesPrice) || 0 : 0;
     const profitMargin = salesPriceVal - calculatedUnitPrice;
+
+    if (isEditMode && !canEdit) {
+        return (
+            <div className="add-item-page-wrapper">
+                <Sidebar />
+                <div className="add-item-container">
+                    <Navbar />
+                    <main className="add-item-main-content">
+                        <AccessDenied message="You do not have permission to edit inventory products." />
+                    </main>
+                </div>
+            </div>
+        );
+    }
+
+    if (!isEditMode && !canAdd) {
+        return (
+            <div className="add-item-page-wrapper">
+                <Sidebar />
+                <div className="add-item-container">
+                    <Navbar />
+                    <main className="add-item-main-content">
+                        <AccessDenied message="You do not have permission to add new inventory products." />
+                    </main>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="add-item-page-wrapper">

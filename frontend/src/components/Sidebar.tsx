@@ -35,9 +35,9 @@ const navItems: NavItem[] = [
 		path: '/inventory',
 		icon: '📦',
 		children: [
-			{ title: 'Inventory', path: '/inventory/items', icon: '📦' },
-			{ title: 'Sales', path: '/bills/sales', icon: '💰' },
-			{ title: 'Purchase', path: '/bills/purchase', icon: '🛒' },
+			{ title: 'Inventory', path: '/inventory/items', icon: '📦', permission: 'product:all' },
+			{ title: 'Sales', path: '/bills/sales', icon: '💰', permission: 'salesBill:all' },
+			{ title: 'Purchase', path: '/bills/purchase', icon: '🛒', permission: 'purchaseBill:all' },
 		],
 	},
 	{

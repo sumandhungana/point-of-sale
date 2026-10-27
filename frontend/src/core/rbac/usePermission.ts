@@ -125,10 +125,14 @@ export const usePermission = () => {
     const userPermissions = extractPermissions();
 
 
+    const roleUpper = String(user?.role || '').toUpperCase();
+    const isSuperAdmin = roleUpper === 'SUPERADMIN' || roleUpper === 'ADMIN';
+
     /**
      * Check if user has access to a specific top-level module (e.g., 'organization')
      */
     const hasModule = (moduleName: string): boolean => {
+        if (isSuperAdmin) return true;
         return userModules.includes(moduleName.trim().toLowerCase());
     };
 
@@ -136,6 +140,7 @@ export const usePermission = () => {
      * Check if user has explicit permission (e.g., 'organization:user:active')
      */
     const hasPermission = (permission: string): boolean => {
+        if (isSuperAdmin) return true;
         return userPermissions.has(permission);
     };
 
@@ -143,6 +148,7 @@ export const usePermission = () => {
      * Check if user has ANY of the listed permissions
      */
     const hasAnyPermission = (permissions: string[]): boolean => {
+        if (isSuperAdmin) return true;
         return permissions.some((perm) => userPermissions.has(perm));
     };
 
@@ -150,6 +156,7 @@ export const usePermission = () => {
      * Check if user has ALL listed permissions
      */
     const hasAllPermissions = (permissions: string[]): boolean => {
+        if (isSuperAdmin) return true;
         return permissions.every((perm) => userPermissions.has(perm));
     };
 
@@ -158,6 +165,7 @@ export const usePermission = () => {
         hasPermission,
         hasAnyPermission,
         hasAllPermissions,
+        isSuperAdmin,
         userModules,
         userPermissions: Array.from(userPermissions),
     };

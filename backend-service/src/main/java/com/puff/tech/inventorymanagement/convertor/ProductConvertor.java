@@ -112,8 +112,9 @@ public class ProductConvertor {
         }
 
         // Determine effective item count (new value or retain existing)
-        int effectiveItemCount = request.itemCount() != null ? Integer.parseInt(String.valueOf(request.itemCount())) : Integer.parseInt(String.valueOf(entity.getItemCount()));
-        if (request.itemCount() != null) {
+        int effectiveItemCount = request.itemCount() != null
+                ? Double.valueOf(String.valueOf(request.itemCount())).intValue()
+                : Double.valueOf(String.valueOf(entity.getItemCount())).intValue();        if (request.itemCount() != null) {
             entity.setItemCount(request.itemCount());
         }
 
