@@ -3,7 +3,7 @@ import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { fetchCategories } from '../../services/categoryService';
-import { addProduct, getProduct, getSingleProduct, updateProduct, AddProductRequest, EditProductUCRequest, Item } from '../../services/productService';
+import { addProduct,  getSingleProduct, updateProduct, AddProductRequest, EditProductUCRequest, Item } from '../../services/productService';
 import { resolveImageSrc } from '@/utils/ImageResolver';
 import { useAppSettings } from '@/context/AppSettingsContext';
 import { usePermission } from '@/core/rbac/usePermission';

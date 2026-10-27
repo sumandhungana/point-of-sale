@@ -302,10 +302,8 @@ export const Sidebar = () => {
 				if (item.module && !hasModule(item.module)) {
 					return false;
 				}
-				if (item.permission && !hasPermission(item.permission)) {
-					return false;
-				}
-				return true;
+				return !(item.permission && !hasPermission(item.permission));
+
 			})
 			.map((item) => {
 				if (item.children) {

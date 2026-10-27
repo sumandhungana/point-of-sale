@@ -23,7 +23,6 @@ export const ViewProductModal: React.FC<ViewProductModalProps> = ({
     onDelete,
     canEdit = true,
     canDelete = true,
-    isLoading = false,
 }) => {
     const { formatCurrency, formatNumber } = useAppSettings();
 

@@ -8,7 +8,7 @@ import { getProduct, Item, getSingleProduct, deleteProduct } from "@/features/se
 import { fetchCategories } from '@/features/services/categoryService';
 import { Categories } from './Categories';
 import { useAppSettings } from '@/context/AppSettingsContext';
-import { resolveImageSrc } from '../../../utils/ImageResolver';
+import { resolveImageSrc } from '@/utils/ImageResolver';
 import ViewProductModal from '../components/ViewProductModal';
 import { usePermission } from '@/core/rbac/usePermission';
 
