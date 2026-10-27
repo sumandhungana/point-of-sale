@@ -43,6 +43,16 @@ export const AddItem: React.FC = () => {
     // Control state for enabling/disabling Fixed Selling Price input
     const [isFixedPriceEnabled, setIsFixedPriceEnabled] = useState<boolean>(false);
 
+    // Control state for enabling/disabling Tax & VAT
+    const [isTaxEnabled, setIsTaxEnabled] = useState<boolean>(false);
+
+    // Web image search state (Browse from browser / Google search)
+    const [showWebSearch, setShowWebSearch] = useState<boolean>(false);
+    const [imageSearchQuery, setImageSearchQuery] = useState<string>('');
+    const [isSearchingImages, setIsSearchingImages] = useState<boolean>(false);
+    const [searchResults, setSearchResults] = useState<Array<{ id: number; title: string; thumbUrl: string; fullUrl: string }>>([]);
+    const [searchMessage, setSearchMessage] = useState<string | null>(null);
+
     const [formDataState, setFormDataState] = useState({
         name: '',
         itemCount: '',
@@ -53,8 +63,8 @@ export const AddItem: React.FC = () => {
         grossPurchasePrice: '',
         perUnitPurchasePrice: '',
         isTaxIncluded: false,
-        taxPercentage: '',
-        vatPercentage: '13',
+        taxPercentage: '0',
+        vatPercentage: '0',
         imageUrl: '',
     });
 
@@ -76,6 +86,11 @@ export const AddItem: React.FC = () => {
         setPriceType(hasPerUnitOnly ? 'perUnit' : 'gross');
         setIsFixedPriceEnabled(hasFixedPrice);
 
+        const hasVat = item.vatPercentage !== undefined && item.vatPercentage !== null && Number(item.vatPercentage) > 0;
+        const hasTax = item.taxPercentage !== undefined && item.taxPercentage !== null && Number(item.taxPercentage) > 0;
+        const isTaxActive = Boolean(item.isTaxIncluded || hasVat || hasTax);
+        setIsTaxEnabled(isTaxActive);
+
         setFormDataState({
             name: item.name || '',
             itemCount: item.itemCount !== undefined && item.itemCount !== null ? String(item.itemCount) : '',
@@ -85,9 +100,9 @@ export const AddItem: React.FC = () => {
             salesPrice: hasFixedPrice ? String(fixedPrice) : '',
             grossPurchasePrice: gross !== undefined && gross !== null ? String(gross) : '',
             perUnitPurchasePrice: perUnit !== undefined && perUnit !== null ? String(perUnit) : '',
-            isTaxIncluded: Boolean(item.isTaxIncluded || (item.taxPercentage && Number(item.taxPercentage) > 0)),
-            taxPercentage: item.taxPercentage !== undefined && item.taxPercentage !== null ? String(item.taxPercentage) : '',
-            vatPercentage: item.vatPercentage !== undefined && item.vatPercentage !== null ? String(item.vatPercentage) : '13',
+            isTaxIncluded: Boolean(item.isTaxIncluded),
+            taxPercentage: item.taxPercentage !== undefined && item.taxPercentage !== null ? String(item.taxPercentage) : '0',
+            vatPercentage: item.vatPercentage !== undefined && item.vatPercentage !== null ? String(item.vatPercentage) : '0',
             imageUrl: item.imageUrl || '',
         });
 
@@ -171,15 +186,25 @@ export const AddItem: React.FC = () => {
         });
     };
 
-    // Toggle Tax Included to enable/disable TAX % field
-    const handleTaxToggle = () => {
-        setFormDataState((prev) => {
-            const nextTaxIncluded = !prev.isTaxIncluded;
-            return {
-                ...prev,
-                isTaxIncluded: nextTaxIncluded,
-                taxPercentage: nextTaxIncluded ? prev.taxPercentage || '13' : '',
-            };
+    // Toggle Tax & VAT Enable option
+    const handleTaxEnableToggle = () => {
+        setIsTaxEnabled((prev) => {
+            const next = !prev;
+            if (!next) {
+                setFormDataState((f) => ({
+                    ...f,
+                    vatPercentage: '0',
+                    taxPercentage: '0',
+                    isTaxIncluded: false,
+                }));
+            } else {
+                setFormDataState((f) => ({
+                    ...f,
+                    vatPercentage: f.vatPercentage && f.vatPercentage !== '' ? f.vatPercentage : '0',
+                    taxPercentage: f.taxPercentage && f.taxPercentage !== '' ? f.taxPercentage : '0',
+                }));
+            }
+            return next;
         });
     };
 
@@ -269,8 +294,9 @@ export const AddItem: React.FC = () => {
                 : 0;
 
         const fixedSelling = isFixedPriceEnabled ? parseFloat(formDataState.salesPrice) || 0 : 0;
-        const vat = formDataState.vatPercentage ? parseFloat(formDataState.vatPercentage) : 13;
-        const tax = formDataState.isTaxIncluded ? (parseFloat(formDataState.taxPercentage) || 0) : 0;
+        const vat = isTaxEnabled ? (parseFloat(formDataState.vatPercentage) || 0) : 0;
+        const tax = isTaxEnabled ? (parseFloat(formDataState.taxPercentage) || 0) : 0;
+        const isTaxInc = isTaxEnabled ? formDataState.isTaxIncluded : false;
 
         try {
             if (isEditMode && resolvedItemId) {
@@ -283,7 +309,7 @@ export const AddItem: React.FC = () => {
                     perUnitPurchasePrice: effectivePerUnitPrice,
                     grossPurchasePrice: effectiveGrossPrice,
                     fixedSellingPrice: fixedSelling,
-                    isTaxIncluded: formDataState.isTaxIncluded,
+                    isTaxIncluded: isTaxInc,
                     lowStockAlert: parseFloat(formDataState.lowStockAlert) || 0,
                     vatPercentage: vat,
                     taxPercentage: tax,
@@ -299,7 +325,7 @@ export const AddItem: React.FC = () => {
                     perUnitPurchasePrice: effectivePerUnitPrice,
                     grossPurchasePrice: effectiveGrossPrice,
                     fixedSellingPrice: fixedSelling,
-                    isTaxIncluded: formDataState.isTaxIncluded,
+                    isTaxIncluded: isTaxInc,
                     lowStockAlert: parseFloat(formDataState.lowStockAlert) || 0,
                     vatPercentage: vat,
                     taxPercentage: tax,
@@ -341,6 +367,153 @@ export const AddItem: React.FC = () => {
         }
     };
 
+    const handleSearchWebImages = async (queryToSearch?: string) => {
+        const query = (queryToSearch !== undefined ? queryToSearch : imageSearchQuery).trim() || formDataState.name.trim();
+        if (!query) {
+            setSearchMessage('Please enter a product name or keyword to search.');
+            return;
+        }
+
+        setIsSearchingImages(true);
+        setSearchMessage(null);
+
+        try {
+            const endpoint = `https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(
+                query
+            )}&gsrlimit=16&prop=imageinfo&iiprop=url&iiurlwidth=400&format=json&origin=*`;
+
+            const res = await fetch(endpoint);
+            const data = await res.json();
+            const pages = data?.query?.pages;
+
+            if (!pages || Object.keys(pages).length === 0) {
+                setSearchResults([]);
+                setSearchMessage(`No direct image results found for "${query}". You can open Google Images or paste a copied image.`);
+            } else {
+                const list = Object.values(pages)
+                    .map((p: any) => {
+                        const info = p.imageinfo?.[0];
+                        const thumb = info?.thumburl || info?.url;
+                        return {
+                            id: p.pageid,
+                            title: (p.title || '').replace(/^File:/i, ''),
+                            thumbUrl: thumb,
+                            fullUrl: info?.url || thumb,
+                        };
+                    })
+                    .filter((img: any) => Boolean(img.thumbUrl && !img.thumbUrl.toLowerCase().endsWith('.svg') && !img.thumbUrl.toLowerCase().endsWith('.ogg') && !img.thumbUrl.toLowerCase().endsWith('.pdf')));
+
+                setSearchResults(list);
+                if (list.length === 0) {
+                    setSearchMessage(`No image previews found for "${query}". Try different words or click Google Search.`);
+                }
+            }
+        } catch (err) {
+            console.error('Image search error:', err);
+            setSearchMessage('Failed to fetch images from the web. Please try again or search on Google.');
+        } finally {
+            setIsSearchingImages(false);
+        }
+    };
+
+    const handleToggleWebSearch = () => {
+        setShowWebSearch((prev) => {
+            const next = !prev;
+            if (next && !imageSearchQuery && formDataState.name) {
+                setImageSearchQuery(formDataState.name);
+                handleSearchWebImages(formDataState.name);
+            }
+            return next;
+        });
+    };
+
+    const handleSelectImage = (imgUrl: string) => {
+        setImagePreview(imgUrl);
+        setFormDataState((prev) => ({
+            ...prev,
+            imageUrl: imgUrl,
+        }));
+    };
+
+    const handleOpenGoogleSearch = () => {
+        const query = (imageSearchQuery.trim() || formDataState.name.trim() || 'product') + ' photo';
+        window.open(`https://www.google.com/search?tbm=isch&q=${encodeURIComponent(query)}`, '_blank', 'noopener,noreferrer');
+    };
+
+    const handlePasteFromClipboard = async () => {
+        try {
+            if (navigator.clipboard && navigator.clipboard.read) {
+                const items = await navigator.clipboard.read();
+                for (const item of items) {
+                    const imgType = item.types.find((t) => t.startsWith('image/'));
+                    if (imgType) {
+                        const blob = await item.getType(imgType);
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64 = reader.result as string;
+                            setImagePreview(base64);
+                            setFormDataState((prev) => ({ ...prev, imageUrl: base64 }));
+                        };
+                        reader.readAsDataURL(blob);
+                        return;
+                    }
+                }
+            }
+
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                const text = await navigator.clipboard.readText();
+                if (text && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('data:image/'))) {
+                    setImagePreview(text.trim());
+                    setFormDataState((prev) => ({ ...prev, imageUrl: text.trim() }));
+                    return;
+                }
+            }
+
+            alert('No image found in clipboard. Right-click an image on Google and select "Copy image", then click Paste!');
+        } catch {
+            alert('To paste an image from clipboard, press Ctrl+V on your keyboard.');
+        }
+    };
+
+    // Global paste listener: allows user to press Ctrl+V to paste an image copied from Google/browser
+    useEffect(() => {
+        const handleGlobalPaste = (e: Event) => {
+            const clipEvent = e as ClipboardEvent;
+            const items = clipEvent.clipboardData?.items;
+            if (!items) return;
+
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    const blob = items[i].getAsFile();
+                    if (blob) {
+                        e.preventDefault();
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                            const base64 = reader.result as string;
+                            setImagePreview(base64);
+                            setFormDataState((prev) => ({ ...prev, imageUrl: base64 }));
+                        };
+                        reader.readAsDataURL(blob);
+                        return;
+                    }
+                }
+            }
+
+            // If user copied image link from browser and pastes it while web search is open
+            if (showWebSearch) {
+                const text = clipEvent.clipboardData?.getData('text');
+                if (text && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('data:image/'))) {
+                    e.preventDefault();
+                    setImagePreview(text.trim());
+                    setFormDataState((prev) => ({ ...prev, imageUrl: text.trim() }));
+                }
+            }
+        };
+
+        window.addEventListener('paste', handleGlobalPaste);
+        return () => window.removeEventListener('paste', handleGlobalPaste);
+    }, [showWebSearch]);
+
     const handleRemoveImage = (e?: React.MouseEvent) => {
         if (e) e.stopPropagation();
         setSelectedFile(null);
@@ -372,29 +545,11 @@ export const AddItem: React.FC = () => {
 
                 <main className="add-item-main-content">
                     <div className="add-item-card">
-                        {/* Header with Title, Mode Badge, Compact Thumbnail, and Top-Right Controls */}
+                        {/* Header with Title, Mode Badge, and Top-Right Close Button */}
                         <div className="form-card-header">
                             <div className="form-card-header-left">
-                                <div
-                                    className="form-header-avatar-wrap"
-                                    onClick={handlePhotoClick}
-                                    title="Click to upload or change product photo"
-                                    role="button"
-                                    tabIndex={0}
-                                >
-                                    {imagePreview ? (
-                                        <img
-                                            src={imagePreview}
-                                            alt="Product"
-                                            className="form-header-avatar-img"
-                                            onError={() => setImagePreview(null)}
-                                        />
-                                    ) : (
-                                        <i className="bi bi-box-seam" />
-                                    )}
-                                    <div className="form-header-avatar-badge" title="Upload Photo">
-                                        <i className="bi bi-camera-fill" />
-                                    </div>
+                                <div className="form-header-icon-wrap item-theme">
+                                    <i className="bi bi-box-seam" />
                                 </div>
                                 <div>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -415,28 +570,15 @@ export const AddItem: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                {imagePreview && (
-                                    <button
-                                        type="button"
-                                        className="btn-header-remove-photo"
-                                        onClick={handleRemoveImage}
-                                        title="Remove Photo"
-                                    >
-                                        <i className="bi bi-trash3 me-1" />
-                                        Remove Photo
-                                    </button>
-                                )}
-                                <button
-                                    type="button"
-                                    className="form-close-btn"
-                                    onClick={handleCancel}
-                                    aria-label="Close"
-                                    title="Close"
-                                >
-                                    <i className="bi bi-x-lg" />
-                                </button>
-                            </div>
+                            <button
+                                type="button"
+                                className="form-close-btn"
+                                onClick={handleCancel}
+                                aria-label="Close"
+                                title="Close"
+                            >
+                                <i className="bi bi-x-lg" />
+                            </button>
                         </div>
 
                         <input
@@ -464,6 +606,213 @@ export const AddItem: React.FC = () => {
                                 )}
 
                                 <form onSubmit={handleSubmit} className="form-body">
+                                    {/* Compact Product Photo Card: Browse Device (Local Storage) & Browse from Web (Browser) */}
+                                    <div className="compact-photo-card">
+                                        <div
+                                            className="compact-photo-avatar-wrap"
+                                            onClick={handlePhotoClick}
+                                            role="button"
+                                            tabIndex={0}
+                                            title={imagePreview ? "Change Photo" : "Upload Photo"}
+                                        >
+                                            <div className="compact-photo-avatar-frame">
+                                                {imagePreview ? (
+                                                    <img
+                                                        src={imagePreview}
+                                                        alt="Product"
+                                                        className="compact-photo-img"
+                                                        onError={() => setImagePreview(null)}
+                                                    />
+                                                ) : (
+                                                    <div className="compact-photo-fallback">
+                                                        <i className="bi bi-box-seam" />
+                                                    </div>
+                                                )}
+                                                <div className="compact-photo-overlay">
+                                                    <i className="bi bi-camera-fill" />
+                                                </div>
+                                            </div>
+                                            <div className="compact-photo-badge" title="Browse Photo">
+                                                <i className="bi bi-plus" />
+                                            </div>
+                                        </div>
+
+                                        <div className="compact-photo-content">
+                                            <div className="compact-photo-header">
+                                                <div>
+                                                    <h4 className="compact-photo-title">Product Photo</h4>
+                                                    <span className="compact-photo-subtitle">
+                                                        Browse from computer storage or web browser
+                                                    </span>
+                                                </div>
+                                                {imagePreview && (
+                                                    <button
+                                                        type="button"
+                                                        className="btn-compact-remove"
+                                                        onClick={handleRemoveImage}
+                                                        title="Remove Photo"
+                                                    >
+                                                        <i className="bi bi-trash3 me-1" />
+                                                        Remove
+                                                    </button>
+                                                )}
+                                            </div>
+
+                                            <div className="compact-photo-actions">
+                                                <button
+                                                    type="button"
+                                                    className="btn-photo-source"
+                                                    onClick={handlePhotoClick}
+                                                    title="Browse from computer storage"
+                                                >
+                                                    <i className="bi bi-hdd me-1" />
+                                                    Browse Computer
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    className={`btn-photo-source ${showWebSearch ? 'active' : ''}`}
+                                                    onClick={handleToggleWebSearch}
+                                                    title="Type to search web images or open Google Images"
+                                                >
+                                                    <i className="bi bi-search me-1" />
+                                                    Browse from Browser
+                                                </button>
+                                            </div>
+
+                                            {showWebSearch && (
+                                                <div className="web-image-search-container">
+                                                    <div className="web-search-header-row">
+                                                        <div className="web-search-input-wrap">
+                                                            <i className="bi bi-search search-icon" />
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Type to search web photos (e.g. Coca Cola, Rice)..."
+                                                                value={imageSearchQuery}
+                                                                onChange={(e) => setImageSearchQuery(e.target.value)}
+                                                                onKeyDown={(e) => {
+                                                                    if (e.key === 'Enter') {
+                                                                        e.preventDefault();
+                                                                        handleSearchWebImages();
+                                                                    }
+                                                                }}
+                                                                className="web-search-input"
+                                                            />
+                                                            {imageSearchQuery && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="web-search-clear-btn"
+                                                                    onClick={() => {
+                                                                        setImageSearchQuery('');
+                                                                        setSearchResults([]);
+                                                                        setSearchMessage(null);
+                                                                    }}
+                                                                    title="Clear search"
+                                                                >
+                                                                    <i className="bi bi-x" />
+                                                                </button>
+                                                            )}
+                                                        </div>
+
+                                                        <button
+                                                            type="button"
+                                                            className="btn-web-search-exec"
+                                                            onClick={() => handleSearchWebImages()}
+                                                            disabled={isSearchingImages}
+                                                            title="Search web images"
+                                                        >
+                                                            {isSearchingImages ? (
+                                                                <>
+                                                                    <span className="spinner-border spinner-border-sm me-1" role="status" />
+                                                                    Searching...
+                                                                </>
+                                                            ) : (
+                                                                <>
+                                                                    <i className="bi bi-search me-1" />
+                                                                    Search
+                                                                </>
+                                                            )}
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="btn-google-search-external"
+                                                            onClick={handleOpenGoogleSearch}
+                                                            title="Search on Google Images in new window"
+                                                        >
+                                                            <i className="bi bi-google me-1" />
+                                                            Google Search <i className="bi bi-box-arrow-up-right ms-1" style={{ fontSize: '11px' }} />
+                                                        </button>
+
+                                                        <button
+                                                            type="button"
+                                                            className="btn-paste-clipboard"
+                                                            onClick={handlePasteFromClipboard}
+                                                            title="Paste copied image from Google / clipboard (or press Ctrl+V)"
+                                                        >
+                                                            <i className="bi bi-clipboard2-check me-1" />
+                                                            Paste Image
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="web-search-hint">
+                                                        <i className="bi bi-info-circle me-1" />
+                                                        <span>
+                                                            <strong>No link needed:</strong> Type and click Search to pick any image below, or right-click <em>Copy image</em> on Google and press <strong>Ctrl+V</strong>.
+                                                        </span>
+                                                    </div>
+
+                                                    {isSearchingImages && (
+                                                        <div className="web-search-loading">
+                                                            <div className="spinner-border text-primary spinner-border-sm me-2" role="status" />
+                                                            <span>Searching images for &ldquo;{imageSearchQuery || formDataState.name}&rdquo;...</span>
+                                                        </div>
+                                                    )}
+
+                                                    {searchMessage && !isSearchingImages && (
+                                                        <div className="web-search-msg">
+                                                            <span>{searchMessage}</span>
+                                                        </div>
+                                                    )}
+
+                                                    {searchResults.length > 0 && !isSearchingImages && (
+                                                        <div className="web-search-results-grid">
+                                                            {searchResults.map((img) => (
+                                                                <div
+                                                                    key={img.id}
+                                                                    className={`web-search-item-card ${formDataState.imageUrl === img.thumbUrl ? 'selected' : ''}`}
+                                                                    onClick={() => handleSelectImage(img.thumbUrl)}
+                                                                    title={img.title || 'Click to select photo'}
+                                                                >
+                                                                    <img
+                                                                        src={img.thumbUrl}
+                                                                        alt={img.title}
+                                                                        className="web-search-item-img"
+                                                                        loading="lazy"
+                                                                    />
+                                                                    {formDataState.imageUrl === img.thumbUrl && (
+                                                                        <div className="web-search-selected-badge">
+                                                                            <i className="bi bi-check-lg" />
+                                                                        </div>
+                                                                    )}
+                                                                    <div className="web-search-item-overlay">
+                                                                        <span>Add Photo</span>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <input
+                                            ref={fileInputRef}
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                            style={{ display: 'none' }}
+                                        />
+                                    </div>
 
                                     {/* Section 1: Basic Details */}
                                     <div className="form-section-header">
@@ -480,7 +829,7 @@ export const AddItem: React.FC = () => {
 
                                     <div className="form-grid">
                                         {/* Item Name */}
-                                        <div className="form-field-group">
+                                        <div className="form-field-group form-field-full">
                                             <label className="form-field-label">
                                                 Item Name <span className="required-star">*</span>
                                             </label>
@@ -522,26 +871,6 @@ export const AddItem: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        {/* Item Count */}
-                                        <div className="form-field-group">
-                                            <label className="form-field-label">
-                                                Item Count (Quantity) <span className="required-star">*</span>
-                                            </label>
-                                            <div className="input-with-icon">
-                                                <i className="bi bi-hash field-icon" />
-                                                <input
-                                                    type="number"
-                                                    name="itemCount"
-                                                    value={formDataState.itemCount}
-                                                    onChange={handleInputChange}
-                                                    className="form-field-input"
-                                                    placeholder="e.g. 10"
-                                                    required
-                                                    min="0"
-                                                />
-                                            </div>
-                                        </div>
-
                                         {/* Unit Type */}
                                         <div className="form-field-group">
                                             <label className="form-field-label">
@@ -569,6 +898,26 @@ export const AddItem: React.FC = () => {
                                             </div>
                                         </div>
 
+                                        {/* Item Count */}
+                                        <div className="form-field-group">
+                                            <label className="form-field-label">
+                                                Item Count (Quantity) <span className="required-star">*</span>
+                                            </label>
+                                            <div className="input-with-icon">
+                                                <i className="bi bi-hash field-icon" />
+                                                <input
+                                                    type="number"
+                                                    name="itemCount"
+                                                    value={formDataState.itemCount}
+                                                    onChange={handleInputChange}
+                                                    className="form-field-input"
+                                                    placeholder="e.g. 10"
+                                                    required
+                                                    min="0"
+                                                />
+                                            </div>
+                                        </div>
+
                                         {/* Low Stock Alert */}
                                         <div className="form-field-group">
                                             <label className="form-field-label">
@@ -586,31 +935,6 @@ export const AddItem: React.FC = () => {
                                                     required
                                                     step="0.01"
                                                 />
-                                            </div>
-                                        </div>
-
-                                        {/* Product Photo Upload Field */}
-                                        <div className="form-field-group">
-                                            <label className="form-field-label">Product Photo</label>
-                                            <div className="compact-image-picker">
-                                                <button
-                                                    type="button"
-                                                    className="btn-upload-compact"
-                                                    onClick={handlePhotoClick}
-                                                >
-                                                    <i className="bi bi-camera me-1" />
-                                                    {imagePreview ? 'Change Photo' : 'Upload Photo'}
-                                                </button>
-                                                {imagePreview && (
-                                                    <button
-                                                        type="button"
-                                                        className="btn-remove-compact"
-                                                        onClick={handleRemoveImage}
-                                                    >
-                                                        <i className="bi bi-trash3 me-1" />
-                                                        Remove
-                                                    </button>
-                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -638,7 +962,7 @@ export const AddItem: React.FC = () => {
                                                 onClick={() => handlePriceTypeChange('gross')}
                                             >
                                                 <i className="bi bi-cash-stack" />
-                                                Gross Purchase Price Mode
+                                                Total Purchase Price Mode
                                             </button>
                                             <button
                                                 type="button"
@@ -646,16 +970,16 @@ export const AddItem: React.FC = () => {
                                                 onClick={() => handlePriceTypeChange('perUnit')}
                                             >
                                                 <i className="bi bi-tag" />
-                                                Per Unit Price Mode
+                                                Single Purchase Price Mode
                                             </button>
                                         </div>
                                     </div>
 
                                     <div className="form-grid">
-                                        {/* Gross Purchase Price */}
+                                        {/* Total Purchase Price */}
                                         <div className="form-field-group">
                                             <label className="form-field-label">
-                                                Gross Purchase Price{' '}
+                                                Total Purchase Price{' '}
                                                 {priceType === 'gross' && <span className="required-star">*</span>}
                                             </label>
                                             <div className="input-with-icon">
@@ -674,10 +998,10 @@ export const AddItem: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        {/* Per Unit Purchase Price */}
+                                        {/* Single Purchase Price */}
                                         <div className="form-field-group">
                                             <label className="form-field-label">
-                                                Per Unit Purchase Price{' '}
+                                                Single Purchase Price{' '}
                                                 {priceType === 'perUnit' && <span className="required-star">*</span>}
                                             </label>
                                             <div className="input-with-icon">
@@ -748,7 +1072,7 @@ export const AddItem: React.FC = () => {
                                                 </span>
                                             </div>
                                             <div className="financial-summary-item">
-                                                <span className="financial-summary-label">Calculated Unit Cost</span>
+                                                <span className="financial-summary-label">Single Purchase Price</span>
                                                 <span className="financial-summary-value">
                                                     {formatCurrency(calculatedUnitPrice)}
                                                 </span>
@@ -767,56 +1091,69 @@ export const AddItem: React.FC = () => {
                                     </div>
 
                                     {/* Section 3: Tax & VAT Settings */}
-                                    <div className="form-section-header">
-                                        <div className="form-section-icon-badge">
-                                            <i className="bi bi-percent" />
-                                        </div>
-                                        <div>
-                                            <h3 className="form-section-title">Tax & VAT Settings</h3>
-                                            <p className="form-section-subtitle">
-                                                Configure VAT percentage and optional included tax rates
-                                            </p>
+                                    {/*<div className="form-section-header">*/}
+                                    {/*    <div className="form-section-icon-badge">*/}
+                                    {/*        <i className="bi bi-percent" />*/}
+                                    {/*    </div>*/}
+                                    {/*    <div>*/}
+                                    {/*        <h3 className="form-section-title">Tax & VAT Settings</h3>*/}
+                                    {/*        <p className="form-section-subtitle">*/}
+                                    {/*            Configure VAT percentage and optional included tax rates*/}
+                                    {/*        </p>*/}
+                                    {/*    </div>*/}
+                                    {/*</div>*/}
+
+                                    {/* Enable Option Toggle Card */}
+                                    <div className="tax-enable-card">
+                                        <div className="tax-enable-info">
+                                            <div>
+                                                <h4 className="tax-enable-title">Enable Tax & VAT</h4>
+                                                <p className="tax-enable-desc">
+                                                    Toggle on to configure custom VAT and additional Tax rates
+                                                </p>
+                                            </div>
+                                            <div
+                                                className={`form-switch ${isTaxEnabled ? 'active' : ''}`}
+                                                onClick={handleTaxEnableToggle}
+                                                role="button"
+                                                tabIndex={0}
+                                                title={isTaxEnabled ? "Tax & VAT is Enabled" : "Tax & VAT is Disabled"}
+                                            >
+                                                <div className="form-switch-handle" />
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div className="form-grid">
-                                        {/* VAT Percentage */}
-                                        <div className="form-field-group">
-                                            <label className="form-field-label">
-                                                VAT Percentage (%) <span className="required-star">*</span>
-                                            </label>
-                                            <div className="input-with-icon">
-                                                <i className="bi bi-percent field-icon" />
-                                                <input
-                                                    type="number"
-                                                    name="vatPercentage"
-                                                    value={formDataState.vatPercentage}
-                                                    onChange={handleInputChange}
-                                                    className="form-field-input"
-                                                    placeholder="e.g. 13"
-                                                    step="0.01"
-                                                    required
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {/* Tax Included & Tax % */}
-                                        <div className="form-field-group">
-                                            <div className="tax-toggle-wrapper">
-                                                <div className="tax-toggle-header">
-                                                    <label className="form-field-label" style={{ marginBottom: 0 }}>
-                                                        Tax Included
-                                                    </label>
-                                                    <div
-                                                        className={`form-switch ${formDataState.isTaxIncluded ? 'active' : ''}`}
-                                                        onClick={handleTaxToggle}
-                                                        role="button"
-                                                        tabIndex={0}
-                                                    >
-                                                        <div className="form-switch-handle" />
-                                                    </div>
+                                    {/* Options for Tax and VAT visible only when enabled */}
+                                    {isTaxEnabled && (
+                                        <div className="form-grid mt-3">
+                                            {/* VAT Percentage */}
+                                            <div className="form-field-group">
+                                                <label className="form-field-label">
+                                                    VAT Percentage (%) <span className="required-star">*</span>
+                                                </label>
+                                                <div className="input-with-icon">
+                                                    <i className="bi bi-percent field-icon" />
+                                                    <input
+                                                        type="number"
+                                                        name="vatPercentage"
+                                                        value={formDataState.vatPercentage}
+                                                        onChange={handleInputChange}
+                                                        className="form-field-input"
+                                                        placeholder="0"
+                                                        step="0.01"
+                                                        min="0"
+                                                        required={isTaxEnabled}
+                                                    />
                                                 </div>
-                                                <div className="input-with-icon" style={{ marginTop: '0.5rem' }}>
+                                            </div>
+
+                                            {/* Tax Percentage */}
+                                            <div className="form-field-group">
+                                                <label className="form-field-label">
+                                                    Tax Percentage (%)
+                                                </label>
+                                                <div className="input-with-icon">
                                                     <i className="bi bi-percent field-icon" />
                                                     <input
                                                         type="number"
@@ -824,15 +1161,14 @@ export const AddItem: React.FC = () => {
                                                         value={formDataState.taxPercentage}
                                                         onChange={handleInputChange}
                                                         className="form-field-input"
-                                                        placeholder="Tax % (e.g. 13)"
+                                                        placeholder="0"
                                                         step="0.01"
-                                                        disabled={!formDataState.isTaxIncluded}
-                                                        required={formDataState.isTaxIncluded}
+                                                        min="0"
                                                     />
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    )}
 
                                     {/* Action Footer */}
                                     <div className="form-action-footer">

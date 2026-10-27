@@ -333,196 +333,271 @@
   background: #94a3b8;
 }
 
-.invoice-container .purchase-table.sales-items-table {
+/* ==========================================================================
+   Modern Sales Table - 4 Spacious, Uncongested Columns with Integrated Stepper
+   ========================================================================== */
+
+.invoice-container .purchase-table.modern-sales-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 820px;
+  min-width: 680px;
 }
 
-.invoice-container .purchase-table.sales-items-table th {
+.invoice-container .purchase-table.modern-sales-table th {
   background-color: #0b192c;
   color: #ffffff;
-  font-size: 0.73rem;
+  font-size: 0.74rem;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 12px 14px;
+  letter-spacing: 0.05em;
+  padding: 13px 16px;
   border: none;
   white-space: nowrap;
   vertical-align: middle;
 }
 
-.invoice-container .purchase-table.sales-items-table th:first-child {
-  border-top-left-radius: 8px;
+.invoice-container .purchase-table.modern-sales-table th:first-child {
+  border-top-left-radius: 10px;
 }
 
-.invoice-container .purchase-table.sales-items-table th:last-child {
-  border-top-right-radius: 8px;
+.invoice-container .purchase-table.modern-sales-table th:last-child {
+  border-top-right-radius: 10px;
 }
 
-.invoice-container .purchase-table.sales-items-table td {
-  padding: 10px 12px;
+.invoice-container .purchase-table.modern-sales-table td {
+  padding: 12px 16px;
   border-bottom: 1px solid #f1f5f9;
   vertical-align: middle;
   background-color: #ffffff;
 }
 
-.invoice-container .purchase-table.sales-items-table tbody tr:hover td {
+.invoice-container .purchase-table.modern-sales-table tbody tr.sales-item-row:hover td {
   background-color: #f8fafc;
 }
 
-/* Explicit Column Width & Proper Gap Control */
-.col-th-product,
-.col-td-product {
-  min-width: 180px;
-  width: auto;
+/* 4 Column Proportions */
+.th-product-info,
+.td-product-info {
+  width: 38%;
+  min-width: 190px;
 }
 
-.col-th-stock,
-.col-td-stock {
-  width: 95px;
-  min-width: 90px;
-  text-align: center;
+.th-qty-unit,
+.td-qty-unit {
+  width: 29%;
+  min-width: 185px;
 }
 
-.col-th-qty,
-.col-td-qty {
-  width: 95px;
-  min-width: 85px;
-  text-align: center;
+.th-price-tax,
+.td-price-tax {
+  width: 18%;
+  min-width: 135px;
 }
 
-.col-th-unit,
-.col-td-unit {
-  width: 125px;
-  min-width: 110px;
-  text-align: left;
+.th-total-action,
+.td-total-action {
+  width: 15%;
+  min-width: 120px;
 }
 
-.col-th-price,
-.col-td-price {
-  width: 130px;
-  min-width: 115px;
-  text-align: right;
-}
-
-.col-th-tax,
-.col-td-tax {
-  width: 100px;
-  min-width: 90px;
-  text-align: center;
-}
-
-.col-th-total,
-.col-td-total {
-  width: 125px;
-  min-width: 110px;
-  text-align: right;
-  white-space: nowrap;
-}
-
-.col-th-action,
-.col-td-action {
-  width: 44px;
-  min-width: 44px;
-  text-align: center;
-}
-
-/* Table Controls */
-.invoice-container .table-input {
-  width: 100%;
-  padding: 7px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px;
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: #0f172a;
-  background-color: #ffffff;
-  box-sizing: border-box;
-  transition: all 0.15s ease;
-}
-
-.invoice-container .table-input:focus {
-  outline: none;
-  border-color: #255dce;
-  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12);
-}
-
-.invoice-container .table-select {
-  width: 100%;
-  padding: 7px 10px;
-  border: 1px solid #cbd5e1;
-  border-radius: 7px;
-  font-size: 0.84rem;
-  font-weight: 500;
-  color: #0f172a;
-  background-color: #ffffff;
-  box-sizing: border-box;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.invoice-container .table-select:focus {
-  outline: none;
-  border-color: #255dce;
-  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12);
-}
-
-.invoice-container .table-select:hover {
-  border-color: #94a3b8;
-}
-
+/* 1. Product Info Cell */
 .table-item-name {
   font-weight: 600;
   color: #0f172a;
-  font-size: 0.88rem;
-  line-height: 1.3;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  margin-bottom: 4px;
 }
 
-/* Stock Pills & Warning Badges */
+.sales-item-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .stock-pill {
-  font-size: 0.75rem;
-  background-color: #f1f5f9;
-  color: #334155;
+  font-size: 0.74rem;
   padding: 3px 8px;
   border-radius: 6px;
   font-weight: 600;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   white-space: nowrap;
 }
 
-.sku-pill {
-  background-color: #eff6ff;
-  color: #2563eb;
-  font-size: 0.72rem;
-  margin-top: 3px;
-  display: inline-block;
+.stock-pill-success {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
 }
 
 .stock-pill-warning {
   background-color: #fef3c7;
   color: #92400e;
+  border: 1px solid #fde68a;
 }
 
 .stock-pill-danger {
   background-color: #fee2e2;
   color: #991b1b;
+  border: 1px solid #fecaca;
 }
 
-/* Tax / VAT Badges */
-.tax-badges-wrap {
+.sku-pill {
+  background-color: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+  font-size: 0.72rem;
+}
+
+/* 2. Quantity & Unit Cluster */
+.sales-qty-unit-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 230px;
+}
+
+.sales-stepper {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 38px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sales-stepper:focus-within {
+  border-color: #255dce;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12);
+}
+
+.sales-step-btn {
+  background: #f8fafc;
+  border: none;
+  width: 28px;
+  height: 100%;
+  color: #475569;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  user-select: none;
+}
+
+.sales-step-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.sales-step-btn:active {
+  background: #cbd5e1;
+}
+
+.sales-qty-input {
+  width: 44px;
+  border: none;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+  background: transparent;
+  padding: 0 2px;
+}
+
+.sales-unit-select {
+  flex: 1;
+  min-width: 82px;
+  height: 38px;
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #0f172a;
+  background-color: #ffffff;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sales-unit-select:focus {
+  border-color: #255dce;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12);
+}
+
+.sales-unit-select:hover {
+  border-color: #94a3b8;
+}
+
+/* 3. Price & Tax Wrap */
+.sales-price-wrap {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
+  max-width: 140px;
+}
+
+.sales-price-input-box {
+  display: flex;
   align-items: center;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 38px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.sales-price-input-box:focus-within {
+  border-color: #255dce;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12);
+}
+
+.sales-price-prefix {
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0 8px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  border-right: 1px solid #e2e8f0;
+  user-select: none;
+}
+
+.sales-price-input {
+  border: none;
+  outline: none;
+  width: 100%;
+  padding: 0 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #0f172a;
+  text-align: right;
+  background: transparent;
+}
+
+.sales-tax-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 
 .tax-tag {
-  display: inline-block;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 600;
-  padding: 2px 6px;
+  padding: 1px 6px;
   border-radius: 4px;
   white-space: nowrap;
 }
@@ -530,38 +605,57 @@
 .tax-tag-blue {
   background-color: #eff6ff;
   color: #2563eb;
+  border: 1px solid #bfdbfe;
 }
 
 .tax-tag-green {
   background-color: #ecfdf5;
   color: #059669;
+  border: 1px solid #a7f3d0;
 }
 
 .tax-tag-gray {
   background-color: #f1f5f9;
   color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
-/* Delete / Action Button */
-.btn-icon-danger {
-  background: transparent;
-  border: none;
+/* 4. Total & Action Box */
+.sales-total-action-box {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.sales-total-amount {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #255dce;
+  white-space: nowrap;
+}
+
+.sales-del-btn {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   color: #ef4444;
   cursor: pointer;
   width: 32px;
   height: 32px;
-  border-radius: 6px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.95rem;
   transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
-.btn-icon-danger:hover {
+.sales-del-btn:hover {
   background-color: #fee2e2;
+  border-color: #fca5a5;
   color: #dc2626;
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 .table-empty-state {

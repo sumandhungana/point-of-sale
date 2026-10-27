@@ -17,8 +17,8 @@ interface BillItem {
   unit: string;
   stockUnit?: string;
   availableStock: number;
-  quantity: number;
-  unitPrice: number;
+  quantity: number | string;
+  unitPrice: number | string;
   taxPercentage: number;
   vatPercentage: number;
   taxAmount: number;
@@ -95,7 +95,7 @@ export const AddSalesBill: React.FC = () => {
 
   // Calculate bill total on item changes
   useEffect(() => {
-    const calculatedTotal = selectedProducts.reduce((sum, item) => sum + item.totalPrice, 0);
+    const calculatedTotal = selectedProducts.reduce((sum, item) => sum + (parseFloat(String(item.totalPrice)) || 0), 0);
     setFormData((prev) => ({ ...prev, amount: calculatedTotal }));
   }, [selectedProducts]);
 
@@ -192,10 +192,12 @@ export const AddSalesBill: React.FC = () => {
 
     if (existingIndex > -1) {
       const updated = [...selectedProducts];
-      const newQty = updated[existingIndex].quantity + 1;
+      const curQty = parseFloat(String(updated[existingIndex].quantity)) || 0;
+      const newQty = curQty + 1;
+      const curPrice = parseFloat(String(updated[existingIndex].unitPrice)) || 0;
       const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
           newQty,
-          updated[existingIndex].unitPrice,
+          curPrice,
           taxPct,
           vatPct
       );
@@ -235,45 +237,140 @@ export const AddSalesBill: React.FC = () => {
     setShowProductDropdown(false);
   };
 
-  const handleItemChange = (
-    index: number,
-    field: 'quantity' | 'unitPrice' | 'unit',
-    value: number | string
-  ) => {
+  // Quantity change handler with single-digit removal support
+  const handleQuantityChange = (index: number, val: string) => {
+    const sanitized = val.replace(/[^0-9.]/g, '');
+    const parts = sanitized.split('.');
+    const cleanVal = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : sanitized;
+
     const updated = [...selectedProducts];
     const item = updated[index];
-
-    if (field === 'unit') {
-      if (value === 'other') {
-        const customUnit = window.prompt('Enter custom quantity unit (e.g. tin, sack, drum):');
-        if (customUnit && customUnit.trim()) {
-          updated[index] = { ...item, unit: customUnit.trim() };
-          setSelectedProducts(updated);
-        }
-        return;
-      }
-      updated[index] = { ...item, unit: value as string };
-      setSelectedProducts(updated);
-      return;
-    }
-
-    const qty = field === 'quantity' ? (value as number) : item.quantity;
-    const price = field === 'unitPrice' ? (value as number) : item.unitPrice;
+    const numericQty = cleanVal === '' ? 0 : parseFloat(cleanVal);
+    const price = typeof item.unitPrice === 'number' ? item.unitPrice : parseFloat(item.unitPrice) || 0;
 
     const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
-        qty,
-        price,
-        item.taxPercentage,
-        item.vatPercentage
+      numericQty,
+      price,
+      item.taxPercentage,
+      item.vatPercentage
     );
 
     updated[index] = {
       ...item,
-      [field]: value,
+      quantity: cleanVal,
       taxAmount,
       vatAmount,
       totalPrice,
     };
+    setSelectedProducts(updated);
+  };
+
+  // On blur, normalize quantity if empty or <= 0
+  const handleQuantityBlur = (index: number) => {
+    const updated = [...selectedProducts];
+    const item = updated[index];
+    const num = parseFloat(String(item.quantity));
+    if (isNaN(num) || num <= 0) {
+      const fallbackQty = 1;
+      const price = typeof item.unitPrice === 'number' ? item.unitPrice : parseFloat(item.unitPrice) || 0;
+      const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
+        fallbackQty,
+        price,
+        item.taxPercentage,
+        item.vatPercentage
+      );
+      updated[index] = {
+        ...item,
+        quantity: fallbackQty,
+        taxAmount,
+        vatAmount,
+        totalPrice,
+      };
+      setSelectedProducts(updated);
+    } else {
+      updated[index] = {
+        ...item,
+        quantity: num,
+      };
+      setSelectedProducts(updated);
+    }
+  };
+
+  // Quick stepper (+/-)
+  const handleStepQty = (index: number, delta: number) => {
+    const updated = [...selectedProducts];
+    const item = updated[index];
+    const current = parseFloat(String(item.quantity)) || 0;
+    const next = Math.max(1, Math.round((current + delta) * 100) / 100);
+    const price = typeof item.unitPrice === 'number' ? item.unitPrice : parseFloat(item.unitPrice) || 0;
+    const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
+      next,
+      price,
+      item.taxPercentage,
+      item.vatPercentage
+    );
+    updated[index] = {
+      ...item,
+      quantity: next,
+      taxAmount,
+      vatAmount,
+      totalPrice,
+    };
+    setSelectedProducts(updated);
+  };
+
+  // Price change handler with digit removal support
+  const handlePriceChange = (index: number, val: string) => {
+    const sanitized = val.replace(/[^0-9.]/g, '');
+    const parts = sanitized.split('.');
+    const cleanVal = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : sanitized;
+
+    const updated = [...selectedProducts];
+    const item = updated[index];
+    const qty = typeof item.quantity === 'number' ? item.quantity : parseFloat(item.quantity) || 0;
+    const numericPrice = cleanVal === '' ? 0 : parseFloat(cleanVal);
+
+    const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
+      qty,
+      numericPrice,
+      item.taxPercentage,
+      item.vatPercentage
+    );
+
+    updated[index] = {
+      ...item,
+      unitPrice: cleanVal,
+      taxAmount,
+      vatAmount,
+      totalPrice,
+    };
+    setSelectedProducts(updated);
+  };
+
+  const handlePriceBlur = (index: number) => {
+    const updated = [...selectedProducts];
+    const item = updated[index];
+    const num = parseFloat(String(item.unitPrice));
+    updated[index] = {
+      ...item,
+      unitPrice: isNaN(num) ? 0 : num,
+    };
+    setSelectedProducts(updated);
+  };
+
+  // Unit dropdown change handler
+  const handleUnitChange = (index: number, val: string) => {
+    const updated = [...selectedProducts];
+    const item = updated[index];
+    if (val === 'other') {
+      const customUnit = window.prompt('Enter custom quantity unit (e.g. tin, sack, drum):');
+      if (customUnit && customUnit.trim()) {
+        updated[index] = { ...item, unit: customUnit.trim() };
+        setSelectedProducts(updated);
+      }
+      return;
+    }
+    updated[index] = { ...item, unit: val };
     setSelectedProducts(updated);
   };
 
@@ -291,6 +388,12 @@ export const AddSalesBill: React.FC = () => {
     setError(null);
 
     try {
+      const cleanedItems = selectedProducts.map((p) => ({
+        ...p,
+        quantity: parseFloat(String(p.quantity)) || 1,
+        unitPrice: parseFloat(String(p.unitPrice)) || 0,
+      }));
+
       const requestData = {
         billNumber: formData.billNumber,
         billDate: formData.billDate,
@@ -300,7 +403,7 @@ export const AddSalesBill: React.FC = () => {
         amount: formData.amount,
         remarks: formData.remarks,
         photoPath: selectedImage,
-        items: selectedProducts,
+        items: cleanedItems,
         id: isEditMode ? initialData?.id : 0,
       };
 
@@ -338,7 +441,7 @@ export const AddSalesBill: React.FC = () => {
                   <i className="bi bi-receipt-cutoff" />
                 </div>
                 <div>
-                  <h1 className="form-header-title">{isEditMode ? 'Edit Sales Invoice' : 'Add Sales Bill'}</h1>
+                  {/*<h1 className="form-header-title">{isEditMode ? 'Edit Sales Invoice' : 'Add Sales Bill'}</h1>*/}
                   <p className="form-header-subtitle">Manage items, stock quantities, applied VAT/Tax, and finalize invoice</p>
                 </div>
               </div>
@@ -509,138 +612,145 @@ export const AddSalesBill: React.FC = () => {
                   {/* Added Line Items Table */}
                   <div className="purchase-card no-padding">
                     <div className="responsive-table-wrapper">
-                      <table className="purchase-table sales-items-table">
+                      <table className="purchase-table modern-sales-table">
                         <thead>
                           <tr>
-                            <th className="col-th-product">Product</th>
-                            <th className="col-th-stock">Stock</th>
-                            <th className="col-th-qty">Qty</th>
-                            <th className="col-th-unit">Unit</th>
-                            <th className="col-th-price">Price (Rs)</th>
-                            <th className="col-th-tax">Tax/VAT</th>
-                            <th className="col-th-total text-end">Total</th>
-                            <th className="col-th-action text-center"></th>
+                            <th className="th-product-info">Product & Stock</th>
+                            <th className="th-qty-unit">Quantity & Unit</th>
+                            <th className="th-price-tax">Price & Tax</th>
+                            <th className="th-total-action text-end">Total</th>
                           </tr>
                         </thead>
                         <tbody>
                           {selectedProducts.length === 0 ? (
                             <tr>
-                              <td colSpan={8} className="table-empty-state">
+                              <td colSpan={4} className="table-empty-state">
                                 <i className="bi bi-cart-dash fs-4 d-block mb-1"></i>
                                 No line items selected. Search products above to populate bill.
                               </td>
                             </tr>
                           ) : (
                             selectedProducts.map((item, index) => (
-                              <tr key={item.itemId}>
-                                <td className="col-td-product">
+                              <tr key={item.itemId} className="sales-item-row">
+                                <td className="td-product-info">
                                   <div className="table-item-name">{item.name}</div>
-                                  {item.sku && <span className="stock-pill sku-pill">SKU: {item.sku}</span>}
-                                </td>
-                                <td className="col-td-stock">
-                                  <span
-                                    className={`stock-pill ${
-                                      item.availableStock <= 0
-                                        ? 'stock-pill-danger'
-                                        : item.availableStock <= 5
-                                        ? 'stock-pill-warning'
-                                        : ''
-                                    }`}
-                                    title={`Available in stock: ${item.availableStock} ${item.stockUnit || item.unit || 'pcs'}`}
-                                  >
-                                    {item.availableStock} {item.stockUnit || item.unit || 'pcs'}
-                                  </span>
-                                </td>
-                                <td className="col-td-qty">
-                                  <input
-                                    type="number"
-                                    min="0.001"
-                                    step="any"
-                                    className="table-input text-center"
-                                    value={item.quantity === 0 ? '' : item.quantity}
-                                    onFocus={(e) => e.target.select()}
-                                    onChange={(e) => {
-                                      const val = parseFloat(e.target.value);
-                                      handleItemChange(
-                                        index,
-                                        'quantity',
-                                        isNaN(val) ? 0 : val
-                                      );
-                                    }}
-                                    onBlur={() => {
-                                      if (item.quantity <= 0) {
-                                        handleItemChange(index, 'quantity', 1);
-                                      }
-                                    }}
-                                    placeholder="1"
-                                    title="Quantity"
-                                  />
-                                </td>
-                                <td className="col-td-unit">
-                                  <select
-                                    className="table-select"
-                                    value={item.unit || 'pcs'}
-                                    onChange={(e) =>
-                                      handleItemChange(index, 'unit', e.target.value)
-                                    }
-                                    title="Quantity unit (pcs, kg, etc.)"
-                                  >
-                                    {!QUANTITY_UNITS.some(
-                                      (u) => u.value.toLowerCase() === (item.unit || '').toLowerCase()
-                                    ) && item.unit && (
-                                      <option value={item.unit}>{item.unit}</option>
-                                    )}
-                                    {QUANTITY_UNITS.map((u) => (
-                                      <option key={u.value} value={u.value}>
-                                        {u.label}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </td>
-                                <td className="col-td-price">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    step="0.01"
-                                    className="table-input text-end"
-                                    value={item.unitPrice === 0 ? '' : item.unitPrice}
-                                    onFocus={(e) => e.target.select()}
-                                    onChange={(e) =>
-                                      handleItemChange(
-                                        index,
-                                        'unitPrice',
-                                        parseFloat(e.target.value) || 0
-                                      )
-                                    }
-                                    title="Unit price"
-                                  />
-                                </td>
-                                <td className="col-td-tax">
-                                  <div className="tax-badges-wrap">
-                                    {item.taxPercentage > 0 && (
-                                      <span className="tax-tag tax-tag-blue">Tax {item.taxPercentage}%</span>
-                                    )}
-                                    {item.vatPercentage > 0 && (
-                                      <span className="tax-tag tax-tag-green">VAT {item.vatPercentage}%</span>
-                                    )}
-                                    {item.taxPercentage === 0 && item.vatPercentage === 0 && (
-                                      <span className="tax-tag tax-tag-gray">0%</span>
+                                  <div className="sales-item-meta">
+                                    <span
+                                      className={`stock-pill ${
+                                        (item.availableStock ?? 0) <= 0
+                                          ? 'stock-pill-danger'
+                                          : (item.availableStock ?? 0) <= 5
+                                          ? 'stock-pill-warning'
+                                          : 'stock-pill-success'
+                                      }`}
+                                      title={`Available in stock: ${item.availableStock} ${item.stockUnit || item.unit || 'pcs'}`}
+                                    >
+                                      <i className="bi bi-box-seam me-1"></i>
+                                      Stock: {item.availableStock} {item.stockUnit || item.unit || 'pcs'}
+                                    </span>
+                                    {item.sku && (
+                                      <span className="stock-pill sku-pill">
+                                        SKU: {item.sku}
+                                      </span>
                                     )}
                                   </div>
                                 </td>
-                                <td className="col-td-total text-end fw-bold" style={{ color: '#255DCE' }}>
-                                  Rs. {formatNumber(item.totalPrice)}
+                                <td className="td-qty-unit">
+                                  <div className="sales-qty-unit-cluster">
+                                    <div className="sales-stepper">
+                                      <button
+                                        type="button"
+                                        className="sales-step-btn"
+                                        onClick={() => handleStepQty(index, -1)}
+                                        title="Decrease quantity"
+                                        aria-label="Decrease quantity"
+                                      >
+                                        <i className="bi bi-dash"></i>
+                                      </button>
+                                      <input
+                                        type="text"
+                                        inputMode="decimal"
+                                        className="sales-qty-input"
+                                        value={item.quantity}
+                                        onFocus={(e) => e.target.select()}
+                                        onChange={(e) => handleQuantityChange(index, e.target.value)}
+                                        onBlur={() => handleQuantityBlur(index)}
+                                        placeholder="1"
+                                        title="Quantity"
+                                      />
+                                      <button
+                                        type="button"
+                                        className="sales-step-btn"
+                                        onClick={() => handleStepQty(index, 1)}
+                                        title="Increase quantity"
+                                        aria-label="Increase quantity"
+                                      >
+                                        <i className="bi bi-plus"></i>
+                                      </button>
+                                    </div>
+                                    <select
+                                      className="sales-unit-select"
+                                      value={item.unit || 'pcs'}
+                                      onChange={(e) => handleUnitChange(index, e.target.value)}
+                                      title="Quantity unit (pcs, kg, etc.)"
+                                    >
+                                      {!QUANTITY_UNITS.some(
+                                        (u) => u.value.toLowerCase() === (item.unit || '').toLowerCase()
+                                      ) && item.unit && (
+                                        <option value={item.unit}>{item.unit}</option>
+                                      )}
+                                      {QUANTITY_UNITS.map((u) => (
+                                        <option key={u.value} value={u.value}>
+                                          {u.label}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  </div>
                                 </td>
-                                <td className="col-td-action text-center">
-                                  <button
-                                    type="button"
-                                    className="btn-icon-danger"
-                                    onClick={() => handleRemoveProduct(index)}
-                                    title="Remove line item"
-                                    aria-label="Remove item"
-                                  >
-                                    <i className="bi bi-trash3"></i>
-                                  </button>
+                                <td className="td-price-tax">
+                                  <div className="sales-price-wrap">
+                                    <div className="sales-price-input-box">
+                                      <span className="sales-price-prefix">Rs.</span>
+                                      <input
+                                        type="text"
+                                        inputMode="decimal"
+                                        className="sales-price-input"
+                                        value={item.unitPrice}
+                                        onFocus={(e) => e.target.select()}
+                                        onChange={(e) => handlePriceChange(index, e.target.value)}
+                                        onBlur={() => handlePriceBlur(index)}
+                                        placeholder="0.00"
+                                        title="Unit price"
+                                      />
+                                    </div>
+                                    <div className="sales-tax-badge-row">
+                                      {item.taxPercentage > 0 && (
+                                        <span className="tax-tag tax-tag-blue">Tax {item.taxPercentage}%</span>
+                                      )}
+                                      {item.vatPercentage > 0 && (
+                                        <span className="tax-tag tax-tag-green">VAT {item.vatPercentage}%</span>
+                                      )}
+                                      {item.taxPercentage === 0 && item.vatPercentage === 0 && (
+                                        <span className="tax-tag tax-tag-gray">0% Tax</span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </td>
+                                <td className="td-total-action text-end">
+                                  <div className="sales-total-action-box">
+                                    <span className="sales-total-amount">
+                                      Rs. {formatNumber(item.totalPrice)}
+                                    </span>
+                                    <button
+                                      type="button"
+                                      className="btn-icon-danger sales-del-btn"
+                                      onClick={() => handleRemoveProduct(index)}
+                                      title="Remove line item"
+                                      aria-label="Remove item"
+                                    >
+                                      <i className="bi bi-trash3"></i>
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             ))
@@ -669,7 +779,7 @@ export const AddSalesBill: React.FC = () => {
                       </div>
                       <div className="breakdown-row">
                         <span>Total Unit Quantity</span>
-                        <span>{selectedProducts.reduce((sum, i) => sum + i.quantity, 0)} Units</span>
+                        <span>{selectedProducts.reduce((sum, i) => sum + (parseFloat(String(i.quantity)) || 0), 0)} Units</span>
                       </div>
                     </div>
                   </div>
@@ -781,7 +891,7 @@ export const AddSalesBill: React.FC = () => {
                             <tr key={p.itemId}>
                               <td>{p.name}</td>
                               <td className="text-center">{p.quantity} {p.unit}</td>
-                              <td className="text-end">Rs. {formatNumber(p.unitPrice)}</td>
+                              <td className="text-end">Rs. {formatNumber(parseFloat(String(p.unitPrice)) || 0)}</td>
                               <td className="text-end">Rs. {formatNumber(p.taxAmount + p.vatAmount)}</td>
                               <td className="text-end fw-semibold">Rs. {formatNumber(p.totalPrice)}</td>
                             </tr>

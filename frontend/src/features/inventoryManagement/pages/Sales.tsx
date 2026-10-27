@@ -242,14 +242,6 @@ export const Sales: React.FC = () => {
                 <h2 className="text-navy fw-bold">Sales Management</h2>
                 <p className="text-muted">Track sales bills, review total revenue, and issue customer invoices.</p>
               </div>
-              <div className="sales-header-btn-wrap d-flex align-items-center gap-2">
-                <button className="btn-secondary" onClick={handleExportReportPDF}>
-                  <i className="bi bi-file-earmark-arrow-down me-1"></i> Export PDF Report
-                </button>
-                <button className="btn-primary" onClick={handleAddBill}>
-                  <i className="bi bi-plus-lg me-1"></i> Create New Invoice
-                </button>
-              </div>
             </div>
 
             {/* Stats Summary Cards */}
@@ -329,6 +321,16 @@ export const Sales: React.FC = () => {
                     <option value="oldest">Oldest First</option>
                   </select>
                 </div>
+
+                <button
+                  type="button"
+                  className="btn-export-pdf"
+                  onClick={handleExportReportPDF}
+                  title="Export PDF Report"
+                >
+                  <i className="bi bi-file-earmark-arrow-down me-1"></i>
+                  <span>Export PDF</span>
+                </button>
               </div>
             </div>
 
@@ -426,6 +428,17 @@ export const Sales: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Sticky Bottom-Right + New Invoice Button */}
+        <button
+            type="button"
+            className="sales-add-sticky-button"
+            onClick={handleAddBill}
+            title="New Invoice"
+        >
+            <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+            <span>New Invoice</span>
+        </button>
 
         {/* Sales Invoice PDF & Print Modal */}
         <InvoiceModal

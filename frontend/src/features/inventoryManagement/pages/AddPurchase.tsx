@@ -19,13 +19,37 @@ interface PurchaseLineItem {
     itemId: number;
     name: string;
     categoryName: string;
-    quantity: number | '';
-    enteredAmount: number | '';
+    unit?: string;
+    stockUnit?: string;
+    availableStock?: number;
+    sku?: string;
+    quantity: number | string;
+    enteredAmount: number | string;
     unitPrice: number;
     taxAmount: number;
     vatAmount: number;
     totalPrice: number;
 }
+
+const QUANTITY_UNITS = [
+    { value: 'pcs', label: 'Pcs (Pieces)' },
+    { value: 'kg', label: 'kg (Kilograms)' },
+    { value: 'g', label: 'g (Grams)' },
+    { value: 'l', label: 'L (Liters)' },
+    { value: 'ml', label: 'ml (Milliliters)' },
+    { value: 'box', label: 'Box' },
+    { value: 'packet', label: 'Packet' },
+    { value: 'dozen', label: 'Dozen' },
+    { value: 'meter', label: 'Meter' },
+    { value: 'bag', label: 'Bag' },
+    { value: 'bundle', label: 'Bundle' },
+    { value: 'carton', label: 'Carton' },
+    { value: 'roll', label: 'Roll' },
+    { value: 'set', label: 'Set' },
+    { value: 'pair', label: 'Pair' },
+    { value: 'sq.ft', label: 'Sq. Ft' },
+    { value: 'other', label: 'Other...' },
+];
 
 
 export const AddPurchase: React.FC = () => {
@@ -95,6 +119,9 @@ export const AddPurchase: React.FC = () => {
                         setLineItems(
                             initialData.items.map((i: any) => ({
                                 ...i,
+                                unit: i.unit || 'pcs',
+                                stockUnit: i.unit || 'pcs',
+                                availableStock: i.availableStock ?? 0,
                                 quantity: i.quantity ?? 1,
                                 enteredAmount: i.enteredAmount ?? '',
                             }))
@@ -120,9 +147,11 @@ export const AddPurchase: React.FC = () => {
     }, [isEditMode, initialData]);
 
     // Core Pricing & Tax Calculation Logic
-    const computeLineItem = (quantity: number | '', enteredAmount: number | '') => {
-        const qty = typeof quantity === 'number' ? Math.max(1, quantity) : 1;
-        const amt = typeof enteredAmount === 'number' ? Math.max(0, enteredAmount) : 0;
+    const computeLineItem = (quantity: number | string, enteredAmount: number | string) => {
+        const numQty = typeof quantity === 'number' ? quantity : parseFloat(quantity);
+        const qty = isNaN(numQty) || numQty <= 0 ? 0 : numQty;
+        const numAmt = typeof enteredAmount === 'number' ? enteredAmount : parseFloat(enteredAmount);
+        const amt = isNaN(numAmt) || numAmt < 0 ? 0 : numAmt;
 
         const activeTaxPct = enableTax && typeof taxPercentage === 'number' ? Math.max(0, taxPercentage) : 0;
         const activeVatPct = enableVat && typeof vatPercentage === 'number' ? Math.max(0, vatPercentage) : 0;
@@ -134,9 +163,11 @@ export const AddPurchase: React.FC = () => {
         let totalPrice = 0;
         let baseUnitPrice = 0;
 
-        if (enteredAmount === '') {
+        if (enteredAmount === '' || enteredAmount === undefined) {
             return {unitPrice: 0, taxAmount: 0, vatAmount: 0, totalPrice: 0};
         }
+
+        const safeQty = qty > 0 ? qty : 1;
 
         if (pricingMode === 'gross') {
             if (isTaxInclusive) {
@@ -151,7 +182,7 @@ export const AddPurchase: React.FC = () => {
                 vatAmount = (subtotal + taxAmount) * (activeVatPct / 100);
                 totalPrice = subtotal + taxAmount + vatAmount;
             }
-            baseUnitPrice = subtotal / qty;
+            baseUnitPrice = subtotal / safeQty;
         } else {
             if (isTaxInclusive) {
                 const unitBase = amt / (1 + combinedRate);
@@ -184,26 +215,105 @@ export const AddPurchase: React.FC = () => {
         const existingIndex = lineItems.findIndex((li) => li.itemId === item.id);
         if (existingIndex > -1) return;
 
-        const computed = computeLineItem(1, '');
+        const defaultPrice = item.perUnitPurchasePrice || '';
+        const computed = computeLineItem(1, defaultPrice);
 
         const newItem: PurchaseLineItem = {
             itemId: item.id,
             name: item.name,
             categoryName: item.category?.name || 'General',
+            unit: item.unit || 'pcs',
+            stockUnit: item.unit || 'pcs',
+            availableStock: item.itemCount || 0,
+            sku: (item as any).sku,
             quantity: 1,
-            enteredAmount: '',
+            enteredAmount: defaultPrice,
             ...computed,
         };
 
         setLineItems((prev) => [...prev, newItem]);
     };
 
-    const handleUpdateLineItem = (index: number, field: keyof PurchaseLineItem, value: any) => {
+    // Quantity change with single-digit deletion support
+    const handleQuantityChange = (idx: number, val: string) => {
+        const sanitized = val.replace(/[^0-9.]/g, '');
+        const parts = sanitized.split('.');
+        const cleanVal = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : sanitized;
+
         setLineItems((prev) => {
             const updated = [...prev];
-            const item = {...updated[index], [field]: value};
-            const computed = computeLineItem(item.quantity, item.enteredAmount);
-            updated[index] = {...item, ...computed};
+            const item = {...updated[idx], quantity: cleanVal};
+            const computed = computeLineItem(cleanVal, item.enteredAmount);
+            updated[idx] = {...item, ...computed};
+            return updated;
+        });
+    };
+
+    const handleQuantityBlur = (idx: number) => {
+        setLineItems((prev) => {
+            const updated = [...prev];
+            const item = updated[idx];
+            const num = parseFloat(String(item.quantity));
+            const finalQty = isNaN(num) || num <= 0 ? 1 : num;
+            const computed = computeLineItem(finalQty, item.enteredAmount);
+            updated[idx] = {...item, quantity: finalQty, ...computed};
+            return updated;
+        });
+    };
+
+    const handleStepQty = (idx: number, delta: number) => {
+        setLineItems((prev) => {
+            const updated = [...prev];
+            const item = updated[idx];
+            const current = parseFloat(String(item.quantity)) || 0;
+            const next = Math.max(1, Math.round((current + delta) * 100) / 100);
+            const computed = computeLineItem(next, item.enteredAmount);
+            updated[idx] = {...item, quantity: next, ...computed};
+            return updated;
+        });
+    };
+
+    const handleAmountChange = (idx: number, val: string) => {
+        const sanitized = val.replace(/[^0-9.]/g, '');
+        const parts = sanitized.split('.');
+        const cleanVal = parts.length > 2 ? `${parts[0]}.${parts.slice(1).join('')}` : sanitized;
+
+        setLineItems((prev) => {
+            const updated = [...prev];
+            const item = {...updated[idx], enteredAmount: cleanVal};
+            const computed = computeLineItem(item.quantity, cleanVal);
+            updated[idx] = {...item, ...computed};
+            return updated;
+        });
+    };
+
+    const handleAmountBlur = (idx: number) => {
+        setLineItems((prev) => {
+            const updated = [...prev];
+            const item = updated[idx];
+            const num = parseFloat(String(item.enteredAmount));
+            const finalAmt = isNaN(num) ? 0 : num;
+            const computed = computeLineItem(item.quantity, finalAmt);
+            updated[idx] = {...item, enteredAmount: finalAmt, ...computed};
+            return updated;
+        });
+    };
+
+    const handleUnitChange = (idx: number, val: string) => {
+        if (val === 'other') {
+            const custom = window.prompt('Enter custom quantity unit (e.g. tin, sack, drum):');
+            if (custom && custom.trim()) {
+                setLineItems((prev) => {
+                    const updated = [...prev];
+                    updated[idx] = {...updated[idx], unit: custom.trim()};
+                    return updated;
+                });
+            }
+            return;
+        }
+        setLineItems((prev) => {
+            const updated = [...prev];
+            updated[idx] = {...updated[idx], unit: val};
             return updated;
         });
     };
@@ -291,7 +401,7 @@ export const AddPurchase: React.FC = () => {
                 photoPath: selectedImage || undefined,
                 items: lineItems.map((item) => ({
                     productId: item.itemId,
-                    itemCount: typeof item.quantity === 'number' ? item.quantity : 1,
+                    itemCount: parseFloat(String(item.quantity)) || 1,
                     perUnitPurchasePrice: item.unitPrice,
                 })),
             };
@@ -623,11 +733,10 @@ export const AddPurchase: React.FC = () => {
                                                     >
                                                         <div>
                                                             <span className="item-title">{item.name}</span>
-                                                            <span
-                                                                className="item-badge ms-2">{item.category?.name || 'General'}</span>
+                                                            <span className="item-badge ms-2">{item.category?.name || 'General'}</span>
+                                                            <div className="small text-muted">Stock: {item.itemCount ?? 0} {item.unit || 'pcs'}</div>
                                                         </div>
-                                                        <span
-                                                            className="item-price">{formatCurrency(item.perUnitPurchasePrice || 0)}</span>
+                                                        <span className="item-price">{formatCurrency(item.perUnitPurchasePrice || 0)}</span>
                                                     </div>
                                                 ))
                                             ) : (
@@ -638,80 +747,156 @@ export const AddPurchase: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Simplified Items Table */}
+                            {/* Line Items Table */}
                             <div className="purchase-card no-padding">
                                 <div className="responsive-table-wrapper">
-                                    <table className="purchase-table">
+                                    <table className="purchase-table modern-sales-table">
                                         <thead>
                                         <tr>
-                                            <th style={{width: '40%'}}>Product</th>
-                                            <th style={{width: '15%'}}>Qty</th>
-                                            <th style={{width: '25%'}}>Amount ({currencySymbol})</th>
-                                            <th style={{width: '16%'}} className="text-end">Total</th>
-                                            <th style={{width: '4%'}}></th>
+                                            <th className="th-product-info">Product & Stock</th>
+                                            <th className="th-qty-unit">Quantity & Unit</th>
+                                            <th className="th-price-tax">{pricingMode === 'unit' ? 'Unit Price' : 'Gross Total'} & Tax</th>
+                                            <th className="th-total-action text-end">Total</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         {lineItems.length === 0 ? (
                                             <tr>
-                                                <td colSpan={5} className="table-empty-state">
+                                                <td colSpan={4} className="table-empty-state">
+                                                    <i className="bi bi-cart-dash fs-4 d-block mb-1"></i>
                                                     No items added yet. Search products above to populate line items.
                                                 </td>
                                             </tr>
                                         ) : (
                                             lineItems.map((item, idx) => (
-                                                <tr key={item.itemId}>
-                                                    <td>
+                                                <tr key={item.itemId} className="sales-item-row">
+                                                    <td className="td-product-info">
                                                         <div className="table-item-name">{item.name}</div>
-                                                        <span className="stock-pill">{item.categoryName}</span>
+                                                        <div className="sales-item-meta">
+                                                            {item.categoryName && (
+                                                                <span className="stock-pill">{item.categoryName}</span>
+                                                            )}
+                                                            {typeof item.availableStock === 'number' && (
+                                                                <span
+                                                                    className={`stock-pill ${
+                                                                        item.availableStock <= 0
+                                                                            ? 'stock-pill-danger'
+                                                                            : item.availableStock <= 5
+                                                                            ? 'stock-pill-warning'
+                                                                            : 'stock-pill-success'
+                                                                    }`}
+                                                                    title={`Available in stock: ${item.availableStock} ${item.stockUnit || item.unit || 'pcs'}`}
+                                                                >
+                                                                    <i className="bi bi-box-seam me-1"></i>
+                                                                    Stock: {item.availableStock} {item.stockUnit || item.unit || 'pcs'}
+                                                                </span>
+                                                            )}
+                                                            {item.sku && (
+                                                                <span className="stock-pill sku-pill">
+                                                                    SKU: {item.sku}
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </td>
 
-                                                    <td>
-                                                        <input
-                                                            type="number"
-                                                            min="1"
-                                                            className="table-input"
-                                                            value={item.quantity === '' ? '' : item.quantity}
-                                                            onChange={(e) =>
-                                                                handleUpdateLineItem(
-                                                                    idx,
-                                                                    'quantity',
-                                                                    e.target.value === '' ? '' : Math.max(1, parseInt(e.target.value, 10) || 1)
-                                                                )
-                                                            }
-                                                        />
+                                                    <td className="td-qty-unit">
+                                                        <div className="sales-qty-unit-cluster">
+                                                            <div className="sales-stepper">
+                                                                <button
+                                                                    type="button"
+                                                                    className="sales-step-btn"
+                                                                    onClick={() => handleStepQty(idx, -1)}
+                                                                    title="Decrease quantity"
+                                                                    aria-label="Decrease quantity"
+                                                                >
+                                                                    <i className="bi bi-dash"></i>
+                                                                </button>
+                                                                <input
+                                                                    type="text"
+                                                                    inputMode="decimal"
+                                                                    className="sales-qty-input"
+                                                                    value={item.quantity}
+                                                                    onFocus={(e) => e.target.select()}
+                                                                    onChange={(e) => handleQuantityChange(idx, e.target.value)}
+                                                                    onBlur={() => handleQuantityBlur(idx)}
+                                                                    placeholder="1"
+                                                                    title="Quantity"
+                                                                />
+                                                                <button
+                                                                    type="button"
+                                                                    className="sales-step-btn"
+                                                                    onClick={() => handleStepQty(idx, 1)}
+                                                                    title="Increase quantity"
+                                                                    aria-label="Increase quantity"
+                                                                >
+                                                                    <i className="bi bi-plus"></i>
+                                                                </button>
+                                                            </div>
+                                                            <select
+                                                                className="sales-unit-select"
+                                                                value={item.unit || 'pcs'}
+                                                                onChange={(e) => handleUnitChange(idx, e.target.value)}
+                                                                title="Quantity unit (pcs, kg, etc.)"
+                                                            >
+                                                                {!QUANTITY_UNITS.some(
+                                                                    (u) => u.value.toLowerCase() === (item.unit || '').toLowerCase()
+                                                                ) && item.unit && (
+                                                                    <option value={item.unit}>{item.unit}</option>
+                                                                )}
+                                                                {QUANTITY_UNITS.map((u) => (
+                                                                    <option key={u.value} value={u.value}>
+                                                                        {u.label}
+                                                                    </option>
+                                                                ))}
+                                                            </select>
+                                                        </div>
                                                     </td>
 
-                                                    <td>
-                                                        <input
-                                                            type="number"
-                                                            min="0"
-                                                            step="any"
-                                                            className="table-input"
-                                                            placeholder={pricingMode === 'unit' ? 'Unit Price' : 'Gross Total'}
-                                                            value={item.enteredAmount === '' ? '' : item.enteredAmount}
-                                                            onChange={(e) =>
-                                                                handleUpdateLineItem(
-                                                                    idx,
-                                                                    'enteredAmount',
-                                                                    e.target.value === '' ? '' : parseFloat(e.target.value) || 0
-                                                                )
-                                                            }
-                                                        />
+                                                    <td className="td-price-tax">
+                                                        <div className="sales-price-wrap">
+                                                            <div className="sales-price-input-box">
+                                                                <span className="sales-price-prefix">{currencySymbol}</span>
+                                                                <input
+                                                                    type="text"
+                                                                    inputMode="decimal"
+                                                                    className="sales-price-input"
+                                                                    placeholder={pricingMode === 'unit' ? 'Unit Price' : 'Gross Total'}
+                                                                    value={item.enteredAmount}
+                                                                    onFocus={(e) => e.target.select()}
+                                                                    onChange={(e) => handleAmountChange(idx, e.target.value)}
+                                                                    onBlur={() => handleAmountBlur(idx)}
+                                                                    title={pricingMode === 'unit' ? 'Unit Price' : 'Gross Total'}
+                                                                />
+                                                            </div>
+                                                            <div className="sales-tax-badge-row">
+                                                                <span className="tax-tag tax-tag-gray">
+                                                                    {pricingMode === 'unit' ? 'Rate/Unit' : 'Gross Total'}
+                                                                </span>
+                                                                {enableVat && (vatPercentage || 0) > 0 && (
+                                                                    <span className="tax-tag tax-tag-green">VAT {vatPercentage}%</span>
+                                                                )}
+                                                                {enableTax && (taxPercentage || 0) > 0 && (
+                                                                    <span className="tax-tag tax-tag-blue">Tax {taxPercentage}%</span>
+                                                                )}
+                                                            </div>
+                                                        </div>
                                                     </td>
 
-                                                    <td className="text-end fw-bold" style={{color: '#255dce'}}>
-                                                        {formatCurrency(item.totalPrice)}
-                                                    </td>
-
-                                                    <td className="text-center">
-                                                        <button
-                                                            type="button"
-                                                            className="btn-icon-danger"
-                                                            onClick={() => handleRemoveLineItem(idx)}
-                                                        >
-                                                            <i className="bi bi-trash"></i>
-                                                        </button>
+                                                    <td className="td-total-action text-end">
+                                                        <div className="sales-total-action-box">
+                                                            <span className="sales-total-amount">
+                                                                {formatCurrency(item.totalPrice)}
+                                                            </span>
+                                                            <button
+                                                                type="button"
+                                                                className="btn-icon-danger sales-del-btn"
+                                                                onClick={() => handleRemoveLineItem(idx)}
+                                                                title="Remove line item"
+                                                                aria-label="Remove item"
+                                                            >
+                                                                <i className="bi bi-trash3"></i>
+                                                            </button>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             ))
@@ -902,7 +1087,7 @@ export const AddPurchase: React.FC = () => {
                                                         <div className="fw-semibold">{item.name}</div>
                                                         {item.categoryName && <div className="small text-muted">{item.categoryName}</div>}
                                                     </td>
-                                                    <td className="text-center">{item.quantity}</td>
+                                                    <td className="text-center">{item.quantity} {item.unit || 'pcs'}</td>
                                                     <td className="text-end">Rs. {formatNumber(item.unitPrice || 0)}</td>
                                                     <td className="text-end">Rs. {formatNumber(Number(item.taxAmount || 0) + Number(item.vatAmount || 0))}</td>
                                                     <td className="text-end fw-semibold">Rs. {formatNumber(item.totalPrice || 0)}</td>

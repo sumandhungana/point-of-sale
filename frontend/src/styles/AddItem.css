@@ -22,7 +22,7 @@
   padding: 80px 2rem 3rem 2rem;
   background: #f8fafc;
   min-height: 100vh;
-  max-width: 1020px;
+  max-width: 880px;
   margin: 0 auto;
   box-sizing: border-box;
   width: 100%;
@@ -252,39 +252,53 @@
 }
 
 /* ----------------------------------------------------------
-   Avatar / Photo Upload Banner (Kept for backwards compatibility)
+   Compact Product Photo Card (Device + Web Browser)
    ---------------------------------------------------------- */
-.avatar-card-banner {
-  display: none;
+.compact-photo-card {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
 }
 
-.avatar-card-banner:hover {
+.compact-photo-card:hover {
   border-color: #cbd5e1;
-  background: #f1f5f9;
-  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
 }
 
-.avatar-preview-wrapper {
+.compact-photo-avatar-wrap {
   position: relative;
   cursor: pointer;
   flex-shrink: 0;
 }
 
-.avatar-display-frame {
-  width: 96px;
-  height: 96px;
+.compact-photo-avatar-frame {
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
   background: linear-gradient(135deg, #255DCE, #021861);
-  padding: 3px;
-  box-shadow: 0 4px 14px rgba(37, 93, 206, 0.25);
+  padding: 2.5px;
+  box-shadow: 0 4px 12px rgba(37, 93, 206, 0.2);
   position: relative;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform 0.2s ease;
 }
 
-.avatar-img-preview {
+.compact-photo-avatar-wrap:hover .compact-photo-avatar-frame {
+  transform: scale(1.05);
+}
+
+.compact-photo-img {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -292,7 +306,7 @@
   background: #ffffff;
 }
 
-.avatar-icon-fallback {
+.compact-photo-fallback {
   width: 100%;
   height: 100%;
   border-radius: 50%;
@@ -301,125 +315,400 @@
   align-items: center;
   justify-content: center;
   color: #64748b;
-  font-size: 2.75rem;
+  font-size: 2.2rem;
 }
 
-.avatar-hover-overlay {
+.compact-photo-overlay {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: rgba(2, 24, 97, 0.75);
-  backdrop-filter: blur(2px);
+  background: rgba(2, 24, 97, 0.7);
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
   color: #ffffff;
-  font-size: 1.15rem;
+  font-size: 1.2rem;
   opacity: 0;
   transition: opacity 0.2s ease;
 }
 
-.avatar-preview-wrapper:hover .avatar-hover-overlay {
+.compact-photo-avatar-wrap:hover .compact-photo-overlay {
   opacity: 1;
 }
 
-.avatar-hover-overlay span {
-  font-size: 0.675rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-}
-
-.avatar-camera-badge {
+.compact-photo-badge {
   position: absolute;
   bottom: 0;
   right: 0;
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: #255DCE;
   color: #ffffff;
-  border: 2.5px solid #ffffff;
+  border: 2px solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.85rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, background-color 0.2s ease;
+  font-size: 0.9rem;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(37, 93, 206, 0.35);
 }
 
-.avatar-preview-wrapper:hover .avatar-camera-badge {
-  transform: scale(1.1);
-  background: #021861;
-}
-
-.avatar-meta-info {
+.compact-photo-content {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
 }
 
-.avatar-meta-title {
-  font-size: 1.05rem;
+.compact-photo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.compact-photo-title {
+  font-size: 0.95rem;
   font-weight: 700;
   color: #0f172a;
   margin: 0;
 }
 
-.avatar-meta-hint {
-  font-size: 0.825rem;
+.compact-photo-subtitle {
+  font-size: 0.8rem;
   color: #64748b;
-  margin: 0 0 0.5rem 0;
+  margin: 0.15rem 0 0 0;
+  display: block;
 }
 
-.avatar-action-buttons {
+.btn-compact-remove {
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #fecaca;
+  background: #fef2f2;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #dc2626;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.btn-compact-remove:hover {
+  background: #fee2e2;
+  border-color: #f87171;
+}
+
+.compact-photo-actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.6rem;
   flex-wrap: wrap;
 }
 
-.btn-upload-avatar {
-  padding: 0.5rem 1.1rem;
+.btn-photo-source {
+  padding: 0.4rem 0.85rem;
   border-radius: 8px;
-  border: 1.5px solid #255DCE;
   background: #ffffff;
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: #255DCE;
+  border: 1.5px solid #cbd5e1;
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
   display: inline-flex;
+  align-items: center;
+  transition: all 0.15s ease;
+}
+
+.btn-photo-source:hover {
+  background: #f8fafc;
+  border-color: #255dce;
+  color: #255dce;
+}
+
+.btn-photo-source.active {
+  background: #eef2ff;
+  border-color: #255dce;
+  color: #255dce;
+}
+
+/* ----------------------------------------------------------
+   Web & Google Image Search & Direct Photo Picker
+   ---------------------------------------------------------- */
+.web-image-search-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 0.85rem;
+  margin-top: 0.5rem;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+}
+
+.web-search-header-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.web-search-input-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+  display: flex;
   align-items: center;
 }
 
-.btn-upload-avatar:hover {
-  border-color: #255DCE;
-  color: #ffffff;
-  background: #255DCE;
-  box-shadow: 0 4px 12px rgba(37, 93, 206, 0.25);
+.web-search-input-wrap .search-icon {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  pointer-events: none;
 }
 
-.btn-remove-avatar {
-  padding: 0.5rem 1rem;
+.web-search-input {
+  width: 100%;
+  height: 38px;
+  padding: 0 32px 0 34px;
   border-radius: 8px;
-  border: 1.5px solid #fecaca;
-  background: #fef2f2;
-  font-size: 0.825rem;
-  font-weight: 700;
-  color: #dc2626;
-  cursor: pointer;
+  border: 1.5px solid #cbd5e1;
+  background: #f8fafc;
+  font-size: 0.85rem;
+  color: #0f172a;
+  outline: none;
   transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
 }
 
-.btn-remove-avatar:hover {
-  background: #fee2e2;
-  border-color: #f87171;
-  color: #b91c1c;
+.web-search-input:focus {
+  background: #ffffff;
+  border-color: #255dce;
+  box-shadow: 0 0 0 3px rgba(37, 93, 206, 0.12);
+}
+
+.web-search-clear-btn {
+  position: absolute;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: none;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: background 0.15s ease;
+}
+
+.web-search-clear-btn:hover {
+  background: #cbd5e1;
+  color: #0f172a;
+}
+
+.btn-web-search-exec {
+  height: 38px;
+  padding: 0 1rem;
+  border-radius: 8px;
+  border: none;
+  background: #255dce;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: background 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-web-search-exec:hover:not(:disabled) {
+  background: #021861;
+}
+
+.btn-web-search-exec:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-google-search-external {
+  height: 38px;
+  padding: 0 0.85rem;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-google-search-external:hover {
+  background: #ffffff;
+  border-color: #4285f4;
+  color: #4285f4;
+}
+
+.btn-paste-clipboard {
+  height: 38px;
+  padding: 0 0.85rem;
+  border-radius: 8px;
+  border: 1.5px solid #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-paste-clipboard:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+}
+
+.web-search-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.775rem;
+  color: #475569;
+  background: #f1f5f9;
+  padding: 0.45rem 0.75rem;
+  border-radius: 6px;
+  border-left: 3px solid #255dce;
+}
+
+.web-search-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  color: #64748b;
+  font-size: 0.825rem;
+}
+
+.web-search-msg {
+  padding: 0.65rem 0.85rem;
+  border-radius: 6px;
+  background: #fffbeb;
+  border: 1px solid #fef3c7;
+  color: #b45309;
+  font-size: 0.8rem;
+}
+
+.web-search-results-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+  gap: 8px;
+  max-height: 230px;
+  overflow-y: auto;
+  padding: 4px;
+  border-radius: 8px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+}
+
+.web-search-item-card {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  border: 2px solid #e2e8f0;
+  background: #ffffff;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.web-search-item-card:hover {
+  border-color: #255dce;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(37, 93, 206, 0.18);
+}
+
+.web-search-item-card.selected {
+  border-color: #255dce;
+  box-shadow: 0 0 0 2px rgba(37, 93, 206, 0.35);
+}
+
+.web-search-item-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.web-search-selected-badge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #255dce;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.web-search-item-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(2, 24, 97, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 0.725rem;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.web-search-item-card:hover .web-search-item-overlay {
+  opacity: 1;
+}
+
+@media (max-width: 640px) {
+  .compact-photo-card {
+    flex-direction: column;
+    text-align: center;
+  }
+  .compact-photo-header {
+    flex-direction: column;
+    align-items: center;
+  }
+  .compact-photo-actions {
+    justify-content: center;
+  }
+  .web-search-header-row {
+    flex-direction: column;
+  }
+  .web-search-input-wrap,
+  .btn-web-search-exec,
+  .btn-google-search-external,
+  .btn-paste-clipboard {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 /* ----------------------------------------------------------
@@ -745,25 +1034,41 @@
 }
 
 /* ----------------------------------------------------------
-   Tax Card Wrapper
+   Tax & VAT Enable Card
    ---------------------------------------------------------- */
-.tax-toggle-wrapper {
+.tax-enable-card {
   background: #f8fafc;
   border: 1.5px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 0.85rem 1rem;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  box-sizing: border-box;
+  border-radius: 14px;
+  padding: 1.1rem 1.35rem;
+  margin-top: 0.75rem;
+  margin-bottom: 1.25rem;
+  transition: all 0.2s ease;
 }
 
-.tax-toggle-header {
+.tax-enable-card:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+}
+
+.tax-enable-info {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tax-enable-title {
+  font-size: 0.975rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.tax-enable-desc {
+  font-size: 0.825rem;
+  color: #64748b;
+  margin: 0.25rem 0 0 0;
 }
 
 /* ----------------------------------------------------------
