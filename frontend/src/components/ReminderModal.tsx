@@ -7,7 +7,9 @@ interface ReminderModalProps {
     initialDate?: string | null;
     partyName?: string;
     partyType: 'Customer' | 'Supplier';
-    onSave: (date: string) => Promise<void> | void;
+    partyId?: string | number | null;
+    initialRemarks?: string | null;
+    onSave: (date: string, remarks?: string) => Promise<void> | void;
     onClear?: () => Promise<void> | void;
 }
 
@@ -24,14 +26,19 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
     initialDate,
     partyName,
     partyType,
+    partyId,
+    initialRemarks,
     onSave,
     onClear,
 }) => {
     const [selectedDate, setSelectedDate] = useState<string>('');
+    const [remarks, setRemarks] = useState<string>('');
+    const [activeRemarks, setActiveRemarks] = useState<string>('');
     const [isSaving, setIsSaving] = useState<boolean>(false);
     const [isClearing, setIsClearing] = useState<boolean>(false);
 
     const todayStr = formatLocalDate(new Date());
+    const storageKey = `reminder_remarks_${partyType.toLowerCase()}_${partyId || partyName || 'default'}`;
 
     useEffect(() => {
         if (isOpen) {
@@ -45,8 +52,13 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 setSelectedDate(formatLocalDate(tomorrow));
             }
+
+            // Load remarks from localStorage or initialRemarks
+            const savedRemarks = localStorage.getItem(storageKey) || initialRemarks || '';
+            setRemarks(savedRemarks);
+            setActiveRemarks(savedRemarks);
         }
-    }, [isOpen, initialDate]);
+    }, [isOpen, initialDate, initialRemarks, storageKey]);
 
     // Handle escape key
     useEffect(() => {
@@ -61,17 +73,18 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
 
     if (!isOpen) return null;
 
-    const handlePresetClick = (daysToAdd: number) => {
-        const targetDate = new Date();
-        targetDate.setDate(targetDate.getDate() + daysToAdd);
-        setSelectedDate(formatLocalDate(targetDate));
-    };
-
     const handleSave = async () => {
         if (!selectedDate) return;
         setIsSaving(true);
         try {
-            await onSave(selectedDate);
+            const cleanRemarks = remarks.trim();
+            if (cleanRemarks) {
+                localStorage.setItem(storageKey, cleanRemarks);
+            } else {
+                localStorage.removeItem(storageKey);
+            }
+            setActiveRemarks(cleanRemarks);
+            await onSave(selectedDate, cleanRemarks);
             onClose();
         } finally {
             setIsSaving(false);
@@ -82,6 +95,9 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
         if (!onClear) return;
         setIsClearing(true);
         try {
+            localStorage.removeItem(storageKey);
+            setRemarks('');
+            setActiveRemarks('');
             await onClear();
             setSelectedDate('');
             onClose();
@@ -134,9 +150,17 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                         <div className="reminder-active-banner">
                             <div className="reminder-active-info">
                                 <i className="bi bi-bell-fill"></i>
-                                <span>
-                                    Active: <strong>{cleanInitialDate}</strong>
-                                </span>
+                                <div className="reminder-active-text-block">
+                                    <span>
+                                        Active: <strong>{cleanInitialDate}</strong>
+                                    </span>
+                                    {activeRemarks && (
+                                        <div className="reminder-active-remarks" title={activeRemarks}>
+                                            <i className="bi bi-chat-quote-fill me-1"></i>
+                                            <span>{activeRemarks}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                             {onClear && (
                                 <button
@@ -152,55 +176,6 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                             )}
                         </div>
                     )}
-
-                    {/* Quick Presets */}
-                    <div className="reminder-presets-section">
-                        <span className="reminder-presets-label">Quick Select</span>
-                        <div className="reminder-presets-grid">
-                            <button
-                                type="button"
-                                className={`reminder-preset-chip ${selectedDate === formatLocalDate(new Date(Date.now() + 86400000)) ? 'active' : ''}`}
-                                onClick={() => handlePresetClick(1)}
-                            >
-                                Tomorrow
-                            </button>
-                            <button
-                                type="button"
-                                className={`reminder-preset-chip ${selectedDate === formatLocalDate(new Date(Date.now() + 3 * 86400000)) ? 'active' : ''}`}
-                                onClick={() => handlePresetClick(3)}
-                            >
-                                3 Days
-                            </button>
-                            <button
-                                type="button"
-                                className={`reminder-preset-chip ${selectedDate === formatLocalDate(new Date(Date.now() + 7 * 86400000)) ? 'active' : ''}`}
-                                onClick={() => handlePresetClick(7)}
-                            >
-                                1 Week
-                            </button>
-                            <button
-                                type="button"
-                                className={`reminder-preset-chip ${selectedDate === formatLocalDate(new Date(Date.now() + 15 * 86400000)) ? 'active' : ''}`}
-                                onClick={() => handlePresetClick(15)}
-                            >
-                                15 Days
-                            </button>
-                            <button
-                                type="button"
-                                className={`reminder-preset-chip ${selectedDate === formatLocalDate(new Date(Date.now() + 30 * 86400000)) ? 'active' : ''}`}
-                                onClick={() => handlePresetClick(30)}
-                            >
-                                1 Month
-                            </button>
-                            <button
-                                type="button"
-                                className={`reminder-preset-chip ${selectedDate === todayStr ? 'active' : ''}`}
-                                onClick={() => setSelectedDate(todayStr)}
-                            >
-                                Today
-                            </button>
-                        </div>
-                    </div>
 
                     {/* Date Picker Input */}
                     <div className="reminder-date-input-group">
@@ -222,6 +197,30 @@ export const ReminderModal: React.FC<ReminderModalProps> = ({
                             <i className="bi bi-info-circle"></i>
                             Set a date to be notified for payment follow-up.
                         </p>
+                    </div>
+
+                    {/* Remarks Input Area (Replacing Quick Select) */}
+                    <div className="reminder-remarks-group">
+                        <div className="reminder-remarks-label-row">
+                            <label htmlFor="reminder-remarks-input">
+                                <i className="bi bi-chat-left-text text-primary"></i>
+                                Remarks / Notes
+                            </label>
+                        </div>
+                        <div className="reminder-remarks-wrapper">
+                            <textarea
+                                id="reminder-remarks-input"
+                                className="reminder-remarks-textarea"
+                                placeholder="Add follow-up remarks or notes (e.g. Promised to pay by cash, follow up in afternoon)..."
+                                value={remarks}
+                                onChange={(e) => setRemarks(e.target.value)}
+                                rows={3}
+                                maxLength={250}
+                            />
+                            <div className="reminder-remarks-counter">
+                                {remarks.length}/250
+                            </div>
+                        </div>
                     </div>
                 </div>
 

@@ -65,9 +65,14 @@ export const DownloadCustomerStatementReport = () => {
       <main className="download-statement-main-content">
         <div className="download-statement-content-container">
           <div className="download-statement-button-container">
-            <button className="download-statement-back-button" onClick={handleBack}>
-              <i className="bi bi-arrow-left"></i>
-              Back
+            <button
+              type="button"
+              className="download-statement-close-button"
+              onClick={handleBack}
+              title="Close report"
+              aria-label="Close"
+            >
+              <i className="bi bi-x-lg"></i>
             </button>
           </div>
 

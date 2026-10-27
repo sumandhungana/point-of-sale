@@ -210,7 +210,7 @@ export const SupplierStatements: React.FC = () => {
         navigate(`/parties/supplier/profile/${id}`);
     };
 
-    const handleSaveReminder = async (newDate: string) => {
+    const handleSaveReminder = async (newDate: string, remarks?: string) => {
         if (!id) return;
         try {
             await fetch(`/api/v1/customer/${id}`, {
@@ -225,7 +225,7 @@ export const SupplierStatements: React.FC = () => {
             }).catch(() => {});
             localStorage.setItem(`supplier_reminder_${id}`, newDate);
             setReminderDate(newDate);
-            toast.success(`Reminder date set for ${newDate}`);
+            toast.success(remarks ? `Reminder date and note set for ${newDate}` : `Reminder date set for ${newDate}`);
         } catch (error) {
             console.error(error);
             toast.error('Failed to set reminder.');
@@ -246,6 +246,7 @@ export const SupplierStatements: React.FC = () => {
                 })
             }).catch(() => {});
             localStorage.removeItem(`supplier_reminder_${id}`);
+            localStorage.removeItem(`reminder_remarks_supplier_${id}`);
             setReminderDate('');
             toast.success('Reminder cleared successfully.');
         } catch (error) {
@@ -291,7 +292,10 @@ export const SupplierStatements: React.FC = () => {
 
     const handleEditTransaction = (txn: TransactionDetailData) => {
         const editData = {
+            paymentId: txn.id,
+            supplierId: txn.partyId,
             customerId: txn.partyId,
+            supplierName: txn.partyName,
             customerName: txn.partyName,
             amount: txn.amount,
             remarks: txn.remarks,
@@ -632,6 +636,7 @@ export const SupplierStatements: React.FC = () => {
                     initialDate={reminderDate}
                     partyName={supplierName}
                     partyType="Supplier"
+                    partyId={id}
                     onSave={handleSaveReminder}
                     onClear={handleClearReminder}
                 />

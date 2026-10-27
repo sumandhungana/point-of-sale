@@ -7,6 +7,7 @@ import { getAllSalesBill as fetchSalesBillsService, GetAllSalesBillResponse } fr
 import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
 import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
 import { printInvoiceDirectly } from '../utils/printInvoice';
+import { useAppSettings } from '@/context/AppSettingsContext';
 
 interface GroupedSalesBill {
   id: number;
@@ -24,6 +25,7 @@ interface GroupedSalesBill {
 
 export const Sales: React.FC = () => {
   const navigate = useNavigate();
+  const { formatNumber } = useAppSettings();
   const [salesBills, setSalesBills] = useState<GetAllSalesBillResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -259,7 +261,7 @@ export const Sales: React.FC = () => {
                 <div>
                   <div className="stat-label">Total Revenue</div>
                   <div className="stat-value" style={{ color: '#255DCE' }}>
-                    Rs. {totalRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Rs. {formatNumber(totalRevenue)}
                   </div>
                 </div>
               </div>
@@ -281,7 +283,7 @@ export const Sales: React.FC = () => {
                 <div>
                   <div className="stat-label">Cash Revenue</div>
                   <div className="stat-value" style={{ color: '#255DCE' }}>
-                    Rs. {cashRevenue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Rs. {formatNumber(cashRevenue)}
                   </div>
                 </div>
               </div>
@@ -395,7 +397,7 @@ export const Sales: React.FC = () => {
                             <div className="vertical-divider"></div>
 
                             <div className="sales-amount-tag" style={{ color: '#255DCE', fontWeight: 'bold', fontSize: '16px' }}>
-                              Rs. {bill.totalAmount.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                              Rs. {formatNumber(bill.totalAmount)}
                             </div>
 
                             <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>

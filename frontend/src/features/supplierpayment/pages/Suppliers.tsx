@@ -185,6 +185,39 @@ export const Suppliers = () => {
         navigate(`/parties/supplier/statements/${supplierId}`);
     };
 
+    const getRelativeTime = (date?: string) => {
+        if (!date) return 'N/A';
+        const d = new Date(date);
+        if (isNaN(d.getTime())) return 'Recently';
+        const diffMs = Date.now() - d.getTime();
+
+        const seconds = Math.floor(diffMs / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        const days = Math.floor(hours / 24);
+        if (seconds < 60) return `${Math.max(0, seconds)} sec ago`;
+        if (minutes < 60) return `${minutes} min ago`;
+        if (hours < 24) return `${hours} hr ago`;
+        if (days < 30) return `${days} day${days !== 1 ? 's' : ''} ago`;
+        return d.toLocaleDateString();
+    };
+
+    const getLatestUpdatedAt = (supplier: SupplierWithBalance) => {
+        const dates: number[] = [];
+        if (supplier.updatedAt && !isNaN(new Date(supplier.updatedAt).getTime())) {
+            dates.push(new Date(supplier.updatedAt).getTime());
+        }
+        if (Array.isArray(supplier.paymentHistory)) {
+            supplier.paymentHistory.forEach(p => {
+                const ts = p?.updatedAt || p?.createdAt;
+                if (ts && !isNaN(new Date(ts).getTime())) {
+                    dates.push(new Date(ts).getTime());
+                }
+            });
+        }
+        return dates.length > 0 ? new Date(Math.max(...dates)).toISOString() : supplier.createdAt || '';
+    };
+
     const filteredSuppliers = suppliers
         .filter((supplier) => {
             const matchesSearch =
@@ -221,25 +254,33 @@ export const Suppliers = () => {
                                 className="suppliers-search-input"
                             />
                         </div>
-                        <select
-                            value={filterBy}
-                            onChange={(e) => setFilterBy(e.target.value)}
-                            className="suppliers-filter-select"
-                        >
-                            <option value="all">All Suppliers</option>
-                            <option value="positive">Positive Balance</option>
-                            <option value="negative">Negative Balance</option>
-                            <option value="zero">Zero Balance</option>
-                        </select>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="suppliers-filter-select"
-                        >
-                            <option value="name">Sort by Name</option>
-                            <option value="balance">Sort by Balance</option>
-                            <option value="recent">Sort by Recent</option>
-                        </select>
+                        <div className="suppliers-filter-sort-controls">
+                            <div className="suppliers-filter-group">
+                                <i className="bi bi-funnel suppliers-select-icon"></i>
+                                <select
+                                    value={filterBy}
+                                    onChange={(e) => setFilterBy(e.target.value)}
+                                    className="suppliers-filter-select"
+                                >
+                                    <option value="all">All Suppliers</option>
+                                    <option value="positive">You'll Receive</option>
+                                    <option value="negative">You'll Give</option>
+                                    <option value="zero">Settled</option>
+                                </select>
+                            </div>
+                            <div className="suppliers-sort-group">
+                                <i className="bi bi-sort-down suppliers-select-icon"></i>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="suppliers-sort-select"
+                                >
+                                    <option value="recent">Most Recent</option>
+                                    <option value="name">Name (A-Z)</option>
+                                    <option value="balance">Highest Balance</option>
+                                </select>
+                            </div>
+                        </div>
                         <div className="suppliers-action-buttons">
                             <button onClick={handleBulkReminder} className="suppliers-action-button suppliers-reminder-button">
                                 <i className="bi bi-bell"></i>
@@ -330,6 +371,10 @@ export const Suppliers = () => {
                                         <p className="suppliers-working-hours">
                                             <i className="bi bi-telephone me-1"></i>
                                             {supplier.phone || supplier.phoneNumber || 'N/A'}
+                                        </p>
+                                        <p className="suppliers-working-hours">
+                                            <i className="bi bi-clock me-1"></i>
+                                            {getRelativeTime(getLatestUpdatedAt(supplier))}
                                         </p>
                                     </div>
                                 </div>

@@ -131,7 +131,6 @@ export const AddSupplier = () => {
                                 <i className="bi bi-shop-window" />
                             </div>
                             <div>
-                                <h1 className="form-header-title">Add New Supplier</h1>
                                 <p className="form-header-subtitle">Register vendor master profile and procurement contacts</p>
                             </div>
                         </div>
@@ -149,9 +148,15 @@ export const AddSupplier = () => {
                     </div>
 
                     <form onSubmit={handleSubmit} className="form-body">
-                        {/* Interactive Avatar Upload Card */}
+                        {/* Interactive Avatar Upload */}
                         <div className="avatar-card-banner">
-                            <div className="avatar-preview-wrapper" onClick={() => fileInputRef.current?.click()} role="button" tabIndex={0}>
+                            <div
+                                className="avatar-preview-wrapper"
+                                onClick={() => fileInputRef.current?.click()}
+                                role="button"
+                                tabIndex={0}
+                                title={imagePreview ? "Change Photo" : "Add Photo"}
+                            >
                                 <div className="avatar-display-frame">
                                     {imagePreview ? (
                                         <img src={imagePreview} alt="Supplier Preview" className="avatar-img-preview" />
@@ -161,39 +166,31 @@ export const AddSupplier = () => {
                                         </div>
                                     )}
                                     <div className="avatar-hover-overlay">
-                                        <i className="bi bi-camera-fill" />
-                                        <span>Change</span>
+                                        <i className="bi bi-plus-lg" />
+                                        <span>{imagePreview ? 'Change' : 'Add'}</span>
                                     </div>
                                 </div>
-                                <div className="avatar-camera-badge" title="Upload Photo">
-                                    <i className="bi bi-camera-fill" />
+                                <div className="avatar-camera-badge" title={imagePreview ? "Change Photo" : "Add Photo"}>
+                                    <i className="bi bi-plus-lg" />
                                 </div>
                             </div>
 
-                            <div className="avatar-meta-info">
-                                <h3 className="avatar-meta-title">Supplier Photo</h3>
-                                <p className="avatar-meta-hint">Upload a vendor logo, storefront, or contact photo (max 2MB)</p>
-                                <div className="avatar-action-buttons">
+                            {imagePreview && (
+                                <div className="avatar-remove-wrapper">
                                     <button
                                         type="button"
-                                        className="btn-upload-avatar"
-                                        onClick={() => fileInputRef.current?.click()}
+                                        className="btn-remove-avatar"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRemoveImage();
+                                        }}
+                                        title="Remove Photo"
                                     >
-                                        <i className="bi bi-cloud-arrow-up me-1" />
-                                        {imagePreview ? 'Replace Photo' : 'Choose Photo'}
+                                        <i className="bi bi-trash3 me-1" />
+                                        Remove
                                     </button>
-                                    {imagePreview && (
-                                        <button
-                                            type="button"
-                                            className="btn-remove-avatar"
-                                            onClick={handleRemoveImage}
-                                        >
-                                            <i className="bi bi-trash3 me-1" />
-                                            Remove
-                                        </button>
-                                    )}
                                 </div>
-                            </div>
+                            )}
 
                             <input
                                 ref={fileInputRef}

@@ -52,7 +52,7 @@ export const ViewProductModal: React.FC<ViewProductModalProps> = ({
                 {/* Modal Header */}
                 <div className="modal-header">
                     <div>
-                        <div className="view-modal-title-row" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="view-modal-title-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                             <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700, color: '#0f172a' }}>
                                 Product Details
                             </h3>

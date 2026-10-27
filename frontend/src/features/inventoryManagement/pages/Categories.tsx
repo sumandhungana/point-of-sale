@@ -143,7 +143,7 @@ export const Categories: React.FC = () => {
                     <div className="stat-icon-box navy">
                         <i className="bi bi-tags"></i>
                     </div>
-                    <div>
+                    <div className="stat-content">
                         <div className="stat-label">Total Categories</div>
                         <div className="stat-value">{categories.length} Categories</div>
                     </div>
@@ -153,7 +153,7 @@ export const Categories: React.FC = () => {
                     <div className="stat-icon-box blue">
                         <i className="bi bi-check2-circle"></i>
                     </div>
-                    <div>
+                    <div className="stat-content">
                         <div className="stat-label">In Current View</div>
                         <div className="stat-value">{filteredCategories.length} Active</div>
                     </div>
@@ -163,7 +163,7 @@ export const Categories: React.FC = () => {
                     <div className="stat-icon-box navy">
                         <i className="bi bi-grid-3x3-gap"></i>
                     </div>
-                    <div>
+                    <div className="stat-content">
                         <div className="stat-label">Category Types</div>
                         <div className="stat-value">{CATEGORY_TYPES.length} Types</div>
                     </div>

@@ -4,9 +4,10 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import '../../../styles/Products.css';
 import { getProduct, Item } from "@/features/services/productService";
+import { fetchCategories } from '@/features/services/categoryService';
 import { Categories } from './Categories';
 import { useAppSettings } from '@/context/AppSettingsContext';
-import { resolveImageSrc } from '@/utils/ImageResolver';
+import { resolveImageSrc } from '../../../utils/ImageResolver';
 import ViewProductModal from '../components/ViewProductModal';
 
 export const Products: React.FC = () => {
@@ -15,9 +16,8 @@ export const Products: React.FC = () => {
 
     // Module Active Tab State ('products' | 'categories')
     const [activeTab, setActiveTab] = useState<'products' | 'categories'>('products');
+    const [categoriesCount, setCategoriesCount] = useState<number>(0);
 
-    // View mode: 'list' (matching Organization/Customers) vs 'table'
-    const [viewMode, setViewMode] = useState<'list' | 'table'>('list');
 
     // View Product Modal State
     const [viewingItem, setViewingItem] = useState<Item | null>(null);
@@ -56,7 +56,23 @@ export const Products: React.FC = () => {
         } finally {
             setLoading(false);
         }
+
+        try {
+            const cats = await fetchCategories();
+            if (Array.isArray(cats)) {
+                setCategoriesCount(cats.length);
+            }
+        } catch {
+            // ignore
+        }
     };
+
+    // Keep category count refreshed when switching tabs
+    useEffect(() => {
+        fetchCategories().then(cats => {
+            if (Array.isArray(cats)) setCategoriesCount(cats.length);
+        }).catch(() => {});
+    }, [activeTab]);
 
     // Calculate aggregated total gross purchase valuation across items
     const totalPurchaseValuation = items.reduce(
@@ -165,59 +181,86 @@ export const Products: React.FC = () => {
                 <Navbar />
 
                 <div className="user-management-content">
-                    {/* Module Tabs */}
-                    <div className="tab-container">
-                        <button
-                            type="button"
-                            className={`tab-btn ${activeTab === 'products' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('products')}
-                        >
-                            <i className="bi bi-box-seam me-2"></i>
-                            Products List
-                        </button>
-                        <button
-                            type="button"
-                            className={`tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('categories')}
-                        >
-                            <i className="bi bi-tags me-2"></i>
-                            Categories
-                        </button>
+                    {/* Module Navigation Header with Modern Segmented Switcher & Contextual Chip */}
+                    <div className="module-nav-header">
+                        <div className="segmented-tab-control" role="tablist" aria-label="Inventory Navigation">
+                            <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === 'products'}
+                                className={`segmented-tab-btn ${activeTab === 'products' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('products')}
+                            >
+                                <i className="bi bi-box-seam"></i>
+                                <span>Product List</span>
+                                <span className="tab-pill-badge">{totalItems}</span>
+                            </button>
+                            <button
+                                type="button"
+                                role="tab"
+                                aria-selected={activeTab === 'categories'}
+                                className={`segmented-tab-btn ${activeTab === 'categories' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('categories')}
+                            >
+                                <i className="bi bi-tags"></i>
+                                <span>Categories</span>
+                                {categoriesCount > 0 && (
+                                    <span className="tab-pill-badge">{categoriesCount}</span>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Visual Context Indicator Chip */}
+                        {/*<div className={`tab-context-chip ${activeTab === 'products' ? 'products-chip' : 'categories-chip'}`}>*/}
+                        {/*    {activeTab === 'products' ? (*/}
+                        {/*        <>*/}
+                        {/*            <i className="bi bi-boxes"></i>*/}
+                        {/*            <span>Product Catalog & Stock</span>*/}
+                        {/*        </>*/}
+                        {/*    ) : (*/}
+                        {/*        <>*/}
+                        {/*            <i className="bi bi-diagram-3-fill"></i>*/}
+                        {/*            <span>Category Classifications</span>*/}
+                        {/*        </>*/}
+                        {/*    )}*/}
+                        {/*</div>*/}
                     </div>
 
-                    {activeTab === 'categories' ? (
-                        <Categories />
-                    ) : (
-                        <>
-                            {/* Stat Cards Summary (Matching Organization & Customers) */}
+                    {/* Animated Tab View Content */}
+                    <div key={activeTab} className={`tab-view-content tab-${activeTab}`}>
+                        {activeTab === 'categories' ? (
+                            <Categories />
+                        ) : (
+                            <>
+                            {/* Stat Cards Summary (Centered KPI Cards) */}
                             <div className="stat-card-grid">
-                                <div className="stat-card">
-                                    <div className="stat-icon-box navy">
+                                <div className="stat-card stat-card-red">
+                                    <div className="stat-icon-box red">
                                         <i className="bi bi-wallet2"></i>
                                     </div>
-                                    <div>
-                                        <div className="stat-label">Total Purchase Valuation</div>
-                                        <div className="stat-value">{formatCurrency(totalPurchaseValuation)}</div>
+                                    <div className="stat-content">
+                                        <div className="stat-label">Total Purchase Amount</div>
+                                        <div className="stat-value red">{formatCurrency(totalPurchaseValuation)}</div>
                                     </div>
                                 </div>
 
-                                <div className="stat-card">
-                                    <div className="stat-icon-box blue">
+                                <div className="stat-card stat-card-green">
+                                    <div className="stat-icon-box green">
                                         <i className="bi bi-graph-up-arrow"></i>
                                     </div>
-                                    <div>
-                                        <div className="stat-label">Total Realized Sales</div>
-                                        <div className="stat-value">{formatCurrency(totalSalesPrice)}</div>
+                                    <div className="stat-content">
+                                        <div className="stat-label">Total Sales Amount</div>
+                                        <div className="stat-value green">{formatCurrency(totalSalesPrice)}</div>
                                     </div>
                                 </div>
 
-                                <div className="stat-card">
-                                    <div className="stat-icon-box navy">
+                                <div className="stat-card stat-card-blue">
+                                    <div className="stat-icon-box blue">
                                         <i className="bi bi-box-seam"></i>
                                     </div>
-                                    <div>
-                                        <div className="stat-label">Total Unique Items</div>
-                                        <div className="stat-value">{formatNumber(totalItems, 0)} Items</div>
+                                    <div className="stat-content">
+                                        <div className="stat-label">Total Items</div>
+                                        <div className="stat-value blue">{formatNumber(totalItems, 0)} Items</div>
                                     </div>
                                 </div>
                             </div>
@@ -270,40 +313,18 @@ export const Products: React.FC = () => {
 
                                     <button
                                         type="button"
-                                        className={`btn-secondary ${filterBy === 'lowStock' ? 'active' : ''}`}
+                                        className={`btn-low-stock ${filterBy === 'lowStock' ? 'active' : ''}`}
                                         onClick={() => setFilterBy(filterBy === 'lowStock' ? 'all' : 'lowStock')}
                                     >
-                                        <i className="bi bi-exclamation-circle me-1"></i>
+                                        <i className="bi bi-exclamation-triangle-fill me-1"></i>
                                         {filterBy === 'lowStock' ? 'Show All' : `Low Stock (${lowStockCount})`}
                                     </button>
 
-                                    {/* View Mode Toggle: List View (default) vs Table View */}
-                                    <div className="view-mode-toggle">
-                                        <button
-                                            type="button"
-                                            className={`view-mode-btn ${viewMode === 'list' ? 'active' : ''}`}
-                                            onClick={() => setViewMode('list')}
-                                            title="Card List View (Matching Customers & Organization)"
-                                        >
-                                            <i className="bi bi-list-ul"></i>
-                                            List
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={`view-mode-btn ${viewMode === 'table' ? 'active' : ''}`}
-                                            onClick={() => setViewMode('table')}
-                                            title="Table View"
-                                        >
-                                            <i className="bi bi-table"></i>
-                                            Table
-                                        </button>
-                                    </div>
                                 </div>
                             </div>
 
-                            {/* View Representation: Card List View (Primary) vs Table View */}
-                            {viewMode === 'list' ? (
-                                <div className="inventory-list-container">
+                            {/* Items List */}
+                            <div className="inventory-list-container">
                                     {loading ? (
                                         <div style={{ textAlign: 'center', padding: '60px 20px', background: '#ffffff', borderRadius: '12px', border: '1px solid #f1f5f9', color: '#64748b' }}>
                                             <div className="spinner-border text-primary mb-2" role="status">
@@ -343,7 +364,6 @@ export const Products: React.FC = () => {
                                         filteredItems.map((item: Item) => {
                                             const qty = item.itemCount ?? 0;
                                             const unit = item.unit || 'pcs';
-                                            const unitPurchase = item.perUnitPurchasePrice || 0;
                                             const grossPurchase = item.grossPurchasePrice || 0;
                                             const fixedSelling = item.fixedSellingPrice || 0;
                                             const totalSales = item.totalSalesAmount || 0;
@@ -372,9 +392,9 @@ export const Products: React.FC = () => {
                                                         </div>
 
                                                         <div className="inventory-item-details">
+                                                            {/* Top Row: Item name, Category, Stock info (No Item ID) */}
                                                             <div className="inventory-item-title-row">
                                                                 <h3 className="inventory-item-name">{item.name}</h3>
-                                                                <span className="item-id-badge">#ITEM-{item.id}</span>
                                                                 <span className="badge-role">
                                                                     {item.category?.name || 'Uncategorized'}
                                                                 </span>
@@ -394,49 +414,36 @@ export const Products: React.FC = () => {
                                                                 )}
                                                             </div>
 
-                                                            <div className="inventory-item-meta">
-                                                                <span>
-                                                                    <i className="bi bi-boxes me-1" style={{ color: '#255DCE' }}></i>
-                                                                    Stock: <strong>{formatNumber(qty, 0)} {unit}</strong>
-                                                                </span>
-                                                                <span>•</span>
-                                                                <span>
-                                                                    <i className="bi bi-receipt me-1" style={{ color: '#64748b' }}></i>
-                                                                    Unit Purchase: <strong>{formatCurrency(unitPurchase)}</strong>
-                                                                </span>
-                                                                <span>•</span>
-                                                                <span>
-                                                                    <i className="bi bi-wallet2 me-1" style={{ color: '#64748b' }}></i>
-                                                                    Gross Purchase: <strong>{formatCurrency(grossPurchase)}</strong>
-                                                                </span>
-                                                                {totalSales > 0 && (
-                                                                    <>
-                                                                        <span>•</span>
-                                                                        <span>
-                                                                            <i className="bi bi-graph-up me-1" style={{ color: '#059669' }}></i>
-                                                                            Realized Sales: <strong>{formatCurrency(totalSales)}</strong>
-                                                                        </span>
-                                                                    </>
-                                                                )}
-                                                                {item.updatedAt && (
-                                                                    <>
-                                                                        <span>•</span>
-                                                                        <span>
-                                                                            <i className="bi bi-clock me-1 text-muted"></i>
-                                                                            {getRelativeTime(item.updatedAt)}
-                                                                        </span>
-                                                                    </>
-                                                                )}
+                                                            {/* Second Row: Total Sales */}
+                                                            <div className="inventory-item-sales-row">
+                                                                <span className="sales-label">Total Sales:</span>
+                                                                <strong className="sales-value">{formatCurrency(totalSales)}</strong>
+                                                            </div>
+
+                                                            {/* Below that: Date (e.g. 18d ago) */}
+                                                            <div className="inventory-item-date-row">
+                                                                <i className="bi bi-clock me-1 text-muted"></i>
+                                                                <span>{getRelativeTime(item.updatedAt || item.createdAt)}</span>
                                                             </div>
                                                         </div>
                                                     </div>
 
+                                                    {/* Right Row: Total Purchase and Fixed Selling side-by-side + Action Buttons */}
                                                     <div className="inventory-item-right">
-                                                        <div className="inventory-price-box">
-                                                            <span className="inventory-price-label">Fixed Selling</span>
-                                                            <span className="inventory-price-value">
-                                                                {fixedSelling > 0 ? formatCurrency(fixedSelling) : 'Dynamic'}
-                                                            </span>
+                                                        <div className="inventory-prices-group">
+                                                            <div className="inventory-price-box">
+                                                                <span className="inventory-price-label">Total Purchase</span>
+                                                                <span className="inventory-price-value purchase">
+                                                                    {formatCurrency(grossPurchase)}
+                                                                </span>
+                                                            </div>
+
+                                                            <div className="inventory-price-box">
+                                                                <span className="inventory-price-label">Fixed Selling</span>
+                                                                <span className="inventory-price-value selling">
+                                                                    {fixedSelling > 0 ? formatCurrency(fixedSelling) : 'Dynamic'}
+                                                                </span>
+                                                            </div>
                                                         </div>
 
                                                         {/* Actions: View & Edit */}
@@ -467,134 +474,6 @@ export const Products: React.FC = () => {
                                         })
                                     )}
                                 </div>
-                            ) : (
-                                /* Table View as alternate option */
-                                <div className="user-table-card">
-                                    <table className="user-table">
-                                        <thead>
-                                        <tr>
-                                            <th>Item & Category</th>
-                                            <th>Stock Quantity</th>
-                                            <th>Unit Purchase</th>
-                                            <th>Gross Purchase</th>
-                                            <th>Fixed Selling</th>
-                                            <th>Sales Revenue</th>
-                                            <th style={{ textAlign: 'center' }}>Actions</th>
-                                        </tr>
-                                        </thead>
-                                        <tbody>
-                                        {loading ? (
-                                            <tr>
-                                                <td colSpan={7} className="text-center py-4">
-                                                    <i className="bi bi-arrow-repeat spin me-2"></i>
-                                                    Fetching inventory items...
-                                                </td>
-                                            </tr>
-                                        ) : error ? (
-                                            <tr>
-                                                <td colSpan={7} className="text-center py-4 text-danger">
-                                                    <i className="bi bi-exclamation-triangle me-2"></i>
-                                                    {error}
-                                                </td>
-                                            </tr>
-                                        ) : filteredItems.length === 0 ? (
-                                            <tr>
-                                                <td colSpan={7} className="text-center py-4 text-muted">
-                                                    <i className="bi bi-inbox me-2"></i>
-                                                    No items match the selected filter criteria.
-                                                </td>
-                                            </tr>
-                                        ) : (
-                                            filteredItems.map((item: Item) => {
-                                                const qty = item.itemCount ?? 0;
-                                                const unitPurchase = item.perUnitPurchasePrice || 0;
-                                                const grossPurchase = item.grossPurchasePrice || 0;
-                                                const fixedSelling = item.fixedSellingPrice || 0;
-                                                const totalSales = item.totalSalesAmount || 0;
-                                                const imageSrc = item.imageUrl ? resolveImageSrc(item.imageUrl) : '';
-
-                                                return (
-                                                    <tr
-                                                        key={item.id}
-                                                        className="clickable-row"
-                                                        onClick={() => handleViewItem(item)}
-                                                    >
-                                                        <td>
-                                                            <div className="item-cell-content">
-                                                                <div className="item-thumb-box">
-                                                                    {imageSrc ? (
-                                                                        <img
-                                                                            src={imageSrc}
-                                                                            alt={item.name}
-                                                                            className="item-thumb"
-                                                                            onError={(e) => {
-                                                                                e.currentTarget.style.display = 'none';
-                                                                            }}
-                                                                        />
-                                                                    ) : (
-                                                                        <i className="bi bi-box"></i>
-                                                                    )}
-                                                                </div>
-                                                                <div className="item-info-wrapper">
-                                                                    <div className="text-navy">{item.name}</div>
-                                                                    <div>
-                                                                        <span className="badge-role">
-                                                                            {item.category?.name || 'Uncategorized'}
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div className="stock-cell-wrapper">
-                                                                <div className="fw-semibold">
-                                                                    {qty.toLocaleString()} <span className="text-muted">{item.unit || 'pcs'}</span>
-                                                                </div>
-                                                                <div>
-                                                                    {qty <= 0 ? (
-                                                                        <span className="badge-status inactive">Out of stock</span>
-                                                                    ) : qty <= 5 ? (
-                                                                        <span className="badge-status inactive" style={{ backgroundColor: 'rgba(255, 193, 7, 0.1)', color: '#856404', borderColor: 'rgba(255, 193, 7, 0.25)' }}>Low stock</span>
-                                                                    ) : (
-                                                                        <span className="badge-status active">In stock</span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>{formatCurrency(unitPurchase)}</td>
-                                                        <td>{formatCurrency(grossPurchase)}</td>
-                                                        <td>{formatCurrency(fixedSelling)}</td>
-                                                        <td className="fw-semibold" style={{ color: '#255DCE' }}>
-                                                            {formatCurrency(totalSales)}
-                                                        </td>
-                                                        <td onClick={(e) => e.stopPropagation()}>
-                                                            <div style={{ display: 'flex', gap: '6px', justifyContent: 'center' }}>
-                                                                <button
-                                                                    type="button"
-                                                                    className="table-action-btn view"
-                                                                    title="View Details"
-                                                                    onClick={(e) => handleViewItem(item, e)}
-                                                                >
-                                                                    <i className="bi bi-eye"></i>
-                                                                </button>
-                                                                <button
-                                                                    type="button"
-                                                                    className="table-action-btn edit"
-                                                                    title="Edit Product"
-                                                                    onClick={(e) => handleEditItem(item, e)}
-                                                                >
-                                                                    <i className="bi bi-pencil-square"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })
-                                        )}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
 
                             {/* View Product Modal */}
                             <ViewProductModal
@@ -603,18 +482,21 @@ export const Products: React.FC = () => {
                                 item={viewingItem}
                                 onEdit={(item) => handleEditItem(item)}
                             />
-
-                            {/* Sticky Bottom-Right Add Item Floating Button */}
-                            <button
-                                type="button"
-                                onClick={handleAddItem}
-                                className="sticky-add-btn"
-                                title="Add New Product"
-                            >
-                                <i className="bi bi-plus-lg me-2"></i>
-                                Add Item
-                            </button>
                         </>
+                    )}
+                    </div>
+
+                    {/* Truly Sticky Floating Add Item Button - Fixed to Browser Viewport */}
+                    {activeTab === 'products' && (
+                        <button
+                            type="button"
+                            onClick={handleAddItem}
+                            className="sticky-add-btn"
+                            title="Add New Product"
+                        >
+                            <i className="bi bi-plus-lg me-2"></i>
+                            Add Item
+                        </button>
                     )}
                 </div>
             </div>

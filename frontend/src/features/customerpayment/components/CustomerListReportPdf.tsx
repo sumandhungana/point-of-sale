@@ -392,6 +392,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import '../../../styles/CustomerListReportPdf.css';
 import logo from '../../../assets/logo.png';
+import { formatSystemNumber } from '@/features/services/appSettingService';
 
 interface CustomerWithBalance extends Customer {
     balance: number;
@@ -568,19 +569,21 @@ export const CustomerListReportPdf = () => {
                 <div className="customer-report-content-container">
                     <div className="customer-report-button-container">
                         <button
-                            onClick={handleBack}
-                            className="customer-report-back-button"
-                        >
-                            <i className="bi bi-arrow-left"></i>
-                            Back
-                        </button>
-                        <button
                             onClick={handleGeneratePdf}
                             className="customer-report-generate-button"
                             disabled={generatingPdf}
                         >
                             <i className={`bi ${generatingPdf ? 'bi-arrow-clockwise spin' : 'bi-file-earmark-pdf'}`}></i>
                             {generatingPdf ? 'Generating...' : 'Generate PDF'}
+                        </button>
+                        <button
+                            type="button"
+                            onClick={handleBack}
+                            className="customer-report-close-button"
+                            title="Close report"
+                            aria-label="Close"
+                        >
+                            <i className="bi bi-x-lg"></i>
                         </button>
                     </div>
 
@@ -620,7 +623,7 @@ export const CustomerListReportPdf = () => {
                                     You Gave
                                 </p>
                                 <p className={`customer-report-summary-item-value customer-report-gave-value`}>
-                                    रू {totalGave.toLocaleString()}
+                                    रू {formatSystemNumber(totalGave)}
                                 </p>
                             </div>
                             <div className="customer-report-summary-divider"></div>
@@ -630,7 +633,7 @@ export const CustomerListReportPdf = () => {
                                     You Received
                                 </p>
                                 <p className={`customer-report-summary-item-value customer-report-received-value`}>
-                                    रू {totalReceived.toLocaleString()}
+                                    रू {formatSystemNumber(totalReceived)}
                                 </p>
                             </div>
                             <div className="customer-report-summary-divider"></div>
@@ -640,7 +643,7 @@ export const CustomerListReportPdf = () => {
                                     Net Balance
                                 </p>
                                 <p className={`customer-report-summary-item-value customer-report-net-value`}>
-                                    रू {netBalance.toLocaleString()}
+                                    रू {formatSystemNumber(netBalance)}
                                 </p>
                             </div>
                         </div>
@@ -682,10 +685,10 @@ export const CustomerListReportPdf = () => {
                                         <td className="customer-report-table-cell customer-report-name-cell">{customer.name}</td>
                                         <td className="customer-report-table-cell customer-report-phone-cell">{customer.phone}</td>
                                         <td className={`customer-report-table-cell customer-report-gave-cell`}>
-                                            {customer.balance < 0 ? `रू ${Math.abs(customer.balance).toLocaleString()}` : ""}
+                                            {customer.balance < 0 ? `रू ${formatSystemNumber(Math.abs(customer.balance))}` : ""}
                                         </td>
                                         <td className={`customer-report-table-cell customer-report-received-cell`}>
-                                            {customer.balance > 0 ? `रू ${customer.balance.toLocaleString()}` : ""}
+                                            {customer.balance > 0 ? `रू ${formatSystemNumber(customer.balance)}` : ""}
                                         </td>
                                         <td className="customer-report-table-cell customer-report-collection-cell">
                                             {customer.paymentDateReminder
@@ -701,10 +704,10 @@ export const CustomerListReportPdf = () => {
                                         <strong>Grand Total</strong>
                                     </td>
                                     <td className="customer-report-gave-cell" style={{ paddingLeft: "12px" }}>
-                                        <strong>रू {tableTotals.given.toLocaleString()}</strong>
+                                        <strong>रू {formatSystemNumber(tableTotals.given)}</strong>
                                     </td>
                                     <td className="customer-report-received-cell" style={{ paddingLeft: "12px" }}>
-                                        <strong>रू {tableTotals.received.toLocaleString()}</strong>
+                                        <strong>रू {formatSystemNumber(tableTotals.received)}</strong>
                                     </td>
                                     <td className="customer-report-table-cell customer-report-collection-cell"></td>
                                 </tr>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Loan, LoanTransaction, TransactionType } from '@/features/services/loanService';
 import { printHtmlContent } from '@/features/inventoryManagement/utils/printInvoice';
+import { formatSystemNumber } from '@/features/services/appSettingService';
 import '@/styles/LoanManagement.css';
 
 interface LoanDetailModalProps {
@@ -37,11 +38,11 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
             <tr>
                 <td class="text-center">${item.installmentNo}</td>
                 <td>${new Date(item.dueDate).toLocaleDateString()}</td>
-                <td class="text-end">Rs. ${item.beginningBalance.toLocaleString('en-IN')}</td>
-                <td class="text-end fw-bold" style="color: #255dce;">Rs. ${item.emiAmount.toLocaleString('en-IN')}</td>
-                <td class="text-end">Rs. ${item.principalComponent.toLocaleString('en-IN')}</td>
-                <td class="text-end">Rs. ${item.interestComponent.toLocaleString('en-IN')}</td>
-                <td class="text-end">Rs. ${item.endingBalance.toLocaleString('en-IN')}</td>
+                <td class="text-end">Rs. ${formatSystemNumber(item.beginningBalance)}</td>
+                <td class="text-end fw-bold" style="color: #255dce;">Rs. ${formatSystemNumber(item.emiAmount)}</td>
+                <td class="text-end">Rs. ${formatSystemNumber(item.principalComponent)}</td>
+                <td class="text-end">Rs. ${formatSystemNumber(item.interestComponent)}</td>
+                <td class="text-end">Rs. ${formatSystemNumber(item.endingBalance)}</td>
                 <td class="text-center">
                     <span style="padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: bold; background: ${
                         item.status === 'PAID' ? '#dcfce7; color: #15803d;' : '#fef3c7; color: #b45309;'
@@ -75,7 +76,7 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                 <div class="invoice-dates-col">
                     <div class="invoice-info-row">
                         <span class="invoice-info-label">Principal Amount:</span>
-                        <span class="invoice-info-val">Rs. ${loan.principalAmount.toLocaleString('en-IN')}</span>
+                        <span class="invoice-info-val">Rs. ${formatSystemNumber(loan.principalAmount)}</span>
                     </div>
                     <div class="invoice-info-row">
                         <span class="invoice-info-label">Interest Rate:</span>
@@ -83,7 +84,7 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                     </div>
                     <div class="invoice-info-row">
                         <span class="invoice-info-label">Monthly EMI:</span>
-                        <span class="invoice-info-val">Rs. ${loan.monthlyEmi.toLocaleString('en-IN')}</span>
+                        <span class="invoice-info-val">Rs. ${formatSystemNumber(loan.monthlyEmi)}</span>
                     </div>
                     <div class="invoice-info-row">
                         <span class="invoice-info-label">Tenure:</span>
@@ -95,15 +96,15 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
             <div class="report-kpis">
                 <div class="report-kpi">
                     <span>Total Borrowed</span>
-                    <span style="color: #0f172a;">Rs. ${loan.principalAmount.toLocaleString('en-IN')}</span>
+                    <span style="color: #0f172a;">Rs. ${formatSystemNumber(loan.principalAmount)}</span>
                 </div>
                 <div class="report-kpi">
                     <span>Total Repaid (Given)</span>
-                    <span style="color: #16a34a;">Rs. ${loan.totalPaid.toLocaleString('en-IN')}</span>
+                    <span style="color: #16a34a;">Rs. ${formatSystemNumber(loan.totalPaid)}</span>
                 </div>
                 <div class="report-kpi">
                     <span>Outstanding Balance</span>
-                    <span style="color: #255dce;">Rs. ${loan.remainingBalance.toLocaleString('en-IN')}</span>
+                    <span style="color: #255dce;">Rs. ${formatSystemNumber(loan.remainingBalance)}</span>
                 </div>
             </div>
 
@@ -193,7 +194,7 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                             <div>
                                 <span className="loan-stat-label">Principal Amount</span>
                                 <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
-                                    Rs. {loan.principalAmount.toLocaleString('en-IN')}
+                                    Rs. {formatSystemNumber(loan.principalAmount)}
                                 </div>
                             </div>
 
@@ -207,14 +208,14 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                             <div>
                                 <span className="loan-stat-label">Monthly EMI</span>
                                 <div style={{ fontSize: '18px', fontWeight: 800, color: '#255dce', marginTop: '2px' }}>
-                                    Rs. {loan.monthlyEmi.toLocaleString('en-IN')}
+                                    Rs. {formatSystemNumber(loan.monthlyEmi)}
                                 </div>
                             </div>
 
                             <div>
                                 <span className="loan-stat-label">Remaining Balance</span>
                                 <div style={{ fontSize: '18px', fontWeight: 800, color: '#dc2626', marginTop: '2px' }}>
-                                    Rs. {loan.remainingBalance.toLocaleString('en-IN')}
+                                    Rs. {formatSystemNumber(loan.remainingBalance)}
                                 </div>
                             </div>
                         </div>
@@ -222,8 +223,8 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                         {/* Progress Bar */}
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', color: '#64748b', marginBottom: '5px' }}>
-                                <span>Paid: Rs. {loan.totalPaid.toLocaleString('en-IN')} ({paidPercentage.toFixed(1)}%)</span>
-                                <span>Total Payable: Rs. {loan.totalPayable.toLocaleString('en-IN')}</span>
+                                <span>Paid: Rs. {formatSystemNumber(loan.totalPaid)} ({paidPercentage.toFixed(1)}%)</span>
+                                <span>Total Payable: Rs. {formatSystemNumber(loan.totalPayable)}</span>
                             </div>
                             <div className="loan-progress-bar">
                                 <div className="loan-progress-fill" style={{ width: `${Math.min(100, paidPercentage)}%` }}></div>
@@ -278,15 +279,15 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                                         <tr key={item.installmentNo}>
                                             <td className="text-center">{item.installmentNo}</td>
                                             <td>{new Date(item.dueDate).toLocaleDateString()}</td>
-                                            <td className="text-end">{item.beginningBalance.toLocaleString('en-IN')}</td>
+                                            <td className="text-end">{formatSystemNumber(item.beginningBalance)}</td>
                                             <td className="text-end fw-bold" style={{ color: '#255dce' }}>
-                                                {item.emiAmount.toLocaleString('en-IN')}
+                                                {formatSystemNumber(item.emiAmount)}
                                             </td>
-                                            <td className="text-end">{item.principalComponent.toLocaleString('en-IN')}</td>
+                                            <td className="text-end">{formatSystemNumber(item.principalComponent)}</td>
                                             <td className="text-end" style={{ color: '#d97706' }}>
-                                                {item.interestComponent.toLocaleString('en-IN')}
+                                                {formatSystemNumber(item.interestComponent)}
                                             </td>
-                                            <td className="text-end">{item.endingBalance.toLocaleString('en-IN')}</td>
+                                            <td className="text-end">{formatSystemNumber(item.endingBalance)}</td>
                                             <td className="text-center">
                                                 <span
                                                     className={`schedule-status-badge ${
@@ -397,10 +398,10 @@ export const LoanDetailModal: React.FC<LoanDetailModalProps> = ({
                                                             color: tx.type === 'PAYMENT_GIVEN' ? '#16a34a' : '#255dce',
                                                         }}
                                                     >
-                                                        Rs. {tx.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                        Rs. {formatSystemNumber(tx.amount)}
                                                     </td>
                                                     <td className="text-end fw-bold">
-                                                        Rs. {tx.balanceAfter.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                                        Rs. {formatSystemNumber(tx.balanceAfter)}
                                                     </td>
                                                 </tr>
                                             ))}

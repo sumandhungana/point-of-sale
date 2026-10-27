@@ -31,7 +31,7 @@ interface PurchaseLineItem {
 export const AddPurchase: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const { formatCurrency, settings } = useAppSettings();
+    const { formatCurrency, formatNumber, settings } = useAppSettings();
     const currencySymbol = settings.currency || 'Rs. ';
     const initialData = location.state?.purchase;
     const isEditMode = !!initialData;
@@ -250,14 +250,14 @@ export const AddPurchase: React.FC = () => {
                 return `Prices entered in the table are per unit and already include tax. (e.g. 10 items @ Rs 100/unit = Rs 1,000 total bill amount, including ${totalTaxPct}% tax/VAT).`;
             } else {
                 const sampleTax = (1000 * totalTaxPct) / 100;
-                return `Prices entered are base rate per unit. (e.g. 10 items @ Rs 100/unit = Rs 1,000 base + Rs ${sampleTax.toLocaleString()} tax/VAT [${totalTaxPct}%] = Rs ${(1000 + sampleTax).toLocaleString()} total).`;
+                return `Prices entered are base rate per unit. (e.g. 10 items @ Rs 100/unit = Rs 1,000 base + Rs ${formatNumber(sampleTax)} tax/VAT [${totalTaxPct}%] = Rs ${formatNumber(1000 + sampleTax)} total).`;
             }
         } else {
             if (isTaxInclusive) {
                 return `Price entered is the final lump-sum total for the line item. (e.g. Entering Rs 1,000 gross for 10 items = Rs 1,000 total bill amount; unit base rate is auto-calculated).`;
             } else {
                 const sampleTax = (1000 * totalTaxPct) / 100;
-                return `Price entered is the base lump-sum total. (e.g. Entering Rs 1,000 gross for 10 items + Rs ${sampleTax.toLocaleString()} tax/VAT [${totalTaxPct}%] = Rs ${(1000 + sampleTax).toLocaleString()} total).`;
+                return `Price entered is the base lump-sum total. (e.g. Entering Rs 1,000 gross for 10 items + Rs ${formatNumber(sampleTax)} tax/VAT [${totalTaxPct}%] = Rs ${formatNumber(1000 + sampleTax)} total).`;
             }
         }
     }, [pricingMode, isTaxInclusive, enableTax, taxPercentage, enableVat, vatPercentage]);
@@ -903,9 +903,9 @@ export const AddPurchase: React.FC = () => {
                                                         {item.categoryName && <div className="small text-muted">{item.categoryName}</div>}
                                                     </td>
                                                     <td className="text-center">{item.quantity}</td>
-                                                    <td className="text-end">Rs. {Number(item.unitPrice || 0).toFixed(2)}</td>
-                                                    <td className="text-end">Rs. {(Number(item.taxAmount || 0) + Number(item.vatAmount || 0)).toFixed(2)}</td>
-                                                    <td className="text-end fw-semibold">Rs. {Number(item.totalPrice || 0).toFixed(2)}</td>
+                                                    <td className="text-end">Rs. {formatNumber(item.unitPrice || 0)}</td>
+                                                    <td className="text-end">Rs. {formatNumber(Number(item.taxAmount || 0) + Number(item.vatAmount || 0))}</td>
+                                                    <td className="text-end fw-semibold">Rs. {formatNumber(item.totalPrice || 0)}</td>
                                                 </tr>
                                             ))}
                                             </tbody>
@@ -916,7 +916,7 @@ export const AddPurchase: React.FC = () => {
                                                 {remarks && <div><strong>Remarks:</strong> {remarks}</div>}
                                             </div>
                                             <div className="text-end fw-bold text-navy fs-5">
-                                                Grand Total: Rs. {grandTotal.toFixed(2)}
+                                                Grand Total: Rs. {formatNumber(grandTotal)}
                                             </div>
                                         </div>
                                     </div>

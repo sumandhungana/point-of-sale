@@ -60,4 +60,7 @@ export const getDashboardPaymentTotals = async (): Promise<{ totalGiven: number;
         }
         throw 'An unknown error occurred';
     }
-}; 
+};
+
+// Re-export all modern payment service methods and types
+export * from '@/features/services/paymentService';

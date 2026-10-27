@@ -39,13 +39,15 @@ export const SupplierStatement = () => {
         } else if (formData.customerId) {
             navigate(`/parties/supplier/statements/${formData.customerId}`);
         } else {
-            navigate('/parties/suppliers');
+            navigate('/parties/supplier');
         }
     };
 
     const handleEdit = () => {
         const editData = {
+            supplierId: formData.customerId,
             customerId: formData.customerId,
+            supplierName: formData.customerName,
             customerName: formData.customerName,
             amount: parseFloat(formData.totalAmount),
             remarks: formData.remarks,

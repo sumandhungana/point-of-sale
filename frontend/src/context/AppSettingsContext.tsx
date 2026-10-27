@@ -15,7 +15,7 @@ interface AppSettingsContextType {
   saveSettings: (newSettings: Partial<AppSettings>) => Promise<AppSettings>;
   resetSettings: () => Promise<AppSettings>;
   refreshSettings: () => Promise<void>;
-  formatCurrency: (amount: number | string | null | undefined) => string;
+  formatCurrency: (amount: number | string | null | undefined, decimals?: number) => string;
   formatNumber: (value: number | string | null | undefined, decimals?: number) => string;
   formatDate: (date: Date | string | null | undefined) => string;
   formatTime: (time: Date | string | null | undefined) => string;
@@ -140,23 +140,25 @@ export const AppSettingsProvider: React.FC<AppSettingsProviderProps> = ({ childr
   // Number formatting helper
   const formatNumber = useCallback(
     (value: number | string | null | undefined, decimals = 2): string => {
-      if (value === null || value === undefined || value === '') return '0.00';
-      const num = typeof value === 'number' ? value : parseFloat(String(value));
-      if (isNaN(num)) return '0.00';
+      if (value === null || value === undefined || value === '') return '0';
+      let num = typeof value === 'number' ? value : parseFloat(String(value));
+      if (isNaN(num)) return '0';
+      if (Math.abs(num) < 1e-9) num = 0;
 
       const format = settings.numberFormat || '1,234.56';
       const fixed = num.toFixed(decimals);
       const [intPart, decPart] = fixed.split('.');
+      const trimmedDec = decPart ? decPart.replace(/0+$/, '') : '';
 
       if (format === '1.234,56') {
         const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-        return decPart ? `${formattedInt},${decPart}` : formattedInt;
+        return trimmedDec ? `${formattedInt},${trimmedDec}` : formattedInt;
       } else if (format === '1234.56') {
-        return fixed;
+        return trimmedDec ? `${intPart}.${trimmedDec}` : intPart;
       } else {
         // Standard 1,234.56
         const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-        return decPart ? `${formattedInt}.${decPart}` : formattedInt;
+        return trimmedDec ? `${formattedInt}.${trimmedDec}` : formattedInt;
       }
     },
     [settings.numberFormat]
@@ -164,8 +166,8 @@ export const AppSettingsProvider: React.FC<AppSettingsProviderProps> = ({ childr
 
   // Currency formatting helper
   const formatCurrency = useCallback(
-    (amount: number | string | null | undefined): string => {
-      const formatted = formatNumber(amount);
+    (amount: number | string | null | undefined, decimals = 2): string => {
+      const formatted = formatNumber(amount, decimals);
       const curr = settings.currency || 'रु';
       const pos = settings.currencyPosition || 'before';
 

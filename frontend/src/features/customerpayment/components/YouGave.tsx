@@ -6,8 +6,8 @@ import { useAppSettings } from '@/context/AppSettingsContext';
 
 interface YouGaveProps {
     customerId?: number;
-    onSuccess: () => void;
-    onClose: () => void;
+    onSuccess?: () => void;
+    onClose?: () => void;
 }
 
 export const YouGave: React.FC<YouGaveProps> = ({ customerId, onSuccess, onClose }) => {
@@ -74,12 +74,12 @@ export const YouGave: React.FC<YouGaveProps> = ({ customerId, onSuccess, onClose
         // Run parent callbacks safely outside the API try-catch block
         if (paymentCreatedSuccessfully) {
             try {
-                onSuccess();
+                if (onSuccess) onSuccess();
             } catch (err) {
                 console.error('Error in onSuccess callback:', err);
             }
             try {
-                onClose();
+                if (onClose) onClose();
             } catch (err) {
                 console.error('Error in onClose callback:', err);
             }

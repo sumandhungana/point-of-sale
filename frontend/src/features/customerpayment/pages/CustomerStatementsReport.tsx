@@ -252,14 +252,28 @@ export const CustomerStatementsReport = () => {
             <main className="customer-statements-report-main-content">
                 <div ref={contentRef} className="customer-statements-report-content-container">
                     <div className="customer-statements-report-header">
-                        <button className="customer-statements-report-back-button" onClick={handleBack}>
-                            <i className="bi bi-arrow-left"></i>
-                            Back
+                        <div className="customer-statements-report-header-left">
+                            <div className="customer-statements-report-icon-badge">
+                                <i className="bi bi-file-earmark-text"></i>
+                            </div>
+                            <div>
+                                <h1 className="customer-statements-report-title">
+                                    Report of {reportData.customer.name}
+                                </h1>
+                                <p className="customer-statements-report-subtitle">
+                                    Customer Payment & Statement Report
+                                </p>
+                            </div>
+                        </div>
+                        <button
+                            type="button"
+                            className="customer-statements-report-close-button"
+                            onClick={handleBack}
+                            title="Close report"
+                            aria-label="Close"
+                        >
+                            <i className="bi bi-x-lg"></i>
                         </button>
-                        <h1 className="customer-statements-report-title">
-                            <i className="bi bi-file-earmark-text me-2"></i>
-                            Report of {reportData.customer.name}
-                        </h1>
                     </div>
 
                     <div className="customer-statements-report-controls-card">

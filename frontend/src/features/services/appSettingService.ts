@@ -71,23 +71,25 @@ export function getSystemCurrencyPosition(): 'before' | 'after' {
 }
 
 export function formatSystemNumber(value: number | string | null | undefined, decimals = 2): string {
-  if (value === null || value === undefined || value === '') return '0.00';
-  const num = typeof value === 'number' ? value : parseFloat(String(value));
-  if (isNaN(num)) return '0.00';
+  if (value === null || value === undefined || value === '') return '0';
+  let num = typeof value === 'number' ? value : parseFloat(String(value));
+  if (isNaN(num)) return '0';
+  if (Math.abs(num) < 1e-9) num = 0;
 
   const settings = getCachedAppSettings();
   const format = settings.numberFormat || '1,234.56';
   const fixed = num.toFixed(decimals);
   const [intPart, decPart] = fixed.split('.');
+  const trimmedDec = decPart ? decPart.replace(/0+$/, '') : '';
 
   if (format === '1.234,56') {
     const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-    return decPart ? `${formattedInt},${decPart}` : formattedInt;
+    return trimmedDec ? `${formattedInt},${trimmedDec}` : formattedInt;
   } else if (format === '1234.56') {
-    return fixed;
+    return trimmedDec ? `${intPart}.${trimmedDec}` : intPart;
   } else {
     const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-    return decPart ? `${formattedInt}.${decPart}` : formattedInt;
+    return trimmedDec ? `${formattedInt}.${trimmedDec}` : formattedInt;
   }
 }
 

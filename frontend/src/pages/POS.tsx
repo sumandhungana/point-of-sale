@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { BackButton } from '../components/BackButton';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/POS.css';
 
 interface Item {
@@ -10,6 +11,7 @@ interface Item {
 }
 
 export const POS = () => {
+  const { formatNumber } = useAppSettings();
   const [items, setItems] = useState<Item[]>([
     { id: 1, name: 'Pizza', price: 12.99, quantity: 0 },
     { id: 2, name: 'Burger', price: 8.99, quantity: 0 },
@@ -63,7 +65,7 @@ export const POS = () => {
           {items.map(item => (
             <div key={item.id} className="pos-menu-item">
               <h3 className="pos-item-name">{item.name}</h3>
-              <p className="pos-item-price">${item.price.toFixed(2)}</p>
+              <p className="pos-item-price">${formatNumber(item.price)}</p>
               <button
                 className="pos-add-button"
                 onClick={() => addToCart(item)}
@@ -82,7 +84,7 @@ export const POS = () => {
             <div key={item.id} className="pos-cart-item">
               <div className="pos-cart-item-info">
                 <h3 className="pos-item-name">{item.name}</h3>
-                <p className="pos-item-price">${item.price.toFixed(2)}</p>
+                <p className="pos-item-price">${formatNumber(item.price)}</p>
               </div>
               <div className="pos-quantity-controls">
                 <button
@@ -114,7 +116,7 @@ export const POS = () => {
             <i className="bi bi-cart-check me-2"></i>
             Total:
           </h3>
-          <p className="pos-total-amount">${total.toFixed(2)}</p>
+          <p className="pos-total-amount">${formatNumber(total)}</p>
         </div>
       </div>
     </div>

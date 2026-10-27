@@ -5,32 +5,54 @@
 }
 
 .download-statement-main-content {
-  padding: 2rem;
+  padding: 24px 20px 60px 20px;
   margin-top: 64px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .download-statement-content-container {
   background: white;
-  padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
-.download-statement-back-button {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #dc4c39;
-  padding: 0.5rem;
-  transition: color 0.3s ease;
+.download-statement-button-container {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
-  gap: 0.5rem;
+  margin-bottom: 1rem;
 }
 
-.download-statement-back-button:hover {
-  color: #c23321;
+.download-statement-close-button {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 15px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  padding: 0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+.download-statement-close-button:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+  transform: scale(1.06);
 }
 
 .download-statement-report-title {
@@ -103,10 +125,12 @@
   justify-content: space-around;
   padding: 1.5rem;
   background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-  border-radius: 8px;
+  border-radius: 12px;
   margin-bottom: 1.5rem;
   border: 1px solid #dee2e6;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .download-statement-summary-item {
@@ -157,12 +181,16 @@
 .download-statement-table-container {
   margin-top: 2rem;
   overflow-x: auto;
-  border-radius: 8px;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .download-statement-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
   background: white;
   margin-top: 1rem;

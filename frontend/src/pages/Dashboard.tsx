@@ -627,7 +627,7 @@ const Dashboard: React.FC = () => {
                   <div className="top-cat-stat-line">
                     <span className="stat-muted">Sales:</span>
                     <span className="stat-bold sales-val" title={formatCurrency(cat.salesAmount)}>
-                      {formatCurrency(Math.round(cat.salesAmount)).replace(/\.00$/, '')}
+                      {formatCurrency(cat.salesAmount)}
                     </span>
                   </div>
                 </div>

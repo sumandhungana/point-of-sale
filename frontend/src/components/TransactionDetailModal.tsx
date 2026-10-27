@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { pdf } from '@react-pdf/renderer';
 import StatementPDFTemplate from './StatementPDFTemplate';
 import ConfirmationModal from './ConfirmationModal';
-import { deletePaymentGiven, deletePaymentReceived } from '../services/paymentService';
+import { deletePayment } from '@/features/services/paymentService';
 import { toast } from 'react-toastify';
 import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/TransactionDetailModal.css';
@@ -36,11 +36,12 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
     onDeleteSuccess,
     onEdit,
 }) => {
-    const { formatCurrency, formatDate } = useAppSettings();
+    const { formatCurrency, formatNumber, formatDate } = useAppSettings();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [isPrinting, setIsPrinting] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
 
     // Close on Escape key
     useEffect(() => {
@@ -63,7 +64,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         try {
             const formData = {
                 customerName: transaction.partyName || (transaction.partyType === 'Supplier' ? 'Supplier' : 'Customer'),
-                totalAmount: amountAbs.toString(),
+                totalAmount: formatNumber(amountAbs),
                 date: transaction.date ? transaction.date.split('T')[0] : '',
                 type: isReceived ? 'payment_in' : 'payment_out',
                 phoneNumber: transaction.partyPhone || '',
@@ -99,7 +100,7 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             const cleanDate = transaction.date ? transaction.date.split('T')[0] : 'date';
             const formData = {
                 customerName: transaction.partyName || (transaction.partyType === 'Supplier' ? 'Supplier' : 'Customer'),
-                totalAmount: amountAbs.toString(),
+                totalAmount: formatNumber(amountAbs),
                 date: cleanDate,
                 type: isReceived ? 'payment_in' : 'payment_out',
                 phoneNumber: transaction.partyPhone || '',
@@ -125,15 +126,63 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
         }
     };
 
+    const handleShare = async () => {
+        setIsSharing(true);
+        try {
+            const partyLabel =
+                transaction.partyName ||
+                (transaction.partyType === 'Supplier' ? 'Supplier' : 'Customer');
+            const txnType = isReceived ? 'Payment Received' : 'Payment Given';
+            const cleanDate = transaction.date
+                ? formatDate(transaction.date)
+                : 'N/A';
+            const shareText = `*Transaction Receipt*\nParty: ${partyLabel} (${transaction.partyType})\nType: ${txnType}\nAmount: ${formatCurrency(amountAbs)}\nDate: ${cleanDate}${transaction.remarks ? `\nRemarks: ${transaction.remarks}` : ''}\nRef ID: #${transaction.id}`;
+
+            // Try Web Share API (native share dialog on mobile/tablets/desktop)
+            if (navigator.share) {
+                try {
+                    await navigator.share({
+                        title: `Transaction #${transaction.id} - ${partyLabel}`,
+                        text: shareText,
+                    });
+                    toast.success('Shared successfully!');
+                    return;
+                } catch (err: any) {
+                    if (err.name === 'AbortError') return;
+                }
+            }
+
+            // Fallback: Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(shareText);
+                toast.success('Transaction details copied to clipboard!');
+            } else {
+                const textarea = document.createElement('textarea');
+                textarea.value = shareText;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                toast.success('Transaction details copied to clipboard!');
+            }
+        } catch (error) {
+            console.error('Error sharing transaction:', error);
+            toast.error('Failed to share transaction details');
+        } finally {
+            setIsSharing(false);
+        }
+    };
+
     const performDelete = async () => {
+        if (!transaction?.id) {
+            toast.error('Transaction ID not found');
+            return;
+        }
+
         setIsDeleting(true);
         try {
-            if (isReceived) {
-                await deletePaymentReceived(Number(transaction.id));
-            } else {
-                await deletePaymentGiven(Number(transaction.id));
-            }
-            toast.success('Transaction deleted successfully');
+            const res = await deletePayment(Number(transaction.id));
+            toast.success(res?.message || 'Transaction deleted successfully');
             setShowDeleteConfirm(false);
             onClose();
             if (onDeleteSuccess) {
@@ -141,7 +190,11 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
             }
         } catch (error: any) {
             console.error('Error deleting transaction:', error);
-            toast.error(typeof error === 'string' ? error : 'Failed to delete transaction');
+            const errMsg =
+                typeof error === 'string'
+                    ? error
+                    : error?.message || 'Failed to delete transaction';
+            toast.error(errMsg);
         } finally {
             setIsDeleting(false);
         }
@@ -304,6 +357,16 @@ export const TransactionDetailModal: React.FC<TransactionDetailModalProps> = ({
                     </div>
 
                     <div className="transaction-footer-right">
+                        <button
+                            type="button"
+                            className="btn-txn-action btn-txn-share"
+                            onClick={handleShare}
+                            disabled={isSharing}
+                            title="Share transaction receipt"
+                        >
+                            <i className="bi bi-share"></i>
+                            {isSharing ? 'Sharing...' : 'Share'}
+                        </button>
                         <button
                             type="button"
                             className="btn-txn-action btn-txn-pdf"

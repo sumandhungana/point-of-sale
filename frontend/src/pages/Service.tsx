@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '../components/Sidebar';
 import Navbar from '../components/Navbar';
 import { fetchServices } from '../services/serviceService';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../styles/Service.css';
 
 interface Service {
@@ -20,6 +21,7 @@ interface Service {
 
 export const Service = () => {
   const navigate = useNavigate();
+  const { formatNumber } = useAppSettings();
   const [searchQuery, setSearchQuery] = useState('');
   const [filter, setFilter] = useState('all');
   const [services, setServices] = useState<Service[]>([]);
@@ -143,14 +145,14 @@ export const Service = () => {
                 <i className="bi bi-graph-up me-1"></i>
                 Net Monthly Sales
               </div>
-              <div className="service-sales-amount">${netMonthlySales.toFixed(2)}</div>
+              <div className="service-sales-amount">${formatNumber(netMonthlySales)}</div>
             </div>
             <div className="service-sales-section">
               <div className="service-sales-title">
                 <i className="bi bi-graph-up-arrow me-1"></i>
                 Gross Monthly Sales
               </div>
-              <div className="service-sales-amount">${grossMonthlySales.toFixed(2)}</div>
+              <div className="service-sales-amount">${formatNumber(grossMonthlySales)}</div>
             </div>
           </div>
 
@@ -200,20 +202,20 @@ export const Service = () => {
                       <i className="bi bi-image"></i>
                     </div>
                   )}
-                  <div className="service-price">${service.price.toFixed(2)}</div>
+                  <div className="service-price">${formatNumber(service.price)}</div>
                 </div>
                 <div className="service-details">
                   <div className="service-name">{service.serviceName}</div>
                   <div className="service-info">
                     <i className="bi bi-info-circle me-1"></i>
                     {service.taxIncluded ? 'Tax Included' : 'Tax Excluded'} | 
-                    Tax: {service.tax?.toFixed(2) || '0'}% | 
-                    VAT: {service.vat?.toFixed(2) || '0'}%
+                    Tax: {service.tax != null ? `${formatNumber(service.tax)}%` : '0%'} | 
+                    VAT: {service.vat != null ? `${formatNumber(service.vat)}%` : '0%'}
                   </div>
                   {service.taxIncluded && (
                     <div className="service-info">
                       <i className="bi bi-calculator me-1"></i>
-                      Total with Tax: ${service.taxIncludedAmount.toFixed(2)}
+                      Total with Tax: ${formatNumber(service.taxIncludedAmount)}
                     </div>
                   )}
                 </div>

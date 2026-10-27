@@ -357,6 +357,7 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import "../../../styles/CustomerListReportPdf.css";
 import logo from "../../../assets/logo.png";
+import { formatSystemNumber } from "@/features/services/appSettingService";
 
 interface SupplierWithBalance {
     supplier: GetSupplierResponse;
@@ -667,15 +668,6 @@ export const SupplierListReportPdf = () => {
 
                     {/* Buttons */}
                     <div className="customer-report-button-container">
-
-                        <button
-                            onClick={handleBack}
-                            className="customer-report-back-button"
-                        >
-                            <i className="bi bi-arrow-left"></i>
-                            Back
-                        </button>
-
                         <button
                             onClick={handleGeneratePdf}
                             className="customer-report-generate-button"
@@ -694,6 +686,15 @@ export const SupplierListReportPdf = () => {
                                 : "Generate PDF"}
                         </button>
 
+                        <button
+                            type="button"
+                            onClick={handleBack}
+                            className="customer-report-close-button"
+                            title="Close report"
+                            aria-label="Close"
+                        >
+                            <i className="bi bi-x-lg"></i>
+                        </button>
                     </div>
 
                     {/* Company Header */}
@@ -753,7 +754,7 @@ export const SupplierListReportPdf = () => {
 
                                 <p className="customer-report-summary-item-value customer-report-gave-value">
                                     रू{" "}
-                                    {totalGave.toLocaleString()}
+                                    {formatSystemNumber(totalGave)}
                                 </p>
                             </div>
 
@@ -768,7 +769,7 @@ export const SupplierListReportPdf = () => {
 
                                 <p className="customer-report-summary-item-value customer-report-received-value">
                                     रू{" "}
-                                    {totalReceived.toLocaleString()}
+                                    {formatSystemNumber(totalReceived)}
                                 </p>
                             </div>
 
@@ -783,7 +784,7 @@ export const SupplierListReportPdf = () => {
 
                                 <p className="customer-report-summary-item-value customer-report-net-value">
                                     रू{" "}
-                                    {netBalance.toLocaleString()}
+                                    {formatSystemNumber(netBalance)}
                                 </p>
                             </div>
 
@@ -866,9 +867,9 @@ export const SupplierListReportPdf = () => {
                                                 <td className="customer-report-table-cell customer-report-gave-cell">
                                                     {supplier.balance <
                                                     0
-                                                        ? `रू ${Math.abs(
-    supplier.balance
-).toLocaleString()}`
+                                                        ? `रू ${formatSystemNumber(Math.abs(
+                                                              supplier.balance
+                                                          ))}`
                                                         : ""}
                                                 </td>
 
@@ -876,7 +877,7 @@ export const SupplierListReportPdf = () => {
                                                 <td className="customer-report-table-cell customer-report-received-cell">
                                                     {supplier.balance >
                                                     0
-                                                        ? `रू ${supplier.balance.toLocaleString()}`
+                                                        ? `रू ${formatSystemNumber(supplier.balance)}`
                                                         : ""}
                                                 </td>
 
@@ -884,9 +885,9 @@ export const SupplierListReportPdf = () => {
                                                 <td className="customer-report-table-cell">
                                                     {supplier.balance !==
                                                     0
-                                                        ? `रू ${Math.abs(
-    supplier.balance
-).toLocaleString()}`
+                                                        ? `रू ${formatSystemNumber(Math.abs(
+                                                              supplier.balance
+                                                          ))}`
                                                         : "Settled"}
                                                 </td>
 

@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { CreateLoanPayload, LenderType, InterestType, calculateEMI } from '@/features/services/loanService';
+import { formatSystemNumber } from '@/features/services/appSettingService';
 import '@/styles/LoanManagement.css';
 
 interface AddLoanModalProps {
@@ -269,21 +270,21 @@ export const AddLoanModal: React.FC<AddLoanModalProps> = ({
                             <div className="emi-preview-item">
                                 <span className="emi-preview-title">Monthly EMI</span>
                                 <span className="emi-preview-val">
-                                    Rs. {emiSummary.monthlyEmi.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(emiSummary.monthlyEmi)}
                                 </span>
                             </div>
 
                             <div className="emi-preview-item">
                                 <span className="emi-preview-title">Total Interest</span>
                                 <span className="emi-preview-val white">
-                                    Rs. {emiSummary.totalInterest.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(emiSummary.totalInterest)}
                                 </span>
                             </div>
 
                             <div className="emi-preview-item">
                                 <span className="emi-preview-title">Total Repayment</span>
                                 <span className="emi-preview-val white">
-                                    Rs. {emiSummary.totalPayable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(emiSummary.totalPayable)}
                                 </span>
                             </div>
                         </div>

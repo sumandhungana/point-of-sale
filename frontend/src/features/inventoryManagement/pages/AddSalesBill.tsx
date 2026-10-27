@@ -6,6 +6,7 @@ import { salesConfig } from '@/config/sales';
 import { Customer, getCustomers } from '../../services/customerService';
 import { fetchBillNumber, addSalesBill } from '@/features/services/salesBillService';
 import { Item, getProduct } from '../../services/productService';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../../../styles/AddPurchase.css';
 import '../../../styles/AddSalesBill.css';
 
@@ -14,6 +15,7 @@ interface BillItem {
   name: string;
   sku?: string;
   unit: string;
+  stockUnit?: string;
   availableStock: number;
   quantity: number;
   unitPrice: number;
@@ -23,6 +25,27 @@ interface BillItem {
   vatAmount: number;
   totalPrice: number;
 }
+
+// Available quantity unit options for dropdown
+const QUANTITY_UNITS = [
+  { value: 'pcs', label: 'Pcs (Pieces)' },
+  { value: 'kg', label: 'kg (Kilograms)' },
+  { value: 'g', label: 'g (Grams)' },
+  { value: 'l', label: 'L (Liters)' },
+  { value: 'ml', label: 'ml (Milliliters)' },
+  { value: 'box', label: 'Box' },
+  { value: 'packet', label: 'Packet' },
+  { value: 'dozen', label: 'Dozen' },
+  { value: 'meter', label: 'Meter' },
+  { value: 'bag', label: 'Bag' },
+  { value: 'bundle', label: 'Bundle' },
+  { value: 'carton', label: 'Carton' },
+  { value: 'roll', label: 'Roll' },
+  { value: 'set', label: 'Set' },
+  { value: 'pair', label: 'Pair' },
+  { value: 'sq.ft', label: 'Sq. Ft' },
+  { value: 'other', label: 'Other...' },
+];
 
 interface SalesBill {
   id: number;
@@ -39,6 +62,7 @@ interface SalesBill {
 export const AddSalesBill: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { formatNumber } = useAppSettings();
   const initialData = location.state?.bill as SalesBill | undefined;
   const isEditMode = !!initialData;
 
@@ -101,7 +125,15 @@ export const AddSalesBill: React.FC = () => {
             setSelectedCustomer(initialData.customer);
             setPartySearch(initialData.customer.name || '');
           }
-          if (initialData.items) setSelectedProducts(initialData.items);
+          if (initialData.items) {
+            setSelectedProducts(
+              initialData.items.map((it) => ({
+                ...it,
+                stockUnit: it.stockUnit || it.unit || 'pcs',
+                unit: it.unit || 'pcs',
+              }))
+            );
+          }
         } else {
           try {
             const billData = await fetchBillNumber();
@@ -156,6 +188,7 @@ export const AddSalesBill: React.FC = () => {
     const vatPct = item.vatPercentage || 0;
     const unitPrice = item.fixedSellingPrice || 0;
     const stockCount = item.itemCount || 0;
+    const itemUnit = item.unit || 'pcs';
 
     if (existingIndex > -1) {
       const updated = [...selectedProducts];
@@ -184,7 +217,9 @@ export const AddSalesBill: React.FC = () => {
       const newItem: BillItem = {
         itemId: item.id,
         name: item.name,
-        unit: item.unit || 'pcs',
+        sku: (item as any).sku,
+        unit: itemUnit,
+        stockUnit: itemUnit,
         availableStock: stockCount,
         quantity: initialQty,
         unitPrice: unitPrice,
@@ -200,11 +235,30 @@ export const AddSalesBill: React.FC = () => {
     setShowProductDropdown(false);
   };
 
-  const handleItemChange = (index: number, field: 'quantity' | 'unitPrice', value: number) => {
+  const handleItemChange = (
+    index: number,
+    field: 'quantity' | 'unitPrice' | 'unit',
+    value: number | string
+  ) => {
     const updated = [...selectedProducts];
     const item = updated[index];
-    const qty = field === 'quantity' ? value : item.quantity;
-    const price = field === 'unitPrice' ? value : item.unitPrice;
+
+    if (field === 'unit') {
+      if (value === 'other') {
+        const customUnit = window.prompt('Enter custom quantity unit (e.g. tin, sack, drum):');
+        if (customUnit && customUnit.trim()) {
+          updated[index] = { ...item, unit: customUnit.trim() };
+          setSelectedProducts(updated);
+        }
+        return;
+      }
+      updated[index] = { ...item, unit: value as string };
+      setSelectedProducts(updated);
+      return;
+    }
+
+    const qty = field === 'quantity' ? (value as number) : item.quantity;
+    const price = field === 'unitPrice' ? (value as number) : item.unitPrice;
 
     const { taxAmount, vatAmount, totalPrice } = calculateItemTotal(
         qty,
@@ -440,7 +494,7 @@ export const AddSalesBill: React.FC = () => {
                                   <div className="small text-muted">Stock: {item.itemCount ?? 0} {item.unit || 'pcs'}</div>
                                 </div>
                                 <span className="item-price">
-                                  Rs. {(item.fixedSellingPrice || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                                  Rs. {formatNumber(item.fixedSellingPrice || 0)}
                                 </span>
                               </div>
                             ))
@@ -455,22 +509,23 @@ export const AddSalesBill: React.FC = () => {
                   {/* Added Line Items Table */}
                   <div className="purchase-card no-padding">
                     <div className="responsive-table-wrapper">
-                      <table className="purchase-table">
+                      <table className="purchase-table sales-items-table">
                         <thead>
                           <tr>
-                            <th style={{ width: '32%' }}>Product</th>
-                            <th style={{ width: '12%' }}>Stock</th>
-                            <th style={{ width: '14%' }}>Qty</th>
-                            <th style={{ width: '18%' }}>Price (Rs)</th>
-                            <th style={{ width: '10%' }}>Tax/VAT</th>
-                            <th style={{ width: '10%' }} className="text-end">Total</th>
-                            <th style={{ width: '4%' }}></th>
+                            <th className="col-th-product">Product</th>
+                            <th className="col-th-stock">Stock</th>
+                            <th className="col-th-qty">Qty</th>
+                            <th className="col-th-unit">Unit</th>
+                            <th className="col-th-price">Price (Rs)</th>
+                            <th className="col-th-tax">Tax/VAT</th>
+                            <th className="col-th-total text-end">Total</th>
+                            <th className="col-th-action text-center"></th>
                           </tr>
                         </thead>
                         <tbody>
                           {selectedProducts.length === 0 ? (
                             <tr>
-                              <td colSpan={7} className="table-empty-state">
+                              <td colSpan={8} className="table-empty-state">
                                 <i className="bi bi-cart-dash fs-4 d-block mb-1"></i>
                                 No line items selected. Search products above to populate bill.
                               </td>
@@ -478,37 +533,76 @@ export const AddSalesBill: React.FC = () => {
                           ) : (
                             selectedProducts.map((item, index) => (
                               <tr key={item.itemId}>
-                                <td>
+                                <td className="col-td-product">
                                   <div className="table-item-name">{item.name}</div>
-                                  {item.sku && <span className="stock-pill">SKU: {item.sku}</span>}
+                                  {item.sku && <span className="stock-pill sku-pill">SKU: {item.sku}</span>}
                                 </td>
-                                <td>
-                                  <span className="stock-pill">
-                                    {item.availableStock} {item.unit}
+                                <td className="col-td-stock">
+                                  <span
+                                    className={`stock-pill ${
+                                      item.availableStock <= 0
+                                        ? 'stock-pill-danger'
+                                        : item.availableStock <= 5
+                                        ? 'stock-pill-warning'
+                                        : ''
+                                    }`}
+                                    title={`Available in stock: ${item.availableStock} ${item.stockUnit || item.unit || 'pcs'}`}
+                                  >
+                                    {item.availableStock} {item.stockUnit || item.unit || 'pcs'}
                                   </span>
                                 </td>
-                                <td>
+                                <td className="col-td-qty">
                                   <input
                                     type="number"
-                                    min="1"
+                                    min="0.001"
+                                    step="any"
                                     className="table-input text-center"
                                     value={item.quantity === 0 ? '' : item.quantity}
                                     onFocus={(e) => e.target.select()}
-                                    onChange={(e) =>
+                                    onChange={(e) => {
+                                      const val = parseFloat(e.target.value);
                                       handleItemChange(
                                         index,
                                         'quantity',
-                                        Math.max(1, parseFloat(e.target.value) || 0)
-                                      )
-                                    }
+                                        isNaN(val) ? 0 : val
+                                      );
+                                    }}
+                                    onBlur={() => {
+                                      if (item.quantity <= 0) {
+                                        handleItemChange(index, 'quantity', 1);
+                                      }
+                                    }}
+                                    placeholder="1"
+                                    title="Quantity"
                                   />
                                 </td>
-                                <td>
+                                <td className="col-td-unit">
+                                  <select
+                                    className="table-select"
+                                    value={item.unit || 'pcs'}
+                                    onChange={(e) =>
+                                      handleItemChange(index, 'unit', e.target.value)
+                                    }
+                                    title="Quantity unit (pcs, kg, etc.)"
+                                  >
+                                    {!QUANTITY_UNITS.some(
+                                      (u) => u.value.toLowerCase() === (item.unit || '').toLowerCase()
+                                    ) && item.unit && (
+                                      <option value={item.unit}>{item.unit}</option>
+                                    )}
+                                    {QUANTITY_UNITS.map((u) => (
+                                      <option key={u.value} value={u.value}>
+                                        {u.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </td>
+                                <td className="col-td-price">
                                   <input
                                     type="number"
                                     min="0"
                                     step="0.01"
-                                    className="table-input"
+                                    className="table-input text-end"
                                     value={item.unitPrice === 0 ? '' : item.unitPrice}
                                     onFocus={(e) => e.target.select()}
                                     onChange={(e) =>
@@ -518,24 +612,32 @@ export const AddSalesBill: React.FC = () => {
                                         parseFloat(e.target.value) || 0
                                       )
                                     }
+                                    title="Unit price"
                                   />
                                 </td>
-                                <td>
-                                  <div className="small text-muted">
-                                    {item.taxPercentage > 0 && <div>Tax: {item.taxPercentage}%</div>}
-                                    {item.vatPercentage > 0 && <div>VAT: {item.vatPercentage}%</div>}
-                                    {item.taxPercentage === 0 && item.vatPercentage === 0 && <span>None</span>}
+                                <td className="col-td-tax">
+                                  <div className="tax-badges-wrap">
+                                    {item.taxPercentage > 0 && (
+                                      <span className="tax-tag tax-tag-blue">Tax {item.taxPercentage}%</span>
+                                    )}
+                                    {item.vatPercentage > 0 && (
+                                      <span className="tax-tag tax-tag-green">VAT {item.vatPercentage}%</span>
+                                    )}
+                                    {item.taxPercentage === 0 && item.vatPercentage === 0 && (
+                                      <span className="tax-tag tax-tag-gray">0%</span>
+                                    )}
                                   </div>
                                 </td>
-                                <td className="text-end fw-bold" style={{ color: '#255DCE' }}>
-                                  Rs. {item.totalPrice.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                <td className="col-td-total text-end fw-bold" style={{ color: '#255DCE' }}>
+                                  Rs. {formatNumber(item.totalPrice)}
                                 </td>
-                                <td className="text-center">
+                                <td className="col-td-action text-center">
                                   <button
                                     type="button"
                                     className="btn-icon-danger"
                                     onClick={() => handleRemoveProduct(index)}
                                     title="Remove line item"
+                                    aria-label="Remove item"
                                   >
                                     <i className="bi bi-trash3"></i>
                                   </button>
@@ -558,7 +660,7 @@ export const AddSalesBill: React.FC = () => {
                   <div className="purchase-card summary-card mb-3">
                     <div className="summary-label">Grand Total</div>
                     <div className="summary-price-display">
-                      Rs. {formData.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      Rs. {formatNumber(formData.amount)}
                     </div>
                     <div className="summary-breakdown">
                       <div className="breakdown-row">
@@ -679,9 +781,9 @@ export const AddSalesBill: React.FC = () => {
                             <tr key={p.itemId}>
                               <td>{p.name}</td>
                               <td className="text-center">{p.quantity} {p.unit}</td>
-                              <td className="text-end">Rs. {p.unitPrice.toFixed(2)}</td>
-                              <td className="text-end">Rs. {(p.taxAmount + p.vatAmount).toFixed(2)}</td>
-                              <td className="text-end fw-semibold">Rs. {p.totalPrice.toFixed(2)}</td>
+                              <td className="text-end">Rs. {formatNumber(p.unitPrice)}</td>
+                              <td className="text-end">Rs. {formatNumber(p.taxAmount + p.vatAmount)}</td>
+                              <td className="text-end fw-semibold">Rs. {formatNumber(p.totalPrice)}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -692,7 +794,7 @@ export const AddSalesBill: React.FC = () => {
                           {formData.remarks && <div><strong>Remarks:</strong> {formData.remarks}</div>}
                         </div>
                         <div className="text-end fw-bold text-navy fs-5">
-                          Total: Rs. {formData.amount.toFixed(2)}
+                          Total: Rs. {formatNumber(formData.amount)}
                         </div>
                       </div>
                     </div>

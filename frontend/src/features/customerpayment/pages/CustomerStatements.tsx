@@ -288,6 +288,7 @@ export const CustomerStatements = () => {
 
     const handleEditTransaction = (txn: TransactionDetailData) => {
         const editData = {
+            paymentId: txn.id,
             customerId: txn.partyId,
             customerName: txn.partyName,
             amount: txn.amount,
@@ -315,7 +316,7 @@ export const CustomerStatements = () => {
         }
     }, [customerData.paymentDateReminder]);
 
-    const handleSaveReminder = async (newDate: string) => {
+    const handleSaveReminder = async (newDate: string, remarks?: string) => {
         if (!activeId) return;
 
         try {
@@ -332,7 +333,7 @@ export const CustomerStatements = () => {
 
             if (!response.ok) throw new Error("Failed to update reminder");
 
-            toast.success("Reminder date updated successfully.");
+            toast.success(remarks ? "Reminder and note updated successfully." : "Reminder date updated successfully.");
             setReminderDate(newDate);
             setCustomerData(prev => ({
                 ...prev,
@@ -361,6 +362,7 @@ export const CustomerStatements = () => {
 
             if (!response.ok) throw new Error("Failed to clear reminder");
 
+            localStorage.removeItem(`reminder_remarks_customer_${activeId}`);
             toast.success("Reminder cleared successfully.");
             setReminderDate("");
             setCustomerData(prev => ({
@@ -705,6 +707,7 @@ export const CustomerStatements = () => {
                     initialDate={reminderDate || customerData.paymentDateReminder}
                     partyName={customerData.name}
                     partyType="Customer"
+                    partyId={activeId || customerData.id}
                     onSave={handleSaveReminder}
                     onClear={handleClearReminder}
                 />

@@ -268,7 +268,7 @@ export const Customers = () => {
     const navigate = useNavigate();
     const { formatCurrency } = useAppSettings();
     const [searchQuery, setSearchQuery] = useState('');
-    const [filterBy] = useState('all');
+    const [filterBy, setFilterBy] = useState('all');
     const [sortBy, setSortBy] = useState('mostRecent');
     const [customers, setCustomers] = useState<CustomerWithBalance[]>([]);
     const [overallTotals, setOverallTotals] = useState<OverallTotals>({ given: 0, received: 0, online: 0 });
@@ -392,6 +392,7 @@ export const Customers = () => {
         const d = new Date(date);
         if (isNaN(d.getTime())) return 'Recently';
         const diffMs = Date.now() - d.getTime();
+        
         const seconds = Math.floor(diffMs / 1000);
         const minutes = Math.floor(seconds / 60);
         const hours = Math.floor(minutes / 60);
@@ -410,8 +411,9 @@ export const Customers = () => {
         }
         if (Array.isArray(customer.paymentHistory)) {
             customer.paymentHistory.forEach(p => {
-                if (p?.updatedAt && !isNaN(new Date(p.updatedAt).getTime())) {
-                    dates.push(new Date(p.updatedAt).getTime());
+                const ts = p?.updatedAt || p?.createdAt;
+                if (ts && !isNaN(new Date(ts).getTime())) {
+                    dates.push(new Date(ts).getTime());
                 }
             });
         }
@@ -421,7 +423,11 @@ export const Customers = () => {
     const filteredAndSortedCustomers = customers
         .filter(customer => {
             const customerName = (customer?.name || '').toLowerCase();
-            if (searchQuery && !customerName.includes(searchQuery.toLowerCase())) return false;
+            const customerPhone = (customer?.phone || (customer as any)?.phoneNumber || '');
+            const query = searchQuery.toLowerCase().trim();
+            if (query && !customerName.includes(query) && !customerPhone.includes(query)) {
+                return false;
+            }
             const bal = Number(customer?.balance) || 0;
             switch (filterBy) {
                 case 'toReceive': return bal > 0;
@@ -459,17 +465,35 @@ export const Customers = () => {
                                 className="customers-search-input"
                             />
                         </div>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="customers-filter-select"
-                        >
-                            <option value="mostRecent">Sort by Most Recent</option>
-                            <option value="highestAmount">Sort by Highest Amount</option>
-                            <option value="leastAmount">Sort by Least Amount</option>
-                            <option value="byName">Sort by Name</option>
-                            <option value="oldest">Sort by Oldest</option>
-                        </select>
+                        <div className="customers-filter-sort-controls">
+                            <div className="customers-filter-group">
+                                <i className="bi bi-funnel customers-select-icon"></i>
+                                <select
+                                    value={filterBy}
+                                    onChange={(e) => setFilterBy(e.target.value)}
+                                    className="customers-filter-select"
+                                >
+                                    <option value="all">All Customers</option>
+                                    <option value="toReceive">You'll Receive</option>
+                                    <option value="toGive">You'll Give</option>
+                                    <option value="settled">Settled</option>
+                                </select>
+                            </div>
+                            <div className="customers-sort-group">
+                                <i className="bi bi-sort-down customers-select-icon"></i>
+                                <select
+                                    value={sortBy}
+                                    onChange={(e) => setSortBy(e.target.value)}
+                                    className="customers-sort-select"
+                                >
+                                    <option value="mostRecent">Most Recent</option>
+                                    <option value="highestAmount">Highest Amount</option>
+                                    <option value="leastAmount">Least Amount</option>
+                                    <option value="byName">Name (A-Z)</option>
+                                    <option value="oldest">Oldest</option>
+                                </select>
+                            </div>
+                        </div>
                         <div className="customers-action-buttons">
                             <button className="customers-action-button customers-primary-button" onClick={() => {}}>
                                 <i className="bi bi-bell"></i>
@@ -569,7 +593,8 @@ export const Customers = () => {
                                                     <i className="bi bi-telephone me-1"></i>
                                                     {customer.phone || 'N/A'}
                                                 </span>
-                                                <span>•</span>
+                                            </div>
+                                            <div className="customers-working-hours">
                                                 <span>
                                                     <i className="bi bi-clock me-1"></i>
                                                     {getRelativeTime(getLatestUpdatedAt(customer))}

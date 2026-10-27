@@ -41,7 +41,7 @@ const toNumber = (val: any): number => {
 };
 
 const formatNumber = (val: any): string => {
-  return formatSystemNumber(toNumber(val), 0);
+  return formatSystemNumber(toNumber(val));
 };
 
 const formatDate = (dateString: string): string => {

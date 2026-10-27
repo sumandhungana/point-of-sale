@@ -6,11 +6,13 @@ import { fetchPurchases, GetAllPurchaseBillResponse } from '../../services/purch
 import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
 import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
 import { printInvoiceDirectly } from '../utils/printInvoice';
+import { useAppSettings } from '@/context/AppSettingsContext';
 import '../../../styles/Purchase.css';
 
 
 export const Purchase = () => {
   const navigate = useNavigate();
+  const { formatNumber } = useAppSettings();
   const [purchases, setPurchases] = useState<GetAllPurchaseBillResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -176,7 +178,7 @@ export const Purchase = () => {
                   </div>
                   <div>
                     <div className="stat-label">Total Spend</div>
-                    <div className="stat-value">Rs. {totalPurchases.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</div>
+                    <div className="stat-value">Rs. {formatNumber(totalPurchases)}</div>
                   </div>
                 </div>
 
@@ -285,7 +287,7 @@ export const Purchase = () => {
                               {purchase?.remarks || '-'}
                             </td>
                             <td className="text-end fw-bold">
-                              Rs. {(purchase?.amount ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                              Rs. {formatNumber(purchase?.amount ?? 0)}
                             </td>
                             <td className="text-center" onClick={(e) => e.stopPropagation()}>
                               <div className="d-flex align-items-center justify-content-center gap-1">

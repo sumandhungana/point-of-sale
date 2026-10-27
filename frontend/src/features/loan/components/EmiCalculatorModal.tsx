@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { InterestType, calculateEMI, generateAmortizationSchedule } from '@/features/services/loanService';
+import { formatSystemNumber } from '@/features/services/appSettingService';
 import '@/styles/LoanManagement.css';
 
 interface EmiCalculatorModalProps {
@@ -184,28 +185,28 @@ export const EmiCalculatorModal: React.FC<EmiCalculatorModalProps> = ({
                                     Monthly EMI Amount
                                 </span>
                                 <div style={{ fontSize: '26px', fontWeight: 800, color: '#255dce', marginTop: '4px' }}>
-                                    Rs. {result.monthlyEmi.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(result.monthlyEmi)}
                                 </div>
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                                 <span style={{ color: '#64748b' }}>Principal Borrowed:</span>
                                 <span style={{ fontWeight: 700, color: '#0f172a' }}>
-                                    Rs. {principal.toLocaleString('en-IN')}
+                                    Rs. {formatSystemNumber(principal)}
                                 </span>
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
                                 <span style={{ color: '#64748b' }}>Total Interest Cost:</span>
                                 <span style={{ fontWeight: 700, color: '#d97706' }}>
-                                    Rs. {result.totalInterest.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(result.totalInterest)}
                                 </span>
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', fontWeight: 800, borderTop: '1px solid #e2e8f0', paddingTop: '10px' }}>
                                 <span style={{ color: '#0b192c' }}>Total Repayment:</span>
                                 <span style={{ color: '#0b192c' }}>
-                                    Rs. {result.totalPayable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(result.totalPayable)}
                                 </span>
                             </div>
 
@@ -268,15 +269,15 @@ export const EmiCalculatorModal: React.FC<EmiCalculatorModalProps> = ({
                                         <tr key={item.installmentNo}>
                                             <td>{item.installmentNo}</td>
                                             <td>{new Date(item.dueDate).toLocaleDateString()}</td>
-                                            <td className="text-end">{item.beginningBalance.toLocaleString('en-IN')}</td>
+                                            <td className="text-end">{formatSystemNumber(item.beginningBalance)}</td>
                                             <td className="text-end fw-bold" style={{ color: '#255dce' }}>
-                                                {item.emiAmount.toLocaleString('en-IN')}
+                                                {formatSystemNumber(item.emiAmount)}
                                             </td>
-                                            <td className="text-end">{item.principalComponent.toLocaleString('en-IN')}</td>
+                                            <td className="text-end">{formatSystemNumber(item.principalComponent)}</td>
                                             <td className="text-end" style={{ color: '#d97706' }}>
-                                                {item.interestComponent.toLocaleString('en-IN')}
+                                                {formatSystemNumber(item.interestComponent)}
                                             </td>
-                                            <td className="text-end fw-bold">{item.endingBalance.toLocaleString('en-IN')}</td>
+                                            <td className="text-end fw-bold">{formatSystemNumber(item.endingBalance)}</td>
                                         </tr>
                                     ))}
                                 </tbody>

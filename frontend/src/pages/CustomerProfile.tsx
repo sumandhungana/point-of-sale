@@ -9,7 +9,7 @@ import {
     Customer
 } from '../features/services/customerService';
 import ConfirmationModal from '../components/ConfirmationModal';
-import { resolveImageSrc } from '../utils/imageResolver';
+import { resolveImageSrc } from '../utils/ImageResolver';
 import '../styles/CustomerProfile.css';
 
 /**

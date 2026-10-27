@@ -149,3 +149,5 @@ export const resolveImageSrc = (input: any): string => {
     // Fallback: treat as raw base64
     return `data:${sniffMimeFromBase64(s)};base64,${s}`;
 };
+
+export default resolveImageSrc;

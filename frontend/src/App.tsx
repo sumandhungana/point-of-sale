@@ -57,6 +57,7 @@ import { AddCashbook } from './pages/AddCashbook';
 import { AddCategory } from './pages/AddCategory';
 import { YouGave } from './features/customerpayment/components/YouGave';
 import { YouReceived } from './features/customerpayment/components/YouReceived';
+import { EditTransactionPopupPage } from './pages/EditTransactionPopupPage';
 import { SupplierStatements } from './features/supplierpayment/pages/SupplierStatements';
 import { Branch } from './pages/Branch';
 import './styles/Common.css';
@@ -114,11 +115,7 @@ const App: React.FC = () => {
             path="/parties/customers/statements/you-gave/:id"
             element={
               <PrivateRoute>
-                <YouGave onSuccess={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } onClose={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } />
+                <EditTransactionPopupPage category="GIVEN" partyType="Customer" />
               </PrivateRoute> 
             }
           />
@@ -126,11 +123,7 @@ const App: React.FC = () => {
             path="/parties/customers/statements/you-received/:id"
             element={
               <PrivateRoute>
-                <YouReceived onSuccess={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } onClose={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } />
+                <EditTransactionPopupPage category="RECEIVED" partyType="Customer" />
               </PrivateRoute>
             }
           />
@@ -138,11 +131,7 @@ const App: React.FC = () => {
             path="/parties/supplier/statements/you-gave/:id"
             element={
               <PrivateRoute>
-                <YouGave onSuccess={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } onClose={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } />
+                <EditTransactionPopupPage category="GIVEN" partyType="Supplier" />
               </PrivateRoute>
             }
           />
@@ -151,11 +140,7 @@ const App: React.FC = () => {
             path="/parties/supplier/statements/you-received/:id"
             element={
               <PrivateRoute>
-                <YouReceived onSuccess={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } onClose={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } />
+                <EditTransactionPopupPage category="RECEIVED" partyType="Supplier" />
               </PrivateRoute>
             }
           />
@@ -342,11 +327,7 @@ const App: React.FC = () => {
             path="/parties/cash-bank/cash"
             element={
               <PrivateRoute>
-                <YouGave onSuccess={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } onClose={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } />
+                <EditTransactionPopupPage category="GIVEN" partyType="Customer" />
               </PrivateRoute>
             }
           />
@@ -354,11 +335,7 @@ const App: React.FC = () => {
             path="/parties/cash-bank/bank"
             element={
               <PrivateRoute>
-                <YouReceived onSuccess={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } onClose={function(): void {
-                        throw new Error("Function not implemented.");
-                    } } />
+                <EditTransactionPopupPage category="RECEIVED" partyType="Customer" />
               </PrivateRoute>
             }
           />

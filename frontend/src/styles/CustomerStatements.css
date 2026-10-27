@@ -217,6 +217,9 @@
   border-radius: 10px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
   gap: 4px;
   transition: transform 0.2s ease;
 }
@@ -242,6 +245,9 @@
   letter-spacing: 0.3px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  text-align: center;
+  width: 100%;
 }
 
 .statements-amount-box.box-gave .statements-amount-label {
@@ -256,6 +262,8 @@
   font-size: 22px;
   font-weight: 700;
   line-height: 1.2;
+  text-align: center;
+  width: 100%;
 }
 
 .statements-amount-val.val-gave {

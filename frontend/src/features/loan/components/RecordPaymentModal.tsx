@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Loan, TransactionType, PaymentMode, RecordPaymentPayload } from '@/features/services/loanService';
+import { formatSystemNumber } from '@/features/services/appSettingService';
 import '@/styles/LoanManagement.css';
 
 interface RecordPaymentModalProps {
@@ -151,7 +152,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                                 />
                                 {isGiven && (
                                     <div style={{ fontSize: '11px', color: '#64748b', marginTop: '3px' }}>
-                                        Monthly EMI: Rs. {loan.monthlyEmi.toLocaleString('en-IN')} | Remaining: Rs. {loan.remainingBalance.toLocaleString('en-IN')}
+                                        Monthly EMI: Rs. {formatSystemNumber(loan.monthlyEmi)} | Remaining: Rs. {formatSystemNumber(loan.remainingBalance)}
                                     </div>
                                 )}
                             </div>
@@ -222,7 +223,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                                     Current Outstanding
                                 </div>
                                 <div style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
-                                    Rs. {loan.remainingBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(loan.remainingBalance)}
                                 </div>
                             </div>
 
@@ -241,7 +242,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
                                         color: isGiven ? '#16a34a' : '#255dce',
                                     }}
                                 >
-                                    Rs. {projectedBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                                    Rs. {formatSystemNumber(projectedBalance)}
                                 </div>
                             </div>
                         </div>
