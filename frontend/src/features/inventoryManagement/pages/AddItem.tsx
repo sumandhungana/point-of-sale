@@ -433,6 +433,7 @@ export const AddItem: React.FC = () => {
             ...prev,
             imageUrl: imgUrl,
         }));
+        setShowWebSearch(false);
     };
 
     const handleOpenGoogleSearch = () => {
@@ -453,6 +454,7 @@ export const AddItem: React.FC = () => {
                             const base64 = reader.result as string;
                             setImagePreview(base64);
                             setFormDataState((prev) => ({ ...prev, imageUrl: base64 }));
+                            setShowWebSearch(false);
                         };
                         reader.readAsDataURL(blob);
                         return;
@@ -465,6 +467,7 @@ export const AddItem: React.FC = () => {
                 if (text && (text.startsWith('http://') || text.startsWith('https://') || text.startsWith('data:image/'))) {
                     setImagePreview(text.trim());
                     setFormDataState((prev) => ({ ...prev, imageUrl: text.trim() }));
+                    setShowWebSearch(false);
                     return;
                 }
             }
@@ -474,6 +477,17 @@ export const AddItem: React.FC = () => {
             alert('To paste an image from clipboard, press Ctrl+V on your keyboard.');
         }
     };
+
+    // Close popup on ESC key
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && showWebSearch) {
+                setShowWebSearch(false);
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [showWebSearch]);
 
     // Global paste listener: allows user to press Ctrl+V to paste an image copied from Google/browser
     useEffect(() => {
@@ -492,6 +506,7 @@ export const AddItem: React.FC = () => {
                             const base64 = reader.result as string;
                             setImagePreview(base64);
                             setFormDataState((prev) => ({ ...prev, imageUrl: base64 }));
+                            setShowWebSearch(false);
                         };
                         reader.readAsDataURL(blob);
                         return;
@@ -506,6 +521,7 @@ export const AddItem: React.FC = () => {
                     e.preventDefault();
                     setImagePreview(text.trim());
                     setFormDataState((prev) => ({ ...prev, imageUrl: text.trim() }));
+                    setShowWebSearch(false);
                 }
             }
         };
@@ -678,131 +694,6 @@ export const AddItem: React.FC = () => {
                                                     Browse from Browser
                                                 </button>
                                             </div>
-
-                                            {showWebSearch && (
-                                                <div className="web-image-search-container">
-                                                    <div className="web-search-header-row">
-                                                        <div className="web-search-input-wrap">
-                                                            <i className="bi bi-search search-icon" />
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Type to search web photos (e.g. Coca Cola, Rice)..."
-                                                                value={imageSearchQuery}
-                                                                onChange={(e) => setImageSearchQuery(e.target.value)}
-                                                                onKeyDown={(e) => {
-                                                                    if (e.key === 'Enter') {
-                                                                        e.preventDefault();
-                                                                        handleSearchWebImages();
-                                                                    }
-                                                                }}
-                                                                className="web-search-input"
-                                                            />
-                                                            {imageSearchQuery && (
-                                                                <button
-                                                                    type="button"
-                                                                    className="web-search-clear-btn"
-                                                                    onClick={() => {
-                                                                        setImageSearchQuery('');
-                                                                        setSearchResults([]);
-                                                                        setSearchMessage(null);
-                                                                    }}
-                                                                    title="Clear search"
-                                                                >
-                                                                    <i className="bi bi-x" />
-                                                                </button>
-                                                            )}
-                                                        </div>
-
-                                                        <button
-                                                            type="button"
-                                                            className="btn-web-search-exec"
-                                                            onClick={() => handleSearchWebImages()}
-                                                            disabled={isSearchingImages}
-                                                            title="Search web images"
-                                                        >
-                                                            {isSearchingImages ? (
-                                                                <>
-                                                                    <span className="spinner-border spinner-border-sm me-1" role="status" />
-                                                                    Searching...
-                                                                </>
-                                                            ) : (
-                                                                <>
-                                                                    <i className="bi bi-search me-1" />
-                                                                    Search
-                                                                </>
-                                                            )}
-                                                        </button>
-
-                                                        <button
-                                                            type="button"
-                                                            className="btn-google-search-external"
-                                                            onClick={handleOpenGoogleSearch}
-                                                            title="Search on Google Images in new window"
-                                                        >
-                                                            <i className="bi bi-google me-1" />
-                                                            Google Search <i className="bi bi-box-arrow-up-right ms-1" style={{ fontSize: '11px' }} />
-                                                        </button>
-
-                                                        <button
-                                                            type="button"
-                                                            className="btn-paste-clipboard"
-                                                            onClick={handlePasteFromClipboard}
-                                                            title="Paste copied image from Google / clipboard (or press Ctrl+V)"
-                                                        >
-                                                            <i className="bi bi-clipboard2-check me-1" />
-                                                            Paste Image
-                                                        </button>
-                                                    </div>
-
-                                                    <div className="web-search-hint">
-                                                        <i className="bi bi-info-circle me-1" />
-                                                        <span>
-                                                            <strong>No link needed:</strong> Type and click Search to pick any image below, or right-click <em>Copy image</em> on Google and press <strong>Ctrl+V</strong>.
-                                                        </span>
-                                                    </div>
-
-                                                    {isSearchingImages && (
-                                                        <div className="web-search-loading">
-                                                            <div className="spinner-border text-primary spinner-border-sm me-2" role="status" />
-                                                            <span>Searching images for &ldquo;{imageSearchQuery || formDataState.name}&rdquo;...</span>
-                                                        </div>
-                                                    )}
-
-                                                    {searchMessage && !isSearchingImages && (
-                                                        <div className="web-search-msg">
-                                                            <span>{searchMessage}</span>
-                                                        </div>
-                                                    )}
-
-                                                    {searchResults.length > 0 && !isSearchingImages && (
-                                                        <div className="web-search-results-grid">
-                                                            {searchResults.map((img) => (
-                                                                <div
-                                                                    key={img.id}
-                                                                    className={`web-search-item-card ${formDataState.imageUrl === img.thumbUrl ? 'selected' : ''}`}
-                                                                    onClick={() => handleSelectImage(img.thumbUrl)}
-                                                                    title={img.title || 'Click to select photo'}
-                                                                >
-                                                                    <img
-                                                                        src={img.thumbUrl}
-                                                                        alt={img.title}
-                                                                        className="web-search-item-img"
-                                                                        loading="lazy"
-                                                                    />
-                                                                    {formDataState.imageUrl === img.thumbUrl && (
-                                                                        <div className="web-search-selected-badge">
-                                                                            <i className="bi bi-check-lg" />
-                                                                        </div>
-                                                                    )}
-                                                                    <div className="web-search-item-overlay">
-                                                                        <span>Add Photo</span>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
                                         </div>
 
                                         <input
@@ -952,37 +843,94 @@ export const AddItem: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    {/* Pricing Mode Segmented Tabs */}
+                                    {/* Pricing Mode Segmented Selector */}
                                     <div className="pricing-mode-container">
-                                        <label className="form-field-label">Pricing Mode Selection</label>
-                                        <div className="pricing-mode-tabs">
-                                            <button
-                                                type="button"
-                                                className={`pricing-mode-tab ${priceType === 'gross' ? 'active' : ''}`}
+                                        <div className="pricing-mode-header">
+                                            <div>
+                                                <label className="pricing-mode-label">
+                                                    <i className="bi bi-arrow-left-right me-2 text-primary" />
+                                                    Pricing Calculation Mode
+                                                </label>
+                                                <p className="pricing-mode-subtext">
+                                                    Click to switch which price you enter manually. The other price is calculated automatically.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="pricing-mode-cards-grid">
+                                            {/* Option 1: Total Price Mode */}
+                                            <div
+                                                className={`pricing-mode-card ${priceType === 'gross' ? 'selected' : ''}`}
                                                 onClick={() => handlePriceTypeChange('gross')}
+                                                role="button"
+                                                tabIndex={0}
                                             >
-                                                <i className="bi bi-cash-stack" />
-                                                Total Purchase Price Mode
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className={`pricing-mode-tab ${priceType === 'perUnit' ? 'active' : ''}`}
+                                                <div className="pricing-mode-radio-wrap">
+                                                    <div className={`pricing-mode-radio ${priceType === 'gross' ? 'checked' : ''}`}>
+                                                        {priceType === 'gross' && <div className="pricing-mode-radio-dot" />}
+                                                    </div>
+                                                </div>
+
+                                                <div className="pricing-mode-card-content">
+                                                    <div className="pricing-mode-card-title-row">
+                                                        <span className="pricing-mode-card-title">
+                                                            <i className="bi bi-cash-stack me-2" />
+                                                            Total Purchase Price Mode
+                                                        </span>
+                                                        <span className={`pricing-mode-badge ${priceType === 'gross' ? 'active' : ''}`}>
+                                                            {priceType === 'gross' ? 'Active Input' : 'Auto-Calculated'}
+                                                        </span>
+                                                    </div>
+                                                    <p className="pricing-mode-card-desc">
+                                                        Type bulk total price paid. Single unit price is auto-calculated (Total ÷ Qty).
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            {/* Option 2: Single Unit Price Mode */}
+                                            <div
+                                                className={`pricing-mode-card ${priceType === 'perUnit' ? 'selected' : ''}`}
                                                 onClick={() => handlePriceTypeChange('perUnit')}
+                                                role="button"
+                                                tabIndex={0}
                                             >
-                                                <i className="bi bi-tag" />
-                                                Single Purchase Price Mode
-                                            </button>
+                                                <div className="pricing-mode-radio-wrap">
+                                                    <div className={`pricing-mode-radio ${priceType === 'perUnit' ? 'checked' : ''}`}>
+                                                        {priceType === 'perUnit' && <div className="pricing-mode-radio-dot" />}
+                                                    </div>
+                                                </div>
+
+                                                <div className="pricing-mode-card-content">
+                                                    <div className="pricing-mode-card-title-row">
+                                                        <span className="pricing-mode-card-title">
+                                                            <i className="bi bi-tag-fill me-2" />
+                                                            Single Purchase Price Mode
+                                                        </span>
+                                                        <span className={`pricing-mode-badge ${priceType === 'perUnit' ? 'active' : ''}`}>
+                                                            {priceType === 'perUnit' ? 'Active Input' : 'Auto-Calculated'}
+                                                        </span>
+                                                    </div>
+                                                    <p className="pricing-mode-card-desc">
+                                                        Type single piece rate. Total bulk price is auto-calculated (Single × Qty).
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
 
                                     <div className="form-grid">
                                         {/* Total Purchase Price */}
                                         <div className="form-field-group">
-                                            <label className="form-field-label">
-                                                Total Purchase Price{' '}
-                                                {priceType === 'gross' && <span className="required-star">*</span>}
+                                            <label className="form-field-label price-label-row">
+                                                <span>
+                                                    Total Purchase Price{' '}
+                                                    {priceType === 'gross' && <span className="required-star">*</span>}
+                                                </span>
+                                                <span className={`price-field-status-badge ${priceType === 'gross' ? 'editable' : 'calculated'}`}>
+                                                    {priceType === 'gross' ? '✏️ Editable' : '⚡ Auto-Calculated'}
+                                                </span>
                                             </label>
-                                            <div className="input-with-icon">
+                                            <div className={`input-with-icon ${priceType !== 'gross' ? 'field-calculated' : ''}`}>
                                                 <i className="bi bi-cash field-icon" />
                                                 <input
                                                     type="number"
@@ -1000,11 +948,16 @@ export const AddItem: React.FC = () => {
 
                                         {/* Single Purchase Price */}
                                         <div className="form-field-group">
-                                            <label className="form-field-label">
-                                                Single Purchase Price{' '}
-                                                {priceType === 'perUnit' && <span className="required-star">*</span>}
+                                            <label className="form-field-label price-label-row">
+                                                <span>
+                                                    Single Purchase Price{' '}
+                                                    {priceType === 'perUnit' && <span className="required-star">*</span>}
+                                                </span>
+                                                <span className={`price-field-status-badge ${priceType === 'perUnit' ? 'editable' : 'calculated'}`}>
+                                                    {priceType === 'perUnit' ? '✏️ Editable' : '⚡ Auto-Calculated'}
+                                                </span>
                                             </label>
-                                            <div className="input-with-icon">
+                                            <div className={`input-with-icon ${priceType !== 'perUnit' ? 'field-calculated' : ''}`}>
                                                 <i className="bi bi-receipt field-icon" />
                                                 <input
                                                     type="number"
@@ -1207,6 +1160,189 @@ export const AddItem: React.FC = () => {
                     </div>
                 </main>
             </div>
+
+            {/* Modal Popup: Browse Photo from Browser */}
+            {showWebSearch && (
+                <div
+                    className="web-search-modal-backdrop"
+                    onClick={() => setShowWebSearch(false)}
+                >
+                    <div
+                        className="web-search-modal-dialog"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        {/* Header */}
+                        <div className="web-search-modal-header">
+                            <div className="web-search-modal-header-left">
+                                <div className="web-search-modal-icon">
+                                    <i className="bi bi-globe2" />
+                                </div>
+                                <div>
+                                    <h3 className="web-search-modal-title">Browse Product Photo</h3>
+                                    <p className="web-search-modal-subtitle">
+                                        Type product name to search web photos or open Google Images
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="web-search-modal-close"
+                                onClick={() => setShowWebSearch(false)}
+                                title="Close popup (Esc)"
+                            >
+                                <i className="bi bi-x-lg" />
+                            </button>
+                        </div>
+
+                        {/* Body */}
+                        <div className="web-search-modal-body">
+                            <div className="web-search-header-row">
+                                <div className="web-search-input-wrap">
+                                    <i className="bi bi-search search-icon" />
+                                    <input
+                                        type="text"
+                                        placeholder="Type product name (e.g. Coca Cola, Basmati Rice)..."
+                                        value={imageSearchQuery}
+                                        onChange={(e) => setImageSearchQuery(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                handleSearchWebImages();
+                                            }
+                                        }}
+                                        className="web-search-input"
+                                        autoFocus
+                                    />
+                                    {imageSearchQuery && (
+                                        <button
+                                            type="button"
+                                            className="web-search-clear-btn"
+                                            onClick={() => {
+                                                setImageSearchQuery('');
+                                                setSearchResults([]);
+                                                setSearchMessage(null);
+                                            }}
+                                            title="Clear search"
+                                        >
+                                            <i className="bi bi-x" />
+                                        </button>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="button"
+                                    className="btn-web-search-exec"
+                                    onClick={() => handleSearchWebImages()}
+                                    disabled={isSearchingImages}
+                                    title="Search web images"
+                                >
+                                    {isSearchingImages ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-1" role="status" />
+                                            Searching...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="bi bi-search me-1" />
+                                            Search
+                                        </>
+                                    )}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="btn-google-search-external"
+                                    onClick={handleOpenGoogleSearch}
+                                    title="Open Google Images in new tab"
+                                >
+                                    <i className="bi bi-google me-1" />
+                                    Google Images <i className="bi bi-box-arrow-up-right ms-1" style={{ fontSize: '11px' }} />
+                                </button>
+
+                                <button
+                                    type="button"
+                                    className="btn-paste-clipboard"
+                                    onClick={handlePasteFromClipboard}
+                                    title="Paste copied image from Google / clipboard (or press Ctrl+V)"
+                                >
+                                    <i className="bi bi-clipboard2-check me-1" />
+                                    Paste Image
+                                </button>
+                            </div>
+
+                            <div className="web-search-hint">
+                                <i className="bi bi-info-circle me-1" />
+                                <span>
+                                    <strong>No link needed:</strong> Click any photo below to select it immediately, or right-click <em>Copy image</em> on Google and press <strong>Ctrl+V</strong>.
+                                </span>
+                            </div>
+
+                            {isSearchingImages && (
+                                <div className="web-search-loading">
+                                    <div className="spinner-border text-primary spinner-border-sm me-2" role="status" />
+                                    <span>Searching web photos for &ldquo;{imageSearchQuery || formDataState.name}&rdquo;...</span>
+                                </div>
+                            )}
+
+                            {searchMessage && !isSearchingImages && (
+                                <div className="web-search-msg">
+                                    <span>{searchMessage}</span>
+                                </div>
+                            )}
+
+                            {searchResults.length > 0 && !isSearchingImages ? (
+                                <div className="web-search-results-grid">
+                                    {searchResults.map((img) => (
+                                        <div
+                                            key={img.id}
+                                            className={`web-search-item-card ${formDataState.imageUrl === img.thumbUrl ? 'selected' : ''}`}
+                                            onClick={() => handleSelectImage(img.thumbUrl)}
+                                            title={img.title || 'Click to select photo'}
+                                        >
+                                            <img
+                                                src={img.thumbUrl}
+                                                alt={img.title}
+                                                className="web-search-item-img"
+                                                loading="lazy"
+                                            />
+                                            {formDataState.imageUrl === img.thumbUrl && (
+                                                <div className="web-search-selected-badge">
+                                                    <i className="bi bi-check-lg" />
+                                                </div>
+                                            )}
+                                            <div className="web-search-item-overlay">
+                                                <span>Select Photo</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : !isSearchingImages && !searchMessage && (
+                                <div className="web-search-empty-prompt">
+                                    <i className="bi bi-images prompt-icon" />
+                                    <h4 className="prompt-title">Search product photos from browser</h4>
+                                    <p className="prompt-subtitle">
+                                        Type what you are looking for above (e.g. <em>Coca Cola</em>, <em>Basmati Rice</em>, <em>Headphones</em>) and hit Search, or copy any image from Google and press <strong>Ctrl+V</strong>.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="web-search-modal-footer">
+                            <span className="web-modal-tip">
+                                <i className="bi bi-keyboard me-1" /> Press ESC or click outside to close
+                            </span>
+                            <button
+                                type="button"
+                                className="btn-web-modal-close"
+                                onClick={() => setShowWebSearch(false)}
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
