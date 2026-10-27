@@ -392,13 +392,16 @@ export const Products: React.FC = () => {
                                                         </div>
 
                                                         <div className="inventory-item-details">
-                                                            {/* Top Row: Item name, Category, Stock info (No Item ID) */}
+                                                            {/* Top Row: Item name, Category */}
                                                             <div className="inventory-item-title-row">
                                                                 <h3 className="inventory-item-name">{item.name}</h3>
                                                                 <span className="badge-role">
                                                                     {item.category?.name || 'Uncategorized'}
                                                                 </span>
+                                                            </div>
 
+                                                            {/* Second Row: In stock item (replaces Total Sales) */}
+                                                            <div className="inventory-item-stock-row">
                                                                 {qty <= 0 ? (
                                                                     <span className="badge-stock out-of-stock">
                                                                         <i className="bi bi-x-circle-fill"></i> Out of stock
@@ -414,12 +417,6 @@ export const Products: React.FC = () => {
                                                                 )}
                                                             </div>
 
-                                                            {/* Second Row: Total Sales */}
-                                                            <div className="inventory-item-sales-row">
-                                                                <span className="sales-label">Total Sales:</span>
-                                                                <strong className="sales-value">{formatCurrency(totalSales)}</strong>
-                                                            </div>
-
                                                             {/* Below that: Date (e.g. 18d ago) */}
                                                             <div className="inventory-item-date-row">
                                                                 <i className="bi bi-clock me-1 text-muted"></i>
@@ -428,45 +425,31 @@ export const Products: React.FC = () => {
                                                         </div>
                                                     </div>
 
-                                                    {/* Right Row: Total Purchase and Fixed Selling side-by-side + Action Buttons */}
+                                                    {/* Right Column: Stacked in vertical order (Purchase Amount in Red, Fixed Selling Price in Blue, Sales Amount in Green) */}
                                                     <div className="inventory-item-right">
                                                         <div className="inventory-prices-group">
-                                                            <div className="inventory-price-box">
-                                                                <span className="inventory-price-label">Total Purchase</span>
+                                                            <div className="inventory-price-box purchase-box">
+                                                                <span className="inventory-price-label">Purchase Amount:</span>
                                                                 <span className="inventory-price-value purchase">
                                                                     {formatCurrency(grossPurchase)}
                                                                 </span>
                                                             </div>
 
-                                                            <div className="inventory-price-box">
-                                                                <span className="inventory-price-label">Fixed Selling</span>
-                                                                <span className="inventory-price-value selling">
-                                                                    {fixedSelling > 0 ? formatCurrency(fixedSelling) : 'Dynamic'}
+                                                            {fixedSelling > 0 && (
+                                                                <div className="inventory-price-box selling-box">
+                                                                    <span className="inventory-price-label">Fixed Selling Price:</span>
+                                                                    <span className="inventory-price-value selling">
+                                                                        {formatCurrency(fixedSelling)}
+                                                                    </span>
+                                                                </div>
+                                                            )}
+
+                                                            <div className="inventory-price-box sales-box">
+                                                                <span className="inventory-price-label">Sales Amount:</span>
+                                                                <span className="inventory-price-value sales">
+                                                                    {formatCurrency(totalSales)}
                                                                 </span>
                                                             </div>
-                                                        </div>
-
-                                                        {/* Actions: View & Edit */}
-                                                        <div className="inventory-actions-group">
-                                                            <button
-                                                                type="button"
-                                                                className="inventory-view-action"
-                                                                onClick={(e) => handleViewItem(item, e)}
-                                                                title="View product details"
-                                                            >
-                                                                <i className="bi bi-eye"></i>
-                                                                <span>View</span>
-                                                            </button>
-
-                                                            <button
-                                                                type="button"
-                                                                className="inventory-edit-action"
-                                                                onClick={(e) => handleEditItem(item, e)}
-                                                                title="Edit product"
-                                                            >
-                                                                <i className="bi bi-pencil-square"></i>
-                                                                <span>Edit</span>
-                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
