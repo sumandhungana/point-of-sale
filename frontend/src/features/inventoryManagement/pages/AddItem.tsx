@@ -605,8 +605,8 @@ export const AddItem: React.FC = () => {
                                 <div className="form-header-icon-wrap item-theme">
                                     <i className="bi bi-box-seam" />
                                 </div>
-                                <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                                         <h1 className="form-header-title">
                                             {isEditMode ? 'Edit Product' : 'Add New Item'}
                                         </h1>
