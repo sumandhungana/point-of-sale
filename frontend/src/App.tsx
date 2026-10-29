@@ -180,7 +180,9 @@ const App: React.FC = () => {
             path="/bills/purchase/add"
             element={
               <PrivateRoute>
-                <AddPurchase />
+                <ProtectedRoute requiredAnyPermissions={['purchaseBill:add', 'purchaseBill:update']}>
+                  <AddPurchase />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -196,7 +198,9 @@ const App: React.FC = () => {
             path="/bills/purchase"
             element={
               <PrivateRoute>
-                <Purchase />
+                <ProtectedRoute requiredPermissions={['purchaseBill:all']}>
+                  <Purchase />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -423,7 +427,9 @@ const App: React.FC = () => {
             path="/bills/sales"
             element={
               <PrivateRoute>
-                <Sales />
+                <ProtectedRoute requiredPermissions={['salesBill:all']}>
+                  <Sales />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -432,7 +438,9 @@ const App: React.FC = () => {
             path="/bills/sales/add"
             element={
               <PrivateRoute>
-                <AddSalesBill />
+                <ProtectedRoute requiredAnyPermissions={['salesBill:add', 'salesBill:update']}>
+                  <AddSalesBill />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -440,7 +448,9 @@ const App: React.FC = () => {
             path="/bills/purchase"
             element={
               <PrivateRoute>
-                <Purchase />
+                <ProtectedRoute requiredPermissions={['purchaseBill:all']}>
+                  <Purchase />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -448,7 +458,9 @@ const App: React.FC = () => {
             path="/bills/purchase/add"
             element={
               <PrivateRoute>
-                <AddPurchase />
+                <ProtectedRoute requiredAnyPermissions={['purchaseBill:add', 'purchaseBill:update']}>
+                  <AddPurchase />
+                </ProtectedRoute>
               </PrivateRoute>
             }
           />

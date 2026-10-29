@@ -4,9 +4,10 @@ import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../../../components/Navbar';
 import { salesConfig } from '@/config/sales';
 import { Customer, getCustomers } from '../../services/customerService';
-import { fetchBillNumber, addSalesBill } from '@/features/services/salesBillService';
+import { fetchBillNumber, addSalesBill, getSingleSalesBill } from '@/features/services/salesBillService';
 import { Item, getProduct } from '../../services/productService';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import { usePermission } from '@/core/rbac/usePermission';
 import '../../../styles/AddPurchase.css';
 import '../../../styles/AddSalesBill.css';
 
@@ -64,8 +65,16 @@ export const AddSalesBill: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { formatNumber } = useAppSettings();
+  const { hasPermission, isSuperAdmin } = usePermission();
+
+  const canGenerate = isSuperAdmin || hasPermission('salesBill:generate');
+  const canAdd = isSuperAdmin || hasPermission('salesBill:add');
+  const canEdit = isSuperAdmin || hasPermission('salesBill:update');
+
+
   const initialData = location.state?.bill as SalesBill | undefined;
   const isEditMode = !!initialData;
+  const canSave = isEditMode ? canEdit : canAdd;
 
   const [showPartySearch, setShowPartySearch] = useState(false);
   const [customers, setCustomers] = useState<Customer[]>([]);
@@ -139,23 +148,50 @@ export const AddSalesBill: React.FC = () => {
         setAvailableProducts(productsResponse?.items || []);
 
         if (isEditMode && initialData) {
-          setFormData({
-            billNumber: initialData.billNumber,
-            billDate: initialData.billDate,
-            amount: initialData.amount,
-            paymentMode: initialData.paymentMode,
-            paymentStatus: initialData.paymentStatus || 'received',
-            remarks: initialData.remarks || '',
-            photoPath: initialData.photoPath,
-            customerId: initialData.customer?.customerId ?? 0,
-          });
-          if (initialData.customer) {
-            setSelectedCustomer(initialData.customer);
-            setPartySearch(initialData.customer.name || '');
+          let billDetails: any = initialData;
+          if (initialData.id) {
+            try {
+              const freshData = await getSingleSalesBill(initialData.id);
+              if (freshData) {
+                billDetails = {
+                  ...initialData,
+                  ...freshData,
+                  amount: freshData.amount ?? initialData.amount,
+                  customer: freshData.customerName
+                    ? { customerId: freshData.customerId || 0, name: freshData.customerName }
+                    : initialData.customer,
+                };
+              }
+            } catch (apiErr) {
+              console.warn('Could not fetch single sales bill from API, using state data:', apiErr);
+            }
           }
-          if (initialData.items) {
+
+          const mode = (billDetails.paymentMode || 'cash').toLowerCase();
+          const status = (billDetails.paymentStatus || 'received').toLowerCase();
+
+          setFormData({
+            billNumber: billDetails.billNumber || '',
+            billDate: billDetails.billDate || new Date().toISOString().split('T')[0],
+            amount: billDetails.amount || 0,
+            paymentMode: mode,
+            paymentStatus: status,
+            remarks: billDetails.remarks || '',
+            photoPath: billDetails.photoPath || null,
+            customerId: billDetails.customerId ?? billDetails.customer?.customerId ?? 0,
+          });
+          if (billDetails.photoPath) {
+            setSelectedImage(billDetails.photoPath);
+          }
+          if (billDetails.customer) {
+            setSelectedCustomer(billDetails.customer);
+            setPartySearch(billDetails.customer.name || '');
+          } else if (billDetails.customerName) {
+            setPartySearch(billDetails.customerName);
+          }
+          if (billDetails.items && billDetails.items.length > 0) {
             setSelectedProducts(
-              initialData.items.map((it) => ({
+              billDetails.items.map((it: any) => ({
                 ...it,
                 stockUnit: it.stockUnit || it.unit || 'pcs',
                 unit: it.unit || 'pcs',
@@ -163,17 +199,19 @@ export const AddSalesBill: React.FC = () => {
             );
           }
         } else {
-          try {
-            const billData = await fetchBillNumber();
-            if (billData && billData.billNumber) {
-              setFormData((prev) => ({
-                ...prev,
-                billNumber: `${salesConfig.billNumber.prefix}${billData.billNumber}`,
-                customerId: 0,
-              }));
+          if (canGenerate) {
+            try {
+              const billData = await fetchBillNumber();
+              if (billData && billData.billNumber) {
+                setFormData((prev) => ({
+                  ...prev,
+                  billNumber: `${salesConfig.billNumber.prefix}${billData.billNumber}`,
+                  customerId: 0,
+                }));
+              }
+            } catch (e) {
+              console.warn('Could not auto-fetch bill number:', e);
             }
-          } catch (e) {
-            console.warn('Could not auto-fetch bill number:', e);
           }
         }
       } catch (err) {
@@ -407,6 +445,11 @@ export const AddSalesBill: React.FC = () => {
   };
 
   const handleSaveInvoice = async () => {
+    if (!canSave) {
+      setError(`Permission denied: You do not have permission to ${isEditMode ? 'update' : 'add'} sales bills (${isEditMode ? 'salesBill:update' : 'salesBill:add'} required).`);
+      return;
+    }
+
     if (selectedProducts.length === 0) {
       setError('Please search and select at least one product.');
       return;
@@ -868,7 +911,7 @@ export const AddSalesBill: React.FC = () => {
                             <i className="bi bi-patch-check"></i>
                             <select
                               name="paymentStatus"
-                              value={formData.paymentStatus}
+                              value={(formData.paymentStatus || 'received').toLowerCase()}
                               onChange={handleInputChange}
                             >
                               <option value="received">Received</option>

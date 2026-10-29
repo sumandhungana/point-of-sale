@@ -12,6 +12,7 @@ public record AddSalesBillUCRequest(
         String billNumber,
         LocalDate billDate,
         String paymentMode,
+        String paymentStatus,
         BigDecimal amount,
         String remarks,
         String photoPath,

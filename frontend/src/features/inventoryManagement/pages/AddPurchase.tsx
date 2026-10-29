@@ -2,12 +2,13 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {Sidebar} from '@/components/Sidebar';
 import Navbar from '../../../components/Navbar';
-import {AddPurchaseBillRequest, fetchPurchaseBillNumber, savePurchase} from '../../services/purchaseBillService'
+import {fetchPurchaseBillNumber, savePurchase, getSinglePurchaseBill} from '../../services/purchaseBillService'
 import {getSuppliers} from '@/features/services/supplierService';
 import '../../../styles/AddPurchase.css';
 import '../../../styles/AddSalesBill.css';
 import {getProduct, Item} from '../../services/productService';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import { usePermission } from '@/core/rbac/usePermission';
 
 interface Supplier {
     id: number;
@@ -56,9 +57,16 @@ export const AddPurchase: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const { formatCurrency, formatNumber, settings } = useAppSettings();
+    const { hasPermission, isSuperAdmin } = usePermission();
+
+    const canGenerate = isSuperAdmin || hasPermission('purchaseBill:generate');
+    const canAdd = isSuperAdmin || hasPermission('purchaseBill:add');
+    const canEdit = isSuperAdmin || hasPermission('purchaseBill:update');
+
     const currencySymbol = settings.currency || 'Rs. ';
     const initialData = location.state?.purchase;
     const isEditMode = !!initialData;
+    const canSave = isEditMode ? canEdit : canAdd;
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -74,6 +82,15 @@ export const AddPurchase: React.FC = () => {
     const [paymentStatus, setPaymentStatus] = useState('paid');
     const [remarks, setRemarks] = useState('');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
+    const handlePaymentModeChange = (mode: string) => {
+        setPaymentMode(mode);
+        if (mode === 'credit') {
+            setPaymentStatus('due');
+        } else if (paymentStatus === 'due') {
+            setPaymentStatus('paid');
+        }
+    };
 
     // Global Calculation Settings (Applies to New Products)
     const [showGuideModal, setShowGuideModal] = useState(false);
@@ -108,18 +125,32 @@ export const AddPurchase: React.FC = () => {
                 setSuppliers(suppliersData || []);
 
                 if (isEditMode && initialData) {
-                    setPurchaseNo(initialData.purchaseNo);
-                    setDate(initialData.date || initialData.billDate || new Date().toISOString().split('T')[0]);
-                    setPaymentMode(initialData.paymentMode || 'cash');
-                    setPaymentStatus(initialData.paymentStatus || 'paid');
-                    setRemarks(initialData.remarks || '');
-                    if (initialData.supplier) {
-                        setSelectedSupplier(initialData.supplier);
-                        setSupplierSearch(initialData.supplier.name);
+                    let billDetails = initialData;
+                    if (initialData.id) {
+                        try {
+                            const freshData = await getSinglePurchaseBill(initialData.id);
+                            if (freshData) {
+                                billDetails = { ...initialData, ...freshData };
+                            }
+                        } catch (apiErr) {
+                            console.warn('Could not fetch single purchase bill details from API, using state data:', apiErr);
+                        }
                     }
-                    if (initialData.items) {
+                    setPurchaseNo(billDetails.purchaseNo || '');
+                    setDate(billDetails.date || billDetails.purchaseDate || billDetails.billDate || new Date().toISOString().split('T')[0]);
+                    const mode = (billDetails.paymentMode || 'cash').toLowerCase();
+                    setPaymentMode(mode);
+                    // Payment Status normalized from initialData or API call
+                    const rawStatus = billDetails.paymentStatus || (mode === 'credit' ? 'due' : 'paid');
+                    setPaymentStatus(String(rawStatus).toLowerCase());
+                    setRemarks(billDetails.remarks || '');
+                    if (billDetails.supplier) {
+                        setSelectedSupplier(billDetails.supplier);
+                        setSupplierSearch(billDetails.supplier.name || '');
+                    }
+                    if (billDetails.items && billDetails.items.length > 0) {
                         setLineItems(
-                            initialData.items.map((i: any) => ({
+                            billDetails.items.map((i: any) => ({
                                 ...i,
                                 unit: i.unit || 'pcs',
                                 stockUnit: i.unit || 'pcs',
@@ -129,11 +160,11 @@ export const AddPurchase: React.FC = () => {
                             }))
                         );
                     }
-                    if (initialData.photoPath) {
+                    if (billDetails.photoPath) {
                         setSelectedImage(initialData.photoPath);
                     }
                 } else {
-                    const billData = await fetchPurchaseBillNumber();
+                    const billData = canGenerate ? await fetchPurchaseBillNumber() : null;
                     const lastNo = billData?.purchaseNo ?? '0';
 
                     setPurchaseNo(lastNo);
@@ -384,6 +415,10 @@ export const AddPurchase: React.FC = () => {
     };
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!canSave) {
+            setError(`Permission denied: You do not have permission to ${isEditMode ? 'update' : 'add'} purchase bills (${isEditMode ? 'purchaseBill:update' : 'purchaseBill:add'} required).`);
+            return;
+        }
         if (lineItems.length === 0) {
             setError('Please add at least one item to save the purchase bill.');
             return;
@@ -394,11 +429,12 @@ export const AddPurchase: React.FC = () => {
 
         try {
             // Map all line items to the request payload structure
-            const payload: AddPurchaseBillRequest = {
+            const payload: any = {
+                id: isEditMode ? initialData?.id : undefined,
                 purchaseNo: purchaseNo,
                 purchaseDate: date,
                 paymentMode: paymentMode,
-                paymentStatus: paymentStatus,
+                paymentStatus: paymentStatus || (paymentMode === 'credit' ? 'due' : 'paid'),
                 supplierId: selectedSupplier?.id,
                 remarks: remarks,
                 photoPath: selectedImage || undefined,
@@ -1112,7 +1148,7 @@ export const AddPurchase: React.FC = () => {
                                                 <label>Payment Mode</label>
                                                 <div className="input-with-icon">
                                                     <i className="bi bi-wallet2"></i>
-                                                    <select value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
+                                                    <select value={paymentMode} onChange={(e) => handlePaymentModeChange(e.target.value)}>
                                                         <option value="cash">Cash</option>
                                                         <option value="card">Card / POS</option>
                                                         <option value="bank_transfer">Bank Transfer</option>
@@ -1128,7 +1164,7 @@ export const AddPurchase: React.FC = () => {
                                                 <label>Payment Status</label>
                                                 <div className="input-with-icon">
                                                     <i className="bi bi-patch-check"></i>
-                                                    <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
+                                                    <select value={paymentStatus.toLowerCase()} onChange={(e) => setPaymentStatus(e.target.value.toLowerCase())}>
                                                         <option value="paid">Paid</option>
                                                         <option value="due">Due</option>
                                                         <option value="received">Received</option>

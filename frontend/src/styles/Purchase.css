@@ -371,10 +371,12 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  height: 38px;
+  box-sizing: border-box;
   background-color: #16a34a;
   color: #ffffff;
   border: 1px solid #16a34a;
-  padding: 8px 16px;
+  padding: 0 16px;
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;

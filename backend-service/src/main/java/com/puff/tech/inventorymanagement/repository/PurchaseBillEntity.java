@@ -38,6 +38,8 @@ public class PurchaseBillEntity {
 
     private String paymentMode;
 
+    private String paymentStatus;
+
     private BigDecimal amount;
 
     private String remarks;

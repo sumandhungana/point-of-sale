@@ -27,6 +27,14 @@ public interface SalesBillRepository  extends ReactorCrudRepository<SalesBillEnt
     @Join(value = "product", type = Join.Type.LEFT_FETCH)
     Flux<SalesBillEntity> findByMemberId(Long memberId);
 
+    @Join(value = "customer", type = Join.Type.LEFT_FETCH)
+    @Join(value = "product", type = Join.Type.LEFT_FETCH)
+    Mono<SalesBillEntity> findByIdAndMemberId(Long id, Long memberId);
+
+    @Join(value = "customer", type = Join.Type.LEFT_FETCH)
+    @Join(value = "product", type = Join.Type.LEFT_FETCH)
+    Flux<SalesBillEntity> findByBillNumberAndMemberId(String billNumber, Long memberId);
+
     @Query("SELECT COALESCE(SUM(sb.amount), 0) FROM sales_bill sb WHERE sb.product_id = :productId AND sb.member_id = :memberId")
     Mono<BigDecimal> findTotalAmountByProductIdAndMemberId(Long productId, Long memberId);
 

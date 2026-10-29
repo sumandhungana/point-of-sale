@@ -13,6 +13,7 @@ public record GetAllPurchaseBillUCResponse(
         LocalDate date,
         BigDecimal amount,
         String paymentMode,
+        String paymentStatus,
         String remarks,
         String photoPath,
         CategoryDto category,

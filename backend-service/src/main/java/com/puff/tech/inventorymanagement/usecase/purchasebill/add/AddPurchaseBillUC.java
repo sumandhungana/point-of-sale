@@ -101,6 +101,7 @@ public class AddPurchaseBillUC implements MonoUC<AddPurchaseBillUCRequest, AddPu
                     purchaseBill.setPurchaseNo(request.purchaseNo());
                     purchaseBill.setPurchaseDate(request.purchaseDate() != null ? request.purchaseDate() : LocalDate.now());
                     purchaseBill.setPaymentMode(request.paymentMode());
+                    purchaseBill.setPaymentStatus(request.paymentStatus());
                     purchaseBill.setAmount(itemGrossPrice);
                     purchaseBill.setRemarks(request.remarks());
                     purchaseBill.setPhotoPath(request.photoPath());

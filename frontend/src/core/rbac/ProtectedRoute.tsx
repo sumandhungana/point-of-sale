@@ -1,7 +1,7 @@
 // src/core/rbac/ProtectedRoute.tsx
 import React from 'react';
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/core/auth/AuthContext'
+import { useAuth } from '@/core/auth/AuthContext';
 import { usePermission } from './usePermission';
 import { AccessDenied } from '@/shared/components/AccessDenied';
 
@@ -10,16 +10,18 @@ interface ProtectedRouteProps {
     requiredModule?: string;
     requiredModules?: string[];
     requiredPermissions?: string[];
+    requiredAnyPermissions?: string[];
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-                                                                  children,
-                                                                  requiredModule,
-                                                                  requiredModules,
-                                                                  requiredPermissions = [],
-                                                              }) => {
+    children,
+    requiredModule,
+    requiredModules,
+    requiredPermissions = [],
+    requiredAnyPermissions = [],
+}) => {
     const { isAuthenticated, isLoading } = useAuth();
-    const { hasModule, hasAllPermissions } = usePermission();
+    const { hasModule, hasAllPermissions, hasAnyPermission } = usePermission();
 
     if (isLoading) {
         return <div className="text-center p-5">Loading context...</div>;
@@ -41,6 +43,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
     // Check Action/Permission authorization
     if (requiredPermissions.length > 0 && !hasAllPermissions(requiredPermissions)) {
+        return (
+            <AccessDenied
+                title="Permission Required"
+                message="Your role does not have the required permissions for this action."
+            />
+        );
+    }
+
+    // Check Any Permission authorization
+    if (requiredAnyPermissions.length > 0 && !hasAnyPermission(requiredAnyPermissions)) {
         return (
             <AccessDenied
                 title="Permission Required"

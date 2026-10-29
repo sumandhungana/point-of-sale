@@ -2,11 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../../../components/Navbar';
-import { fetchPurchases, GetAllPurchaseBillResponse } from '../../services/purchaseBillService';
+import {
+  fetchPurchases,
+  GetAllPurchaseBillResponse,
+  getSinglePurchaseBill,
+  GetSinglePurchaseBillResponse
+} from '../../services/purchaseBillService';
 import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
 import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
+import { ViewPurchaseBillModal } from '../components/ViewPurchaseBillModal';
 import { printInvoiceDirectly } from '../utils/printInvoice';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import { usePermission } from '@/core/rbac/usePermission';
 import '../../../styles/Sales.css';
 import '../../../styles/Purchase.css';
 
@@ -14,12 +21,26 @@ import '../../../styles/Purchase.css';
 export const Purchase = () => {
   const navigate = useNavigate();
   const { formatNumber } = useAppSettings();
+  const { hasPermission, isSuperAdmin } = usePermission();
+
+  // RBAC permissions
+  const canViewAll = isSuperAdmin || hasPermission('purchaseBill:all');
+  const canViewSingle = isSuperAdmin || hasPermission('purchaseBill:single') || hasPermission('purchaseBill:all');
+  const canAdd = isSuperAdmin || hasPermission('purchaseBill:add');
+  const canEdit = isSuperAdmin || hasPermission('purchaseBill:update');
+  const hasEditAccess = canEdit || canAdd;
+
   const [purchases, setPurchases] = useState<GetAllPurchaseBillResponse[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [paymentFilter, setPaymentFilter] = useState('');
-  const [dateSort, setDateSort] = useState('');
+  const [filterBy, setFilterBy] = useState('');
+  const [sortBy, setSortBy] = useState('newest');
+
+  // Single Purchase View Modal State
+  const [viewingPurchase, setViewingPurchase] = useState<GetSinglePurchaseBillResponse | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isSingleLoading, setIsSingleLoading] = useState(false);
 
   // PDF Modals state
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceModalData | null>(null);
@@ -30,15 +51,19 @@ export const Purchase = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchPurchasesList();
-  }, []);
+    if (canViewAll) {
+      fetchPurchasesList();
+    } else {
+      setLoading(false);
+    }
+  }, [canViewAll]);
 
   const fetchPurchasesList = async () => {
     setLoading(true);
     setError(null);
     try {
       const data = await fetchPurchases();
-      setPurchases(data);
+      setPurchases(data || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -54,38 +79,99 @@ export const Purchase = () => {
             (purchase.item?.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (purchase.paymentMode ?? '').toLowerCase().includes(searchQuery.toLowerCase());
 
-        const matchesPayment = paymentFilter
-            ? (purchase.paymentMode ?? '').toLowerCase() === paymentFilter.toLowerCase()
+        const matchesPayment = filterBy
+            ? (purchase.paymentMode ?? '').toLowerCase() === filterBy.toLowerCase()
             : true;
 
         return matchesSearch && matchesPayment;
       })
       .sort((a, b) => {
-        const dateA = a.date ? new Date(a.date).getTime() : 0;
-        const dateB = b.date ? new Date(b.date).getTime() : 0;
-
-        if (dateSort === 'newest') {
-          return dateB - dateA;
-        } else if (dateSort === 'oldest') {
+        if (sortBy === 'oldest') {
+          const dateA = a.date ? new Date(a.date).getTime() : 0;
+          const dateB = b.date ? new Date(b.date).getTime() : 0;
           return dateA - dateB;
         }
-        return 0;
+        if (sortBy === 'amount_desc') {
+          return (b.amount ?? 0) - (a.amount ?? 0);
+        }
+        if (sortBy === 'amount_asc') {
+          return (a.amount ?? 0) - (b.amount ?? 0);
+        }
+        if (sortBy === 'name_asc') {
+          const nameA = a.item?.name || a.category?.name || '';
+          const nameB = b.item?.name || b.category?.name || '';
+          return nameA.localeCompare(nameB);
+        }
+        if (sortBy === 'name_desc') {
+          const nameA = a.item?.name || a.category?.name || '';
+          const nameB = b.item?.name || b.category?.name || '';
+          return nameB.localeCompare(nameA);
+        }
+        // Default: newest first
+        const dateA = a.date ? new Date(a.date).getTime() : 0;
+        const dateB = b.date ? new Date(b.date).getTime() : 0;
+        return dateB - dateA;
       });
 
-  const handlePurchaseClick = (purchase: GetAllPurchaseBillResponse) => {
+  const handleEditPurchase = (purchase: GetAllPurchaseBillResponse | GetSinglePurchaseBillResponse) => {
+    if (!hasEditAccess) return;
+    setIsViewModalOpen(false);
     navigate('/bills/purchase/add', { state: { purchase } });
+  };
+
+  const handleViewPurchase = async (purchase: GetAllPurchaseBillResponse) => {
+    if (!canViewSingle) return;
+
+    // Fast preview while single API loads
+    const initialViewData: GetSinglePurchaseBillResponse = {
+      id: purchase.id,
+      purchaseNo: purchase.purchaseNo,
+      date: purchase.date,
+      amount: purchase.amount,
+      paymentMode: purchase.paymentMode,
+      paymentStatus: purchase.paymentStatus,
+      remarks: purchase.remarks,
+      photoPath: purchase.photoPath,
+      item: purchase.item,
+      category: purchase.category,
+    };
+
+    setViewingPurchase(initialViewData);
+    setIsViewModalOpen(true);
+
+    if (purchase.id && purchase.id > 0) {
+      setIsSingleLoading(true);
+      try {
+        const fullData = await getSinglePurchaseBill(purchase.id);
+        if (fullData) {
+          setViewingPurchase(fullData);
+        }
+      } catch (err) {
+        console.warn('Could not fetch single purchase bill from API, using cached data:', err);
+      } finally {
+        setIsSingleLoading(false);
+      }
+    }
+  };
+
+  const handlePurchaseClick = (purchase: GetAllPurchaseBillResponse) => {
+    if (canViewSingle) {
+      handleViewPurchase(purchase);
+    } else if (hasEditAccess) {
+      handleEditPurchase(purchase);
+    }
   };
 
   const handleAddBill = () => {
     navigate('/bills/purchase/add');
   };
 
-  const formatPurchaseForInvoice = (purchase: GetAllPurchaseBillResponse): InvoiceModalData => {
+  const formatPurchaseForInvoice = (purchase: GetAllPurchaseBillResponse | GetSinglePurchaseBillResponse): InvoiceModalData => {
     const amount = purchase.amount ?? 0;
     return {
       type: 'PURCHASE',
       invoiceNumber: purchase.purchaseNo || 'PUR-N/A',
-      date: purchase.date || purchase.createdAt || new Date().toISOString(),
+      date: purchase.date || (purchase as any).createdAt || new Date().toISOString(),
       partyName: purchase.category?.name ? `${purchase.category.name} Vendor` : 'Supplier / Vendor',
       partyType: 'Registered Supplier',
       paymentMode: purchase.paymentMode || 'CASH',
@@ -111,10 +197,21 @@ export const Purchase = () => {
     setIsInvoiceModalOpen(true);
   };
 
-
   const handlePrintPurchaseDirectly = (purchase: GetAllPurchaseBillResponse) => {
     const invData = formatPurchaseForInvoice(purchase);
     printInvoiceDirectly(invData);
+  };
+
+  const handlePrintFromModal = (p: GetSinglePurchaseBillResponse) => {
+    const invData = formatPurchaseForInvoice(p);
+    printInvoiceDirectly(invData);
+  };
+
+  const handleDownloadPdfFromModal = (p: GetSinglePurchaseBillResponse) => {
+    const invData = formatPurchaseForInvoice(p);
+    setSelectedInvoice(invData);
+    setAutoDownloadInvoice(true);
+    setIsInvoiceModalOpen(true);
   };
 
   const handleExportReportPDF = () => {
@@ -149,6 +246,15 @@ export const Purchase = () => {
         return ['CARD', 'UPI', 'BANK', 'BANK_TRANSFER', 'ONLINE', 'DIGITAL', 'QR', 'WALLET'].includes(mode) || (mode !== 'CASH' && mode !== 'CREDIT' && mode !== 'DUE' && mode !== '');
       })
       .reduce((sum, p) => sum + (p.amount ?? 0), 0);
+
+  const cashCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CASH').length;
+  const cardCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CARD').length;
+  const upiCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'UPI').length;
+  const bankCount = purchases.filter((p) => {
+    const m = (p.paymentMode || '').trim().toUpperCase();
+    return m === 'BANK' || m === 'BANK_TRANSFER';
+  }).length;
+  const creditCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CREDIT').length;
 
   return (
       <div className="user-management-page-wrapper">
@@ -222,50 +328,74 @@ export const Purchase = () => {
             {/* Controls & Search Bar */}
             <div className="sales-filter-card">
               <div className="sales-search-section">
+                <button
+                  type="button"
+                  className="toolbar-btn staff-btn"
+                  onClick={() => {
+                    setFilterBy('');
+                    setSearchQuery('');
+                    setSortBy('newest');
+                  }}
+                  title="Click to reset filters and view all purchase bills"
+                >
+                  <i className="bi bi-bag-check"></i>
+                   Invoices ({purchases.length})
+                </button>
+
                 <div className="sales-search-input-wrapper">
                   <i className="bi bi-search search-icon"></i>
                   <input
-                      type="text"
-                      placeholder="Search by purchase no, item, category, or payment mode..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="form-control"
+                    type="text"
+                    placeholder="Search by purchase no, item, category, or mode..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="sales-search-input"
                   />
-                </div>
-
-                <div className="sales-total-invoices-badge" title="Total Bills Count">
-                  <span className="invoices-badge-label">Total Bills</span>
-                  <span className="invoices-badge-count">{purchases.length}</span>
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className="search-clear-btn"
+                      onClick={() => setSearchQuery('')}
+                      title="Clear search"
+                    >
+                      <i className="bi bi-x-circle-fill"></i>
+                    </button>
+                  )}
                 </div>
               </div>
 
               <div className="sales-filter-actions">
-                <div className="filter-select-group">
-                  <label>Payment:</label>
+                <div className="toolbar-select-wrap">
+                  <i className="bi bi-sort-down"></i>
                   <select
-                      value={paymentFilter}
-                      onChange={(e) => setPaymentFilter(e.target.value)}
-                      className="table-role-select"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="toolbar-select"
+                    title="Sort purchase bills"
                   >
-                    <option value="">All Payment Modes</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="bank_transfer">Bank Transfer</option>
-                    <option value="upi">UPI / Wallet</option>
-                    <option value="credit">Credit</option>
+                    <option value="newest">Sort (Newest)</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="amount_desc">Amount: High to Low</option>
+                    <option value="amount_asc">Amount: Low to High</option>
+                    <option value="name_asc">Item: A-Z</option>
+                    <option value="name_desc">Item: Z-A</option>
                   </select>
                 </div>
 
-                <div className="filter-select-group">
-                  <label>Sort:</label>
+                <div className="toolbar-select-wrap">
+                  <i className="bi bi-funnel"></i>
                   <select
-                      value={dateSort}
-                      onChange={(e) => setDateSort(e.target.value)}
-                      className="table-role-select"
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value)}
+                    className="toolbar-select"
+                    title="Filter purchase bills"
                   >
-                    <option value="">Sort By Date</option>
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
+                    <option value="">Filter (All)</option>
+                    <option value="cash">Cash ({cashCount})</option>
+                    <option value="card">Card ({cardCount})</option>
+                    <option value="bank_transfer">Bank Transfer ({bankCount})</option>
+                    <option value="upi">UPI / Wallet ({upiCount})</option>
+                    <option value="credit">Credit ({creditCount})</option>
                   </select>
                 </div>
 
@@ -283,7 +413,11 @@ export const Purchase = () => {
 
             {/* Purchase Bills List */}
             <div className="role-list-container">
-              {loading ? (
+              {!canViewAll ? (
+                  <div className="empty-container p-4 text-center text-danger">
+                    <i className="bi bi-shield-lock me-2"></i>You do not have permission to view purchase bills (purchaseBill:all).
+                  </div>
+              ) : loading ? (
                   <div className="loading-container p-4 text-center">
                     <i className="bi bi-arrow-repeat spin me-2"></i>Loading purchase bills...
                   </div>
@@ -336,6 +470,16 @@ export const Purchase = () => {
                           {/* Right-aligned Section: Actions before User & Date before Amount */}
                           <div className="role-card-right d-flex align-items-center gap-3">
                             <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              {canViewSingle && (
+                                <button
+                                    type="button"
+                                    className="btn-row-action"
+                                    title="View Purchase Details"
+                                    onClick={() => handleViewPurchase(purchase)}
+                                >
+                                  <i className="bi bi-eye"></i> View
+                                </button>
+                              )}
                               <button
                                   type="button"
                                   className="btn-row-action pdf"
@@ -368,16 +512,30 @@ export const Purchase = () => {
           </div>
         </div>
 
-        {/* Sticky Bottom-Right + New Purchase Button */}
-        <button
-            type="button"
-            className="sales-add-sticky-button"
-            onClick={handleAddBill}
-            title="New Purchase Bill"
-        >
-            <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
-            <span>New Purchase</span>
-        </button>
+        {/* Sticky Bottom-Right + New Purchase Button (permission-checked) */}
+        {canAdd && (
+          <button
+              type="button"
+              className="sales-add-sticky-button"
+              onClick={handleAddBill}
+              title="New Purchase Bill"
+          >
+              <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+              <span>New Purchase</span>
+          </button>
+        )}
+
+        {/* View Single Purchase Bill Modal */}
+        <ViewPurchaseBillModal
+            isOpen={isViewModalOpen}
+            onClose={() => setIsViewModalOpen(false)}
+            purchase={viewingPurchase}
+            isLoading={isSingleLoading}
+            onPrint={handlePrintFromModal}
+            onDownloadPdf={handleDownloadPdfFromModal}
+            onEdit={hasEditAccess ? handleEditPurchase : undefined}
+            canEdit={hasEditAccess}
+        />
 
         {/* Invoice PDF & Print Modal */}
         <InvoiceModal

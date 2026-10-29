@@ -26,6 +26,7 @@ public record GetAllSalesBillUCResponse(
          BigDecimal vatAmount,
          BigDecimal amount,
          String paymentMode,
+         String paymentStatus,
          String remarks,
          String photoPath,
          Instant createdAt,

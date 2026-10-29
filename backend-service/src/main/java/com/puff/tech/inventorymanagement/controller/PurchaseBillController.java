@@ -7,15 +7,18 @@ import com.puff.tech.inventorymanagement.usecase.purchasebill.add.AddPurchaseBil
 import com.puff.tech.inventorymanagement.usecase.purchasebill.getall.GetAllPurchaseBillUC;
 import com.puff.tech.inventorymanagement.usecase.purchasebill.getall.GetAllPurchaseBillUCRequest;
 import com.puff.tech.inventorymanagement.usecase.purchasebill.getall.GetAllPurchaseBillUCResponse;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.getsingle.GetSinglePurchaseBillUC;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.getsingle.GetSinglePurchaseBillUCRequest;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.getsingle.GetSinglePurchaseBillUCResponse;
 import com.puff.tech.inventorymanagement.usecase.purchasebill.purchasenumber.GetPurchaseNumberUC;
 import com.puff.tech.inventorymanagement.usecase.purchasebill.purchasenumber.GetPurchaseNumberUCRequest;
 import com.puff.tech.inventorymanagement.usecase.purchasebill.purchasenumber.GetPurchaseNumberUCResponse;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.update.UpdatePurchaseBillUC;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.update.UpdatePurchaseBillUCRequest;
+import com.puff.tech.inventorymanagement.usecase.purchasebill.update.UpdatePurchaseBillUCResponse;
 import com.puff.tech.security.Secured;
 import com.puff.tech.usermanagement.enums.Permission;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.*;
 import jakarta.validation.Valid;
 import reactor.core.publisher.Mono;
 
@@ -27,13 +30,17 @@ public class PurchaseBillController {
     private final AddPurchaseBillUC addPurchaseBillUC;
     private final GetAllPurchaseBillUC getAllPurchaseBillUC;
     private final GetPurchaseNumberUC getPurchaseNumberUC;
+    private final GetSinglePurchaseBillUC getSinglePurchaseBillUC;
+    private final UpdatePurchaseBillUC updatePurchaseBillUC;
 
     public PurchaseBillController(AddPurchaseBillUC addPurchaseBillUC,
                                   GetAllPurchaseBillUC getAllPurchaseBillUC,
-                                  GetPurchaseNumberUC getPurchaseNumberUC) {
+                                  GetPurchaseNumberUC getPurchaseNumberUC, GetSinglePurchaseBillUC getSinglePurchaseBillUC, UpdatePurchaseBillUC updatePurchaseBillUC) {
         this.addPurchaseBillUC = addPurchaseBillUC;
         this.getAllPurchaseBillUC = getAllPurchaseBillUC;
         this.getPurchaseNumberUC = getPurchaseNumberUC;
+        this.getSinglePurchaseBillUC = getSinglePurchaseBillUC;
+        this.updatePurchaseBillUC = updatePurchaseBillUC;
     }
 
     @Secured(permissions = {Permission.PURCHASE_BILL_ADD})
@@ -57,6 +64,23 @@ public class PurchaseBillController {
     public Mono<RestResponse<List<GetAllPurchaseBillUCResponse>>> getAllSalesBill() {
         return getAllPurchaseBillUC.execute(new GetAllPurchaseBillUCRequest())
                 .collectList()
+                .map(RestResponse::success)
+                .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
+    }
+
+    @Secured(permissions = {Permission.PURCHASE_BILL_GET_SINGLE})
+    @Get()
+    public Mono<RestResponse<GetSinglePurchaseBillUCResponse>> getSinglePurchaseBill(@QueryValue("id") Integer id) {
+        return getSinglePurchaseBillUC.execute(new GetSinglePurchaseBillUCRequest(id))
+                .map(RestResponse::success)
+                .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
+    }
+
+
+    @Secured(permissions = {Permission.PURCHASE_BILL_UPDATE})
+    @Put
+    public Mono<RestResponse<UpdatePurchaseBillUCResponse>> edit(@Body UpdatePurchaseBillUCRequest request) {
+        return updatePurchaseBillUC.execute(request)
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }

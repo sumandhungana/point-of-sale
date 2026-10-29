@@ -15,6 +15,7 @@ interface RestResponse<T> {
 export interface PurchaseBillNumber {
     purchaseNo?: string;
 }
+
 export interface PurchaseItemPayload {
     productId: number;
     itemCount: number;
@@ -43,6 +44,7 @@ export interface GetAllPurchaseBillResponse {
     date?: string;
     amount?: number;
     paymentMode?: string;
+    paymentStatus?: string;
     remarks?: string;
     photoPath?: string;
     category?: {
@@ -56,24 +58,42 @@ export interface GetAllPurchaseBillResponse {
     updatedAt?: string;
 }
 
+export interface GetSinglePurchaseBillResponse {
+    id?: number;
+    purchaseNo?: string;
+    date?: string;
+    amount?: number;
+    paymentMode?: string;
+    paymentStatus?: string;
+    remarks?: string;
+    photoPath?: string;
+    category?: {
+        name?: string;
+    };
+    item?: {
+        name?: string;
+        imageUrl?: string;
+    };
+}
 
 export const fetchPurchaseBillNumber = async (): Promise<PurchaseBillNumber> => {
-    const res= await apiService.get<RestResponse<PurchaseBillNumber>>(
+    const res = await apiService.get<RestResponse<PurchaseBillNumber>>(
         'api/v1/purchase-bill/bill-number',
         {
-            headers:{
+            headers: {
                 ...getAuthHeaders()
             },
         }
     );
-    if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
+    if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
         throw new Error(res.error || "Failed to Fetch Bill Number");
     }
-    if(res.error){
+    if (res.error) {
         throw new Error(res.error || "Failed to Fetch Bill Number");
     }
-    return res?.response?.data ?? [];
+    return res?.response?.data ?? {};
 };
+
 export const fetchPurchases = async (): Promise<GetAllPurchaseBillResponse[]> => {
     const res = await apiService.get<RestResponse<GetAllPurchaseBillResponse[]>>(
         `api/v1/purchase-bill/all-bills`,
@@ -93,17 +113,52 @@ export const fetchPurchases = async (): Promise<GetAllPurchaseBillResponse[]> =>
     return res?.response?.data ?? [];
 };
 
+export const getSinglePurchaseBill = async (id: number): Promise<GetSinglePurchaseBillResponse> => {
+    const res = await apiService.get<RestResponse<GetSinglePurchaseBillResponse>>(
+        `api/v1/purchase-bill?id=${id}`,
+        {
+            headers: {
+                ...getAuthHeaders()
+            },
+        }
+    );
+    if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+        throw new Error(res.error || "Failed to fetch purchase bill details");
+    }
+    if (res.error) {
+        throw new Error(res.error || "Failed to fetch purchase bill details");
+    }
+    return res?.response?.data;
+};
+
+// Update Purchase Bill (PUT /api/v1/purchase-bill)
+export const updatePurchaseBill = async (data: any): Promise<AddPurchaseBillResponse> => {
+    const res = await apiService.put<RestResponse<AddPurchaseBillResponse>>(
+        'api/v1/purchase-bill',
+        data,
+        {
+            headers: {
+                ...getAuthHeaders()
+            },
+        }
+    );
+
+    if (res?.response?.code !== 0 || res?.response?.message !== 'SUCCESS') {
+        throw new Error(res.error || "Failed to update purchase bill");
+    }
+    if (res.error) {
+        throw new Error(res.error || "Failed to update purchase bill");
+    }
+    return res?.response?.data ?? {};
+};
+
 export const savePurchase = async (data: AddPurchaseBillRequest, isEditMode: boolean, id?: number): Promise<AddPurchaseBillResponse> => {
-    // Note: If you implement update support in the backend later, adjust the URL if needed.
-    let url;
-    if (isEditMode && id) {
-        url = 'api/v1/purchase-bill/{id}'
-    } else {
-        url = 'api/v1/purchase-bill';
+    if (isEditMode) {
+        return updatePurchaseBill({ ...data, id: id ?? (data as any).id });
     }
 
     const res = await apiService.post<RestResponse<AddPurchaseBillResponse>>(
-        url,
+        'api/v1/purchase-bill',
         data,
         {
             headers: {

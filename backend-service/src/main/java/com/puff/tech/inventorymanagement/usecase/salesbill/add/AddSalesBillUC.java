@@ -88,6 +88,7 @@ public class AddSalesBillUC implements MonoUC<AddSalesBillUCRequest, AddSalesBil
         entity.setBillNumber(request.billNumber());
         entity.setBillDate(request.billDate());
         entity.setPaymentMode(request.paymentMode());
+        entity.setPaymentStatus(request.paymentStatus());
         entity.setRemarks(request.remarks());
         entity.setPhotoPath(request.photoPath());
 

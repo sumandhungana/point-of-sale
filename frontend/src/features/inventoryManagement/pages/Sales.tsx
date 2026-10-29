@@ -3,11 +3,18 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
-import { getAllSalesBill as fetchSalesBillsService, GetAllSalesBillResponse } from '../../services/salesBillService';
+import {
+  getAllSalesBill as fetchSalesBillsService,
+  GetAllSalesBillResponse,
+  getSingleSalesBill,
+  GetSingleSalesBillResponse
+} from '../../services/salesBillService';
 import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
 import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
+import { ViewSalesBillModal } from '../components/ViewSalesBillModal';
 import { printInvoiceDirectly } from '../utils/printInvoice';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import { usePermission } from '@/core/rbac/usePermission';
 
 interface GroupedSalesBill {
   id: number;
@@ -26,12 +33,26 @@ interface GroupedSalesBill {
 export const Sales: React.FC = () => {
   const navigate = useNavigate();
   const { formatNumber } = useAppSettings();
+  const { hasPermission, isSuperAdmin } = usePermission();
+
+  // RBAC permissions
+  const canViewAll = isSuperAdmin || hasPermission('salesBill:all');
+  const canViewSingle = isSuperAdmin || hasPermission('salesBill:single') || hasPermission('salesBill:all');
+  const canAdd = isSuperAdmin || hasPermission('salesBill:add');
+  const canEdit = isSuperAdmin || hasPermission('salesBill:update');
+  const hasEditAccess = canEdit || canAdd;
+
   const [salesBills, setSalesBills] = useState<GetAllSalesBillResponse[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [paymentModeFilter, setPaymentModeFilter] = useState<string>('');
-  const [dateSort, setDateSort] = useState<string>('newest');
+  const [filterBy, setFilterBy] = useState<string>('');
+  const [sortBy, setSortBy] = useState<string>('newest');
+
+  // Single Bill View Modal State
+  const [viewingBill, setViewingBill] = useState<GetSingleSalesBillResponse | null>(null);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isSingleLoading, setIsSingleLoading] = useState(false);
 
   // PDF Modals state
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceModalData | null>(null);
@@ -42,8 +63,12 @@ export const Sales: React.FC = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchSalesBills();
-  }, []);
+    if (canViewAll) {
+      fetchSalesBills();
+    } else {
+      setLoading(false);
+    }
+  }, [canViewAll]);
 
   const fetchSalesBills = async () => {
     setLoading(true);
@@ -104,51 +129,143 @@ export const Sales: React.FC = () => {
               bill.paymentMode.toLowerCase().includes(query) ||
               bill.productNames.some((p) => p.toLowerCase().includes(query));
 
-          const matchesPaymentMode = paymentModeFilter
-              ? bill.paymentMode.toLowerCase() === paymentModeFilter.toLowerCase()
+          const matchesFilter = filterBy
+              ? bill.paymentMode.toLowerCase() === filterBy.toLowerCase()
               : true;
 
-          return matchesSearch && matchesPaymentMode;
+          return matchesSearch && matchesFilter;
         })
         .sort((a, b) => {
+          if (sortBy === 'oldest') {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateA - dateB;
+          }
+          if (sortBy === 'amount_desc') {
+            return b.totalAmount - a.totalAmount;
+          }
+          if (sortBy === 'amount_asc') {
+            return a.totalAmount - b.totalAmount;
+          }
+          if (sortBy === 'name_asc') {
+            return a.customerName.localeCompare(b.customerName);
+          }
+          if (sortBy === 'name_desc') {
+            return b.customerName.localeCompare(a.customerName);
+          }
+          // Default: newest first
           const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
           const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-
-          if (dateSort === 'newest') return dateB - dateA;
-          if (dateSort === 'oldest') return dateA - dateB;
-          return 0;
+          return dateB - dateA;
         });
-  }, [groupedBills, searchQuery, paymentModeFilter, dateSort]);
+  }, [groupedBills, searchQuery, filterBy, sortBy]);
 
-  const handleBillClick = (groupedBill: GroupedSalesBill) => {
+  const handleEditBill = (groupedBill: GroupedSalesBill | GetSingleSalesBillResponse) => {
+    if (!hasEditAccess) return;
+
+    const isSingle = !('items' in groupedBill);
     const formattedBill = {
       id: groupedBill.id,
-      billNumber: groupedBill.billNumber,
-      billDate: groupedBill.billDate,
-      amount: groupedBill.totalAmount,
-      paymentMode: groupedBill.paymentMode,
+      billNumber: groupedBill.billNumber || '',
+      billDate: groupedBill.billDate || '',
+      amount: isSingle ? (groupedBill as GetSingleSalesBillResponse).amount ?? 0 : (groupedBill as GroupedSalesBill).totalAmount,
+      paymentMode: groupedBill.paymentMode || 'CASH',
       remarks: groupedBill.remarks || null,
       photoPath: null,
       customer: {
-        customerId: groupedBill.items[0]?.customerId || 0,
-        name: groupedBill.customerName,
+        customerId: isSingle
+          ? ((groupedBill as GetSingleSalesBillResponse).customerId || 0)
+          : ((groupedBill as GroupedSalesBill).items[0]?.customerId || 0),
+        name: isSingle
+          ? ((groupedBill as GetSingleSalesBillResponse).customerName || 'Walk-in Customer')
+          : (groupedBill as GroupedSalesBill).customerName,
       },
-      items: groupedBill.items.map((i) => ({
-        itemId: i.productId,
-        name: i.productName,
-        unit: 'pcs',
-        availableStock: 0,
-        quantity: i.quantity || 1,
-        unitPrice: i.unitPrice || 0,
-        taxPercentage: i.taxPercentage || 0,
-        vatPercentage: i.vatPercentage || 0,
-        taxAmount: i.taxAmount || 0,
-        vatAmount: i.vatAmount || 0,
-        totalPrice: i.amount ?? i.amount ?? 0,
-      })),
+      items: isSingle
+        ? [
+            {
+              itemId: (groupedBill as GetSingleSalesBillResponse).productId || 0,
+              name: (groupedBill as GetSingleSalesBillResponse).productName || 'Product Item',
+              unit: 'pcs',
+              availableStock: 0,
+              quantity: (groupedBill as GetSingleSalesBillResponse).quantity || 1,
+              unitPrice: (groupedBill as GetSingleSalesBillResponse).unitPrice || 0,
+              taxPercentage: (groupedBill as GetSingleSalesBillResponse).taxPercentage || 0,
+              vatPercentage: (groupedBill as GetSingleSalesBillResponse).vatPercentage || 0,
+              taxAmount: (groupedBill as GetSingleSalesBillResponse).taxAmount || 0,
+              vatAmount: (groupedBill as GetSingleSalesBillResponse).vatAmount || 0,
+              totalPrice: (groupedBill as GetSingleSalesBillResponse).amount || 0,
+            },
+          ]
+        : (groupedBill as GroupedSalesBill).items.map((i) => ({
+            itemId: i.productId || 0,
+            name: i.productName || 'Product Item',
+            unit: 'pcs',
+            availableStock: 0,
+            quantity: i.quantity || 1,
+            unitPrice: i.unitPrice || 0,
+            taxPercentage: i.taxPercentage || 0,
+            vatPercentage: i.vatPercentage || 0,
+            taxAmount: i.taxAmount || 0,
+            vatAmount: i.vatAmount || 0,
+            totalPrice: i.amount ?? 0,
+          })),
     };
 
+    setIsViewModalOpen(false);
     navigate('/bills/sales/add', { state: { bill: formattedBill } });
+  };
+
+  const handleViewBill = async (groupedBill: GroupedSalesBill) => {
+    if (!canViewSingle) return;
+
+    // Fast preview while single API loads
+    const firstItem = groupedBill.items[0];
+    const initialViewData: GetSingleSalesBillResponse = {
+      id: groupedBill.id,
+      billNumber: groupedBill.billNumber,
+      billDate: groupedBill.billDate,
+      customerId: firstItem?.customerId,
+      customerName: groupedBill.customerName,
+      productId: firstItem?.productId,
+      productName: groupedBill.productNames.join(', ') || firstItem?.productName,
+      quantity: firstItem?.quantity || 1,
+      unitPrice: firstItem?.unitPrice || 0,
+      taxPercentage: firstItem?.taxPercentage || 0,
+      vatPercentage: firstItem?.vatPercentage || 0,
+      taxAmount: firstItem?.taxAmount || 0,
+      vatAmount: firstItem?.vatAmount || 0,
+      amount: groupedBill.totalAmount,
+      paymentMode: groupedBill.paymentMode,
+      paymentStatus: firstItem?.paymentStatus || 'PAID',
+      remarks: groupedBill.remarks,
+      createdAt: groupedBill.createdAt,
+      createdBy: groupedBill.createdBy,
+    };
+
+    setViewingBill(initialViewData);
+    setIsViewModalOpen(true);
+
+    if (groupedBill.id && groupedBill.id > 0) {
+      setIsSingleLoading(true);
+      try {
+        const fullDetails = await getSingleSalesBill(groupedBill.id);
+        if (fullDetails) {
+          setViewingBill(fullDetails);
+        }
+      } catch (err) {
+        console.warn('Could not fetch single sales bill from API, using cached data:', err);
+      } finally {
+        setIsSingleLoading(false);
+      }
+    }
+  };
+
+  const handleBillClick = (groupedBill: GroupedSalesBill) => {
+    if (canViewSingle) {
+      handleViewBill(groupedBill);
+    } else if (hasEditAccess) {
+      handleEditBill(groupedBill);
+    }
   };
 
   const handleAddBill = () => {
@@ -181,6 +298,33 @@ export const Sales: React.FC = () => {
     };
   };
 
+  const formatSingleSalesForInvoice = (b: GetSingleSalesBillResponse): InvoiceModalData => {
+    const total = b.amount ?? 0;
+    return {
+      type: 'SALES',
+      invoiceNumber: b.billNumber || 'BILL-N/A',
+      date: b.billDate || b.createdAt || new Date().toISOString(),
+      partyName: b.customerName || 'Walk-in Customer',
+      partyType: 'Customer',
+      paymentMode: b.paymentMode || 'CASH',
+      remarks: b.remarks,
+      items: [
+        {
+          name: b.productName || 'Product Item',
+          quantity: b.quantity || 1,
+          unitPrice: b.unitPrice || total,
+          taxPercentage: b.taxPercentage,
+          vatPercentage: b.vatPercentage,
+          taxAmount: b.taxAmount,
+          vatAmount: b.vatAmount,
+          totalAmount: total,
+        },
+      ],
+      subtotal: total,
+      grandTotal: total,
+    };
+  };
+
   const handleDownloadSalesPdf = (bill: GroupedSalesBill) => {
     const invData = formatSalesForInvoice(bill);
     setSelectedInvoice(invData);
@@ -188,16 +332,21 @@ export const Sales: React.FC = () => {
     setIsInvoiceModalOpen(true);
   };
 
-  // const handlePreviewSalesInvoice = (bill: GroupedSalesBill) => {
-  //   const invData = formatSalesForInvoice(bill);
-  //   setSelectedInvoice(invData);
-  //   setAutoDownloadInvoice(false);
-  //   setIsInvoiceModalOpen(true);
-  // };
-
   const handlePrintSalesDirectly = (bill: GroupedSalesBill) => {
     const invData = formatSalesForInvoice(bill);
     printInvoiceDirectly(invData);
+  };
+
+  const handlePrintFromModal = (b: GetSingleSalesBillResponse) => {
+    const invData = formatSingleSalesForInvoice(b);
+    printInvoiceDirectly(invData);
+  };
+
+  const handleDownloadPdfFromModal = (b: GetSingleSalesBillResponse) => {
+    const invData = formatSingleSalesForInvoice(b);
+    setSelectedInvoice(invData);
+    setAutoDownloadInvoice(true);
+    setIsInvoiceModalOpen(true);
   };
 
   const handleExportReportPDF = () => {
@@ -234,6 +383,11 @@ export const Sales: React.FC = () => {
         return ['CARD', 'UPI', 'BANK', 'ONLINE', 'DIGITAL', 'QR', 'WALLET'].includes(mode) || (mode !== 'CASH' && mode !== 'CREDIT' && mode !== 'DUE' && mode !== '');
       })
       .reduce((sum, b) => sum + b.totalAmount, 0);
+
+  const cashCount = groupedBills.filter((b) => (b.paymentMode || '').trim().toUpperCase() === 'CASH').length;
+  const cardCount = groupedBills.filter((b) => (b.paymentMode || '').trim().toUpperCase() === 'CARD').length;
+  const upiCount = groupedBills.filter((b) => (b.paymentMode || '').trim().toUpperCase() === 'UPI').length;
+  const bankCount = groupedBills.filter((b) => (b.paymentMode || '').trim().toUpperCase() === 'BANK').length;
 
   return (
       <div className="user-management-page-wrapper">
@@ -307,48 +461,73 @@ export const Sales: React.FC = () => {
             {/* Controls & Search Bar */}
             <div className="sales-filter-card">
               <div className="sales-search-section">
+                <button
+                  type="button"
+                  className="toolbar-btn staff-btn"
+                  onClick={() => {
+                    setFilterBy('');
+                    setSearchQuery('');
+                    setSortBy('newest');
+                  }}
+                  title="Click to reset filters and view all invoices"
+                >
+                  <i className="bi bi-receipt"></i>
+                   Invoices ({totalInvoices})
+                </button>
+
                 <div className="sales-search-input-wrapper">
                   <i className="bi bi-search search-icon"></i>
                   <input
-                      type="text"
-                      placeholder="Search by invoice #, customer name, product, or payment mode..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="form-control"
+                    type="text"
+                    placeholder="Search by invoice #, customer name, product..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="sales-search-input"
                   />
-                </div>
-
-                <div className="sales-total-invoices-badge" title="Total Invoices Count">
-                  <span className="invoices-badge-label">Total Invoices</span>
-                  <span className="invoices-badge-count">{totalInvoices}</span>
+                  {searchQuery && (
+                    <button
+                      type="button"
+                      className="search-clear-btn"
+                      onClick={() => setSearchQuery('')}
+                      title="Clear search"
+                    >
+                      <i className="bi bi-x-circle-fill"></i>
+                    </button>
+                  )}
                 </div>
               </div>
 
               <div className="sales-filter-actions">
-                <div className="filter-select-group">
-                  <label>Payment:</label>
+                <div className="toolbar-select-wrap">
+                  <i className="bi bi-sort-down"></i>
                   <select
-                      value={paymentModeFilter}
-                      onChange={(e) => setPaymentModeFilter(e.target.value)}
-                      className="table-role-select"
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="toolbar-select"
+                    title="Sort invoices"
                   >
-                    <option value="">All Modes</option>
-                    <option value="cash">Cash</option>
-                    <option value="card">Card</option>
-                    <option value="upi">UPI / Digital</option>
-                    <option value="bank">Bank Transfer</option>
+                    <option value="newest">Sort (Newest)</option>
+                    <option value="oldest">Oldest First</option>
+                    <option value="amount_desc">Amount: High to Low</option>
+                    <option value="amount_asc">Amount: Low to High</option>
+                    <option value="name_asc">Customer: A-Z</option>
+                    <option value="name_desc">Customer: Z-A</option>
                   </select>
                 </div>
 
-                <div className="filter-select-group">
-                  <label>Sort:</label>
+                <div className="toolbar-select-wrap">
+                  <i className="bi bi-funnel"></i>
                   <select
-                      value={dateSort}
-                      onChange={(e) => setDateSort(e.target.value)}
-                      className="table-role-select"
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value)}
+                    className="toolbar-select"
+                    title="Filter invoices"
                   >
-                    <option value="newest">Newest First</option>
-                    <option value="oldest">Oldest First</option>
+                    <option value="">Filter (All)</option>
+                    <option value="cash">Cash ({cashCount})</option>
+                    <option value="card">Card ({cardCount})</option>
+                    <option value="upi">UPI / Digital ({upiCount})</option>
+                    <option value="bank">Bank Transfer ({bankCount})</option>
                   </select>
                 </div>
 
@@ -366,7 +545,11 @@ export const Sales: React.FC = () => {
 
             {/* Sales Invoice List */}
             <div className="role-list-container">
-              {loading ? (
+              {!canViewAll ? (
+                  <div className="empty-container p-4 text-center text-danger">
+                    <i className="bi bi-shield-lock me-2"></i>You do not have permission to view sales bills (salesBill:all).
+                  </div>
+              ) : loading ? (
                   <div className="loading-container p-4 text-center">
                     <i className="bi bi-arrow-repeat spin me-2"></i>Loading sales invoices...
                   </div>
@@ -417,6 +600,16 @@ export const Sales: React.FC = () => {
                           {/* Right-aligned Section: Actions & Amount */}
                           <div className="role-card-right d-flex align-items-center gap-3">
                             <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              {canViewSingle && (
+                                <button
+                                    type="button"
+                                    className="btn-row-action"
+                                    title="View Bill Details"
+                                    onClick={() => handleViewBill(bill)}
+                                >
+                                  <i className="bi bi-eye"></i> View
+                                </button>
+                              )}
                               <button
                                   type="button"
                                   className="btn-row-action pdf"
@@ -449,16 +642,30 @@ export const Sales: React.FC = () => {
           </div>
         </div>
 
-        {/* Sticky Bottom-Right + New Invoice Button */}
-        <button
-            type="button"
-            className="sales-add-sticky-button"
-            onClick={handleAddBill}
-            title="New Invoice"
-        >
-            <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
-            <span>New Invoice</span>
-        </button>
+        {/* Sticky Bottom-Right + New Invoice Button (permission-checked) */}
+        {canAdd && (
+          <button
+              type="button"
+              className="sales-add-sticky-button"
+              onClick={handleAddBill}
+              title="New Invoice"
+          >
+              <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+              <span>New Invoice</span>
+          </button>
+        )}
+
+        {/* View Single Sales Bill Modal */}
+        <ViewSalesBillModal
+            isOpen={isViewModalOpen}
+            onClose={() => setIsViewModalOpen(false)}
+            bill={viewingBill}
+            isLoading={isSingleLoading}
+            onPrint={handlePrintFromModal}
+            onDownloadPdf={handleDownloadPdfFromModal}
+            onEdit={hasEditAccess ? handleEditBill : undefined}
+            canEdit={hasEditAccess}
+        />
 
         {/* Sales Invoice PDF & Print Modal */}
         <InvoiceModal

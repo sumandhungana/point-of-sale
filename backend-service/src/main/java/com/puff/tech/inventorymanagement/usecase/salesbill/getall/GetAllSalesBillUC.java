@@ -58,6 +58,7 @@ public class GetAllSalesBillUC implements FluxUC<GetAllSalesBillUCRequest, GetAl
                 .vatAmount(entity.getVatAmount())
                 .amount(entity.getAmount())
                 .paymentMode(entity.getPaymentMode())
+                .paymentStatus(entity.getPaymentStatus())
                 .remarks(entity.getRemarks())
                 .photoPath(entity.getPhotoPath())
                 .createdAt(entity.getCreatedAt())

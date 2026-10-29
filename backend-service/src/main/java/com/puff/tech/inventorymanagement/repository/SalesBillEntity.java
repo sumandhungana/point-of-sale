@@ -44,6 +44,8 @@ public class SalesBillEntity {
     @Size(max = 20)
     private String paymentMode;
 
+    private String paymentStatus;
+
     private Double quantity;
 
     private BigDecimal unitPrice;
