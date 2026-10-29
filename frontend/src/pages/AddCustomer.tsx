@@ -122,30 +122,30 @@ export const AddCustomer = () => {
             <Sidebar />
 
             <main className="add-customer-main-content">
-                <div className="add-customer-card">
-                    {/* Header with Title and Top-Right Cross Button */}
-                    <div className="form-card-header">
-                        <div className="form-card-header-left">
-                            <div className="form-header-icon-wrap">
-                                <i className="bi bi-person-plus-fill" />
-                            </div>
-                            <div>
-                                <p className="form-header-subtitle">Register customer profile and initial accounting balances</p>
-                            </div>
+                {/* Top Page Header - Clean Add Purchase Bill Style */}
+                <div className="add-customer-page-header">
+                    <div className="add-customer-header-info">
+                        <div className="add-customer-header-icon">
+                            <i className="bi bi-person-plus-fill" />
                         </div>
-
-                        {/* Top Right Cross Button */}
-                        <button
-                            type="button"
-                            className="form-close-btn"
-                            onClick={handleCancel}
-                            aria-label="Close"
-                            title="Close"
-                        >
-                            <i className="bi bi-x-lg" />
-                        </button>
+                        <div>
+                            <h1 className="add-customer-header-title">Add Customer</h1>
+                        </div>
                     </div>
 
+                    {/* Top Right Cross Button */}
+                    <button
+                        type="button"
+                        className="form-close-btn"
+                        onClick={handleCancel}
+                        aria-label="Close"
+                        title="Close"
+                    >
+                        <i className="bi bi-x-lg" />
+                    </button>
+                </div>
+
+                <div className="add-customer-card">
                     <form onSubmit={handleSubmit} className="form-body">
                         {/* Interactive Avatar Upload */}
                         <div className="avatar-card-banner">

@@ -1,3 +1,76 @@
+/* Page Header - Clean Add Purchase Bill Style */
+.purchase-bill-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px 0 4px;
+  margin-bottom: 20px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+}
+
+.purchase-bill-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.purchase-bill-header-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  box-shadow: 0 3px 10px rgba(37, 93, 206, 0.2);
+  flex-shrink: 0;
+}
+
+.purchase-bill-header-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.purchase-bill-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.purchase-bill-header-actions .btn-primary {
+  background: #255dce;
+  border: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 7px 14px;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(37, 93, 206, 0.25);
+  transition: all 0.2s ease;
+}
+
+.purchase-bill-header-actions .btn-primary:hover {
+  background: #1e4bb2;
+}
+
+@media (max-width: 768px) {
+  .purchase-bill-page-header {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .purchase-bill-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
 .sales-layout-root {
   display: flex;
   min-height: 100vh;
@@ -291,4 +364,48 @@
   .sales-filter-controls-group .sales-select {
     width: 100%;
   }
-}
+}
+
+/* Export PDF Button in Purchase Header */
+.btn-export-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #16a34a;
+  color: #ffffff;
+  border: 1px solid #16a34a;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(22, 163, 74, 0.2);
+}
+
+.btn-export-pdf:hover {
+  background-color: #15803d;
+  border-color: #15803d;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.3);
+}
+
+.btn-export-pdf:active {
+  transform: translateY(0);
+}
+
+.btn-export-pdf i {
+  color: #ffffff;
+  font-size: 14px;
+}
+
+
+@media (max-width: 576px) {
+  .btn-export-pdf {
+    width: 100%;
+    justify-content: center;
+    padding: 9px 16px;
+  }
+}

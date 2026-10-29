@@ -188,12 +188,12 @@ export const Sales: React.FC = () => {
     setIsInvoiceModalOpen(true);
   };
 
-  const handlePreviewSalesInvoice = (bill: GroupedSalesBill) => {
-    const invData = formatSalesForInvoice(bill);
-    setSelectedInvoice(invData);
-    setAutoDownloadInvoice(false);
-    setIsInvoiceModalOpen(true);
-  };
+  // const handlePreviewSalesInvoice = (bill: GroupedSalesBill) => {
+  //   const invData = formatSalesForInvoice(bill);
+  //   setSelectedInvoice(invData);
+  //   setAutoDownloadInvoice(false);
+  //   setIsInvoiceModalOpen(true);
+  // };
 
   const handlePrintSalesDirectly = (bill: GroupedSalesBill) => {
     const invData = formatSalesForInvoice(bill);
@@ -226,7 +226,13 @@ export const Sales: React.FC = () => {
   const totalRevenue = groupedBills.reduce((sum, b) => sum + b.totalAmount, 0);
   const totalInvoices = groupedBills.length;
   const cashRevenue = groupedBills
-      .filter((b) => b.paymentMode.toUpperCase() === 'CASH')
+      .filter((b) => (b.paymentMode || '').trim().toUpperCase() === 'CASH')
+      .reduce((sum, b) => sum + b.totalAmount, 0);
+  const onlineSales = groupedBills
+      .filter((b) => {
+        const mode = (b.paymentMode || '').trim().toUpperCase();
+        return ['CARD', 'UPI', 'BANK', 'ONLINE', 'DIGITAL', 'QR', 'WALLET'].includes(mode) || (mode !== 'CASH' && mode !== 'CREDIT' && mode !== 'DUE' && mode !== '');
+      })
       .reduce((sum, b) => sum + b.totalAmount, 0);
 
   return (
@@ -236,12 +242,27 @@ export const Sales: React.FC = () => {
           <Navbar />
 
           <div className="user-management-content">
-            {/* Header Card */}
-            <div className="user-management-header">
-              <div>
-                <h2 className="text-navy fw-bold">Sales Management</h2>
-                <p className="text-muted">Track sales bills, review total revenue, and issue customer invoices.</p>
+            {/* Top Page Header - Clean Add Purchase Bill Style */}
+            <div className="sales-bill-page-header">
+              <div className="sales-bill-header-info">
+                <div className="sales-bill-header-icon">
+                  <i className="bi bi-receipt-cutoff" />
+                </div>
+                <div>
+                  <h1 className="sales-bill-header-title">Sales Bills</h1>
+                </div>
               </div>
+
+              {/*<div className="sales-bill-header-actions">*/}
+              {/*  <button*/}
+              {/*    type="button"*/}
+              {/*    className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"*/}
+              {/*    onClick={handleAddBill}*/}
+              {/*  >*/}
+              {/*    <i className="bi bi-plus-lg" />*/}
+              {/*    <span>Add Sales Bill</span>*/}
+              {/*  </button>*/}
+              {/*</div>*/}
             </div>
 
             {/* Stats Summary Cards */}
@@ -251,7 +272,7 @@ export const Sales: React.FC = () => {
                   <i className="bi bi-wallet2"></i>
                 </div>
                 <div>
-                  <div className="stat-label">Total Revenue</div>
+                  <div className="stat-label">Total Sales</div>
                   <div className="stat-value" style={{ color: '#255DCE' }}>
                     Rs. {formatNumber(totalRevenue)}
                   </div>
@@ -259,22 +280,24 @@ export const Sales: React.FC = () => {
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon-box navy">
-                  <i className="bi bi-receipt"></i>
+                <div className="stat-icon-box purple">
+                  <i className="bi bi-globe2"></i>
                 </div>
                 <div>
-                  <div className="stat-label">Total Invoices</div>
-                  <div className="stat-value">{totalInvoices}</div>
+                  <div className="stat-label">Online Sales</div>
+                  <div className="stat-value" style={{ color: '#7c3aed' }}>
+                    Rs. {formatNumber(onlineSales)}
+                  </div>
                 </div>
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon-box blue">
+                <div className="stat-icon-box green">
                   <i className="bi bi-cash-stack"></i>
                 </div>
                 <div>
-                  <div className="stat-label">Cash Revenue</div>
-                  <div className="stat-value" style={{ color: '#255DCE' }}>
+                  <div className="stat-label">Cash Sales</div>
+                  <div className="stat-value" style={{ color: '#16a34a' }}>
                     Rs. {formatNumber(cashRevenue)}
                   </div>
                 </div>
@@ -283,15 +306,22 @@ export const Sales: React.FC = () => {
 
             {/* Controls & Search Bar */}
             <div className="sales-filter-card">
-              <div className="sales-search-input-wrapper">
-                <i className="bi bi-search search-icon"></i>
-                <input
-                    type="text"
-                    placeholder="Search by invoice #, customer name, product, or payment mode..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="form-control"
-                />
+              <div className="sales-search-section">
+                <div className="sales-search-input-wrapper">
+                  <i className="bi bi-search search-icon"></i>
+                  <input
+                      type="text"
+                      placeholder="Search by invoice #, customer name, product, or payment mode..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="form-control"
+                  />
+                </div>
+
+                <div className="sales-total-invoices-badge" title="Total Invoices Count">
+                  <span className="invoices-badge-label">Total Invoices</span>
+                  <span className="invoices-badge-count">{totalInvoices}</span>
+                </div>
               </div>
 
               <div className="sales-filter-actions">
@@ -384,24 +414,8 @@ export const Sales: React.FC = () => {
                             </div>
                           </div>
 
-                          {/* Right-aligned Section: User & Date before Amount */}
+                          {/* Right-aligned Section: Actions & Amount */}
                           <div className="role-card-right d-flex align-items-center gap-3">
-                            <div style={{ textAlign: 'right', fontSize: '12px', color: '#64748b' }}>
-                              <div>By: <strong>{bill.createdBy}</strong></div>
-                              <div>
-                                {bill.billDate ||
-                                    (bill.createdAt
-                                        ? new Date(bill.createdAt).toLocaleDateString()
-                                        : 'N/A')}
-                              </div>
-                            </div>
-
-                            <div className="vertical-divider"></div>
-
-                            <div className="sales-amount-tag" style={{ color: '#255DCE', fontWeight: 'bold', fontSize: '16px' }}>
-                              Rs. {formatNumber(bill.totalAmount)}
-                            </div>
-
                             <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
                               <button
                                   type="button"
@@ -419,6 +433,12 @@ export const Sales: React.FC = () => {
                               >
                                 <i className="bi bi-printer"></i>
                               </button>
+                            </div>
+
+                            <div className="vertical-divider"></div>
+
+                            <div className="sales-amount-tag" style={{ color: '#255DCE', fontWeight: 'bold', fontSize: '16px' }}>
+                              Rs. {formatNumber(bill.totalAmount)}
                             </div>
                           </div>
                         </div>

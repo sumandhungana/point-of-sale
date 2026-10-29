@@ -25,6 +25,7 @@ export interface AddPurchaseBillRequest {
     purchaseNo?: string;
     purchaseDate: string; // YYYY-MM-DD
     paymentMode: string;
+    paymentStatus?: string;
     supplierId?: number;
     remarks?: string;
     photoPath?: string;

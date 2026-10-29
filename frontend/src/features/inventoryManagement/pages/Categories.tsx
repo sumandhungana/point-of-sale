@@ -21,7 +21,15 @@ const getInitials = (name: string): string => {
     return name.slice(0, 2).toUpperCase();
 };
 
-export const Categories: React.FC = () => {
+export interface CategoriesRef {
+    openAddModal: () => void;
+}
+
+export interface CategoriesProps {
+    showHeader?: boolean;
+}
+
+export const Categories = React.forwardRef<CategoriesRef, CategoriesProps>(({ showHeader = false }, ref) => {
     const [categories, setCategories] = useState<CategoryItem[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [selectedTab, setSelectedTab] = useState<string>("ALL");
@@ -52,6 +60,10 @@ export const Categories: React.FC = () => {
         setCategories(data);
         setLoading(false);
     };
+
+    React.useImperativeHandle(ref, () => ({
+        openAddModal: handleOpenAddModal
+    }));
 
     const handleOpenAddModal = () => {
         setIsEditMode(false);
@@ -137,6 +149,29 @@ export const Categories: React.FC = () => {
 
     return (
         <div className="category-management-content">
+            {showHeader && (
+                <div className="inventory-page-header">
+                    <div className="inventory-header-info">
+                        <div className="inventory-header-icon">
+                            <i className="bi bi-tags-fill" />
+                        </div>
+                        <div>
+                            <h1 className="inventory-header-title">Category List</h1>
+                        </div>
+                    </div>
+
+                    <div className="inventory-header-actions">
+                        <button
+                            type="button"
+                            className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"
+                            onClick={handleOpenAddModal}
+                        >
+                            <i className="bi bi-plus-lg" />
+                            <span>Add Category</span>
+                        </button>
+                    </div>
+                </div>
+            )}
             {/* Stat Cards Summary (Synced with Products page layout) */}
             <div className="stat-card-grid">
                 <div className="stat-card">
@@ -215,6 +250,15 @@ export const Categories: React.FC = () => {
                             <i className="bi bi-arrow-counterclockwise me-1"></i> Reset
                         </button>
                     )}
+
+                    <button
+                        type="button"
+                        className="btn-primary d-inline-flex align-items-center gap-1"
+                        onClick={handleOpenAddModal}
+                    >
+                        <i className="bi bi-plus-lg"></i>
+                        <span>Add Category</span>
+                    </button>
                 </div>
             </div>
 
@@ -378,4 +422,4 @@ export const Categories: React.FC = () => {
             )}
         </div>
     );
-};
+});

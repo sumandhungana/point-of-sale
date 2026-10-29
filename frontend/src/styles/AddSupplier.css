@@ -10,13 +10,57 @@
 
 .add-supplier-main-content {
   flex: 1;
-  padding: 84px 2rem 3rem 2rem;
+  padding: 80px 2rem 3rem 2rem;
   background: #f8fafc;
   min-height: 100vh;
   max-width: 1020px;
   margin: 0 auto;
   box-sizing: border-box;
   width: 100%;
+}
+
+/* ----------------------------------------------------------
+   Page Header (Plain Background - Clean Add Purchase Bill Style)
+   ---------------------------------------------------------- */
+.add-supplier-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 4px 0 4px;
+  margin-bottom: 14px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.add-supplier-header-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.add-supplier-header-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #255DCE 0%, #021861 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  box-shadow: 0 3px 10px rgba(37, 93, 206, 0.2);
+  flex-shrink: 0;
+}
+
+.add-supplier-header-title {
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  line-height: 1.2;
 }
 
 /* ----------------------------------------------------------

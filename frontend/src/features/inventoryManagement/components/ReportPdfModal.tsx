@@ -40,7 +40,9 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
 }) => {
     const reportRef = useRef<HTMLDivElement>(null);
     const [generating, setGenerating] = useState(false);
-    const { formatCurrency, formatDate, currencySymbol } = useAppSettings();
+    const [mobileView, setMobileView] = useState<'cards' | 'table'>('cards');
+    const { formatCurrency, formatDate, settings } = useAppSettings();
+    const currencySymbol = settings?.currency || localStorage.getItem('currencySymbol') || 'Rs.';
 
     const companyName =
         localStorage.getItem('organizationName') ||
@@ -66,6 +68,23 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                 allowTaint: true,
                 backgroundColor: '#ffffff',
                 logging: false,
+                windowWidth: 1200,
+                onclone: (clonedDoc) => {
+                    const paper = clonedDoc.getElementById('printable-invoice-paper');
+                    if (paper) {
+                        paper.style.width = '760px';
+                        paper.style.minWidth = '760px';
+                        paper.style.padding = '40px 45px';
+                    }
+                    const toggle = clonedDoc.querySelector('.report-view-toggle-bar');
+                    if (toggle) (toggle as HTMLElement).style.display = 'none';
+                    const mobileCards = clonedDoc.querySelector('.report-mobile-cards');
+                    if (mobileCards) (mobileCards as HTMLElement).style.display = 'none';
+                    const tableContainer = clonedDoc.querySelector('.invoice-table-container');
+                    if (tableContainer) (tableContainer as HTMLElement).style.display = 'block';
+                    const hint = clonedDoc.querySelector('.table-scroll-hint');
+                    if (hint) (hint as HTMLElement).style.display = 'none';
+                },
             });
 
             const imgData = canvas.toDataURL('image/png');
@@ -113,19 +132,28 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
             <div
                 className="invoice-modal-container"
                 onClick={(e) => e.stopPropagation()}
-                style={{ maxWidth: '900px' }}
             >
                 {/* Header Actions */}
                 <div className="invoice-modal-header">
                     <div className="invoice-modal-title">
-                        <span
-                            className={`invoice-modal-badge ${
-                                isPurchase ? 'purchase' : 'sales'
-                            }`}
+                        <div className="invoice-modal-title-left">
+                            <span
+                                className={`invoice-modal-badge ${
+                                    isPurchase ? 'purchase' : 'sales'
+                                }`}
+                            >
+                                {isPurchase ? 'Purchase Report' : 'Sales Report'}
+                            </span>
+                            <h3>{data.title}</h3>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn-invoice-close mobile-close"
+                            onClick={onClose}
+                            title="Close"
                         >
-                            {isPurchase ? 'Purchase Report' : 'Sales Report'}
-                        </span>
-                        <h3>{data.title}</h3>
+                            <i className="bi bi-x-lg"></i>
+                        </button>
                     </div>
 
                     <div className="invoice-modal-actions">
@@ -156,7 +184,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
 
                         <button
                             type="button"
-                            className="btn-invoice-close"
+                            className="btn-invoice-close desktop-close"
                             onClick={onClose}
                             title="Close"
                         >
@@ -223,8 +251,72 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                             </div>
                         </div>
 
+                        {/* Mobile View Toggle Bar (Only visible on mobile / tablet) */}
+                        <div className="report-view-toggle-bar">
+                            <button
+                                type="button"
+                                className={`btn-view-toggle ${mobileView === 'cards' ? 'active' : ''}`}
+                                onClick={() => setMobileView('cards')}
+                            >
+                                <i className="bi bi-grid me-1"></i> Cards View ({data.rows.length})
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn-view-toggle ${mobileView === 'table' ? 'active' : ''}`}
+                                onClick={() => setMobileView('table')}
+                            >
+                                <i className="bi bi-table me-1"></i> Table View
+                            </button>
+                        </div>
+
+                        {/* Mobile Cards View */}
+                        <div className={`report-mobile-cards ${mobileView === 'cards' ? 'd-mobile-block' : 'd-mobile-none'}`}>
+                            {data.rows.map((row, idx) => (
+                                <div className="report-mobile-card" key={idx}>
+                                    <div className="report-card-header">
+                                        <div className="report-card-id-wrap">
+                                            <span className="report-card-num">#{idx + 1}</span>
+                                            <span className="report-card-bill">{row.number}</span>
+                                        </div>
+                                        <span className="badge-payment-mode">{row.paymentMode}</span>
+                                    </div>
+
+                                    <div className="report-card-body">
+                                        <div className="report-card-row">
+                                            <span className="report-card-label">{isPurchase ? 'Vendor' : 'Customer'}</span>
+                                            <span className="report-card-value fw-semibold">{row.party}</span>
+                                        </div>
+
+                                        {row.itemsSummary && (
+                                            <div className="report-card-row">
+                                                <span className="report-card-label">Details / Items</span>
+                                                <span className="report-card-value text-muted">{row.itemsSummary}</span>
+                                            </div>
+                                        )}
+
+                                        <div className="report-card-row">
+                                            <span className="report-card-label">Date</span>
+                                            <span className="report-card-value">
+                                                {row.date ? formatDate(row.date) : 'N/A'}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="report-card-footer">
+                                        <span className="report-card-footer-label">Bill Amount</span>
+                                        <span className="report-card-footer-amount">{formatCurrency(row.amount)}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Table Scroll Hint (Only shown for Table View on mobile) */}
+                        <div className={`table-scroll-hint ${mobileView === 'table' ? 'd-mobile-flex' : 'd-mobile-none'}`}>
+                            <i className="bi bi-arrows-expand"></i> Swipe table horizontally to see all columns
+                        </div>
+
                         {/* 3. Report Data Table */}
-                        <div className="invoice-table-container">
+                        <div className={`invoice-table-container ${mobileView === 'cards' ? 'd-mobile-none' : 'd-mobile-block'}`}>
                             <table className="invoice-paper-table">
                                 <thead>
                                     <tr>
@@ -236,7 +328,7 @@ export const ReportPdfModal: React.FC<ReportPdfModalProps> = ({
                                         </th>
                                         <th>Details / Items</th>
                                         <th style={{ width: '100px' }}>Mode</th>
-                                        <th style={{ width: '120px' }} className="text-end">Amount ({currencySymbol})</th>
+                                        <th style={{ width: '120px' }} className="text-end">Amount ({currencySymbol || 'Rs.'})</th>
                                     </tr>
                                 </thead>
                                 <tbody>

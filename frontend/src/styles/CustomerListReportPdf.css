@@ -3,7 +3,10 @@
 .customer-report-container {
   min-height: 100vh;
   background: #f4f6f9;
-  
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .customer-report-main-content {
@@ -25,6 +28,7 @@
   width: 100%;
   margin: 0 auto;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* Action Buttons */
@@ -100,7 +104,9 @@
 .customer-report-button-container {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .customer-report-content {
@@ -110,6 +116,9 @@
   box-shadow: 0 4px 20px rgba(2, 24, 97, 0.06);
   border: 1px solid #e1e6ef;
   margin-bottom: 1rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 /* Logo Section */
@@ -118,6 +127,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .customer-report-logo-container {
@@ -170,6 +181,7 @@
   margin-bottom: 0.5rem;
   border-bottom: 3px solid #255DCE;
   padding-bottom: 0.5rem;
+  word-break: break-word;
 }
 
 .customer-report-date {
@@ -177,6 +189,7 @@
   font-weight: 700;
   text-align: center;
   margin-bottom: 1.5rem;
+  font-size: 0.9rem;
 }
 
 /* Summary Cards */
@@ -191,37 +204,48 @@
   box-shadow: 0 4px 15px rgba(2, 24, 97, 0.04);
   gap: 12px;
   flex-wrap: wrap;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .customer-report-summary-item {
   flex: 1;
+  min-width: 140px;
   padding: 12px 16px;
   background: #ffffff;
   border: 1px solid #e1e6ef;
   border-radius: 12px;
   text-align: center;
   box-shadow: 0 2px 8px rgba(2, 24, 97, 0.04);
+  box-sizing: border-box;
+}
+
+.customer-report-summary-item-title,
+.customer-report-summary-item-title-gave,
+.customer-report-summary-item-title-received {
+  color: #021861;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
 }
 
 .customer-report-summary-item-title-gave {
   color: #DE1110;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  text-transform: uppercase;
 }
 
 .customer-report-summary-item-title-received {
   color: #28a745;
-  margin-bottom: 0.5rem;
-  font-weight: 600;
-  font-size: 0.875rem;
-  text-transform: uppercase;
 }
 
 .customer-report-summary-item-value {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 800;
+  word-break: break-word;
 }
 
 .customer-report-gave-value {
@@ -239,7 +263,7 @@
 .customer-report-summary-divider {
   width: 1px;
   background: #e1e6ef;
-  margin: 0 1rem;
+  margin: 0 0.5rem;
   display: none;
 }
 
@@ -255,17 +279,207 @@
   border-top: 1px solid #e1e6ef;
   border-right: 1px solid #e1e6ef;
   border-bottom: 1px solid #e1e6ef;
+  font-size: 0.95rem;
+}
+
+/* Mobile View Toggle Bar (Only visible on mobile / tablet) */
+.report-view-toggle-bar {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  width: 100%;
+}
+
+.report-view-toggle-btn {
+  flex: 1;
+  padding: 9px 12px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1.5px solid #e1e6ef;
+  background: #ffffff;
+  color: #5a6a85;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.report-view-toggle-btn.active {
+  background: #255DCE;
+  color: #ffffff;
+  border-color: #255DCE;
+  box-shadow: 0 3px 10px rgba(37, 93, 206, 0.25);
+}
+
+/* Mobile Cards View */
+.customer-report-mobile-cards {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 14px;
+}
+
+.customer-report-mobile-card {
+  background: #ffffff;
+  border: 1px solid #e1e6ef;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 8px rgba(2, 24, 97, 0.04);
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.crmc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  padding-bottom: 8px;
+}
+
+.crmc-name-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex: 1;
+}
+
+.crmc-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #255DCE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.crmc-name-details {
+  min-width: 0;
+  flex: 1;
+}
+
+.crmc-name {
+  margin: 0;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #021861;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.crmc-phone {
+  font-size: 0.78rem;
+  color: #5a6a85;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  margin-top: 2px;
+}
+
+.crmc-reminder-badge,
+.crmc-balance-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.crmc-reminder-badge {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.crmc-balance-badge.gave {
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+}
+
+.crmc-balance-badge.received {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+.crmc-balance-badge.settled {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.crmc-financial-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+}
+
+.crmc-fin-box {
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid #f1f5f9;
+  box-sizing: border-box;
+}
+
+.crmc-fin-box.gave {
+  background: #fffafa;
+  border-color: #fee2e2;
+}
+
+.crmc-fin-box.received {
+  background: #f7fdf9;
+  border-color: #dcfce7;
+}
+
+.crmc-fin-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.crmc-fin-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  word-break: break-word;
 }
 
 /* Table Styles */
 .customer-report-table-container {
   width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(2, 24, 97, 0.06);
   border: 1px solid #e1e6ef;
   box-sizing: border-box;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .customer-report-table {
@@ -389,12 +603,13 @@
 .customer-report-footer {
   text-align: center;
   color: #5a6a85;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   padding: 1rem;
   border: 1px solid #e1e6ef;
   background: #f8fafc;
   border-radius: 12px;
   font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .customer-report-loading {
@@ -418,96 +633,210 @@
   font-weight: 600;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .customer-report-main-content {
-    max-width: 100%;
-    margin-right: 0;
-  
-  }
-
-  .customer-report-summary-section {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .customer-report-summary-divider {
-    width: 100%;
-    height: 1px;
-    margin: 0;
-  }
-}
+/* =========================================================
+   RESPONSIVE DESIGN (ZERO HORIZONTAL SCROLL ON MOBILE)
+   ========================================================= */
 
 @media (max-width: 768px) {
   .customer-report-main-content {
-    padding: 1rem;
-    margin-top: 50px;
-    margin-left: 0;
-    max-width: 100%;
+    padding: 12px 10px 40px 10px;
+    margin-top: 54px;
+    width: 100%;
+    max-width: 100vw;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .customer-report-content-container {
-    padding: 1rem;
+    padding: 12px 10px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+
+  .customer-report-content {
+    padding: 14px 10px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
   }
 
   .customer-report-button-container {
-    flex-direction: column;
-    gap: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 1rem;
+  }
+
+  .customer-report-generate-button {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+    border-radius: 10px;
   }
 
   .customer-report-logo-section {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
   }
 
-  .customer-report-title {
-    font-size: 1.25rem;
-  }
-
-  .customer-report-summary-item-value {
+  .customer-report-company-name {
     font-size: 1.1rem;
   }
 
-  .customer-report-table-container {
-    font-size: 0.8rem;
+  .customer-report-print-option img {
+    width: 65px !important;
+    height: 65px !important;
   }
 
-  .customer-report-table-header,
-  .customer-report-table-cell {
+  .customer-report-title {
+    font-size: 1.15rem;
+    padding-bottom: 0.35rem;
+  }
+
+  .customer-report-date {
+    font-size: 0.78rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Summary KPI Section */
+  .customer-report-summary-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    padding: 10px 8px;
+    gap: 8px;
+    margin-bottom: 1rem;
+    border-radius: 12px;
+  }
+
+  .customer-report-summary-item {
+    min-width: 0;
+    padding: 8px 6px;
+    border-radius: 10px;
+  }
+
+  .customer-report-summary-item-title,
+  .customer-report-summary-item-title-gave,
+  .customer-report-summary-item-title-received {
+    font-size: 0.68rem;
+    margin-bottom: 4px;
+    gap: 3px;
+  }
+
+  .customer-report-summary-item-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+  }
+
+  .customer-report-customer-count {
     padding: 0.5rem;
+    font-size: 0.82rem;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Mobile Toggle & Cards View Controls */
+  .report-view-toggle-bar {
+    display: flex;
+  }
+
+  .customer-report-mobile-cards.d-mobile-flex {
+    display: flex;
+  }
+
+  .customer-report-mobile-cards.d-mobile-none {
+    display: none;
+  }
+
+  .customer-report-table-container.d-mobile-none {
+    display: none;
+  }
+
+  .customer-report-table-container.d-mobile-block {
+    display: block;
+  }
+
+  /* Fully Responsive Non-Scrollable Table for Mobile */
+  .customer-report-table-container {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    border-radius: 10px;
+  }
+
+  .customer-report-table {
+    width: 100% !important;
+    min-width: 0 !important;
+    table-layout: fixed !important;
+    word-break: break-word;
+    font-size: 0.72rem;
+  }
+
+  .customer-report-table th,
+  .customer-report-table td {
+    padding: 6px 3px !important;
+    font-size: 0.72rem !important;
+    vertical-align: middle;
+  }
+
+  .customer-report-footer {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    font-size: 0.78rem;
   }
 }
 
 @media (max-width: 480px) {
   .customer-report-main-content {
-    padding: 0.5rem;
+    padding: 10px 6px 30px 6px;
   }
 
   .customer-report-content-container {
-    padding: 0.75rem;
+    padding: 10px 8px;
   }
 
-  .customer-report-title {
-    font-size: 1.1rem;
+  .customer-report-content {
+    padding: 12px 8px;
   }
 
   .customer-report-summary-section {
-    padding: 1rem;
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .customer-report-summary-item {
+    padding: 6px 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
+
+  .customer-report-summary-item-title,
+  .customer-report-summary-item-title-gave,
+  .customer-report-summary-item-title-received {
+    margin-bottom: 0;
+    font-size: 0.75rem;
   }
 
   .customer-report-summary-item-value {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
 
-  .customer-report-table-header,
-  .customer-report-table-cell {
-    padding: 0.25rem;
-    font-size: 0.75rem;
+  .crmc-financial-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
   }
-}
 
-/* Smooth transitions */
-* {
-  transition: color 0.3s ease, background-color 0.3s ease, border-color 0.3s ease;
+  .customer-report-table th,
+  .customer-report-table td {
+    padding: 5px 2px !important;
+    font-size: 0.68rem !important;
+  }
 }

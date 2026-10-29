@@ -7,6 +7,7 @@ import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
 import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
 import { printInvoiceDirectly } from '../utils/printInvoice';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import '../../../styles/Sales.css';
 import '../../../styles/Purchase.css';
 
 
@@ -110,12 +111,6 @@ export const Purchase = () => {
     setIsInvoiceModalOpen(true);
   };
 
-  const handlePreviewPurchaseInvoice = (purchase: GetAllPurchaseBillResponse) => {
-    const invData = formatPurchaseForInvoice(purchase);
-    setSelectedInvoice(invData);
-    setAutoDownloadInvoice(false);
-    setIsInvoiceModalOpen(true);
-  };
 
   const handlePrintPurchaseDirectly = (purchase: GetAllPurchaseBillResponse) => {
     const invData = formatPurchaseForInvoice(purchase);
@@ -145,74 +140,112 @@ export const Purchase = () => {
   };
 
   const totalPurchases = purchases.reduce((sum, purchase) => sum + (purchase.amount ?? 0), 0);
-  return (
-      <div className="sales-layout-root">
-        <Sidebar />
-        <div className="sales-page-wrapper">
-          <div className="purchase-navbar-spacer">
-            <Navbar />
-          </div>
+  const cashPurchases = purchases
+      .filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CASH')
+      .reduce((sum, p) => sum + (p.amount ?? 0), 0);
+  const onlinePurchases = purchases
+      .filter((p) => {
+        const mode = (p.paymentMode || '').trim().toUpperCase();
+        return ['CARD', 'UPI', 'BANK', 'BANK_TRANSFER', 'ONLINE', 'DIGITAL', 'QR', 'WALLET'].includes(mode) || (mode !== 'CASH' && mode !== 'CREDIT' && mode !== 'DUE' && mode !== '');
+      })
+      .reduce((sum, p) => sum + (p.amount ?? 0), 0);
 
-          <div className="sales-container">
-            {/* Top Header & Stats Overview */}
-            <div className="sales-header-card">
-              <div className="sales-header-title-row">
-                <div>
-                  <h2 className="sales-page-title">Purchase Bills</h2>
-                  <p className="sales-page-subtitle">Manage and track all your vendor purchases and invoices</p>
+  return (
+      <div className="user-management-page-wrapper">
+        <Sidebar />
+        <div className="user-management-container">
+          <Navbar />
+
+          <div className="user-management-content">
+            {/* Top Page Header - Clean Add Purchase Bill Style */}
+            <div className="purchase-bill-page-header">
+              <div className="purchase-bill-header-info">
+                <div className="purchase-bill-header-icon">
+                  <i className="bi bi-cart-check-fill" />
                 </div>
-                <div className="purchase-header-btn-wrap d-flex align-items-center gap-2">
-                  <button className="btn-secondary" onClick={handleExportReportPDF}>
-                    <i className="bi bi-file-earmark-arrow-down me-1"></i> Export PDF Report
-                  </button>
-                  <button className="btn-primary" onClick={handleAddBill}>
-                    <i className="bi bi-plus-lg me-1"></i> Add Purchase Bill
-                  </button>
+                <div>
+                  <h1 className="purchase-bill-header-title">Purchase Bills</h1>
                 </div>
               </div>
 
-              <div className="sales-stats-grid">
-                <div className="sales-stat-box">
-                  <div className="stat-icon bg-blue">
-                    <i className="bi bi-wallet2"></i>
-                  </div>
-                  <div>
-                    <div className="stat-label">Total Spend</div>
-                    <div className="stat-value">Rs. {formatNumber(totalPurchases)}</div>
+              {/*<div className="purchase-bill-header-actions">*/}
+              {/*  <button*/}
+              {/*    type="button"*/}
+              {/*    className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"*/}
+              {/*    onClick={() => navigate('/bills/purchase/add')}*/}
+              {/*  >*/}
+              {/*    <i className="bi bi-plus-lg" />*/}
+              {/*    <span>Add Purchase Bill</span>*/}
+              {/*  </button>*/}
+              {/*</div>*/}
+            </div>
+
+            {/* Stats Summary Cards */}
+            <div className="role-stats-grid">
+              <div className="stat-card">
+                <div className="stat-icon-box red">
+                  <i className="bi bi-wallet2"></i>
+                </div>
+                <div>
+                  <div className="stat-label">Total Spend</div>
+                  <div className="stat-value" style={{ color: '#dc2626' }}>
+                    Rs. {formatNumber(totalPurchases)}
                   </div>
                 </div>
+              </div>
 
-                <div className="sales-stat-box">
-                  <div className="stat-icon bg-green">
-                    <i className="bi bi-receipt"></i>
+              <div className="stat-card">
+                <div className="stat-icon-box purple">
+                  <i className="bi bi-globe2"></i>
+                </div>
+                <div>
+                  <div className="stat-label">Online Purchases</div>
+                  <div className="stat-value" style={{ color: '#7c3aed' }}>
+                    Rs. {formatNumber(onlinePurchases)}
                   </div>
-                  <div>
-                    <div className="stat-label">Total Bills</div>
-                    <div className="stat-value">{purchases.length}</div>
+                </div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-icon-box red">
+                  <i className="bi bi-cash-stack"></i>
+                </div>
+                <div>
+                  <div className="stat-label">Cash Purchases</div>
+                  <div className="stat-value" style={{ color: '#dc2626' }}>
+                    Rs. {formatNumber(cashPurchases)}
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Search and Filters Toolbar */}
+            {/* Controls & Search Bar */}
             <div className="sales-filter-card">
-              <div className="sales-filter-row">
-                <div className="search-input-wrapper flex-grow-1">
-                  <i className="bi bi-search"></i>
+              <div className="sales-search-section">
+                <div className="sales-search-input-wrapper">
+                  <i className="bi bi-search search-icon"></i>
                   <input
                       type="text"
                       placeholder="Search by purchase no, item, category, or payment mode..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      className="sales-search-input"
+                      className="form-control"
                   />
                 </div>
 
-                <div className="sales-filter-controls-group">
+                <div className="sales-total-invoices-badge" title="Total Bills Count">
+                  <span className="invoices-badge-label">Total Bills</span>
+                  <span className="invoices-badge-count">{purchases.length}</span>
+                </div>
+              </div>
+
+              <div className="sales-filter-actions">
+                <div className="filter-select-group">
+                  <label>Payment:</label>
                   <select
                       value={paymentFilter}
                       onChange={(e) => setPaymentFilter(e.target.value)}
-                      className="sales-select"
+                      className="table-role-select"
                   >
                     <option value="">All Payment Modes</option>
                     <option value="cash">Cash</option>
@@ -221,103 +254,130 @@ export const Purchase = () => {
                     <option value="upi">UPI / Wallet</option>
                     <option value="credit">Credit</option>
                   </select>
+                </div>
 
+                <div className="filter-select-group">
+                  <label>Sort:</label>
                   <select
                       value={dateSort}
                       onChange={(e) => setDateSort(e.target.value)}
-                      className="sales-select"
+                      className="table-role-select"
                   >
                     <option value="">Sort By Date</option>
                     <option value="newest">Newest First</option>
                     <option value="oldest">Oldest First</option>
                   </select>
                 </div>
+
+                <button
+                  type="button"
+                  className="btn-export-pdf"
+                  onClick={handleExportReportPDF}
+                  title="Export PDF Report"
+                >
+                  <i className="bi bi-file-earmark-arrow-down me-1"></i>
+                  <span>Export PDF</span>
+                </button>
               </div>
             </div>
 
-            {/* Purchases Table */}
-            <div className="sales-table-card">
+            {/* Purchase Bills List */}
+            <div className="role-list-container">
               {loading ? (
-                  <div className="sales-state-message">
-                    <i className="bi bi-arrow-clockwise fa-spin me-2"></i> Loading purchase bills...
+                  <div className="loading-container p-4 text-center">
+                    <i className="bi bi-arrow-repeat spin me-2"></i>Loading purchase bills...
                   </div>
               ) : error ? (
-                  <div className="sales-state-message text-danger">
-                    <i className="bi bi-exclamation-triangle me-2"></i> {error}
-                  </div>
+                  <div className="empty-container p-4 text-center text-danger">{error}</div>
               ) : filteredPurchases.length === 0 ? (
-                  <div className="sales-state-message">
-                    <i className="bi bi-inbox me-2"></i> No purchase bills found.
-                  </div>
+                  <div className="empty-container p-4 text-center text-muted">No purchase bills found.</div>
               ) : (
-                  <div className="table-responsive">
-                    <table className="sales-table">
-                      <thead>
-                      <tr>
-                        <th>Purchase No.</th>
-                        <th>Date</th>
-                        <th>Item / Category</th>
-                        <th>Payment Mode</th>
-                        <th>Remarks</th>
-                        <th className="text-end">Amount</th>
-                        <th className="text-center" style={{ width: '135px' }}>Actions</th>
-                      </tr>
-                      </thead>
-                      <tbody>
-                      {filteredPurchases.map((purchase) => (
-                          <tr
-                              key={purchase?.id ?? Math.random()}
-                              onClick={() => handlePurchaseClick(purchase)}
-                              style={{ cursor: 'pointer' }}
-                          >
-                            <td className="fw-bold text-primary">{purchase?.purchaseNo ?? 'N/A'}</td>
-                            <td>
-                              {purchase?.date
-                                  ? new Date(purchase.date).toLocaleDateString()
-                                  : 'N/A'}
-                            </td>
-                            <td>
-                              <div className="fw-semibold">{purchase?.item?.name ?? 'N/A'}</div>
-                              <span className="badge-category">{purchase?.category?.name ?? 'General'}</span>
-                            </td>
-                            <td>
-                              <span className="badge-payment-mode">{purchase?.paymentMode ?? 'N/A'}</span>
-                            </td>
-                            <td className="text-muted text-truncate" style={{ maxWidth: '180px' }}>
-                              {purchase?.remarks || '-'}
-                            </td>
-                            <td className="text-end fw-bold">
-                              Rs. {formatNumber(purchase?.amount ?? 0)}
-                            </td>
-                            <td className="text-center" onClick={(e) => e.stopPropagation()}>
-                              <div className="d-flex align-items-center justify-content-center gap-1">
-                                <button
-                                    type="button"
-                                    className="btn-row-action pdf"
-                                    title="Download Purchase Invoice PDF"
-                                    onClick={() => handleDownloadPurchasePdf(purchase)}
-                                >
-                                  <i className="bi bi-file-earmark-pdf"></i> PDF
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn-row-action"
-                                    title="Print Invoice"
-                                    onClick={() => handlePrintPurchaseDirectly(purchase)}
-                                >
-                                  <i className="bi bi-printer"></i>
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                      ))}
-                      </tbody>
-                    </table>
-                  </div>
+                  filteredPurchases.map((purchase) => {
+                    const categoryName = purchase.category?.name || 'General';
+                    const itemName = purchase.item?.name || 'Item';
+                    const initials = categoryName
+                        ? categoryName
+                            .split(' ')
+                            .map((w) => w[0])
+                            .join('')
+                            .substring(0, 2)
+                            .toUpperCase()
+                        : 'PB';
+
+                    return (
+                        <div
+                            className="role-item-card clickable-card"
+                            key={purchase?.id ?? Math.random()}
+                            onClick={() => handlePurchaseClick(purchase)}
+                        >
+                          {/* Avatar Badge */}
+                          <div className="role-avatar">{initials}</div>
+
+                          {/* Main Purchase Information */}
+                          <div className="role-main-details">
+                            <div className="role-title-row">
+                              <span className="role-card-name">{purchase.purchaseNo || 'PUR-N/A'}</span>
+                              <span className="badge-role">{(purchase.paymentMode || 'CASH').toUpperCase()}</span>
+                            </div>
+
+                            <div className="role-sub-text">
+                              <span>Item: <strong>{itemName}</strong></span>
+                              <span>•</span>
+                              <span>Category: {categoryName}</span>
+                              {purchase.remarks && (
+                                  <>
+                                    <span>•</span>
+                                    <span>Remarks: {purchase.remarks}</span>
+                                  </>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Right-aligned Section: Actions before User & Date before Amount */}
+                          <div className="role-card-right d-flex align-items-center gap-3">
+                            <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                  type="button"
+                                  className="btn-row-action pdf"
+                                  title="Download Purchase Invoice PDF"
+                                  onClick={() => handleDownloadPurchasePdf(purchase)}
+                              >
+                                <i className="bi bi-file-earmark-pdf"></i> PDF
+                              </button>
+                              <button
+                                  type="button"
+                                  className="btn-row-action"
+                                  title="Print Invoice"
+                                  onClick={() => handlePrintPurchaseDirectly(purchase)}
+                              >
+                                <i className="bi bi-printer"></i>
+                              </button>
+                            </div>
+
+                            <div className="vertical-divider"></div>
+
+                            <div className="sales-amount-tag" style={{ color: '#dc2626', fontWeight: 'bold', fontSize: '16px' }}>
+                              Rs. {formatNumber(purchase.amount ?? 0)}
+                            </div>
+                          </div>
+                        </div>
+                    );
+                  })
               )}
             </div>
           </div>
         </div>
+
+        {/* Sticky Bottom-Right + New Purchase Button */}
+        <button
+            type="button"
+            className="sales-add-sticky-button"
+            onClick={handleAddBill}
+            title="New Purchase Bill"
+        >
+            <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
+            <span>New Purchase</span>
+        </button>
 
         {/* Invoice PDF & Print Modal */}
         <InvoiceModal

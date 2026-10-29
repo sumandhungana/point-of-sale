@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import ReactDOM from 'react-dom';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '@/components/Navbar';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
@@ -51,6 +52,28 @@ export const AddItem: React.FC = () => {
 
     // Control state for enabling/disabling Tax & VAT
     const [isTaxEnabled, setIsTaxEnabled] = useState<boolean>(false);
+
+    // Control state for enabling/disabling purchase price editing in Edit Mode
+    const [isPriceEditEnabled, setIsPriceEditEnabled] = useState<boolean>(!isEditMode);
+    const [showPriceWarningModal, setShowPriceWarningModal] = useState<boolean>(false);
+
+    const handleTogglePriceEdit = () => {
+        if (!isPriceEditEnabled) {
+            setShowPriceWarningModal(true);
+        } else {
+            setIsPriceEditEnabled(false);
+        }
+    };
+
+    const handleConfirmPriceEdit = () => {
+        setIsPriceEditEnabled(true);
+        setShowPriceWarningModal(false);
+    };
+
+    const handleDiscardPriceEdit = () => {
+        setIsPriceEditEnabled(false);
+        setShowPriceWarningModal(false);
+    };
 
     // Web image search state (Browse from browser / Google search)
     const [showWebSearch, setShowWebSearch] = useState<boolean>(false);
@@ -598,42 +621,31 @@ export const AddItem: React.FC = () => {
                 <Navbar />
 
                 <main className="add-item-main-content">
-                    <div className="add-item-card">
-                        {/* Header with Title, Mode Badge, and Top-Right Close Button */}
-                        <div className="form-card-header">
-                            <div className="form-card-header-left">
-                                <div className="form-header-icon-wrap item-theme">
-                                    <i className="bi bi-box-seam" />
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                                        <h1 className="form-header-title">
-                                            {isEditMode ? 'Edit Product' : 'Add New Item'}
-                                        </h1>
-                                        {isEditMode && resolvedItemId && (
-                                            <span className="item-id-badge-header">
-                                                #ITEM-{resolvedItemId}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="form-header-subtitle">
-                                        {isEditMode
-                                            ? `Specifications, pricing, and stock settings for "${formDataState.name || 'Product'}"`
-                                            : 'Configure item specifications, category, valuation and stock thresholds'}
-                                    </p>
-                                </div>
+                    {/* Header directly on plain page background - no box */}
+                    <div className="add-item-page-header">
+                        <div className="add-item-header-info">
+                            <div className="add-item-header-icon">
+                                <i className="bi bi-box-seam-fill" />
                             </div>
-
-                            <button
-                                type="button"
-                                className="form-close-btn"
-                                onClick={handleCancel}
-                                aria-label="Close"
-                                title="Close"
-                            >
-                                <i className="bi bi-x-lg" />
-                            </button>
+                            <div>
+                                <h1 className="add-item-header-title">
+                                    {isEditMode ? 'Edit Product' : 'Add New Item'}
+                                </h1>
+                            </div>
                         </div>
+
+                        <button
+                            type="button"
+                            className="form-close-btn"
+                            onClick={handleCancel}
+                            aria-label="Close"
+                            title="Close"
+                        >
+                            <i className="bi bi-x-lg" />
+                        </button>
+                    </div>
+
+                    <div className="add-item-card">
 
                         <input
                             ref={fileInputRef}
@@ -696,7 +708,7 @@ export const AddItem: React.FC = () => {
                                                 <div>
                                                     <h4 className="compact-photo-title">Product Photo</h4>
                                                     <span className="compact-photo-subtitle">
-                                                        Browse from computer storage or web browser
+                                                        Browse from computer storage or web browser / Less than 2MB
                                                     </span>
                                                 </div>
                                                 {imagePreview && (
@@ -869,147 +881,209 @@ export const AddItem: React.FC = () => {
                                     </div>
 
                                     {/* Section 2: Pricing & Valuation */}
-                                    <div className="form-section-header">
-                                        <div className="form-section-icon-badge">
-                                            <i className="bi bi-currency-dollar" />
-                                        </div>
-                                        <div>
-                                            <h3 className="form-section-title">Pricing & Cost Calculation</h3>
-                                            <p className="form-section-subtitle">
-                                                Select pricing mode, purchase rates, and fixed selling price
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    {/* Pricing Mode Segmented Selector */}
-                                    <div className="pricing-mode-container">
-                                        <div className="pricing-mode-header">
+                                    <div className="form-section-header pricing-section-header">
+                                        <div className="form-section-header-left">
+                                            <div className="form-section-icon-badge">
+                                                <i className="bi bi-currency-dollar" />
+                                            </div>
                                             <div>
-                                                <label className="pricing-mode-label">
-                                                    <i className="bi bi-arrow-left-right me-2 text-primary" />
-                                                    Pricing Calculation Mode
-                                                </label>
-                                                <p className="pricing-mode-subtext">
-                                                    Click to switch which price you enter manually. The other price is calculated automatically.
+                                                <h3 className="form-section-title">Pricing & Cost Calculation</h3>
+                                                <p className="form-section-subtitle">
+                                                    Select pricing mode, purchase rates, and fixed selling price
                                                 </p>
                                             </div>
                                         </div>
 
-                                        <div className="pricing-mode-cards-grid">
-                                            {/* Option 1: Total Price Mode */}
+                                        {isEditMode && (
                                             <div
-                                                className={`pricing-mode-card ${priceType === 'gross' ? 'selected' : ''}`}
-                                                onClick={() => handlePriceTypeChange('gross')}
+                                                className="pricing-edit-toggle-container"
+                                                onClick={handleTogglePriceEdit}
                                                 role="button"
                                                 tabIndex={0}
+                                                style={{ cursor: 'pointer' }}
+                                                title={isPriceEditEnabled ? 'Click to disable pricing edit' : 'Click to enable pricing edit'}
+                                                aria-label="Toggle price editing"
                                             >
-                                                <div className="pricing-mode-radio-wrap">
-                                                    <div className={`pricing-mode-radio ${priceType === 'gross' ? 'checked' : ''}`}>
-                                                        {priceType === 'gross' && <div className="pricing-mode-radio-dot" />}
-                                                    </div>
-                                                </div>
-
-                                                <div className="pricing-mode-card-content">
-                                                    <div className="pricing-mode-card-title-row">
-                                                        <span className="pricing-mode-card-title">
-                                                            <i className="bi bi-cash-stack me-2" />
-                                                            Total Purchase Price Mode
-                                                        </span>
-                                                        <span className={`pricing-mode-badge ${priceType === 'gross' ? 'active' : ''}`}>
-                                                            {priceType === 'gross' ? 'Active Input' : 'Auto-Calculated'}
-                                                        </span>
-                                                    </div>
-                                                    <p className="pricing-mode-card-desc">
-                                                        Type bulk total price paid. Single unit price is auto-calculated (Total ÷ Qty).
-                                                    </p>
+                                                <span className={`pricing-toggle-status-text ${isPriceEditEnabled ? 'enabled' : 'disabled'}`}>
+                                                    {isPriceEditEnabled ? (
+                                                        <>
+                                                            <i className="bi bi-unlock-fill me-1" />
+                                                            Price Editing Enabled
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <i className="bi bi-lock-fill me-1" />
+                                                            Price Editing Disabled
+                                                        </>
+                                                    )}
+                                                </span>
+                                                <div
+                                                    className={`form-switch ${isPriceEditEnabled ? 'active' : ''}`}
+                                                >
+                                                    <div className="form-switch-handle" />
                                                 </div>
                                             </div>
-
-                                            {/* Option 2: Single Unit Price Mode */}
-                                            <div
-                                                className={`pricing-mode-card ${priceType === 'perUnit' ? 'selected' : ''}`}
-                                                onClick={() => handlePriceTypeChange('perUnit')}
-                                                role="button"
-                                                tabIndex={0}
-                                            >
-                                                <div className="pricing-mode-radio-wrap">
-                                                    <div className={`pricing-mode-radio ${priceType === 'perUnit' ? 'checked' : ''}`}>
-                                                        {priceType === 'perUnit' && <div className="pricing-mode-radio-dot" />}
-                                                    </div>
-                                                </div>
-
-                                                <div className="pricing-mode-card-content">
-                                                    <div className="pricing-mode-card-title-row">
-                                                        <span className="pricing-mode-card-title">
-                                                            <i className="bi bi-tag-fill me-2" />
-                                                            Single Purchase Price Mode
-                                                        </span>
-                                                        <span className={`pricing-mode-badge ${priceType === 'perUnit' ? 'active' : ''}`}>
-                                                            {priceType === 'perUnit' ? 'Active Input' : 'Auto-Calculated'}
-                                                        </span>
-                                                    </div>
-                                                    <p className="pricing-mode-card-desc">
-                                                        Type single piece rate. Total bulk price is auto-calculated (Single × Qty).
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        )}
                                     </div>
 
-                                    <div className="form-grid">
-                                        {/* Total Purchase Price */}
-                                        <div className="form-field-group">
-                                            <label className="form-field-label price-label-row">
-                                                <span>
-                                                    Total Purchase Price{' '}
-                                                    {priceType === 'gross' && <span className="required-star">*</span>}
-                                                </span>
-                                                <span className={`price-field-status-badge ${priceType === 'gross' ? 'editable' : 'calculated'}`}>
-                                                    {priceType === 'gross' ? '✏️ Editable' : '⚡ Auto-Calculated'}
-                                                </span>
-                                            </label>
-                                            <div className={`input-with-icon ${priceType !== 'gross' ? 'field-calculated' : ''}`}>
-                                                <i className="bi bi-cash field-icon" />
-                                                <input
-                                                    type="number"
-                                                    name="grossPurchasePrice"
-                                                    value={formDataState.grossPurchasePrice}
-                                                    onChange={handleInputChange}
-                                                    className="form-field-input"
-                                                    placeholder="0.00"
-                                                    step="0.01"
-                                                    disabled={priceType !== 'gross'}
-                                                    required={priceType === 'gross'}
-                                                />
+                                    {/* If Edit Mode and Disabled: show locked card */}
+                                    {isEditMode && !isPriceEditEnabled ? (
+                                        <div className="pricing-locked-card">
+                                            <div className="pricing-locked-icon-wrap">
+                                                <i className="bi bi-shield-lock-fill" />
                                             </div>
+                                            <div className="pricing-locked-content">
+                                                <h4 className="pricing-locked-title">Purchase Rates & Calculation Mode Locked</h4>
+                                                <p className="pricing-locked-desc">
+                                                    Purchase rates are locked for existing products to maintain inventory valuation integrity.
+                                                    Enable price editing above if you need to correct erroneous prices.
+                                                </p>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                className="btn-unlock-pricing"
+                                                onClick={handleTogglePriceEdit}
+                                            >
+                                                <i className="bi bi-unlock me-1" />
+                                                Enable
+                                            </button>
                                         </div>
+                                    ) : (
+                                        <>
+                                            {/* Pricing Mode Segmented Selector */}
+                                            <div className="pricing-mode-container">
+                                                <div className="pricing-mode-header">
+                                                    <div>
+                                                        <label className="pricing-mode-label">
+                                                            <i className="bi bi-arrow-left-right me-2 text-primary" />
+                                                            Pricing Calculation Mode
+                                                        </label>
+                                                        <p className="pricing-mode-subtext">
+                                                            Click to switch which price you enter manually. The other price is calculated automatically.
+                                                        </p>
+                                                    </div>
+                                                </div>
 
-                                        {/* Single Purchase Price */}
-                                        <div className="form-field-group">
-                                            <label className="form-field-label price-label-row">
-                                                <span>
-                                                    Single Purchase Price{' '}
-                                                    {priceType === 'perUnit' && <span className="required-star">*</span>}
-                                                </span>
-                                                <span className={`price-field-status-badge ${priceType === 'perUnit' ? 'editable' : 'calculated'}`}>
-                                                    {priceType === 'perUnit' ? '✏️ Editable' : '⚡ Auto-Calculated'}
-                                                </span>
-                                            </label>
-                                            <div className={`input-with-icon ${priceType !== 'perUnit' ? 'field-calculated' : ''}`}>
-                                                <i className="bi bi-receipt field-icon" />
-                                                <input
-                                                    type="number"
-                                                    name="perUnitPurchasePrice"
-                                                    value={formDataState.perUnitPurchasePrice}
-                                                    onChange={handleInputChange}
-                                                    className="form-field-input"
-                                                    placeholder="0.00"
-                                                    step="0.01"
-                                                    disabled={priceType !== 'perUnit'}
-                                                    required={priceType === 'perUnit'}
-                                                />
+                                                <div className="pricing-mode-cards-grid">
+                                                    {/* Option 1: Total Price Mode */}
+                                                    <div
+                                                        className={`pricing-mode-card ${priceType === 'gross' ? 'selected' : ''}`}
+                                                        onClick={() => handlePriceTypeChange('gross')}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                    >
+                                                        <div className="pricing-mode-radio-wrap">
+                                                            <div className={`pricing-mode-radio ${priceType === 'gross' ? 'checked' : ''}`}>
+                                                                {priceType === 'gross' && <div className="pricing-mode-radio-dot" />}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="pricing-mode-card-content">
+                                                            <div className="pricing-mode-card-title-row">
+                                                                <span className="pricing-mode-card-title">
+                                                                    <i className="bi bi-cash-stack me-2" />
+                                                                    Total Purchase Price Mode
+                                                                </span>
+                                                                <span className={`pricing-mode-badge ${priceType === 'gross' ? 'active' : ''}`}>
+                                                                    {priceType === 'gross' ? 'Active Input' : 'Auto-Calculated'}
+                                                                </span>
+                                                            </div>
+                                                            <p className="pricing-mode-card-desc">
+                                                                Type bulk total price paid. Single unit price is auto-calculated (Total ÷ Qty).
+                                                            </p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Option 2: Single Unit Price Mode */}
+                                                    <div
+                                                        className={`pricing-mode-card ${priceType === 'perUnit' ? 'selected' : ''}`}
+                                                        onClick={() => handlePriceTypeChange('perUnit')}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                    >
+                                                        <div className="pricing-mode-radio-wrap">
+                                                            <div className={`pricing-mode-radio ${priceType === 'perUnit' ? 'checked' : ''}`}>
+                                                                {priceType === 'perUnit' && <div className="pricing-mode-radio-dot" />}
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="pricing-mode-card-content">
+                                                            <div className="pricing-mode-card-title-row">
+                                                                <span className="pricing-mode-card-title">
+                                                                    <i className="bi bi-tag-fill me-2" />
+                                                                    Single Purchase Price Mode
+                                                                </span>
+                                                                <span className={`pricing-mode-badge ${priceType === 'perUnit' ? 'active' : ''}`}>
+                                                                    {priceType === 'perUnit' ? 'Active Input' : 'Auto-Calculated'}
+                                                                </span>
+                                                            </div>
+                                                            <p className="pricing-mode-card-desc">
+                                                                Type single piece rate. Total bulk price is auto-calculated (Single × Qty).
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
+
+                                            <div className="form-grid">
+                                                {/* Total Purchase Price */}
+                                                <div className="form-field-group">
+                                                    <label className="form-field-label price-label-row">
+                                                        <span>
+                                                            Total Purchase Price{' '}
+                                                            {priceType === 'gross' && <span className="required-star">*</span>}
+                                                        </span>
+                                                        <span className={`price-field-status-badge ${priceType === 'gross' ? 'editable' : 'calculated'}`}>
+                                                            {priceType === 'gross' ? '✏️ Editable' : '⚡ Auto-Calculated'}
+                                                        </span>
+                                                    </label>
+                                                    <div className={`input-with-icon ${priceType !== 'gross' ? 'field-calculated' : ''}`}>
+                                                        <i className="bi bi-cash field-icon" />
+                                                        <input
+                                                            type="number"
+                                                            name="grossPurchasePrice"
+                                                            value={formDataState.grossPurchasePrice}
+                                                            onChange={handleInputChange}
+                                                            className="form-field-input"
+                                                            placeholder="0.00"
+                                                            step="0.01"
+                                                            disabled={priceType !== 'gross'}
+                                                            required={priceType === 'gross' && (!isEditMode || isPriceEditEnabled)}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {/* Single Purchase Price */}
+                                                <div className="form-field-group">
+                                                    <label className="form-field-label price-label-row">
+                                                        <span>
+                                                            Single Purchase Price{' '}
+                                                            {priceType === 'perUnit' && <span className="required-star">*</span>}
+                                                        </span>
+                                                        <span className={`price-field-status-badge ${priceType === 'perUnit' ? 'editable' : 'calculated'}`}>
+                                                            {priceType === 'perUnit' ? '✏️ Editable' : '⚡ Auto-Calculated'}
+                                                        </span>
+                                                    </label>
+                                                    <div className={`input-with-icon ${priceType !== 'perUnit' ? 'field-calculated' : ''}`}>
+                                                        <i className="bi bi-receipt field-icon" />
+                                                        <input
+                                                            type="number"
+                                                            name="perUnitPurchasePrice"
+                                                            value={formDataState.perUnitPurchasePrice}
+                                                            onChange={handleInputChange}
+                                                            className="form-field-input"
+                                                            placeholder="0.00"
+                                                            step="0.01"
+                                                            disabled={priceType !== 'perUnit'}
+                                                            required={priceType === 'perUnit' && (!isEditMode || isPriceEditEnabled)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <div className="form-grid" style={{ marginTop: '1rem' }}>
 
                                         {/* Fixed Selling Price Card */}
                                         <div className="form-field-group form-field-full">
@@ -1380,6 +1454,71 @@ export const AddItem: React.FC = () => {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Warning Popup Modal for Enabling Price Editing in Edit Mode */}
+            {isEditMode && showPriceWarningModal && ReactDOM.createPortal(
+                <div
+                    className="price-warning-modal-overlay"
+                    onClick={handleDiscardPriceEdit}
+                >
+                    <div
+                        className="price-warning-modal-card"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="price-warning-modal-header">
+                            <div className="price-warning-header-content">
+                                <div className="price-warning-icon-wrap">
+                                    <i className="bi bi-exclamation-triangle-fill" />
+                                </div>
+                                <div className="price-warning-title-wrap">
+                                    <h3 className="price-warning-modal-title">
+                                        Warning: Edit at Your Own Risk
+                                    </h3>
+                                    <p className="price-warning-modal-text">
+                                        Directly modifying pricing rates is intended for <strong>correcting wrong prices only</strong>.
+                                    </p>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                className="form-close-btn"
+                                onClick={handleDiscardPriceEdit}
+                                aria-label="Close"
+                                title="Close"
+                            >
+                                <i className="bi bi-x-lg" />
+                            </button>
+                        </div>
+
+                        <div className="price-warning-modal-body">
+                            <div className="price-warning-info-callout">
+                                <i className="bi bi-info-circle-fill" />
+                                <span>
+                                    To record incoming inventory or newly added products, please go to the <strong>Purchase Bills</strong> module and add a purchase rather than altering existing product cost rates here.
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="price-warning-modal-footer">
+                            <button
+                                type="button"
+                                className="btn-warning-discard"
+                                onClick={handleDiscardPriceEdit}
+                            >
+                                Discard
+                            </button>
+                            <button
+                                type="button"
+                                className="btn-warning-confirm"
+                                onClick={handleConfirmPriceEdit}
+                            >
+                                Confirm
+                            </button>
+                        </div>
+                    </div>
+                </div>,
+                document.body
             )}
         </div>
     );

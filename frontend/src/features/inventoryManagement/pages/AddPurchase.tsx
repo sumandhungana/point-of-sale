@@ -32,11 +32,11 @@ interface PurchaseLineItem {
 }
 
 const QUANTITY_UNITS = [
-    { value: 'pcs', label: 'Pcs (Pieces)' },
-    { value: 'kg', label: 'kg (Kilograms)' },
-    { value: 'g', label: 'g (Grams)' },
-    { value: 'l', label: 'L (Liters)' },
-    { value: 'ml', label: 'ml (Milliliters)' },
+    { value: 'pcs', label: 'Pcs' },
+    { value: 'kg', label: 'kg' },
+    { value: 'g', label: 'g' },
+    { value: 'l', label: 'Ltr' },
+    { value: 'ml', label: 'ml' },
     { value: 'box', label: 'Box' },
     { value: 'packet', label: 'Packet' },
     { value: 'dozen', label: 'Dozen' },
@@ -71,6 +71,7 @@ export const AddPurchase: React.FC = () => {
     const [purchaseNo, setPurchaseNo] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [paymentMode, setPaymentMode] = useState('cash');
+    const [paymentStatus, setPaymentStatus] = useState('paid');
     const [remarks, setRemarks] = useState('');
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
@@ -110,6 +111,7 @@ export const AddPurchase: React.FC = () => {
                     setPurchaseNo(initialData.purchaseNo);
                     setDate(initialData.date || initialData.billDate || new Date().toISOString().split('T')[0]);
                     setPaymentMode(initialData.paymentMode || 'cash');
+                    setPaymentStatus(initialData.paymentStatus || 'paid');
                     setRemarks(initialData.remarks || '');
                     if (initialData.supplier) {
                         setSelectedSupplier(initialData.supplier);
@@ -396,6 +398,7 @@ export const AddPurchase: React.FC = () => {
                 purchaseNo: purchaseNo,
                 purchaseDate: date,
                 paymentMode: paymentMode,
+                paymentStatus: paymentStatus,
                 supplierId: selectedSupplier?.id,
                 remarks: remarks,
                 photoPath: selectedImage || undefined,
@@ -433,14 +436,14 @@ export const AddPurchase: React.FC = () => {
 
                 <div className="invoice-container">
                     {/* Header Banner - Clean Professional AddCustomer Style */}
-                    <div className="form-card-header mb-3">
-                        <div className="form-card-header-left">
-                            <div className="form-header-icon-wrap">
+                    <div className="purchase-bill-page-header">
+                        <div className="purchase-bill-header-info">
+                            <div className="purchase-bill-header-icon">
                                 <i className="bi bi-cart-check-fill" />
                             </div>
                             <div>
-                                <h1 className="form-header-title">{isEditMode ? 'Edit Purchase Bill' : 'Add Purchase Bill'}</h1>
-                                <p className="form-header-subtitle">Record supplier purchases, inventory stock entries, and tax breakdowns</p>
+                                <h1 className="purchase-bill-header-title">{isEditMode ? 'Edit Purchase Bill' : 'Add Purchase Bill'}</h1>
+
                             </div>
                         </div>
 
@@ -464,11 +467,12 @@ export const AddPurchase: React.FC = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
-                        <div className="purchase-grid-main">
-                        {/* Left Column: Form Info, Global Tax/Mode Settings, Product Search & Table */}
-                        <div className="purchase-column-left">
-                            {/* Invoice Info Card */}
-                            <div className="purchase-card mb-3">
+                        {/* Top Section: Invoice Information (Left) + Summary Stats (Top Right Side) */}
+                        <div className="purchase-bill-top-grid mb-3">
+                            {/* Left: Invoice Info Card */}
+                            <div className="purchase-card invoice-info-card">
+
+
                                 <h3 className="purchase-card-title">
                                     <i className="bi bi-receipt"></i> Invoice Information
                                 </h3>
@@ -548,8 +552,191 @@ export const AddPurchase: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Designer-Grade Tax & Pricing Setup Bar */}
-                            <div className="price-settings-bar">
+                            {/* Top Right Side: Summary Card */}
+                            <div className="purchase-card summary-card top-summary-card">
+                                <div className="summary-header-wrap">
+                                    <div className="summary-label">Total Amount Payable</div>
+                                    <div className="summary-price-display">
+                                        Rs. {formatNumber(grandTotal)}
+                                    </div>
+                                </div>
+                                <div className="summary-breakdown">
+                                    <div className="breakdown-row">
+                                        <span>Items Subtotal</span>
+                                        <span className="fw-semibold">Rs. {formatNumber(totalsSummary.subtotal)}</span>
+                                    </div>
+                                    {enableVat && (vatPercentage || 0) > 0 && (
+                                        <div className="breakdown-row">
+                                            <span>VAT ({vatPercentage || 0}%)</span>
+                                            <span className="fw-semibold">Rs. {formatNumber(totalsSummary.vat)}</span>
+                                        </div>
+                                    )}
+                                    {enableTax && (taxPercentage || 0) > 0 && (
+                                        <div className="breakdown-row">
+                                            <span>Additional Tax ({taxPercentage || 0}%)</span>
+                                            <span className="fw-semibold">Rs. {formatNumber(totalsSummary.tax)}</span>
+                                        </div>
+                                    )}
+                                    <div className="breakdown-row">
+                                        <span>Line Items Count</span>
+                                        <span className="summary-badge">{lineItems.length}</span>
+                                    </div>
+                                    <div className="breakdown-row">
+                                        <span>Total Units</span>
+                                        <span className="summary-badge-units">
+                                            {lineItems.reduce(
+                                                (sum, i) => sum + (parseFloat(String(i.quantity)) || 0),
+                                                0
+                                            )}{' '}
+                                            Units
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Pricing & Tax Configuration Card (Radio Buttons) */}
+                        <div className="purchase-card pricing-tax-radio-card mb-3">
+                            <div className="row g-3 align-items-center">
+                                {/* 1. Price Mode Radio Group */}
+                                <div className="col-lg-5 col-md-6">
+                                    <label className="section-radio-title">
+                                        <i className="bi bi-tag-fill me-1 text-primary"></i> Purchase Price Entry Mode:
+                                    </label>
+                                    <div className="radio-options-row">
+                                        <label className="custom-radio-label">
+                                            <input
+                                                type="radio"
+                                                name="pricingMode"
+                                                value="unit"
+                                                checked={pricingMode === 'unit'}
+                                                onChange={() => setPricingMode('unit')}
+                                            />
+                                            <span className="radio-custom-circle"></span>
+                                            <span className="radio-text">Per Unit Rate (Price per piece)</span>
+                                        </label>
+
+                                        <label className="custom-radio-label">
+                                            <input
+                                                type="radio"
+                                                name="pricingMode"
+                                                value="gross"
+                                                checked={pricingMode === 'gross'}
+                                                onChange={() => setPricingMode('gross')}
+                                            />
+                                            <span className="radio-custom-circle"></span>
+                                            <span className="radio-text">Total Amount (Lump-sum for line)</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {/* 2. Single Unified Tax / VAT Choice */}
+                                <div className="col-lg-7 col-md-6">
+                                    <label className="section-radio-title">
+                                        <i className="bi bi-percent me-1 text-success"></i> Tax / VAT on this Bill:
+                                    </label>
+                                    <div className="radio-options-row">
+                                        <label className="custom-radio-label">
+                                            <input
+                                                type="radio"
+                                                name="unifiedTaxOption"
+                                                checked={enableVat && !isTaxInclusive && !enableTax && vatPercentage === 13}
+                                                onChange={() => {
+                                                    setEnableVat(true);
+                                                    setVatPercentage(13);
+                                                    setIsTaxInclusive(false);
+                                                    setEnableTax(false);
+                                                }}
+                                            />
+                                            <span className="radio-custom-circle"></span>
+                                            <span className="radio-text">13% VAT Extra (+13% on bill)</span>
+                                        </label>
+
+                                        <label className="custom-radio-label">
+                                            <input
+                                                type="radio"
+                                                name="unifiedTaxOption"
+                                                checked={enableVat && isTaxInclusive && !enableTax && vatPercentage === 13}
+                                                onChange={() => {
+                                                    setEnableVat(true);
+                                                    setVatPercentage(13);
+                                                    setIsTaxInclusive(true);
+                                                    setEnableTax(false);
+                                                }}
+                                            />
+                                            <span className="radio-custom-circle"></span>
+                                            <span className="radio-text">13% VAT Included (Inside entered price)</span>
+                                        </label>
+
+                                        <label className="custom-radio-label">
+                                            <input
+                                                type="radio"
+                                                name="unifiedTaxOption"
+                                                checked={!enableVat && !enableTax}
+                                                onChange={() => {
+                                                    setEnableVat(false);
+                                                    setIsTaxInclusive(false);
+                                                    setEnableTax(false);
+                                                }}
+                                            />
+                                            <span className="radio-custom-circle"></span>
+                                            <span className="radio-text">No Tax / 0% (Without VAT)</span>
+                                        </label>
+
+                                        <label className="custom-radio-label">
+                                            <input
+                                                type="radio"
+                                                name="unifiedTaxOption"
+                                                checked={enableTax || (enableVat && vatPercentage !== 13)}
+                                                onChange={() => {
+                                                    setEnableVat(true);
+                                                    setEnableTax(true);
+                                                    if (!taxPercentage) setTaxPercentage(0);
+                                                }}
+                                            />
+                                            <span className="radio-custom-circle"></span>
+                                            <span className="radio-text">Other / Custom Tax</span>
+                                        </label>
+
+                                        {(enableTax || (enableVat && vatPercentage !== 13)) && (
+                                            <div className="custom-tax-inputs d-inline-flex align-items-center gap-1 ms-2">
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.5"
+                                                    className="form-control form-control-sm custom-tax-num"
+                                                    placeholder="VAT %"
+                                                    value={vatPercentage === '' ? '' : vatPercentage}
+                                                    onChange={(e) => setVatPercentage(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                                                    title="VAT percentage"
+                                                />
+                                                <span className="small text-muted">% VAT</span>
+                                                <input
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.5"
+                                                    className="form-control form-control-sm custom-tax-num ms-1"
+                                                    placeholder="Tax %"
+                                                    value={taxPercentage === '' ? '' : taxPercentage}
+                                                    onChange={(e) => setTaxPercentage(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
+                                                    title="Additional Tax percentage"
+                                                />
+                                                <span className="small text-muted">% Other Tax</span>
+                                                <label className="ms-2 small text-muted d-inline-flex align-items-center gap-1">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isTaxInclusive}
+                                                        onChange={(e) => setIsTaxInclusive(e.target.checked)}
+                                                    />
+                                                    Price includes tax
+                                                </label>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                            <div style={{ display: 'none' }}>
                                 <div className="price-settings-top">
                                     <h3 className="price-settings-title">
                                         <i className="bi bi-sliders"></i> Tax & Pricing Setup
@@ -695,6 +882,7 @@ export const AddPurchase: React.FC = () => {
 
                             {/* Product Search Card */}
                             <div className="purchase-card mb-3">
+
                                 <div className="d-flex justify-content-between align-items-center mb-2">
                                     <h3 className="purchase-card-title mb-0">
                                         <i className="bi bi-box-seam"></i> Select Products
@@ -753,18 +941,20 @@ export const AddPurchase: React.FC = () => {
                                     <table className="purchase-table modern-sales-table">
                                         <thead>
                                         <tr>
-                                            <th className="th-product-info">Product & Stock</th>
-                                            <th className="th-qty-unit">Quantity & Unit</th>
+                                            <th className="th-product-info">Product</th>
+                                            <th className="th-qty">Quantity</th>
+                                            <th className="th-unit">Unit</th>
                                             <th className="th-price-tax">{pricingMode === 'unit' ? 'Unit Price' : 'Gross Total'} & Tax</th>
-                                            <th className="th-total-action text-end">Total</th>
+                                            <th className="th-total text-end">Total</th>
+                                            <th className="th-action text-center">Action</th>
                                         </tr>
                                         </thead>
                                         <tbody>
                                         {lineItems.length === 0 ? (
                                             <tr>
-                                                <td colSpan={4} className="table-empty-state">
+                                                <td colSpan={6} className="table-empty-state">
                                                     <i className="bi bi-cart-dash fs-4 d-block mb-1"></i>
-                                                    No items added yet. Search products above to populate line items.
+                                                    No line items selected. Search products above to populate bill.
                                                 </td>
                                             </tr>
                                         ) : (
@@ -799,57 +989,58 @@ export const AddPurchase: React.FC = () => {
                                                         </div>
                                                     </td>
 
-                                                    <td className="td-qty-unit">
-                                                        <div className="sales-qty-unit-cluster">
-                                                            <div className="sales-stepper">
-                                                                <button
-                                                                    type="button"
-                                                                    className="sales-step-btn"
-                                                                    onClick={() => handleStepQty(idx, -1)}
-                                                                    title="Decrease quantity"
-                                                                    aria-label="Decrease quantity"
-                                                                >
-                                                                    <i className="bi bi-dash"></i>
-                                                                </button>
-                                                                <input
-                                                                    type="text"
-                                                                    inputMode="decimal"
-                                                                    className="sales-qty-input"
-                                                                    value={item.quantity}
-                                                                    onFocus={(e) => e.target.select()}
-                                                                    onChange={(e) => handleQuantityChange(idx, e.target.value)}
-                                                                    onBlur={() => handleQuantityBlur(idx)}
-                                                                    placeholder="1"
-                                                                    title="Quantity"
-                                                                />
-                                                                <button
-                                                                    type="button"
-                                                                    className="sales-step-btn"
-                                                                    onClick={() => handleStepQty(idx, 1)}
-                                                                    title="Increase quantity"
-                                                                    aria-label="Increase quantity"
-                                                                >
-                                                                    <i className="bi bi-plus"></i>
-                                                                </button>
-                                                            </div>
-                                                            <select
-                                                                className="sales-unit-select"
-                                                                value={item.unit || 'pcs'}
-                                                                onChange={(e) => handleUnitChange(idx, e.target.value)}
-                                                                title="Quantity unit (pcs, kg, etc.)"
+                                                    <td className="td-qty">
+                                                        <div className="sales-stepper">
+                                                            <button
+                                                                type="button"
+                                                                className="sales-step-btn"
+                                                                onClick={() => handleStepQty(idx, -1)}
+                                                                title="Decrease quantity"
+                                                                aria-label="Decrease quantity"
                                                             >
-                                                                {!QUANTITY_UNITS.some(
-                                                                    (u) => u.value.toLowerCase() === (item.unit || '').toLowerCase()
-                                                                ) && item.unit && (
-                                                                    <option value={item.unit}>{item.unit}</option>
-                                                                )}
-                                                                {QUANTITY_UNITS.map((u) => (
-                                                                    <option key={u.value} value={u.value}>
-                                                                        {u.label}
-                                                                    </option>
-                                                                ))}
-                                                            </select>
+                                                                <i className="bi bi-dash"></i>
+                                                            </button>
+                                                            <input
+                                                                type="text"
+                                                                inputMode="decimal"
+                                                                className="sales-qty-input"
+                                                                value={item.quantity}
+                                                                onFocus={(e) => e.target.select()}
+                                                                onChange={(e) => handleQuantityChange(idx, e.target.value)}
+                                                                onBlur={() => handleQuantityBlur(idx)}
+                                                                placeholder="1"
+                                                                title="Quantity"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                className="sales-step-btn"
+                                                                onClick={() => handleStepQty(idx, 1)}
+                                                                title="Increase quantity"
+                                                                aria-label="Increase quantity"
+                                                            >
+                                                                <i className="bi bi-plus"></i>
+                                                            </button>
                                                         </div>
+                                                    </td>
+
+                                                    <td className="td-unit">
+                                                        <select
+                                                            className="sales-unit-select"
+                                                            value={item.unit || 'pcs'}
+                                                            onChange={(e) => handleUnitChange(idx, e.target.value)}
+                                                            title="Quantity unit (pcs, kg, etc.)"
+                                                        >
+                                                            {!QUANTITY_UNITS.some(
+                                                                (u) => u.value.toLowerCase() === (item.unit || '').toLowerCase()
+                                                            ) && item.unit && (
+                                                                <option value={item.unit}>{item.unit}</option>
+                                                            )}
+                                                            {QUANTITY_UNITS.map((u) => (
+                                                                <option key={u.value} value={u.value}>
+                                                                    {u.label}
+                                                                </option>
+                                                            ))}
+                                                        </select>
                                                     </td>
 
                                                     <td className="td-price-tax">
@@ -882,21 +1073,22 @@ export const AddPurchase: React.FC = () => {
                                                         </div>
                                                     </td>
 
-                                                    <td className="td-total-action text-end">
-                                                        <div className="sales-total-action-box">
-                                                            <span className="sales-total-amount">
-                                                                {formatCurrency(item.totalPrice)}
-                                                            </span>
-                                                            <button
-                                                                type="button"
-                                                                className="btn-icon-danger sales-del-btn"
-                                                                onClick={() => handleRemoveLineItem(idx)}
-                                                                title="Remove line item"
-                                                                aria-label="Remove item"
-                                                            >
-                                                                <i className="bi bi-trash3"></i>
-                                                            </button>
-                                                        </div>
+                                                    <td className="td-total text-end">
+                                                        <span className="sales-total-amount">
+                                                            {formatCurrency(item.totalPrice)}
+                                                        </span>
+                                                    </td>
+
+                                                    <td className="td-action text-center">
+                                                        <button
+                                                            type="button"
+                                                            className="btn-icon-danger sales-del-btn"
+                                                            onClick={() => handleRemoveLineItem(idx)}
+                                                            title="Remove line item"
+                                                            aria-label="Remove item"
+                                                        >
+                                                            <i className="bi bi-trash3"></i>
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             ))
@@ -905,94 +1097,110 @@ export const AddPurchase: React.FC = () => {
                                     </table>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Right Column: Sticky Summary & Payment Details */}
-                        <div className="purchase-column-right"
-                             style={{position: 'sticky', top: '20px', alignSelf: 'flex-start'}}>
-                            <div className="purchase-card summary-card mb-3">
-                                <div className="summary-label">Total Amount Payable</div>
-                                <div className="summary-price-display">
-                                    {formatCurrency(grandTotal)}
+                            {/* Bottom Row: Payment Details & Summary Grid */}
+                            <div className="purchase-card payment-details-card mb-3">
+                                <div className="payment-details-inner">
+
+                                    <h3 className="purchase-card-title">
+                                        <i className="bi bi-credit-card"></i> Payment Details
+                                    </h3>
+
+                                    <div className="row g-3 mb-3">
+                                        <div className="col-md-6">
+                                            <div className="input-field-group">
+                                                <label>Payment Mode</label>
+                                                <div className="input-with-icon">
+                                                    <i className="bi bi-wallet2"></i>
+                                                    <select value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
+                                                        <option value="cash">Cash</option>
+                                                        <option value="card">Card / POS</option>
+                                                        <option value="bank_transfer">Bank Transfer</option>
+                                                        <option value="upi">Digital Wallet / UPI</option>
+                                                        <option value="credit">Credit / Payable</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="col-md-6">
+                                            <div className="input-field-group">
+                                                <label>Payment Status</label>
+                                                <div className="input-with-icon">
+                                                    <i className="bi bi-patch-check"></i>
+                                                    <select value={paymentStatus} onChange={(e) => setPaymentStatus(e.target.value)}>
+                                                        <option value="paid">Paid</option>
+                                                        <option value="due">Due</option>
+                                                        <option value="received">Received</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="input-field-group mb-3">
+                                        <label>Remarks / Notes</label>
+                                        <textarea
+                                            rows={3}
+                                            className="purchase-textarea"
+                                            placeholder="Context or bill notes..."
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
+                                        ></textarea>
+                                    </div>
+
+                                    <div className="input-field-group mb-3">
+                                        <label>Bill Attachment</label>
+                                        <input type="file" accept="image/*" className="table-input"
+                                               onChange={handleFileChange}/>
+                                        {selectedImage && (
+                                            <img
+                                                src={selectedImage}
+                                                alt="Bill Document Preview"
+                                                style={{
+                                                    maxHeight: '100px',
+                                                    objectFit: 'contain',
+                                                    marginTop: '8px',
+                                                    borderRadius: '6px'
+                                                }}
+                                            />
+                                        )}
+                                    </div>
                                 </div>
-                                <div className="summary-breakdown">
-                                    <div className="breakdown-row">
-                                        <span>Items Subtotal</span>
-                                        <span>{formatCurrency(totalsSummary.subtotal)}</span>
+
+                                <div style={{ display: 'none' }}>
+                                    <div className="summary-label">Total Amount Payable</div>
+                                    <div className="summary-price-display">
+                                        {formatCurrency(grandTotal)}
                                     </div>
-                                    {enableVat && (
+                                    <div className="summary-breakdown">
                                         <div className="breakdown-row">
-                                            <span>VAT ({vatPercentage || 0}%)</span>
-                                            <span>{formatCurrency(totalsSummary.vat)}</span>
+                                            <span>Items Subtotal</span>
+                                            <span>{formatCurrency(totalsSummary.subtotal)}</span>
                                         </div>
-                                    )}
-                                    {enableTax && (
+                                        {enableVat && (
+                                            <div className="breakdown-row">
+                                                <span>VAT ({vatPercentage || 0}%)</span>
+                                                <span>{formatCurrency(totalsSummary.vat)}</span>
+                                            </div>
+                                        )}
+                                        {enableTax && (
+                                            <div className="breakdown-row">
+                                                <span>Additional Tax ({taxPercentage || 0}%)</span>
+                                                <span>{formatCurrency(totalsSummary.tax)}</span>
+                                            </div>
+                                        )}
                                         <div className="breakdown-row">
-                                            <span>Additional Tax ({taxPercentage || 0}%)</span>
-                                            <span>{formatCurrency(totalsSummary.tax)}</span>
+                                            <span>Line Items Count</span>
+                                            <span>{lineItems.length}</span>
                                         </div>
-                                    )}
-                                    <div className="breakdown-row">
-                                        <span>Line Items Count</span>
-                                        <span>{lineItems.length}</span>
-                                    </div>
-                                    <div className="breakdown-row">
-                                        <span>Currency</span>
-                                        <span>{currencySymbol}</span>
+                                        <div className="breakdown-row">
+                                            <span>Currency</span>
+                                            <span>{currencySymbol}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-
-                            <div className="purchase-card">
-                                <h3 className="purchase-card-title">
-                                    <i className="bi bi-credit-card"></i> Payment Details
-                                </h3>
-
-                                <div className="input-field-group mb-3">
-                                    <label>Payment Mode</label>
-                                    <div className="input-with-icon">
-                                        <i className="bi bi-wallet2"></i>
-                                        <select value={paymentMode} onChange={(e) => setPaymentMode(e.target.value)}>
-                                            <option value="cash">Cash</option>
-                                            <option value="card">Card / POS</option>
-                                            <option value="bank_transfer">Bank Transfer</option>
-                                            <option value="upi">Digital Wallet / UPI</option>
-                                            <option value="credit">Credit / Payable</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="input-field-group mb-3">
-                                    <label>Remarks / Notes</label>
-                                    <textarea
-                                        rows={3}
-                                        className="purchase-textarea"
-                                        placeholder="Context or bill notes..."
-                                        value={remarks}
-                                        onChange={(e) => setRemarks(e.target.value)}
-                                    ></textarea>
-                                </div>
-
-                                <div className="input-field-group mb-3">
-                                    <label>Bill Attachment</label>
-                                    <input type="file" accept="image/*" className="table-input"
-                                           onChange={handleFileChange}/>
-                                    {selectedImage && (
-                                        <img
-                                            src={selectedImage}
-                                            alt="Bill Document Preview"
-                                            style={{
-                                                maxHeight: '100px',
-                                                objectFit: 'contain',
-                                                marginTop: '8px',
-                                                borderRadius: '6px'
-                                            }}
-                                        />
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
                     {/* Action Footer Below Form */}
                         <div className="form-action-footer">
@@ -1005,15 +1213,15 @@ export const AddPurchase: React.FC = () => {
                                 Cancel
                             </button>
                             <div className="d-flex align-items-center gap-2">
-                                <button
-                                    type="button"
-                                    className="btn-form-preview"
-                                    onClick={() => setShowPdfModal(true)}
-                                    disabled={lineItems.length === 0}
-                                >
-                                    <i className="bi bi-file-earmark-pdf me-1" />
-                                    Preview PDF
-                                </button>
+                                {/*<button*/}
+                                {/*    type="button"*/}
+                                {/*    className="btn-form-preview"*/}
+                                {/*    onClick={() => setShowPdfModal(true)}*/}
+                                {/*    disabled={lineItems.length === 0}*/}
+                                {/*>*/}
+                                {/*    <i className="bi bi-file-earmark-pdf me-1" />*/}
+                                {/*    Preview PDF*/}
+                                {/*</button>*/}
                                 <button
                                     type="submit"
                                     className="btn-form-submit"
@@ -1055,14 +1263,14 @@ export const AddPurchase: React.FC = () => {
                                         </button>
                                     </div>
 
-                                    <div className="modal-body p-4" id="printable-purchase">
-                                        <div className="d-flex justify-content-between pb-3 mb-3 border-bottom">
+                                    <div className="modal-body p-3 p-md-4" id="printable-purchase">
+                                        <div className="d-flex flex-column flex-sm-row justify-content-between pb-3 mb-3 border-bottom gap-2">
                                             <div>
                                                 <h3 className="text-navy fw-bold mb-1">PURCHASE BILL</h3>
                                                 <div className="small text-muted">Bill #: <strong>{purchaseNo || 'N/A'}</strong></div>
                                                 <div className="small text-muted">Date: {date}</div>
                                             </div>
-                                            <div className="text-end">
+                                            <div className="text-start text-sm-end">
                                                 <h6 className="fw-bold mb-1">Supplier Details</h6>
                                                 <div className="small">{selectedSupplier?.name || supplierSearch || 'Standard Supplier'}</div>
                                                 {selectedSupplier?.phone && <div className="small text-muted">Phone: {selectedSupplier.phone}</div>}
@@ -1070,7 +1278,8 @@ export const AddPurchase: React.FC = () => {
                                             </div>
                                         </div>
 
-                                        <table className="table table-bordered align-middle">
+                                        <div className="table-responsive mb-3">
+                                            <table className="table table-bordered align-middle">
                                             <thead className="table-light">
                                             <tr>
                                                 <th>Product</th>
@@ -1094,13 +1303,14 @@ export const AddPurchase: React.FC = () => {
                                                 </tr>
                                             ))}
                                             </tbody>
-                                        </table>
+                                            </table>
+                                        </div>
 
-                                        <div className="d-flex justify-content-between pt-3 border-top">
+                                        <div className="d-flex flex-column flex-sm-row justify-content-between pt-3 border-top gap-2">
                                             <div className="small text-muted">
                                                 {remarks && <div><strong>Remarks:</strong> {remarks}</div>}
                                             </div>
-                                            <div className="text-end fw-bold text-navy fs-5">
+                                            <div className="text-start text-sm-end fw-bold text-navy fs-5">
                                                 Grand Total: Rs. {formatNumber(grandTotal)}
                                             </div>
                                         </div>

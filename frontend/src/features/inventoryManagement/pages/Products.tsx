@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar';
 import '../../../styles/Products.css';
 import { getProduct, Item, getSingleProduct, deleteProduct } from "@/features/services/productService";
 import { fetchCategories } from '@/features/services/categoryService';
-import { Categories } from './Categories';
+import { Categories, CategoriesRef } from './Categories';
 import { useAppSettings } from '@/context/AppSettingsContext';
 import { resolveImageSrc } from '@/utils/ImageResolver';
 import ViewProductModal from '../components/ViewProductModal';
@@ -27,6 +27,7 @@ export const Products: React.FC = () => {
     // Module Active Tab State ('products' | 'categories')
     const [activeTab, setActiveTab] = useState<'products' | 'categories'>('products');
     const [categoriesCount, setCategoriesCount] = useState<number>(0);
+    const categoriesRef = useRef<CategoriesRef>(null);
 
     // View Product Modal State
     const [viewingItem, setViewingItem] = useState<Item | null>(null);
@@ -285,6 +286,44 @@ export const Products: React.FC = () => {
                 <Navbar />
 
                 <div className="user-management-content">
+                    {/* Top Page Header - Clean Add Purchase Bill Style */}
+                    <div className="inventory-page-header">
+                        <div className="inventory-header-info">
+                            <div className="inventory-header-icon">
+                                <i className={activeTab === 'products' ? 'bi bi-box-seam-fill' : 'bi bi-tags-fill'} />
+                            </div>
+                            <div>
+                                <h1 className="inventory-header-title">
+                                    {activeTab === 'products' ? 'Inventory Product List' : 'Category List'}
+                                </h1>
+                            </div>
+                        </div>
+
+                        {/*<div className="inventory-header-actions">*/}
+                        {/*    {activeTab === 'products' ? (*/}
+                        {/*        canAdd && (*/}
+                        {/*            <button*/}
+                        {/*                type="button"*/}
+                        {/*                className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"*/}
+                        {/*                onClick={handleAddItem}*/}
+                        {/*            >*/}
+                        {/*                <i className="bi bi-plus-lg" />*/}
+                        {/*                <span>Add Item</span>*/}
+                        {/*            </button>*/}
+                        {/*        )*/}
+                        {/*    ) : (*/}
+                        {/*        <button*/}
+                        {/*            type="button"*/}
+                        {/*            className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"*/}
+                        {/*            onClick={() => categoriesRef.current?.openAddModal()}*/}
+                        {/*        >*/}
+                        {/*            <i className="bi bi-plus-lg" />*/}
+                        {/*            <span>Add Category</span>*/}
+                        {/*        </button>*/}
+                        {/*    )}*/}
+                        {/*</div>*/}
+                    </div>
+
                     {/* Module Navigation Header with Modern Segmented Switcher */}
                     <div className="module-nav-header">
                         <div className="segmented-tab-control" role="tablist" aria-label="Inventory Navigation">
@@ -318,7 +357,7 @@ export const Products: React.FC = () => {
                     {/* Animated Tab View Content */}
                     <div key={activeTab} className={`tab-view-content tab-${activeTab}`}>
                         {activeTab === 'categories' ? (
-                            <Categories />
+                            <Categories ref={categoriesRef} />
                         ) : !canViewAll ? (
                             <div style={{
                                 padding: '60px 20px',
@@ -338,7 +377,7 @@ export const Products: React.FC = () => {
                             </div>
                         ) : (
                             <>
-                            {/* Stat Cards Summary (Centered KPI Cards including Low Stock) */}
+                            {/* Stat Cards Summary (3 KPI Cards) */}
                             <div className="stat-card-grid">
                                 <div className="stat-card stat-card-red">
                                     <div className="stat-icon-box red">
@@ -367,21 +406,6 @@ export const Products: React.FC = () => {
                                     <div className="stat-content">
                                         <div className="stat-label">Total Items</div>
                                         <div className="stat-value blue">{formatNumber(totalItems, 0)} Items</div>
-                                    </div>
-                                </div>
-
-                                <div
-                                    className={`stat-card stat-card-amber ${filterBy === 'lowStock' ? 'active' : ''}`}
-                                    onClick={() => setFilterBy(filterBy === 'lowStock' ? 'all' : 'lowStock')}
-                                    style={{ cursor: 'pointer' }}
-                                    title="Click to toggle low stock filter"
-                                >
-                                    <div className="stat-icon-box amber">
-                                        <i className="bi bi-exclamation-triangle"></i>
-                                    </div>
-                                    <div className="stat-content">
-                                        <div className="stat-label">Low Stock Items</div>
-                                        <div className="stat-value amber">{formatNumber(lowStockCount, 0)} Items</div>
                                     </div>
                                 </div>
                             </div>
@@ -562,7 +586,7 @@ export const Products: React.FC = () => {
                                                         </div>
 
                                                         {fixedSelling > 0 && (
-                                                            <div className="inventory-price-box selling-box">
+                                                             <div className="inventory-price-box selling-box">
                                                                 <span className="inventory-price-label">Fixed Selling Price:</span>
                                                                 <span className="inventory-price-value selling">
                                                                     {formatCurrency(fixedSelling)}

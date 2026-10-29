@@ -198,32 +198,30 @@ export const AddStaff: React.FC = () => {
 
         <div className="add-staff-container">
           <div className="add-staff-content">
-            <div className="add-staff-main-card">
-              {/* Header with Title and Top-Right Cross Button */}
-              <div className="add-staff-header">
-                <div className="add-staff-header-left">
-                  <div className="add-staff-header-icon-wrap">
-                    <i className="bi bi-person-badge-fill" />
-                  </div>
-
-                  <div>
-                    <h1 className="add-staff-title">Add New Staff</h1>
-                    <p className="add-staff-subtitle">Register staff member profile and configure salary settings</p>
-                  </div>
+            {/* Top Page Header - Clean Add Purchase Bill Style */}
+            <div className="add-staff-page-header">
+              <div className="add-staff-header-info">
+                <div className="add-staff-header-icon">
+                  <i className="bi bi-person-badge-fill" />
                 </div>
-
-                {/* Cross button on Top Right */}
-                <button
-                    type="button"
-                    className="add-staff-close-btn"
-                    onClick={handleCancel}
-                    aria-label="Close"
-                    title="Close"
-                >
-                  <i className="bi bi-x-lg" />
-                </button>
+                <div>
+                  <h1 className="add-staff-header-title">Add Staff</h1>
+                </div>
               </div>
 
+              {/* Cross button on Top Right */}
+              <button
+                type="button"
+                className="add-staff-close-btn"
+                onClick={handleCancel}
+                aria-label="Close"
+                title="Close"
+              >
+                <i className="bi bi-x-lg" />
+              </button>
+            </div>
+
+            <div className="add-staff-main-card">
               <form className="add-staff-form" onSubmit={handleSubmit}>
                 {/* Interactive Avatar Upload Card */}
                 <div className="avatar-card-banner">

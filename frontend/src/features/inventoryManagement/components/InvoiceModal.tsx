@@ -49,7 +49,9 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 }) => {
     const reportRef = useRef<HTMLDivElement>(null);
     const [generating, setGenerating] = useState(false);
-    const { formatCurrency, formatNumber, formatDate, currencySymbol } = useAppSettings();
+    const [mobileView, setMobileView] = useState<'cards' | 'table'>('cards');
+    const { formatCurrency, formatNumber, formatDate, settings } = useAppSettings();
+    const currencySymbol = settings?.currency || localStorage.getItem('currencySymbol') || 'Rs.';
 
     const companyName =
         localStorage.getItem('organizationName') ||
@@ -75,6 +77,23 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 allowTaint: true,
                 backgroundColor: '#ffffff',
                 logging: false,
+                windowWidth: 1200,
+                onclone: (clonedDoc) => {
+                    const paper = clonedDoc.getElementById('printable-invoice-paper');
+                    if (paper) {
+                        paper.style.width = '760px';
+                        paper.style.minWidth = '760px';
+                        paper.style.padding = '40px 45px';
+                    }
+                    const toggle = clonedDoc.querySelector('.report-view-toggle-bar');
+                    if (toggle) (toggle as HTMLElement).style.display = 'none';
+                    const mobileCards = clonedDoc.querySelector('.report-mobile-cards');
+                    if (mobileCards) (mobileCards as HTMLElement).style.display = 'none';
+                    const tableContainer = clonedDoc.querySelector('.invoice-table-container');
+                    if (tableContainer) (tableContainer as HTMLElement).style.display = 'block';
+                    const hint = clonedDoc.querySelector('.table-scroll-hint');
+                    if (hint) (hint as HTMLElement).style.display = 'none';
+                },
             });
 
             const imgData = canvas.toDataURL('image/png');
@@ -126,14 +145,24 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                 {/* Modal Action Bar */}
                 <div className="invoice-modal-header">
                     <div className="invoice-modal-title">
-                        <span
-                            className={`invoice-modal-badge ${
-                                isPurchase ? 'purchase' : 'sales'
-                            }`}
+                        <div className="invoice-modal-title-left">
+                            <span
+                                className={`invoice-modal-badge ${
+                                    isPurchase ? 'purchase' : 'sales'
+                                }`}
+                            >
+                                {isPurchase ? 'Purchase Invoice' : 'Sales Invoice'}
+                            </span>
+                            <h3>{data.invoiceNumber || 'N/A'}</h3>
+                        </div>
+                        <button
+                            type="button"
+                            className="btn-invoice-close mobile-close"
+                            onClick={onClose}
+                            title="Close preview"
                         >
-                            {isPurchase ? 'Purchase Invoice' : 'Sales Invoice'}
-                        </span>
-                        <h3>{data.invoiceNumber || 'N/A'}</h3>
+                            <i className="bi bi-x-lg"></i>
+                        </button>
                     </div>
 
                     <div className="invoice-modal-actions">
@@ -164,7 +193,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
 
                         <button
                             type="button"
-                            className="btn-invoice-close"
+                            className="btn-invoice-close desktop-close"
                             onClick={onClose}
                             title="Close preview"
                         >
@@ -254,8 +283,72 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                             </div>
                         </div>
 
+                        {/* Mobile View Toggle Bar */}
+                        <div className="report-view-toggle-bar">
+                            <button
+                                type="button"
+                                className={`btn-view-toggle ${mobileView === 'cards' ? 'active' : ''}`}
+                                onClick={() => setMobileView('cards')}
+                            >
+                                <i className="bi bi-grid me-1"></i> Items List ({data.items.length})
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn-view-toggle ${mobileView === 'table' ? 'active' : ''}`}
+                                onClick={() => setMobileView('table')}
+                            >
+                                <i className="bi bi-table me-1"></i> Table View
+                            </button>
+                        </div>
+
+                        {/* Mobile Items Cards */}
+                        <div className={`report-mobile-cards ${mobileView === 'cards' ? 'd-mobile-block' : 'd-mobile-none'}`}>
+                            {data.items.map((item, idx) => {
+                                const hasTax = (item.taxPercentage || 0) > 0 || (item.vatPercentage || 0) > 0;
+                                const totalTax = (Number(item.taxPercentage) || 0) + (Number(item.vatPercentage) || 0);
+
+                                return (
+                                    <div className="report-mobile-card" key={idx}>
+                                        <div className="report-card-header">
+                                            <div className="report-card-id-wrap">
+                                                <span className="report-card-num">#{idx + 1}</span>
+                                                <span className="report-card-bill">{item.name}</span>
+                                            </div>
+                                            <span className="badge-item-cat">{item.category || 'General'}</span>
+                                        </div>
+
+                                        <div className="report-card-body">
+                                            <div className="report-card-row">
+                                                <span className="report-card-label">Quantity & Unit Rate:</span>
+                                                <span className="report-card-value">
+                                                    {item.quantity} × {formatCurrency(item.unitPrice || 0)}
+                                                </span>
+                                            </div>
+
+                                            {hasTax && (
+                                                <div className="report-card-row">
+                                                    <span className="report-card-label">Tax / VAT:</span>
+                                                    <span className="report-card-value text-muted">{totalTax}%</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="report-card-footer">
+                                            <span className="report-card-footer-label">Line Total</span>
+                                            <span className="report-card-footer-amount">{formatCurrency(item.totalAmount || 0)}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {/* Table Scroll Hint (Only shown in Table View on mobile) */}
+                        <div className={`table-scroll-hint ${mobileView === 'table' ? 'd-mobile-flex' : 'd-mobile-none'}`}>
+                            <i className="bi bi-arrows-expand"></i> Swipe table horizontally to see all columns
+                        </div>
+
                         {/* 3. Items Table */}
-                        <div className="invoice-table-container">
+                        <div className={`invoice-table-container ${mobileView === 'cards' ? 'd-mobile-none' : 'd-mobile-block'}`}>
                             <table className="invoice-paper-table">
                                 <thead>
                                     <tr>
@@ -263,11 +356,11 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
                                         <th>Description</th>
                                         <th style={{ width: '130px' }}>Category</th>
                                         <th style={{ width: '70px' }} className="text-center">Qty</th>
-                                        <th style={{ width: '110px' }} className="text-end">Rate ({currencySymbol})</th>
+                                        <th style={{ width: '110px' }} className="text-end">Rate ({currencySymbol || 'Rs.'})</th>
                                         {data.items.some(i => (i.taxPercentage || 0) > 0 || (i.vatPercentage || 0) > 0) && (
                                             <th style={{ width: '90px' }} className="text-center">Tax %</th>
                                         )}
-                                        <th style={{ width: '120px' }} className="text-end">Amount ({currencySymbol})</th>
+                                        <th style={{ width: '120px' }} className="text-end">Amount ({currencySymbol || 'Rs.'})</th>
                                     </tr>
                                 </thead>
                                 <tbody>

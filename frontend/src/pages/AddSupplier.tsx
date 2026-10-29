@@ -123,30 +123,30 @@ export const AddSupplier = () => {
             <Sidebar />
 
             <main className="add-supplier-main-content">
-                <div className="add-supplier-card">
-                    {/* Header with Title and Top-Right Cross Button */}
-                    <div className="form-card-header">
-                        <div className="form-card-header-left">
-                            <div className="form-header-icon-wrap supplier-theme">
-                                <i className="bi bi-shop-window" />
-                            </div>
-                            <div>
-                                <p className="form-header-subtitle">Register vendor master profile and procurement contacts</p>
-                            </div>
+                {/* Top Page Header - Clean Add Purchase Bill Style */}
+                <div className="add-supplier-page-header">
+                    <div className="add-supplier-header-info">
+                        <div className="add-supplier-header-icon">
+                            <i className="bi bi-truck" />
                         </div>
-
-                        {/* Top Right Cross Button */}
-                        <button
-                            type="button"
-                            className="form-close-btn"
-                            onClick={handleCancel}
-                            aria-label="Close"
-                            title="Close"
-                        >
-                            <i className="bi bi-x-lg" />
-                        </button>
+                        <div>
+                            <h1 className="add-supplier-header-title">Add Supplier</h1>
+                        </div>
                     </div>
 
+                    {/* Top Right Cross Button */}
+                    <button
+                        type="button"
+                        className="form-close-btn"
+                        onClick={handleCancel}
+                        aria-label="Close"
+                        title="Close"
+                    >
+                        <i className="bi bi-x-lg" />
+                    </button>
+                </div>
+
+                <div className="add-supplier-card">
                     <form onSubmit={handleSubmit} className="form-body">
                         {/* Interactive Avatar Upload */}
                         <div className="avatar-card-banner">
