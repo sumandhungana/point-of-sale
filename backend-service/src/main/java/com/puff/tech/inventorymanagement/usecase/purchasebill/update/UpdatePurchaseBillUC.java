@@ -1,7 +1,6 @@
 package com.puff.tech.inventorymanagement.usecase.purchasebill.update;
 
 import com.puff.tech.core.usecases.MonoUC;
-import com.puff.tech.inventorymanagement.repository.ProductEntity;
 import com.puff.tech.inventorymanagement.repository.ProductRepository;
 import com.puff.tech.inventorymanagement.repository.PurchaseBillEntity;
 import com.puff.tech.inventorymanagement.repository.PurchaseBillRepository;

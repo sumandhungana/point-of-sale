@@ -10,6 +10,7 @@ import { YouReceived } from '../components/YouReceived';
 import { useAppSettings } from '@/context/AppSettingsContext';
 import { ReminderModal } from '@/components/ReminderModal';
 import { TransactionDetailModal, TransactionDetailData } from '@/components/TransactionDetailModal';
+import { AddSalesBillModal } from '@/features/inventoryManagement/pages/AddSalesBill';
 
 // Helper to handle double Base64 encoding and ensure valid Data URI scheme
 const formatImageSrc = (src?: string | null): string => {
@@ -122,6 +123,7 @@ export const CustomerStatements = () => {
     const [showReminderModal, setShowReminderModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetailData | null>(null);
     const [showTransactionModal, setShowTransactionModal] = useState(false);
+    const [showSalesBillModal, setShowSalesBillModal] = useState(false);
 
     const [customerData, setCustomerData] = useState<CustomerData>({
         id: numericUrlId,
@@ -429,9 +431,6 @@ export const CustomerStatements = () => {
                                 >
                                     {customerLoading ? 'Loading...' : customerData.name || 'Customer'}
                                 </h2>
-                                {/*{activeId ? (*/}
-                                {/*    <span className="statements-id-badge">#CUST-{activeId}</span>*/}
-                                {/*) : null}*/}
                             </div>
                             <div className="statements-meta-row">
                                 {customerData.phone ? (
@@ -486,7 +485,7 @@ export const CustomerStatements = () => {
                         <div className="statements-amount-box box-gave">
                             <div className="statements-amount-label">
                                 <i className="bi bi-arrow-up-circle me-2"></i>
-                                You Gave
+                                Total Due
                             </div>
                             <div className="statements-amount-val val-gave">
                                 {formatCurrency(totals.given)}
@@ -527,6 +526,10 @@ export const CustomerStatements = () => {
                     <button className="btn-quick-action btn-qa-invoice" onClick={handleInvoice}>
                         <i className="bi bi-receipt"></i>
                         Invoice
+                    </button>
+                    <button className="btn-quick-action btn-qa-invoice" onClick={() => setShowSalesBillModal(true)}>
+                        <i className="bi bi-plus-circle"></i>
+                        Add sales bill
                     </button>
                 </div>
 
@@ -621,7 +624,7 @@ export const CustomerStatements = () => {
                         onClick={() => setShowPopup(true)}
                     >
                         <i className="bi bi-arrow-up-circle"></i>
-                        You Gave
+                       Total Due
                     </button>
 
                     <button
@@ -723,6 +726,24 @@ export const CustomerStatements = () => {
                     onDeleteSuccess={fetchPayments}
                     onEdit={handleEditTransaction}
                 />
+
+                {/* Modal: Add Sales Bill */}
+                {showSalesBillModal && (
+                    <AddSalesBillModal
+                        isOpen={showSalesBillModal}
+                        onClose={() => setShowSalesBillModal(false)}
+                        onSuccess={() => {
+                            setShowSalesBillModal(false);
+                            fetchPayments();
+                            toast.success('Sales bill added successfully!');
+                        }}
+                        preselectedCustomer={{
+                            customerId: activeId,
+                            name: customerData.name || '',
+                            phone: customerData.phone,
+                        }}
+                    />
+                )}
             </main>
         </div>
     );

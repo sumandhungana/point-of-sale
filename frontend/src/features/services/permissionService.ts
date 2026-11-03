@@ -22,6 +22,7 @@ export interface Role {
   name: string;
   description: string;
   status: string;
+  roleOrder?: number;
   permissions: RolePermission[];
 }
 
@@ -47,7 +48,7 @@ export async function fetchAvailablePermissions(): Promise<PermissionGroup[]> {
   return res?.response?.data || [];
 }
 
-// Fetch all roles with their assigned permissions
+// Fetch all roles with their assigned permissions and role orders
 export async function fetchRoles(): Promise<Role[]> {
   const res = await apiService.get<RestResponse<Role[]>>(
       'api/v1/role/list',
@@ -66,7 +67,6 @@ export async function addRole(payload: AddRoleRequest): Promise<RestResponse<{
       payload,
       { headers: getAuthHeaders() }
   );
-  debugger
   if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
     toast("Role Cannot Added");
     throw new Error("Role Cannot Added");
@@ -80,21 +80,29 @@ export interface UpdateRoleRequest {
   permissions: RolePermission[];
 }
 
-// Update existing role
-export async function updateRole(payload: UpdateRoleRequest): Promise<RestResponse<{ message: string }> | undefined> {
-  const res = await apiService.put<RestResponse<{ message: string }>>(
+export async function updateRole(payload: UpdateRoleRequest): Promise<RestResponse<{
+  id: number;
+  message: string
+}> | undefined> {
+  const res = await apiService.put<RestResponse<{ id: number; message: string }>>(
       `api/v1/role/${payload.id}`,
       payload,
       { headers: getAuthHeaders() }
   );
+  if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
+    toast("Role Cannot Updated");
+    throw new Error("Role Cannot Updated");
+  }
   return res?.response;
 }
 
-// Delete role by ID
-export async function deleteRole(roleId: number): Promise<RestResponse<{ message: string }> | undefined> {
-  const res = await apiService.delete<RestResponse<{ message: string }>>(
-      `api/v1/role/delete/${roleId}`,
+export async function deleteRole(roleId: number): Promise<void> {
+  const res = await apiService.delete<RestResponse<void>>(
+      `api/v1/role/${roleId}`,
       { headers: getAuthHeaders() }
   );
-  return res?.response;
+  if(res?.response?.code != 0 || res?.response?.message != 'SUCCESS') {
+    toast("Role Cannot Deleted");
+    throw new Error("Role Cannot Deleted");
+  }
 }

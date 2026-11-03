@@ -176,3 +176,4 @@ export const addSalesBill = async (data: any, isEditMode: boolean, id?: number):
   }
   return res?.response?.data ?? {};
 };
+

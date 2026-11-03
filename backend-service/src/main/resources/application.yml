@@ -43,6 +43,8 @@ r2dbc:
       packages:
         - com.puff.tech.inventorymanagement.repository
         - com.puff.tech.loanmanagement.repository
+        - com.puff.tech.setting.repository
+        - com.puff.tech.usermanagement.repository
       db-type: postgres
       username: postgres
       password: root

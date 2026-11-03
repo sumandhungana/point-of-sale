@@ -23,13 +23,21 @@ export const YouReceived: React.FC<YouReceivedProps> = ({ customerId, onSuccess,
     const [paymentType, setPaymentType] = useState<'CASH' | 'CARD' | 'QR'>('CASH');
     const [remarks, setRemarks] = useState<string>('');
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [fileDataUrl, setFileDataUrl] = useState<string | null>(null);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
-            setSelectedFile(e.target.files[0]);
+            const file = e.target.files[0];
+            setSelectedFile(file);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setFileDataUrl(reader.result as string);
+            };
+            reader.readAsDataURL(file);
         } else {
             setSelectedFile(null);
+            setFileDataUrl(null);
         }
     };
 
@@ -56,7 +64,7 @@ export const YouReceived: React.FC<YouReceivedProps> = ({ customerId, onSuccess,
                 amount: Number(amount),
                 paymentType: paymentType,
                 paymentCategory: 'RECEIVED',
-                billPath: selectedFile ? selectedFile.name : undefined,
+                billPath: fileDataUrl || (selectedFile ? selectedFile.name : undefined),
                 remarks: remarks || undefined
             });
 

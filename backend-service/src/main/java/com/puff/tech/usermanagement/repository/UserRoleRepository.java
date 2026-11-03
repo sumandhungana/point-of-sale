@@ -20,9 +20,6 @@ public interface UserRoleRepository extends ReactorCrudRepository<UserRoleEntity
     @Join(value = "permissions", type = Join.Type.LEFT)
     Mono<UserRoleEntity> findByIdAndMemberId(Integer id, Long memberId);
 
-//    @Join(value = "permissions", type = Join.Type.LEFT_FETCH)
-//    Mono<UserRoleEntity> findByIdAndPermissionsIn(Integer id, List<UserPermissionEntity> permissions);
-
     // Check if role name already exists for member
     Mono<Boolean> existsByNameAndMemberId(String name, Long memberId);
 
@@ -31,4 +28,8 @@ public interface UserRoleRepository extends ReactorCrudRepository<UserRoleEntity
 
     @Join(value = "permissions", type = Join.Type.LEFT_FETCH)
     Mono<UserRoleEntity> findById(Integer id);
+
+    Flux<UserRoleEntity> findByRoleOrderIn(List<Integer> roleOrders);
+
+    Flux<UserRoleEntity> findByMemberIdAndRoleOrderIn(Long memberId, List<Integer> roleOrders);
 }

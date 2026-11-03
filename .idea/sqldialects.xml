@@ -6,6 +6,7 @@
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/create_loan_tables.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/create_staff_attendance.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/create_staff_salaries.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/dashboard_settings.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/member.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/payment.sql" dialect="PostgreSQL" />
   </component>

@@ -44,6 +44,7 @@ public class GetUserRoleUc implements FluxUC<GetUserRoleUCRequest, GetUserRoleUC
                                     role.getName(),
                                     role.getDescription(),
                                     role.getStatus(),
+                                    role.getRoleOrder(),
                                     permissionResponses,
                                     role.getCreatedAt(),
                                     role.getUpdatedAt()

@@ -70,6 +70,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css';
 import { Bills } from './pages/Bills';
 import BusinessSetting from './pages/BusinessSetting';
+import DashboardSetting from './pages/DashboardSetting';
 import {RoleManagement} from "@/features/roleAndPermissions/pages/RoleManagement";
 import SupplierProfile from "@/pages/SupplierProfile";
 import {AddOrganization} from "@/features/onboarding/components/AddOrganization";
@@ -837,7 +838,7 @@ const App: React.FC = () => {
             path="/settings/dashboard"
             element={
               <PrivateRoute>
-                <div>Dashboard Setting Page</div>
+                <DashboardSetting/>
               </PrivateRoute>
             }
           />

@@ -503,129 +503,79 @@ export const AddPurchase: React.FC = () => {
                     )}
 
                     <form onSubmit={handleSubmit}>
-                        {/* Top Section: Invoice Information (Left) + Summary Stats (Top Right Side) */}
-                        <div className="purchase-bill-top-grid mb-3">
-                            {/* Left: Invoice Info Card */}
-                            <div className="purchase-card invoice-info-card">
-
-
-                                <h3 className="purchase-card-title">
-                                    <i className="bi bi-receipt"></i> Invoice Information
-                                </h3>
-                                <div className="purchase-form-grid">
-                                    <div className="input-field-group">
-                                        <label>Purchase No.</label>
-                                        <div className="input-with-icon">
-                                            <i className="bi bi-hash"></i>
-                                            <input type="text" className="read-only-input" value={purchaseNo} readOnly
-                                                   disabled/>
-                                        </div>
+                        {/* Section 1: Invoice Information */}
+                        <div className="purchase-card invoice-info-card mb-3">
+                            <h3 className="purchase-card-title">
+                                <i className="bi bi-receipt"></i> Invoice Information
+                            </h3>
+                            <div className="purchase-form-grid">
+                                <div className="input-field-group">
+                                    <label>Purchase No.</label>
+                                    <div className="input-with-icon">
+                                        <i className="bi bi-hash"></i>
+                                        <input type="text" className="read-only-input" value={purchaseNo} readOnly disabled/>
                                     </div>
+                                </div>
 
-                                    <div className="input-field-group">
-                                        <label>Purchase Date</label>
-                                        <div className="input-with-icon">
-                                            <i className="bi bi-calendar3"></i>
-                                            <input type="date" value={date} onChange={(e) => setDate(e.target.value)}
-                                                   required/>
-                                        </div>
+                                <div className="input-field-group">
+                                    <label>Purchase Date</label>
+                                    <div className="input-with-icon">
+                                        <i className="bi bi-calendar3"></i>
+                                        <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required/>
                                     </div>
+                                </div>
 
-                                    <div className="input-field-group">
-                                        <label>Supplier / Vendor</label>
-                                        <div className="autocomplete-wrapper">
-                                            <div className="input-with-icon">
-                                                <i className="bi bi-truck"></i>
-                                                <input
-                                                    type="text"
-                                                    placeholder="Search supplier..."
-                                                    value={supplierSearch}
-                                                    onChange={(e) => {
-                                                        setSupplierSearch(e.target.value);
-                                                        setShowSupplierDropdown(true);
-                                                        setSelectedSupplier(null);
-                                                    }}
-                                                    onFocus={() => setShowSupplierDropdown(true)}
-                                                />
-                                            </div>
-                                            {showSupplierDropdown && supplierSearch && (
-                                                <div className="autocomplete-dropdown">
-                                                    {filteredSuppliers.length > 0 ? (
-                                                        filteredSuppliers.map((sup) => (
-                                                            <div
-                                                                key={sup.id}
-                                                                className="autocomplete-item"
-                                                                onClick={() => {
-                                                                    setSelectedSupplier(sup);
-                                                                    setSupplierSearch(sup.name);
-                                                                    setShowSupplierDropdown(false);
-                                                                }}
-                                                            >
-                                                                <span className="item-title">{sup.name}</span>
-                                                                {sup.phone &&
-                                                                    <span className="item-badge">{sup.phone}</span>}
-                                                            </div>
-                                                        ))
-                                                    ) : (
-                                                        <div className="autocomplete-empty">
-                                                            No supplier found.{' '}
-                                                            <span
-                                                                style={{
-                                                                    color: '#255dce',
-                                                                    cursor: 'pointer',
-                                                                    textDecoration: 'underline'
-                                                                }}
-                                                                onClick={() => navigate('/suppliers/add')}
-                                                            >
-                                Add new
-                              </span>
+                                <div className="input-field-group">
+                                    <label>Supplier / Vendor</label>
+                                    <div className="autocomplete-wrapper">
+                                        <div className="input-with-icon">
+                                            <i className="bi bi-truck"></i>
+                                            <input
+                                                type="text"
+                                                placeholder="Search supplier..."
+                                                value={supplierSearch}
+                                                onChange={(e) => {
+                                                    setSupplierSearch(e.target.value);
+                                                    setShowSupplierDropdown(true);
+                                                    setSelectedSupplier(null);
+                                                }}
+                                                onFocus={() => setShowSupplierDropdown(true)}
+                                            />
+                                        </div>
+                                        {showSupplierDropdown && supplierSearch && (
+                                            <div className="autocomplete-dropdown">
+                                                {filteredSuppliers.length > 0 ? (
+                                                    filteredSuppliers.map((sup) => (
+                                                        <div
+                                                            key={sup.id}
+                                                            className="autocomplete-item"
+                                                            onClick={() => {
+                                                                setSelectedSupplier(sup);
+                                                                setSupplierSearch(sup.name);
+                                                                setShowSupplierDropdown(false);
+                                                            }}
+                                                        >
+                                                            <span className="item-title">{sup.name}</span>
+                                                            {sup.phone && <span className="item-badge">{sup.phone}</span>}
                                                         </div>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Top Right Side: Summary Card */}
-                            <div className="purchase-card summary-card top-summary-card">
-                                <div className="summary-header-wrap">
-                                    <div className="summary-label">Total Amount Payable</div>
-                                    <div className="summary-price-display">
-                                        Rs. {formatNumber(grandTotal)}
-                                    </div>
-                                </div>
-                                <div className="summary-breakdown">
-                                    <div className="breakdown-row">
-                                        <span>Items Subtotal</span>
-                                        <span className="fw-semibold">Rs. {formatNumber(totalsSummary.subtotal)}</span>
-                                    </div>
-                                    {enableVat && (vatPercentage || 0) > 0 && (
-                                        <div className="breakdown-row">
-                                            <span>VAT ({vatPercentage || 0}%)</span>
-                                            <span className="fw-semibold">Rs. {formatNumber(totalsSummary.vat)}</span>
-                                        </div>
-                                    )}
-                                    {enableTax && (taxPercentage || 0) > 0 && (
-                                        <div className="breakdown-row">
-                                            <span>Additional Tax ({taxPercentage || 0}%)</span>
-                                            <span className="fw-semibold">Rs. {formatNumber(totalsSummary.tax)}</span>
-                                        </div>
-                                    )}
-                                    <div className="breakdown-row">
-                                        <span>Line Items Count</span>
-                                        <span className="summary-badge">{lineItems.length}</span>
-                                    </div>
-                                    <div className="breakdown-row">
-                                        <span>Total Units</span>
-                                        <span className="summary-badge-units">
-                                            {lineItems.reduce(
-                                                (sum, i) => sum + (parseFloat(String(i.quantity)) || 0),
-                                                0
-                                            )}{' '}
-                                            Units
-                                        </span>
+                                                    ))
+                                                ) : (
+                                                    <div className="autocomplete-empty">
+                                                        No supplier found.{' '}
+                                                        <span
+                                                            style={{
+                                                                color: '#255dce',
+                                                                cursor: 'pointer',
+                                                                textDecoration: 'underline'
+                                                            }}
+                                                            onClick={() => navigate('/suppliers/add')}
+                                                        >
+                                                            Add new
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
@@ -916,7 +866,81 @@ export const AddPurchase: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Product Search Card */}
+                            {/* Section 3: Payment Details (Placed Before Product Placement) */}
+                        <div className="purchase-card payment-details-card mb-3">
+                            <h3 className="purchase-card-title">
+                                <i className="bi bi-credit-card"></i> Payment Details
+                            </h3>
+
+                            <div className="row g-3 mb-3">
+                                <div className="col-md-6">
+                                    <div className="input-field-group">
+                                        <label>Payment Mode</label>
+                                        <div className="input-with-icon">
+                                            <i className="bi bi-wallet2"></i>
+                                            <select value={paymentMode} onChange={(e) => handlePaymentModeChange(e.target.value)}>
+                                                <option value="cash">Cash</option>
+                                                <option value="card">Card / POS</option>
+                                                <option value="bank_transfer">Bank Transfer</option>
+                                                <option value="upi">Digital Wallet / UPI</option>
+                                                <option value="credit">Credit / Payable</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="col-md-6">
+                                    <div className="input-field-group">
+                                        <label>Payment Status</label>
+                                        <div className="input-with-icon">
+                                            <i className="bi bi-patch-check"></i>
+                                            <select value={paymentStatus.toLowerCase()} onChange={(e) => setPaymentStatus(e.target.value.toLowerCase())}>
+                                                <option value="paid">Paid</option>
+                                                <option value="due">Due</option>
+                                                <option value="received">Received</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="row g-3">
+                                <div className="col-md-6">
+                                    <div className="input-field-group mb-0">
+                                        <label>Remarks / Notes</label>
+                                        <textarea
+                                            rows={3}
+                                            className="purchase-textarea"
+                                            placeholder="Context or bill notes..."
+                                            value={remarks}
+                                            onChange={(e) => setRemarks(e.target.value)}
+                                        ></textarea>
+                                    </div>
+                                </div>
+
+                                <div className="col-md-6">
+                                    <div className="input-field-group mb-0">
+                                        <label>Bill Attachment</label>
+                                        <input type="file" accept="image/*" className="table-input"
+                                               onChange={handleFileChange}/>
+                                        {selectedImage && (
+                                            <img
+                                                src={selectedImage}
+                                                alt="Bill Document Preview"
+                                                style={{
+                                                    maxHeight: '100px',
+                                                    objectFit: 'contain',
+                                                    marginTop: '8px',
+                                                    borderRadius: '6px'
+                                                }}
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Product Search Card */}
                             <div className="purchase-card mb-3">
 
                                 <div className="d-flex justify-content-between align-items-center mb-2">
@@ -1134,109 +1158,62 @@ export const AddPurchase: React.FC = () => {
                                 </div>
                             </div>
 
-                            {/* Bottom Row: Payment Details & Summary Grid */}
-                            <div className="purchase-card payment-details-card mb-3">
-                                <div className="payment-details-inner">
-
-                                    <h3 className="purchase-card-title">
-                                        <i className="bi bi-credit-card"></i> Payment Details
-                                    </h3>
-
-                                    <div className="row g-3 mb-3">
-                                        <div className="col-md-6">
-                                            <div className="input-field-group">
-                                                <label>Payment Mode</label>
-                                                <div className="input-with-icon">
-                                                    <i className="bi bi-wallet2"></i>
-                                                    <select value={paymentMode} onChange={(e) => handlePaymentModeChange(e.target.value)}>
-                                                        <option value="cash">Cash</option>
-                                                        <option value="card">Card / POS</option>
-                                                        <option value="bank_transfer">Bank Transfer</option>
-                                                        <option value="upi">Digital Wallet / UPI</option>
-                                                        <option value="credit">Credit / Payable</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div className="col-md-6">
-                                            <div className="input-field-group">
-                                                <label>Payment Status</label>
-                                                <div className="input-with-icon">
-                                                    <i className="bi bi-patch-check"></i>
-                                                    <select value={paymentStatus.toLowerCase()} onChange={(e) => setPaymentStatus(e.target.value.toLowerCase())}>
-                                                        <option value="paid">Paid</option>
-                                                        <option value="due">Due</option>
-                                                        <option value="received">Received</option>
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div>
+                            {/* Section 6: Total Amount Payable (Spacious Large Form After Product Table) */}
+                        <div className="purchase-card large-summary-card mb-3">
+                            <div className="large-summary-inner">
+                                {/* Left Side: Detailed Financial Breakdown */}
+                                <div className="large-summary-left">
+                                    <div className="large-summary-title">
+                                        <i className="bi bi-calculator me-2"></i>Purchase Calculation Summary
                                     </div>
-
-                                    <div className="input-field-group mb-3">
-                                        <label>Remarks / Notes</label>
-                                        <textarea
-                                            rows={3}
-                                            className="purchase-textarea"
-                                            placeholder="Context or bill notes..."
-                                            value={remarks}
-                                            onChange={(e) => setRemarks(e.target.value)}
-                                        ></textarea>
-                                    </div>
-
-                                    <div className="input-field-group mb-3">
-                                        <label>Bill Attachment</label>
-                                        <input type="file" accept="image/*" className="table-input"
-                                               onChange={handleFileChange}/>
-                                        {selectedImage && (
-                                            <img
-                                                src={selectedImage}
-                                                alt="Bill Document Preview"
-                                                style={{
-                                                    maxHeight: '100px',
-                                                    objectFit: 'contain',
-                                                    marginTop: '8px',
-                                                    borderRadius: '6px'
-                                                }}
-                                            />
+                                    <div className="large-summary-stats-grid">
+                                        <div className="large-stat-item">
+                                            <span className="large-stat-label">Items Subtotal</span>
+                                            <span className="large-stat-val">Rs. {formatNumber(totalsSummary.subtotal)}</span>
+                                        </div>
+                                        {enableVat && (vatPercentage || 0) > 0 && (
+                                            <div className="large-stat-item">
+                                                <span className="large-stat-label">VAT ({vatPercentage || 0}%)</span>
+                                                <span className="large-stat-val">Rs. {formatNumber(totalsSummary.vat)}</span>
+                                            </div>
                                         )}
+                                        {enableTax && (taxPercentage || 0) > 0 && (
+                                            <div className="large-stat-item">
+                                                <span className="large-stat-label">Additional Tax ({taxPercentage || 0}%)</span>
+                                                <span className="large-stat-val">Rs. {formatNumber(totalsSummary.tax)}</span>
+                                            </div>
+                                        )}
+                                        <div className="large-stat-item">
+                                            <span className="large-stat-label">Line Items</span>
+                                            <span className="summary-badge">{lineItems.length} items</span>
+                                        </div>
+                                        <div className="large-stat-item">
+                                            <span className="large-stat-label">Total Quantity</span>
+                                            <span className="summary-badge-units">
+                                                {lineItems.reduce(
+                                                    (sum, i) => sum + (parseFloat(String(i.quantity)) || 0),
+                                                    0
+                                                )}{' '}
+                                                Units
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div style={{ display: 'none' }}>
-                                    <div className="summary-label">Total Amount Payable</div>
-                                    <div className="summary-price-display">
-                                        {formatCurrency(grandTotal)}
-                                    </div>
-                                    <div className="summary-breakdown">
-                                        <div className="breakdown-row">
-                                            <span>Items Subtotal</span>
-                                            <span>{formatCurrency(totalsSummary.subtotal)}</span>
+                                {/* Right Side: Prominent Total Amount Payable Box */}
+                                <div className="large-summary-right">
+                                    <div className="large-payable-card">
+                                        <div className="large-payable-label">Total Amount Payable</div>
+                                        <div className="large-payable-amount">
+                                            Rs. {formatNumber(grandTotal)}
                                         </div>
-                                        {enableVat && (
-                                            <div className="breakdown-row">
-                                                <span>VAT ({vatPercentage || 0}%)</span>
-                                                <span>{formatCurrency(totalsSummary.vat)}</span>
-                                            </div>
-                                        )}
-                                        {enableTax && (
-                                            <div className="breakdown-row">
-                                                <span>Additional Tax ({taxPercentage || 0}%)</span>
-                                                <span>{formatCurrency(totalsSummary.tax)}</span>
-                                            </div>
-                                        )}
-                                        <div className="breakdown-row">
-                                            <span>Line Items Count</span>
-                                            <span>{lineItems.length}</span>
-                                        </div>
-                                        <div className="breakdown-row">
-                                            <span>Currency</span>
-                                            <span>{currencySymbol}</span>
+                                        <div className="large-payable-note">
+                                            <i className="bi bi-shield-check me-1"></i>Net purchase amount payable
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
                     {/* Action Footer Below Form */}
                         <div className="form-action-footer">

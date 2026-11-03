@@ -1,6 +1,8 @@
 package com.puff.tech.payment.usecase.get;
 
 import com.puff.tech.core.usecases.FluxUC;
+import com.puff.tech.inventorymanagement.repository.SalesBillEntity;
+import com.puff.tech.inventorymanagement.repository.SalesBillRepository;
 import com.puff.tech.payment.enums.PaymentCategory;
 import com.puff.tech.payment.enums.PaymentParty;
 import com.puff.tech.payment.repository.PaymentEntity;
@@ -16,9 +18,11 @@ import java.util.concurrent.atomic.AtomicReference;
 public class GetPaymentUC implements FluxUC<GetPaymentUCRequest, GetPaymentUCResponse> {
 
     private final PaymentRepository paymentRepository;
+    private final SalesBillRepository salesBillRepository;
 
-    public GetPaymentUC(PaymentRepository paymentRepository) {
+    public GetPaymentUC(PaymentRepository paymentRepository, SalesBillRepository salesBillRepository) {
         this.paymentRepository = paymentRepository;
+        this.salesBillRepository = salesBillRepository;
     }
 
     @Override

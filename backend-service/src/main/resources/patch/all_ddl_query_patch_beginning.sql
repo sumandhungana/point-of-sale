@@ -494,3 +494,7 @@ create table staff_salaries
     created_at       timestamp,
     updated_at       timestamp
 );
+ALTER TABLE purchase_bill ADD COLUMN payment_status varchar(255);
+ALTER TABLE sales_bill ADD COLUMN payment_status varchar(255);
+
+

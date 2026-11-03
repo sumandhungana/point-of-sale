@@ -516,7 +516,7 @@ export const Customers = () => {
                             <i className="bi bi-arrow-up-circle"></i>
                         </div>
                         <div className="customers-card-content">
-                            <div className="customers-card-header">You Gave</div>
+                            <div className="customers-card-header">Total due</div>
                             <div className="customers-card-amount" style={{ color: '#DE1110' }}>
                                 {formatCurrency(overallTotals.given)}
                             </div>

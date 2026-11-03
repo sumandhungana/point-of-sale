@@ -132,11 +132,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setToken(authToken);
 
         const decoded = jwtDecode<JwtPayload>(authToken);
-
         const userData: AppUser = {
           id: decoded.nameid,
           username: decoded.unique_name,
-          role: decoded.role,
+          role: response?.userInfo?.role || decoded.role || '',
           name: response?.userInfo?.userName || decoded.unique_name,
           email: response?.userInfo?.email || '',
           imagePath: response?.userInfo?.imagePath || null,

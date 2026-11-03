@@ -600,16 +600,16 @@ export const Sales: React.FC = () => {
                           {/* Right-aligned Section: Actions & Amount */}
                           <div className="role-card-right d-flex align-items-center gap-3">
                             <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                              {canViewSingle && (
-                                <button
-                                    type="button"
-                                    className="btn-row-action"
-                                    title="View Bill Details"
-                                    onClick={() => handleViewBill(bill)}
-                                >
-                                  <i className="bi bi-eye"></i> View
-                                </button>
-                              )}
+                              {/*{canViewSingle && (*/}
+                              {/*  <button*/}
+                              {/*      type="button"*/}
+                              {/*      className="btn-row-action"*/}
+                              {/*      title="View Bill Details"*/}
+                              {/*      onClick={() => handleViewBill(bill)}*/}
+                              {/*  >*/}
+                              {/*    <i className="bi bi-eye"></i> View*/}
+                              {/*  </button>*/}
+                              {/*)}*/}
                               <button
                                   type="button"
                                   className="btn-row-action pdf"

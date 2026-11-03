@@ -13,6 +13,7 @@ public record GetUserRoleUCResponse(
         String name,
         String description,
         String status,
+        Integer roleOrder,
         List<PermissionResponse> permissions,
         Instant createdAt,
         Instant updatedAt

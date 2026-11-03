@@ -1,18 +1,3 @@
-Customer vitra ko table haru ta thick vayo sir
-Aru vitra vitra ko section ma chai pahile ko jatrai raixa aru ma pani hight ma sano banaidinuss hai
-Yo add Customer ko botton lai Amount ko muni rakhdinuss hai ali bich ma aayaxa
-Working hour vaneko thau ma time pani aaune banaidinuss ani tyo mathi patti sangai customer ko contact number pani haldinuss hai sir maile asti vanna bhule xu
-Yaslai half circle nai banaidinuss hai sir ali namile jasto vayo
-Left menu ko parties lai capital later banaidinuss
-Ali patalo aayo font haru sabai
-Sir ani yo Back botton haru xuteko xa dherai page haru ma same botton haru milayara rakhau na hai
-Ani sir Customer ra statement direct delete hune vayaxa tyo pani milaunuss hai
-Delete garne ki nagarne vanera sodhne pop-up aaune banauna paryo
-Ani Manage Inventory name lai long vayara 2 line ma aayo
-Teslai MGMT INVENTORY gardina patyo sir teso garda ali milne dekhiyo
-capitalize the Parties and remove all the icon from the submenu of the Parties
-Also make all the mont of the side bar much clearler and little bigger
-
 
 
 1.Build Production Artifacts Locally:Build the optimized production bundles locally on your development machine:Bash# 1. Frontend: create production bundle (generates ./dist)
