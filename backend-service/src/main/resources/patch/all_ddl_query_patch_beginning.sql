@@ -497,4 +497,21 @@ create table staff_salaries
 ALTER TABLE purchase_bill ADD COLUMN payment_status varchar(255);
 ALTER TABLE sales_bill ADD COLUMN payment_status varchar(255);
 
+create table deposit
+(
+    id            bigint generated always as identity
+        primary key,
+    member_id     bigint       not null,
+    payment_party varchar(255) not null,
+    party_id      bigint       not null,
+    amount        numeric      not null,
+    remarks       varchar(255) not null,
+    created_by    varchar(255) not null,
+    created_at    timestamp,
+    updated_by    varchar(255) not null,
+    updated_at    timestamp
+);
+
+
+
 

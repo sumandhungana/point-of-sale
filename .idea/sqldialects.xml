@@ -9,5 +9,6 @@
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/dashboard_settings.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/member.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/payment.sql" dialect="PostgreSQL" />
+    <file url="file://$PROJECT_DIR$/backend-service/src/main/resources/patch/roles_permissions.sql" dialect="GenericSQL" />
   </component>
 </project>

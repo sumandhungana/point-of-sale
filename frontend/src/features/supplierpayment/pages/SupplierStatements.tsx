@@ -13,6 +13,7 @@ import { ReminderModal } from '@/components/ReminderModal';
 import { TransactionDetailModal, TransactionDetailData } from '@/components/TransactionDetailModal';
 import { DepositModal } from '@/components/DepositModal';
 import { AddPurchaseModal } from '@/features/inventoryManagement/pages/AddPurchase';
+import { getDeposits } from '@/features/services/depositService';
 
 // Helper to handle double Base64 encoding and ensure valid Data URI scheme
 const formatImageSrc = (src?: string | null): string => {
@@ -106,17 +107,32 @@ export const SupplierStatements: React.FC = () => {
     const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetailData | null>(null);
     const [showTransactionModal, setShowTransactionModal] = useState<boolean>(false);
     const [showDepositModal, setShowDepositModal] = useState<boolean>(false);
+    const [depositTotal, setDepositTotal] = useState<number>(0);
     const [showPurchaseBillModal, setShowPurchaseBillModal] = useState<boolean>(false);
+
+    const fetchDepositTotal = useCallback(async () => {
+        if (!id) return;
+        try {
+            const list = await getDeposits(parseInt(id, 10));
+            const sum = list.reduce((acc, d) => acc + (Number(d.amount) || 0), 0);
+            setDepositTotal(sum);
+        } catch (err) {
+            console.error('Error fetching deposit total:', err);
+        }
+    }, [id]);
 
     const fetchPayments = useCallback(async () => {
         if (!id) return;
 
         setIsLoading(true);
         try {
-            const payments = await getPaymentList({
-                paymentParty: 'SUPPLIER',
-                partyId: parseInt(id, 10)
-            });
+            const [payments] = await Promise.all([
+                getPaymentList({
+                    paymentParty: 'SUPPLIER',
+                    partyId: parseInt(id, 10)
+                }),
+                fetchDepositTotal()
+            ]);
             setPaymentHistory(Array.isArray(payments) ? payments : []);
         } catch (error) {
             console.error('Error fetching supplier payment list:', error);
@@ -125,7 +141,7 @@ export const SupplierStatements: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [id]);
+    }, [id, fetchDepositTotal]);
 
     const loadSupplierData = useCallback(async () => {
         if (!id) return;
@@ -340,10 +356,15 @@ export const SupplierStatements: React.FC = () => {
                             type="button"
                             className="btn-statement-action btn-deposit"
                             onClick={() => setShowDepositModal(true)}
-                            title="Make a deposit"
+                            title={depositTotal > 0 ? `Deposit balance: ${formatCurrency(depositTotal)}` : 'Manage deposits'}
                         >
                             <i className="bi bi-cash-coin"></i>
                             Deposit
+                            {depositTotal > 0 && (
+                                <span className="badge bg-success ms-1" style={{ fontSize: '11px', fontWeight: 600 }}>
+                                    {formatCurrency(depositTotal)}
+                                </span>
+                            )}
                         </button>
                     </div>
 

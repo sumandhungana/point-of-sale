@@ -208,9 +208,9 @@ export const StaffManagement = () => {
   const getStaffFinancials = useCallback(
     (staff: Staff) => {
       const paid = paymentGivenMap[staff.id] || 0;
-      return calculateStaffFinancials(staff, paid);
+      return calculateStaffFinancials(staff, paid, attendanceRecords);
     },
-    [paymentGivenMap]
+    [paymentGivenMap, attendanceRecords]
   );
 
   const totalSalary = useMemo(() => {

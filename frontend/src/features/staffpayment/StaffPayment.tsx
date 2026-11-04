@@ -267,8 +267,8 @@ export const StaffPayment: React.FC = () => {
 
     // Live financial balance: Due Left or Advance
     const financials = useMemo(() => {
-        return calculateStaffFinancials(staffInfo, totals.totalGiven);
-    }, [staffInfo, totals.totalGiven]);
+        return calculateStaffFinancials(staffInfo, totals.totalGiven, attendanceList);
+    }, [staffInfo, totals.totalGiven, attendanceList]);
 
     const handleOpenAddPayment = () => setIsAddPaymentOpen(true);
     const handleCloseAddPayment = () => setIsAddPaymentOpen(false);

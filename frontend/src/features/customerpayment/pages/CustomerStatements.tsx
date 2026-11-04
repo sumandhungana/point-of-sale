@@ -12,6 +12,7 @@ import { ReminderModal } from '@/components/ReminderModal';
 import { TransactionDetailModal, TransactionDetailData } from '@/components/TransactionDetailModal';
 import { AddSalesBillModal } from '@/features/inventoryManagement/pages/AddSalesBill';
 import { DepositModal } from '@/components/DepositModal';
+import { getDeposits } from '@/features/services/depositService';
 
 // Helper to handle double Base64 encoding and ensure valid Data URI scheme
 const formatImageSrc = (src?: string | null): string => {
@@ -122,6 +123,7 @@ export const CustomerStatements = () => {
     const [showPopup, setShowPopup] = useState(false);
     const [showReceivedPopup, setShowReceivedPopup] = useState(false);
     const [showDepositModal, setShowDepositModal] = useState(false);
+    const [depositTotal, setDepositTotal] = useState<number>(0);
     const [showReminderModal, setShowReminderModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetailData | null>(null);
     const [showTransactionModal, setShowTransactionModal] = useState(false);
@@ -202,16 +204,31 @@ export const CustomerStatements = () => {
         }
     }, [location.state, id, isValidUrlId, numericUrlId]);
 
+    // Fetch deposits total
+    const fetchDepositTotal = useCallback(async () => {
+        if (!activeId) return;
+        try {
+            const list = await getDeposits(activeId);
+            const sum = list.reduce((acc, d) => acc + (Number(d.amount) || 0), 0);
+            setDepositTotal(sum);
+        } catch (err) {
+            console.error('Error fetching deposit total:', err);
+        }
+    }, [activeId]);
+
     // Fetch payments using getPaymentList
     const fetchPayments = useCallback(async () => {
         if (!activeId) return;
 
         setIsLoading(true);
         try {
-            const payments = await getPaymentList({
-                paymentParty: 'CUSTOMER',
-                partyId: activeId
-            });
+            const [payments] = await Promise.all([
+                getPaymentList({
+                    paymentParty: 'CUSTOMER',
+                    partyId: activeId
+                }),
+                fetchDepositTotal()
+            ]);
             setPaymentHistory(Array.isArray(payments) ? payments : []);
         } catch (error) {
             console.error('Error fetching payment list:', error);
@@ -219,7 +236,7 @@ export const CustomerStatements = () => {
         } finally {
             setIsLoading(false);
         }
-    }, [activeId]);
+    }, [activeId, fetchDepositTotal]);
 
     useEffect(() => {
         fetchPayments();
@@ -409,10 +426,15 @@ export const CustomerStatements = () => {
                             type="button"
                             className="btn-statement-action btn-deposit"
                             onClick={() => setShowDepositModal(true)}
-                            title="Make a deposit"
+                            title={depositTotal > 0 ? `Deposit balance: ${formatCurrency(depositTotal)}` : 'Manage deposits'}
                         >
                             <i className="bi bi-cash-coin"></i>
                             Deposit
+                            {depositTotal > 0 && (
+                                <span className="badge bg-success ms-1" style={{ fontSize: '11px', fontWeight: 600 }}>
+                                    {formatCurrency(depositTotal)}
+                                </span>
+                            )}
                         </button>
                     </div>
 

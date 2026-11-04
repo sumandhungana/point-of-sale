@@ -25,6 +25,7 @@ public enum Module {
     LOAN_MANAGEMENT("loan", "Loan Management"),
     STAFF_ATTENDANCE("staffAttendance", "Staff Attendance Management"),
     APP_SETTINGS("appSettings", "App Settings Management"),
+    DEPOSIT("deposit", "Deposit management"),
     ;
 
     private final String code;

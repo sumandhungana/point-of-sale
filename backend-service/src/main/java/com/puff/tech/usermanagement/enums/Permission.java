@@ -117,6 +117,11 @@ public enum Permission {
     PURCHASE_BILL_GET_SINGLE(Module.PURCHASE_BILL_MANAGEMENT, "single"),
     PURCHASE_BILL_UPDATE(Module.PURCHASE_BILL_MANAGEMENT, "update"),
 
+    DEPOSIT_ADD(Module.DEPOSIT, "add"),
+    DEPOSIT_GET(Module.DEPOSIT, "get"),
+    DEPOSIT_UPDATE(Module.DEPOSIT, "update"),
+    DEPOSIT_DELETE(Module.DEPOSIT, "delete"),
+
 
     // App Settings Permissions
     APP_SETTINGS_VIEW(Module.APP_SETTINGS, "view"),

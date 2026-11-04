@@ -2,7 +2,14 @@
  * Staff Financial & Accrual Calculation Utilities
  * 
  * Computes:
- * - Accrued salary up to current date based on calculationDate and salaryType (Monthly, Daily, Weekly)
+ * - Accrued salary up to current date based on calculationDate, salaryType (Monthly, Daily, Weekly),
+ *   and staff attendance records.
+ * - Attendance impact on salary / due:
+ *   * PRESENT: full day salary accrued (1.0 day).
+ *   * No attendance (unmarked): full day salary accrued (1.0 day).
+ *   * ABSENT: 0 salary accrued for that day (deduct 1.0 day).
+ *   * LEAVE: 0 salary accrued for that day (deduct 1.0 day).
+ *   * HALF_DAY: half day salary accrued (deduct 0.5 day).
  * - Due Payment Left (when payment given < accrued salary)
  * - Advance Payment (when payment given > accrued salary)
  */
@@ -24,7 +31,60 @@ export interface StaffFinancials {
   advance: number;
   netBalance: number; // positive = amount owed to staff (due), negative = excess given (advance)
   primarySalary: StaffSalaryEntityLike | null;
+  elapsedDays?: number;
+  effectiveDays?: number;
+  absentDays?: number;
+  leaveDays?: number;
+  halfDays?: number;
+  deductedDays?: number;
 }
+
+export interface AccrualBreakdown {
+  accrued: number;
+  elapsedDays: number;
+  effectiveDays: number;
+  absentDays: number;
+  leaveDays: number;
+  halfDays: number;
+  deductedDays: number;
+}
+
+/**
+ * Normalizes any string, Date, or timestamp into 'YYYY-MM-DD' calendar date
+ */
+export const toCalendarDateString = (val: any): string | null => {
+  if (!val) return null;
+  if (typeof val === 'string') {
+    const match = val.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+    if (match) {
+      const y = match[1];
+      const m = match[2].padStart(2, '0');
+      const d = match[3].padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+  }
+  const d = new Date(val);
+  if (isNaN(d.getTime())) return null;
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+};
+
+/**
+ * Normalizes attendance status string to standard enum
+ */
+export const normalizeAttendanceStatus = (
+  status?: string | null
+): 'PRESENT' | 'HALF_DAY' | 'ABSENT' | 'LEAVE' | null => {
+  if (!status) return null;
+  const s = String(status).trim().toUpperCase().replace(/[-\s]/g, '_');
+  if (s === 'PRESENT') return 'PRESENT';
+  if (s === 'HALF_DAY' || s === 'HALFDAY') return 'HALF_DAY';
+  if (s === 'ABSENT') return 'ABSENT';
+  if (s === 'LEAVE') return 'LEAVE';
+  return null;
+};
 
 /**
  * Extracts salaries array from different backend/frontend response shapes
@@ -60,68 +120,173 @@ export const getPrimarySalary = (staff: any): StaffSalaryEntityLike | null => {
 };
 
 /**
- * Computes accrued salary to date based on calculation date and payment type
+ * Computes accrued salary with detailed breakdown of days and deductions based on attendance
  */
-export const calculateAccruedSalary = (staff: any): number => {
+export const calculateAccruedSalaryWithDetails = (
+  staff: any,
+  attendances?: any[]
+): AccrualBreakdown => {
+  const fallback: AccrualBreakdown = {
+    accrued: 0,
+    elapsedDays: 0,
+    effectiveDays: 0,
+    absentDays: 0,
+    leaveDays: 0,
+    halfDays: 0,
+    deductedDays: 0,
+  };
+
   const salary = getPrimarySalary(staff);
-  if (!salary) return 0;
+  if (!salary) return fallback;
 
   const rawAmount = Number(salary.amount);
-  if (isNaN(rawAmount) || rawAmount <= 0) return 0;
+  if (isNaN(rawAmount) || rawAmount <= 0) return fallback;
 
-  const dateValue = salary.calculationDate || salary.selectedDate;
-  if (!dateValue) return 0;
+  const dateValue =
+    salary.calculationDate ||
+    salary.selectedDate ||
+    staff?.calculationDate ||
+    staff?.selectedDate;
+  if (!dateValue) return fallback;
 
-  const rawDateString = String(dateValue).split('T')[0];
-  const dateParts = rawDateString.split('-');
-  if (dateParts.length !== 3) return 0;
+  const startDateStr = toCalendarDateString(dateValue);
+  if (!startDateStr) return fallback;
 
-  const startYear = parseInt(dateParts[0], 10);
-  const startMonth = parseInt(dateParts[1], 10) - 1;
-  const startDay = parseInt(dateParts[2], 10);
-
-  if (isNaN(startYear) || startYear < 2000 || isNaN(startMonth) || isNaN(startDay)) {
-    return 0;
-  }
-
-  const startUtc = Date.UTC(startYear, startMonth, startDay);
   const now = new Date();
-  const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const todayDateStr = toCalendarDateString(now);
+  if (!todayDateStr || todayDateStr < startDateStr) return fallback;
 
-  if (todayUtc < startUtc) {
-    return 0;
+  const [startYear, startMonth, startDay] = startDateStr.split('-').map((v) => parseInt(v, 10));
+  if (isNaN(startYear) || startYear < 2000 || isNaN(startMonth) || isNaN(startDay)) {
+    return fallback;
   }
+
+  const startUtc = Date.UTC(startYear, startMonth - 1, startDay);
+  const todayUtc = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
 
   const diffInMs = todayUtc - startUtc;
   const elapsedDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24)) + 1;
-  if (elapsedDays < 1) return 0;
+  if (elapsedDays < 1) return fallback;
 
+  // 1. Gather all attendance records for this staff member
+  const staffId = staff?.id;
+  const allAttendances: any[] = [];
+
+  if (Array.isArray(attendances)) {
+    for (const a of attendances) {
+      if (!staffId || a.staffId === staffId || a.staff?.id === staffId || a.staffId == null) {
+        allAttendances.push(a);
+      }
+    }
+  }
+
+  // Also include any nested attendance records on the staff object itself
+  const nested =
+    staff?.attendanceResponses ||
+    staff?.staffAttendanceEntities ||
+    staff?.attendances ||
+    staff?.attendanceList ||
+    staff?.attendanceRecords ||
+    [];
+
+  if (Array.isArray(nested)) {
+    allAttendances.push(...nested);
+  }
+
+  // 2. Map attendance statuses by calendar day (YYYY-MM-DD)
+  // If duplicate records exist for the same day, the latest entry takes precedence
+  const dayStatusMap = new Map<string, 'PRESENT' | 'HALF_DAY' | 'ABSENT' | 'LEAVE'>();
+  for (const a of allAttendances) {
+    const dStr = toCalendarDateString(a.date || a.attendanceDate);
+    const status = normalizeAttendanceStatus(a.status);
+    if (dStr && status) {
+      dayStatusMap.set(dStr, status);
+    }
+  }
+
+  // 3. Count deductions for days falling within [startDateStr, todayDateStr]:
+  // - ABSENT: deduct 1.0 day
+  // - LEAVE: deduct 1.0 day
+  // - HALF_DAY: deduct 0.5 day
+  // - PRESENT: deduct 0.0 day
+  // - Unmarked / No attendance: deduct 0.0 day (default full day)
+  let totalDeductedDays = 0;
+  let absentCount = 0;
+  let leaveCount = 0;
+  let halfDayCount = 0;
+
+  for (const [dateKey, status] of dayStatusMap.entries()) {
+    if (dateKey >= startDateStr && dateKey <= todayDateStr) {
+      if (status === 'ABSENT') {
+        totalDeductedDays += 1.0;
+        absentCount++;
+      } else if (status === 'LEAVE') {
+        totalDeductedDays += 1.0;
+        leaveCount++;
+      } else if (status === 'HALF_DAY') {
+        totalDeductedDays += 0.5;
+        halfDayCount++;
+      }
+    }
+  }
+
+  // Effective days worked since calculation date
+  const effectiveDays = Math.max(0, elapsedDays - totalDeductedDays);
+
+  let accrued = 0;
   const type = (salary.salaryType || '').toLowerCase();
 
   switch (type) {
     case 'monthly': {
-      const daysInMonth = new Date(startYear, startMonth + 1, 0).getDate();
-      if (!daysInMonth || daysInMonth <= 0) return 0;
+      // Days in start month
+      const daysInMonth = new Date(startYear, startMonth, 0).getDate();
+      if (!daysInMonth || daysInMonth <= 0) return fallback;
       const dailySalary = rawAmount / daysInMonth;
-      return Math.round(dailySalary * elapsedDays);
+      accrued = Math.round(dailySalary * effectiveDays);
+      break;
     }
     case 'daily': {
-      return Math.round(rawAmount * elapsedDays);
+      accrued = Math.round(rawAmount * effectiveDays);
+      break;
     }
     case 'weekly': {
       const dailySalary = rawAmount / 7;
-      return Math.round(dailySalary * elapsedDays);
+      accrued = Math.round(dailySalary * effectiveDays);
+      break;
     }
     default:
-      return 0;
+      accrued = 0;
   }
+
+  return {
+    accrued,
+    elapsedDays,
+    effectiveDays,
+    absentDays: absentCount,
+    leaveDays: leaveCount,
+    halfDays: halfDayCount,
+    deductedDays: totalDeductedDays,
+  };
 };
 
 /**
- * Calculates due left or advance amount given a staff member and their total payments given
+ * Computes accrued salary to date based on calculation date, salary type, and attendance records
  */
-export const calculateStaffFinancials = (staff: any, paymentGiven: number = 0): StaffFinancials => {
-  const accrued = calculateAccruedSalary(staff);
+export const calculateAccruedSalary = (staff: any, attendances?: any[]): number => {
+  return calculateAccruedSalaryWithDetails(staff, attendances).accrued;
+};
+
+/**
+ * Calculates due left or advance amount given a staff member, their total payments given,
+ * and their attendance history.
+ */
+export const calculateStaffFinancials = (
+  staff: any,
+  paymentGiven: number = 0,
+  attendances?: any[]
+): StaffFinancials => {
+  const breakdown = calculateAccruedSalaryWithDetails(staff, attendances);
+  const accrued = breakdown.accrued;
   const paid = Math.max(0, paymentGiven || 0);
   const primarySalary = getPrimarySalary(staff);
 
@@ -146,5 +311,11 @@ export const calculateStaffFinancials = (staff: any, paymentGiven: number = 0): 
     advance,
     netBalance: accrued - paid,
     primarySalary,
+    elapsedDays: breakdown.elapsedDays,
+    effectiveDays: breakdown.effectiveDays,
+    absentDays: breakdown.absentDays,
+    leaveDays: breakdown.leaveDays,
+    halfDays: breakdown.halfDays,
+    deductedDays: breakdown.deductedDays,
   };
 };
