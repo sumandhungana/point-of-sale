@@ -182,7 +182,7 @@ export const YouReceived: React.FC<YouReceivedSupplierProps> = ({ supplierId, on
                     ) : (
                         <>
                             <i className="bi bi-arrow-down-circle me-1"></i>
-                            Confirm You Received
+                            Confirm Payable Amount
                         </>
                     )}
                 </button>

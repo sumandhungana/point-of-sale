@@ -113,9 +113,9 @@ export const getAllSalesBill = async (): Promise<GetAllSalesBillResponse[]> => {
 };
 
 // Fetch Single Sales Bill by ID
-export const getSingleSalesBill = async (id: number): Promise<GetSingleSalesBillResponse> => {
+export const getSingleSalesBill = async (billNumber: string): Promise<GetSingleSalesBillResponse> => {
   const res = await apiService.get<RestResponse<GetSingleSalesBillResponse>>(
-    `api/v1/sales-bill?id=${id}`,
+    `api/v1/sales-bill?billNumber=${billNumber}`,
     {
       headers: {
         ...getAuthHeaders()

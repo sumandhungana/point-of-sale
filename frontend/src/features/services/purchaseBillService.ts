@@ -41,6 +41,8 @@ export interface AddPurchaseBillResponse {
 export interface GetAllPurchaseBillResponse {
     id?: number;
     purchaseNo?: string;
+    supplierId?: number;
+    supplierName?: string;
     date?: string;
     amount?: number;
     paymentMode?: string;
@@ -61,6 +63,8 @@ export interface GetAllPurchaseBillResponse {
 export interface GetSinglePurchaseBillResponse {
     id?: number;
     purchaseNo?: string;
+    supplierId?: number;
+    supplierName?: string;
     date?: string;
     amount?: number;
     paymentMode?: string;
@@ -74,6 +78,8 @@ export interface GetSinglePurchaseBillResponse {
         name?: string;
         imageUrl?: string;
     };
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export const fetchPurchaseBillNumber = async (): Promise<PurchaseBillNumber> => {
@@ -113,9 +119,9 @@ export const fetchPurchases = async (): Promise<GetAllPurchaseBillResponse[]> =>
     return res?.response?.data ?? [];
 };
 
-export const getSinglePurchaseBill = async (id: number): Promise<GetSinglePurchaseBillResponse> => {
+export const getSinglePurchaseBill = async (purchaseNo: string): Promise<GetSinglePurchaseBillResponse> => {
     const res = await apiService.get<RestResponse<GetSinglePurchaseBillResponse>>(
-        `api/v1/purchase-bill?id=${id}`,
+        `api/v1/purchase-bill?purchaseNo=${purchaseNo}`,
         {
             headers: {
                 ...getAuthHeaders()

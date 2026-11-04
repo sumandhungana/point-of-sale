@@ -272,7 +272,7 @@ export const SupplierStatementsReport = () => {
                             <select value={filterOption} onChange={(e) => setFilterOption(e.target.value)} className="customer-statements-report-dropdown">
                                 <option value="all">Filter: All</option>
                                 <option value="gave">Filter: You Gave</option>
-                                <option value="received">Filter: You Received</option>
+                                <option value="received">Filter: Payable Amount</option>
                             </select>
                         </div>
 

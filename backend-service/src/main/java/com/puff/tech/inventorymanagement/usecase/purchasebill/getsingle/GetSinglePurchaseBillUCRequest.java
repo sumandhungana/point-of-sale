@@ -5,6 +5,6 @@ import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
 public record GetSinglePurchaseBillUCRequest(
-        Integer id
+        String purchaseNo
 ) implements UCRequest  {
 }

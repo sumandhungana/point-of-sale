@@ -6,7 +6,6 @@ import {
   fetchPurchases,
   GetAllPurchaseBillResponse,
   getSinglePurchaseBill,
-  GetSinglePurchaseBillResponse
 } from '../../services/purchaseBillService';
 import { InvoiceModal, InvoiceModalData } from '../components/InvoiceModal';
 import { ReportPdfModal, ReportModalData } from '../components/ReportPdfModal';
@@ -16,7 +15,6 @@ import { useAppSettings } from '@/context/AppSettingsContext';
 import { usePermission } from '@/core/rbac/usePermission';
 import '../../../styles/Sales.css';
 import '../../../styles/Purchase.css';
-
 
 export const Purchase = () => {
   const navigate = useNavigate();
@@ -38,7 +36,7 @@ export const Purchase = () => {
   const [sortBy, setSortBy] = useState('newest');
 
   // Single Purchase View Modal State
-  const [viewingPurchase, setViewingPurchase] = useState<GetSinglePurchaseBillResponse | null>(null);
+  const [viewingPurchase, setViewingPurchase] = useState<any | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isSingleLoading, setIsSingleLoading] = useState(false);
 
@@ -52,7 +50,7 @@ export const Purchase = () => {
 
   useEffect(() => {
     if (canViewAll) {
-      fetchPurchasesList();
+      void fetchPurchasesList();
     } else {
       setLoading(false);
     }
@@ -73,11 +71,13 @@ export const Purchase = () => {
 
   const filteredPurchases = purchases
       .filter((purchase) => {
+        const query = searchQuery.toLowerCase();
         const matchesSearch =
-            (purchase.purchaseNo ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (purchase.category?.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (purchase.item?.name ?? '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-            (purchase.paymentMode ?? '').toLowerCase().includes(searchQuery.toLowerCase());
+            (purchase.purchaseNo ?? '').toLowerCase().includes(query) ||
+            (purchase.supplierName ?? '').toLowerCase().includes(query) ||
+            (purchase.category?.name ?? '').toLowerCase().includes(query) ||
+            (purchase.item?.name ?? '').toLowerCase().includes(query) ||
+            (purchase.paymentMode ?? '').toLowerCase().includes(query);
 
         const matchesPayment = filterBy
             ? (purchase.paymentMode ?? '').toLowerCase() === filterBy.toLowerCase()
@@ -98,13 +98,13 @@ export const Purchase = () => {
           return (a.amount ?? 0) - (b.amount ?? 0);
         }
         if (sortBy === 'name_asc') {
-          const nameA = a.item?.name || a.category?.name || '';
-          const nameB = b.item?.name || b.category?.name || '';
+          const nameA = a.supplierName || a.item?.name || '';
+          const nameB = b.supplierName || b.item?.name || '';
           return nameA.localeCompare(nameB);
         }
         if (sortBy === 'name_desc') {
-          const nameA = a.item?.name || a.category?.name || '';
-          const nameB = b.item?.name || b.category?.name || '';
+          const nameA = a.supplierName || a.item?.name || '';
+          const nameB = b.supplierName || b.item?.name || '';
           return nameB.localeCompare(nameA);
         }
         // Default: newest first
@@ -113,7 +113,7 @@ export const Purchase = () => {
         return dateB - dateA;
       });
 
-  const handleEditPurchase = (purchase: GetAllPurchaseBillResponse | GetSinglePurchaseBillResponse) => {
+  const handleEditPurchase = (purchase: any) => {
     if (!hasEditAccess) return;
     setIsViewModalOpen(false);
     navigate('/bills/purchase/add', { state: { purchase } });
@@ -123,15 +123,18 @@ export const Purchase = () => {
     if (!canViewSingle) return;
 
     // Fast preview while single API loads
-    const initialViewData: GetSinglePurchaseBillResponse = {
+    const initialViewData: any = {
       id: purchase.id,
       purchaseNo: purchase.purchaseNo,
+      supplierId: purchase.supplierId,
+      supplierName: purchase.supplierName,
       date: purchase.date,
       amount: purchase.amount,
       paymentMode: purchase.paymentMode,
       paymentStatus: purchase.paymentStatus,
       remarks: purchase.remarks,
       photoPath: purchase.photoPath,
+      items: [purchase],
       item: purchase.item,
       category: purchase.category,
     };
@@ -139,12 +142,22 @@ export const Purchase = () => {
     setViewingPurchase(initialViewData);
     setIsViewModalOpen(true);
 
-    if (purchase.id && purchase.id > 0) {
+    // FIXED: Fetch using purchaseNo string instead of numeric id
+    if (purchase.purchaseNo) {
       setIsSingleLoading(true);
       try {
-        const fullData = await getSinglePurchaseBill(purchase.id);
+        const fullData: any = await getSinglePurchaseBill(purchase.purchaseNo);
         if (fullData) {
-          setViewingPurchase(fullData);
+          const itemsList = Array.isArray(fullData) ? fullData : (fullData.items || [fullData]);
+          const totalSum = itemsList.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+
+          setViewingPurchase({
+            ...initialViewData,
+            items: itemsList,
+            amount: totalSum,
+            item: itemsList[0]?.item || itemsList[0],
+            category: itemsList[0]?.category,
+          });
         }
       } catch (err) {
         console.warn('Could not fetch single purchase bill from API, using cached data:', err);
@@ -156,7 +169,7 @@ export const Purchase = () => {
 
   const handlePurchaseClick = (purchase: GetAllPurchaseBillResponse) => {
     if (canViewSingle) {
-      handleViewPurchase(purchase);
+      void handleViewPurchase(purchase);
     } else if (hasEditAccess) {
       handleEditPurchase(purchase);
     }
@@ -166,25 +179,27 @@ export const Purchase = () => {
     navigate('/bills/purchase/add');
   };
 
-  const formatPurchaseForInvoice = (purchase: GetAllPurchaseBillResponse | GetSinglePurchaseBillResponse): InvoiceModalData => {
-    const amount = purchase.amount ?? 0;
+  const formatPurchaseForInvoice = (purchase: any): InvoiceModalData => {
+    const itemsList = Array.isArray(purchase.items) ? purchase.items : [purchase];
+    const amount = purchase.amount ?? itemsList.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+    const supplierName = purchase.supplierName || (purchase.category?.name ? `${purchase.category.name} Vendor` : 'Walk-In Supplier');
+
     return {
       type: 'PURCHASE',
       invoiceNumber: purchase.purchaseNo || 'PUR-N/A',
-      date: purchase.date || (purchase as any).createdAt || new Date().toISOString(),
-      partyName: purchase.category?.name ? `${purchase.category.name} Vendor` : 'Supplier / Vendor',
-      partyType: 'Registered Supplier',
+      date: purchase.date || purchase.createdAt || new Date().toISOString(),
+      partyName: supplierName,
+      partyType: 'Supplier',
       paymentMode: purchase.paymentMode || 'CASH',
       remarks: purchase.remarks,
-      items: [
-        {
-          name: purchase.item?.name || 'Inventory Product',
-          category: purchase.category?.name || 'General',
-          quantity: 1,
-          unitPrice: amount,
-          totalAmount: amount,
-        },
-      ],
+      items: itemsList.map((i: any, idx: number) => ({
+        id: i.id || idx,
+        name: i.item?.name || i.productName || 'Inventory Product',
+        category: i.category?.name || 'General',
+        quantity: i.quantity || 1,
+        unitPrice: i.unitPrice || i.amount || 0,
+        totalAmount: i.amount ?? 0,
+      })),
       subtotal: amount,
       grandTotal: amount,
     };
@@ -202,12 +217,12 @@ export const Purchase = () => {
     printInvoiceDirectly(invData);
   };
 
-  const handlePrintFromModal = (p: GetSinglePurchaseBillResponse) => {
+  const handlePrintFromModal = (p: any) => {
     const invData = formatPurchaseForInvoice(p);
     printInvoiceDirectly(invData);
   };
 
-  const handleDownloadPdfFromModal = (p: GetSinglePurchaseBillResponse) => {
+  const handleDownloadPdfFromModal = (p: any) => {
     const invData = formatPurchaseForInvoice(p);
     setSelectedInvoice(invData);
     setAutoDownloadInvoice(true);
@@ -219,8 +234,8 @@ export const Purchase = () => {
       id: p.id ?? Math.random(),
       number: p.purchaseNo ?? 'N/A',
       date: p.date ?? '',
-      party: p.category?.name ? `${p.category.name} Vendor` : 'Supplier',
-      itemsSummary: `${p.item?.name ?? 'Item'} (${p.category?.name ?? 'General'})`,
+      party: p.supplierName || (p.category?.name ? `${p.category.name} Vendor` : 'Supplier'),
+      itemsSummary: `${p.item?.name ?? 'Item'}${p.category?.name ? ` (${p.category.name})` : ''}`,
       paymentMode: p.paymentMode ?? 'CASH',
       amount: p.amount ?? 0,
     }));
@@ -263,7 +278,6 @@ export const Purchase = () => {
           <Navbar />
 
           <div className="user-management-content">
-            {/* Top Page Header - Clean Add Purchase Bill Style */}
             <div className="purchase-bill-page-header">
               <div className="purchase-bill-header-info">
                 <div className="purchase-bill-header-icon">
@@ -273,28 +287,17 @@ export const Purchase = () => {
                   <h1 className="purchase-bill-header-title">Purchase Bills</h1>
                 </div>
               </div>
-
-              {/*<div className="purchase-bill-header-actions">*/}
-              {/*  <button*/}
-              {/*    type="button"*/}
-              {/*    className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"*/}
-              {/*    onClick={() => navigate('/bills/purchase/add')}*/}
-              {/*  >*/}
-              {/*    <i className="bi bi-plus-lg" />*/}
-              {/*    <span>Add Purchase Bill</span>*/}
-              {/*  </button>*/}
-              {/*</div>*/}
             </div>
 
             {/* Stats Summary Cards */}
             <div className="role-stats-grid">
               <div className="stat-card">
-                <div className="stat-icon-box red">
+                <div className="stat-icon-box blue">
                   <i className="bi bi-wallet2"></i>
                 </div>
                 <div>
                   <div className="stat-label">Total Spend</div>
-                  <div className="stat-value" style={{ color: '#dc2626' }}>
+                  <div className="stat-value" style={{ color: '#255DCE' }}>
                     Rs. {formatNumber(totalPurchases)}
                   </div>
                 </div>
@@ -313,12 +316,12 @@ export const Purchase = () => {
               </div>
 
               <div className="stat-card">
-                <div className="stat-icon-box red">
+                <div className="stat-icon-box green">
                   <i className="bi bi-cash-stack"></i>
                 </div>
                 <div>
                   <div className="stat-label">Cash Purchases</div>
-                  <div className="stat-value" style={{ color: '#dc2626' }}>
+                  <div className="stat-value" style={{ color: '#16a34a' }}>
                     Rs. {formatNumber(cashPurchases)}
                   </div>
                 </div>
@@ -329,37 +332,37 @@ export const Purchase = () => {
             <div className="sales-filter-card">
               <div className="sales-search-section">
                 <button
-                  type="button"
-                  className="toolbar-btn staff-btn"
-                  onClick={() => {
-                    setFilterBy('');
-                    setSearchQuery('');
-                    setSortBy('newest');
-                  }}
-                  title="Click to reset filters and view all purchase bills"
+                    type="button"
+                    className="toolbar-btn staff-btn"
+                    onClick={() => {
+                      setFilterBy('');
+                      setSearchQuery('');
+                      setSortBy('newest');
+                    }}
+                    title="Click to reset filters and view all purchase bills"
                 >
-                  <i className="bi bi-bag-check"></i>
-                   Invoices ({purchases.length})
+                  <i className="bi bi-receipt"></i>
+                  Invoices ({purchases.length})
                 </button>
 
                 <div className="sales-search-input-wrapper">
                   <i className="bi bi-search search-icon"></i>
                   <input
-                    type="text"
-                    placeholder="Search by purchase no, item, category, or mode..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="sales-search-input"
+                      type="text"
+                      placeholder="Search by purchase #, supplier name, item..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="sales-search-input"
                   />
                   {searchQuery && (
-                    <button
-                      type="button"
-                      className="search-clear-btn"
-                      onClick={() => setSearchQuery('')}
-                      title="Clear search"
-                    >
-                      <i className="bi bi-x-circle-fill"></i>
-                    </button>
+                      <button
+                          type="button"
+                          className="search-clear-btn"
+                          onClick={() => setSearchQuery('')}
+                          title="Clear search"
+                      >
+                        <i className="bi bi-x-circle-fill"></i>
+                      </button>
                   )}
                 </div>
               </div>
@@ -368,27 +371,27 @@ export const Purchase = () => {
                 <div className="toolbar-select-wrap">
                   <i className="bi bi-sort-down"></i>
                   <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="toolbar-select"
-                    title="Sort purchase bills"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="toolbar-select"
+                      title="Sort purchase bills"
                   >
                     <option value="newest">Sort (Newest)</option>
                     <option value="oldest">Oldest First</option>
                     <option value="amount_desc">Amount: High to Low</option>
                     <option value="amount_asc">Amount: Low to High</option>
-                    <option value="name_asc">Item: A-Z</option>
-                    <option value="name_desc">Item: Z-A</option>
+                    <option value="name_asc">Supplier: A-Z</option>
+                    <option value="name_desc">Supplier: Z-A</option>
                   </select>
                 </div>
 
                 <div className="toolbar-select-wrap">
                   <i className="bi bi-funnel"></i>
                   <select
-                    value={filterBy}
-                    onChange={(e) => setFilterBy(e.target.value)}
-                    className="toolbar-select"
-                    title="Filter purchase bills"
+                      value={filterBy}
+                      onChange={(e) => setFilterBy(e.target.value)}
+                      className="toolbar-select"
+                      title="Filter purchase bills"
                   >
                     <option value="">Filter (All)</option>
                     <option value="cash">Cash ({cashCount})</option>
@@ -400,10 +403,10 @@ export const Purchase = () => {
                 </div>
 
                 <button
-                  type="button"
-                  className="btn-export-pdf"
-                  onClick={handleExportReportPDF}
-                  title="Export PDF Report"
+                    type="button"
+                    className="btn-export-pdf"
+                    onClick={handleExportReportPDF}
+                    title="Export PDF Report"
                 >
                   <i className="bi bi-file-earmark-arrow-down me-1"></i>
                   <span>Export PDF</span>
@@ -427,10 +430,10 @@ export const Purchase = () => {
                   <div className="empty-container p-4 text-center text-muted">No purchase bills found.</div>
               ) : (
                   filteredPurchases.map((purchase) => {
-                    const categoryName = purchase.category?.name || 'General';
+                    const supplierName = purchase.supplierName || 'Walk-In Supplier';
                     const itemName = purchase.item?.name || 'Item';
-                    const initials = categoryName
-                        ? categoryName
+                    const initials = supplierName
+                        ? supplierName
                             .split(' ')
                             .map((w) => w[0])
                             .join('')
@@ -441,45 +444,58 @@ export const Purchase = () => {
                     return (
                         <div
                             className="role-item-card clickable-card"
-                            key={purchase?.id ?? Math.random()}
+                            key={purchase?.id ?? purchase.purchaseNo ?? Math.random()}
                             onClick={() => handlePurchaseClick(purchase)}
                         >
-                          {/* Avatar Badge */}
-                          <div className="role-avatar">{initials}</div>
+                          {purchase.item?.imageUrl ? (
+                              <img
+                                  src={purchase.item.imageUrl}
+                                  alt={itemName}
+                                  className="role-avatar"
+                                  style={{ objectFit: 'cover' }}
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = 'none';
+                                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                                    if (fallback) fallback.style.display = 'flex';
+                                  }}
+                              />
+                          ) : null}
+                          <div
+                              className="role-avatar"
+                              style={{ display: purchase.item?.imageUrl ? 'none' : 'flex' }}
+                          >
+                            {initials}
+                          </div>
 
-                          {/* Main Purchase Information */}
                           <div className="role-main-details">
                             <div className="role-title-row">
                               <span className="role-card-name">{purchase.purchaseNo || 'PUR-N/A'}</span>
-                              <span className="badge-role">{(purchase.paymentMode || 'CASH').toUpperCase()}</span>
+                              <span className="sales-item-box" title={itemName}>
+                                <i className="bi bi-box-seam me-1"></i>
+                                {itemName}
+                              </span>
                             </div>
 
-                            <div className="role-sub-text">
-                              <span>Item: <strong>{itemName}</strong></span>
-                              <span>•</span>
-                              <span>Category: {categoryName}</span>
-                              {purchase.remarks && (
-                                  <>
-                                    <span>•</span>
-                                    <span>Remarks: {purchase.remarks}</span>
-                                  </>
-                              )}
+                            <div className="sales-customer-payment-row">
+                              <span className="sales-customer-box" title={supplierName}>
+                                <i className="bi bi-truck me-1"></i>
+                                {supplierName}
+                              </span>
+                              <span className="sales-payment-mode-box">
+                                {(purchase.paymentMode || 'CASH').toUpperCase()}
+                              </span>
                             </div>
+
+                            {purchase.remarks && (
+                                <div className="sales-notes-row">
+                                  <i className="bi bi-chat-left-text me-1"></i>
+                                  <span>Notes: {purchase.remarks}</span>
+                                </div>
+                            )}
                           </div>
 
-                          {/* Right-aligned Section: Actions before User & Date before Amount */}
                           <div className="role-card-right d-flex align-items-center gap-3">
                             <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                              {/*{canViewSingle && (*/}
-                              {/*  <button*/}
-                              {/*      type="button"*/}
-                              {/*      className="btn-row-action"*/}
-                              {/*      title="View Purchase Details"*/}
-                              {/*      onClick={() => handleViewPurchase(purchase)}*/}
-                              {/*  >*/}
-                              {/*    <i className="bi bi-eye"></i> View*/}
-                              {/*  </button>*/}
-                              {/*)}*/}
                               <button
                                   type="button"
                                   className="btn-row-action pdf"
@@ -500,7 +516,7 @@ export const Purchase = () => {
 
                             <div className="vertical-divider"></div>
 
-                            <div className="sales-amount-tag" style={{ color: '#dc2626', fontWeight: 'bold', fontSize: '16px' }}>
+                            <div className="sales-amount-tag" style={{ color: '#255DCE', fontWeight: 'bold', fontSize: '16px' }}>
                               Rs. {formatNumber(purchase.amount ?? 0)}
                             </div>
                           </div>
@@ -512,20 +528,18 @@ export const Purchase = () => {
           </div>
         </div>
 
-        {/* Sticky Bottom-Right + New Purchase Button (permission-checked) */}
         {canAdd && (
-          <button
-              type="button"
-              className="sales-add-sticky-button"
-              onClick={handleAddBill}
-              title="New Purchase Bill"
-          >
+            <button
+                type="button"
+                className="sales-add-sticky-button"
+                onClick={handleAddBill}
+                title="New Purchase Bill"
+            >
               <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
               <span>New Purchase</span>
-          </button>
+            </button>
         )}
 
-        {/* View Single Purchase Bill Modal */}
         <ViewPurchaseBillModal
             isOpen={isViewModalOpen}
             onClose={() => setIsViewModalOpen(false)}
@@ -537,7 +551,6 @@ export const Purchase = () => {
             canEdit={hasEditAccess}
         />
 
-        {/* Invoice PDF & Print Modal */}
         <InvoiceModal
             isOpen={isInvoiceModalOpen}
             onClose={() => setIsInvoiceModalOpen(false)}
@@ -545,7 +558,6 @@ export const Purchase = () => {
             autoDownload={autoDownloadInvoice}
         />
 
-        {/* Purchase List Summary Report PDF Modal */}
         <ReportPdfModal
             isOpen={isReportModalOpen}
             onClose={() => setIsReportModalOpen(false)}

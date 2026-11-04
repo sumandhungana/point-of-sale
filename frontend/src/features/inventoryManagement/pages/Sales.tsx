@@ -50,7 +50,7 @@ export const Sales: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('newest');
 
   // Single Bill View Modal State
-  const [viewingBill, setViewingBill] = useState<GetSingleSalesBillResponse | null>(null);
+  const [viewingBill, setViewingBill] = useState<any | null>(null);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isSingleLoading, setIsSingleLoading] = useState(false);
 
@@ -89,8 +89,7 @@ export const Sales: React.FC = () => {
 
     salesBills.forEach((item) => {
       const key = item.billNumber || `ID-${item.id}`;
-      // Fallback to item.amount if item.billAmount is undefined
-      const itemAmount = item.amount ?? item.amount ?? 0;
+      const itemAmount = item.amount ?? 0;
 
       if (!groups[key]) {
         groups[key] = {
@@ -174,14 +173,14 @@ export const Sales: React.FC = () => {
       photoPath: null,
       customer: {
         customerId: isSingle
-          ? ((groupedBill as GetSingleSalesBillResponse).customerId || 0)
-          : ((groupedBill as GroupedSalesBill).items[0]?.customerId || 0),
+            ? ((groupedBill as GetSingleSalesBillResponse).customerId || 0)
+            : ((groupedBill as GroupedSalesBill).items[0]?.customerId || 0),
         name: isSingle
-          ? ((groupedBill as GetSingleSalesBillResponse).customerName || 'Walk-in Customer')
-          : (groupedBill as GroupedSalesBill).customerName,
+            ? ((groupedBill as GetSingleSalesBillResponse).customerName || 'Walk-in Customer')
+            : (groupedBill as GroupedSalesBill).customerName,
       },
       items: isSingle
-        ? [
+          ? [
             {
               itemId: (groupedBill as GetSingleSalesBillResponse).productId || 0,
               name: (groupedBill as GetSingleSalesBillResponse).productName || 'Product Item',
@@ -196,7 +195,7 @@ export const Sales: React.FC = () => {
               totalPrice: (groupedBill as GetSingleSalesBillResponse).amount || 0,
             },
           ]
-        : (groupedBill as GroupedSalesBill).items.map((i) => ({
+          : (groupedBill as GroupedSalesBill).items.map((i) => ({
             itemId: i.productId || 0,
             name: i.productName || 'Product Item',
             unit: 'pcs',
@@ -220,37 +219,48 @@ export const Sales: React.FC = () => {
 
     // Fast preview while single API loads
     const firstItem = groupedBill.items[0];
-    const initialViewData: GetSingleSalesBillResponse = {
+    const initialViewData = {
       id: groupedBill.id,
       billNumber: groupedBill.billNumber,
       billDate: groupedBill.billDate,
       customerId: firstItem?.customerId,
       customerName: groupedBill.customerName,
-      productId: firstItem?.productId,
-      productName: groupedBill.productNames.join(', ') || firstItem?.productName,
-      quantity: firstItem?.quantity || 1,
-      unitPrice: firstItem?.unitPrice || 0,
-      taxPercentage: firstItem?.taxPercentage || 0,
-      vatPercentage: firstItem?.vatPercentage || 0,
-      taxAmount: firstItem?.taxAmount || 0,
-      vatAmount: firstItem?.vatAmount || 0,
-      amount: groupedBill.totalAmount,
       paymentMode: groupedBill.paymentMode,
       paymentStatus: firstItem?.paymentStatus || 'PAID',
       remarks: groupedBill.remarks,
       createdAt: groupedBill.createdAt,
       createdBy: groupedBill.createdBy,
+      items: groupedBill.items,
+      amount: groupedBill.totalAmount,
     };
 
     setViewingBill(initialViewData);
     setIsViewModalOpen(true);
 
-    if (groupedBill.id && groupedBill.id > 0) {
+    if (groupedBill.billNumber) {
       setIsSingleLoading(true);
       try {
-        const fullDetails = await getSingleSalesBill(groupedBill.id);
+        const fullDetails: any = await getSingleSalesBill(groupedBill.billNumber);
         if (fullDetails) {
-          setViewingBill(fullDetails);
+          if (Array.isArray(fullDetails)) {
+            const totalSum = fullDetails.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+            setViewingBill({
+              ...initialViewData,
+              items: fullDetails,
+              amount: totalSum,
+              // Fallback fields from first item if needed by modal
+              productId: fullDetails[0]?.productId,
+              productName: fullDetails.map((i: any) => i.productName).join(', '),
+              quantity: fullDetails.reduce((sum: number, i: any) => sum + (i.quantity || 0), 0),
+              unitPrice: fullDetails[0]?.unitPrice,
+              taxPercentage: fullDetails[0]?.taxPercentage,
+              vatPercentage: fullDetails[0]?.vatPercentage,
+              taxAmount: fullDetails.reduce((sum: number, i: any) => sum + (i.taxAmount || 0), 0),
+              vatAmount: fullDetails.reduce((sum: number, i: any) => sum + (i.vatAmount || 0), 0),
+            });
+          } else {
+            setViewingBill(fullDetails);
+          }
         }
       } catch (err) {
         console.warn('Could not fetch single sales bill from API, using cached data:', err);
@@ -298,8 +308,10 @@ export const Sales: React.FC = () => {
     };
   };
 
-  const formatSingleSalesForInvoice = (b: GetSingleSalesBillResponse): InvoiceModalData => {
-    const total = b.amount ?? 0;
+  const formatSingleSalesForInvoice = (b: any): InvoiceModalData => {
+    const itemsList = Array.isArray(b.items) ? b.items : [b];
+    const total = b.amount ?? itemsList.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+
     return {
       type: 'SALES',
       invoiceNumber: b.billNumber || 'BILL-N/A',
@@ -308,18 +320,17 @@ export const Sales: React.FC = () => {
       partyType: 'Customer',
       paymentMode: b.paymentMode || 'CASH',
       remarks: b.remarks,
-      items: [
-        {
-          name: b.productName || 'Product Item',
-          quantity: b.quantity || 1,
-          unitPrice: b.unitPrice || total,
-          taxPercentage: b.taxPercentage,
-          vatPercentage: b.vatPercentage,
-          taxAmount: b.taxAmount,
-          vatAmount: b.vatAmount,
-          totalAmount: total,
-        },
-      ],
+      items: itemsList.map((i: any, idx: number) => ({
+        id: i.id || idx,
+        name: i.productName || 'Product Item',
+        quantity: i.quantity || 1,
+        unitPrice: i.unitPrice || 0,
+        taxPercentage: i.taxPercentage,
+        vatPercentage: i.vatPercentage,
+        taxAmount: i.taxAmount,
+        vatAmount: i.vatAmount,
+        totalAmount: i.amount ?? 0,
+      })),
       subtotal: total,
       grandTotal: total,
     };
@@ -337,12 +348,12 @@ export const Sales: React.FC = () => {
     printInvoiceDirectly(invData);
   };
 
-  const handlePrintFromModal = (b: GetSingleSalesBillResponse) => {
+  const handlePrintFromModal = (b: any) => {
     const invData = formatSingleSalesForInvoice(b);
     printInvoiceDirectly(invData);
   };
 
-  const handleDownloadPdfFromModal = (b: GetSingleSalesBillResponse) => {
+  const handleDownloadPdfFromModal = (b: any) => {
     const invData = formatSingleSalesForInvoice(b);
     setSelectedInvoice(invData);
     setAutoDownloadInvoice(true);
@@ -396,7 +407,6 @@ export const Sales: React.FC = () => {
           <Navbar />
 
           <div className="user-management-content">
-            {/* Top Page Header - Clean Add Purchase Bill Style */}
             <div className="sales-bill-page-header">
               <div className="sales-bill-header-info">
                 <div className="sales-bill-header-icon">
@@ -406,17 +416,6 @@ export const Sales: React.FC = () => {
                   <h1 className="sales-bill-header-title">Sales Bills</h1>
                 </div>
               </div>
-
-              {/*<div className="sales-bill-header-actions">*/}
-              {/*  <button*/}
-              {/*    type="button"*/}
-              {/*    className="btn btn-primary btn-sm d-inline-flex align-items-center gap-1"*/}
-              {/*    onClick={handleAddBill}*/}
-              {/*  >*/}
-              {/*    <i className="bi bi-plus-lg" />*/}
-              {/*    <span>Add Sales Bill</span>*/}
-              {/*  </button>*/}
-              {/*</div>*/}
             </div>
 
             {/* Stats Summary Cards */}
@@ -462,37 +461,37 @@ export const Sales: React.FC = () => {
             <div className="sales-filter-card">
               <div className="sales-search-section">
                 <button
-                  type="button"
-                  className="toolbar-btn staff-btn"
-                  onClick={() => {
-                    setFilterBy('');
-                    setSearchQuery('');
-                    setSortBy('newest');
-                  }}
-                  title="Click to reset filters and view all invoices"
+                    type="button"
+                    className="toolbar-btn staff-btn"
+                    onClick={() => {
+                      setFilterBy('');
+                      setSearchQuery('');
+                      setSortBy('newest');
+                    }}
+                    title="Click to reset filters and view all invoices"
                 >
                   <i className="bi bi-receipt"></i>
-                   Invoices ({totalInvoices})
+                  Invoices ({totalInvoices})
                 </button>
 
                 <div className="sales-search-input-wrapper">
                   <i className="bi bi-search search-icon"></i>
                   <input
-                    type="text"
-                    placeholder="Search by invoice #, customer name, product..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="sales-search-input"
+                      type="text"
+                      placeholder="Search by invoice #, customer name, product..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="sales-search-input"
                   />
                   {searchQuery && (
-                    <button
-                      type="button"
-                      className="search-clear-btn"
-                      onClick={() => setSearchQuery('')}
-                      title="Clear search"
-                    >
-                      <i className="bi bi-x-circle-fill"></i>
-                    </button>
+                      <button
+                          type="button"
+                          className="search-clear-btn"
+                          onClick={() => setSearchQuery('')}
+                          title="Clear search"
+                      >
+                        <i className="bi bi-x-circle-fill"></i>
+                      </button>
                   )}
                 </div>
               </div>
@@ -501,10 +500,10 @@ export const Sales: React.FC = () => {
                 <div className="toolbar-select-wrap">
                   <i className="bi bi-sort-down"></i>
                   <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value)}
-                    className="toolbar-select"
-                    title="Sort invoices"
+                      value={sortBy}
+                      onChange={(e) => setSortBy(e.target.value)}
+                      className="toolbar-select"
+                      title="Sort invoices"
                   >
                     <option value="newest">Sort (Newest)</option>
                     <option value="oldest">Oldest First</option>
@@ -518,10 +517,10 @@ export const Sales: React.FC = () => {
                 <div className="toolbar-select-wrap">
                   <i className="bi bi-funnel"></i>
                   <select
-                    value={filterBy}
-                    onChange={(e) => setFilterBy(e.target.value)}
-                    className="toolbar-select"
-                    title="Filter invoices"
+                      value={filterBy}
+                      onChange={(e) => setFilterBy(e.target.value)}
+                      className="toolbar-select"
+                      title="Filter invoices"
                   >
                     <option value="">Filter (All)</option>
                     <option value="cash">Cash ({cashCount})</option>
@@ -532,10 +531,10 @@ export const Sales: React.FC = () => {
                 </div>
 
                 <button
-                  type="button"
-                  className="btn-export-pdf"
-                  onClick={handleExportReportPDF}
-                  title="Export PDF Report"
+                    type="button"
+                    className="btn-export-pdf"
+                    onClick={handleExportReportPDF}
+                    title="Export PDF Report"
                 >
                   <i className="bi bi-file-earmark-arrow-down me-1"></i>
                   <span>Export PDF</span>
@@ -574,42 +573,37 @@ export const Sales: React.FC = () => {
                             key={bill.billNumber}
                             onClick={() => handleBillClick(bill)}
                         >
-                          {/* Avatar Badge */}
                           <div className="role-avatar">{initials}</div>
 
-                          {/* Main Invoice Information */}
                           <div className="role-main-details">
                             <div className="role-title-row">
                               <span className="role-card-name">{bill.billNumber}</span>
-                              <span className="badge-role">{bill.paymentMode.toUpperCase()}</span>
+                              <span className="sales-item-box" title={bill.productNames.join(', ') || 'N/A'}>
+                                <i className="bi bi-box-seam me-1"></i>
+                                {bill.productNames.join(', ') || 'N/A'}
+                              </span>
                             </div>
 
-                            <div className="role-sub-text">
-                              <span>Customer: <strong>{bill.customerName}</strong></span>
-                              <span>•</span>
-                              <span>Items: {bill.productNames.join(', ') || 'N/A'}</span>
-                              {bill.remarks && (
-                                  <>
-                                    <span>•</span>
-                                    <span>Notes: {bill.remarks}</span>
-                                  </>
-                              )}
+                            <div className="sales-customer-payment-row">
+                              <span className="sales-customer-box" title={bill.customerName}>
+                                <i className="bi bi-person me-1"></i>
+                                {bill.customerName}
+                              </span>
+                              <span className="sales-payment-mode-box">
+                                {bill.paymentMode.toUpperCase()}
+                              </span>
                             </div>
+
+                            {bill.remarks && (
+                                <div className="sales-notes-row">
+                                  <i className="bi bi-chat-left-text me-1"></i>
+                                  <span>Notes: {bill.remarks}</span>
+                                </div>
+                            )}
                           </div>
 
-                          {/* Right-aligned Section: Actions & Amount */}
                           <div className="role-card-right d-flex align-items-center gap-3">
                             <div className="d-flex align-items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                              {/*{canViewSingle && (*/}
-                              {/*  <button*/}
-                              {/*      type="button"*/}
-                              {/*      className="btn-row-action"*/}
-                              {/*      title="View Bill Details"*/}
-                              {/*      onClick={() => handleViewBill(bill)}*/}
-                              {/*  >*/}
-                              {/*    <i className="bi bi-eye"></i> View*/}
-                              {/*  </button>*/}
-                              {/*)}*/}
                               <button
                                   type="button"
                                   className="btn-row-action pdf"
@@ -642,17 +636,16 @@ export const Sales: React.FC = () => {
           </div>
         </div>
 
-        {/* Sticky Bottom-Right + New Invoice Button (permission-checked) */}
         {canAdd && (
-          <button
-              type="button"
-              className="sales-add-sticky-button"
-              onClick={handleAddBill}
-              title="New Invoice"
-          >
+            <button
+                type="button"
+                className="sales-add-sticky-button"
+                onClick={handleAddBill}
+                title="New Invoice"
+            >
               <span style={{ fontSize: '18px', fontWeight: 'bold', lineHeight: 1 }}>+</span>
               <span>New Invoice</span>
-          </button>
+            </button>
         )}
 
         {/* View Single Sales Bill Modal */}

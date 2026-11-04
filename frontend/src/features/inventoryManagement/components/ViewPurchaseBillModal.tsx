@@ -1,16 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { GetSinglePurchaseBillResponse } from '@/features/services/purchaseBillService';
+import logo from '@/assets/logo.png';
 import { useAppSettings } from '@/context/AppSettingsContext';
+import '@/styles/InvoicePdf.css';
 
 interface ViewPurchaseBillModalProps {
     isOpen: boolean;
     onClose: () => void;
-    purchase: GetSinglePurchaseBillResponse | null;
+    purchase: any | null;
     isLoading?: boolean;
-    onPrint?: (purchase: GetSinglePurchaseBillResponse) => void;
-    onDownloadPdf?: (purchase: GetSinglePurchaseBillResponse) => void;
-    onEdit?: (purchase: GetSinglePurchaseBillResponse) => void;
+    onPrint?: (purchase: any) => void;
+    onDownloadPdf?: (purchase: any) => void;
+    onEdit?: (purchase: any) => void;
     canEdit?: boolean;
 }
 
@@ -28,239 +29,337 @@ export const ViewPurchaseBillModal: React.FC<ViewPurchaseBillModalProps> = ({
 
     if (!isOpen || !purchase) return null;
 
-    const paymentStatusUpper = (purchase.paymentStatus || (purchase.paymentMode?.toLowerCase() === 'credit' ? 'DUE' : 'PAID')).toUpperCase();
+    const companyName =
+        localStorage.getItem('organizationName') ||
+        localStorage.getItem('companyName') ||
+        'Point of Sale Store';
+
+    // Handle whether purchase is an array, has an items array, or is a single object
+    const itemsList: any[] = Array.isArray(purchase)
+        ? purchase
+        : (Array.isArray(purchase.items) ? purchase.items : [purchase]);
+
+    const primaryPurchase = itemsList[0] || purchase;
+
+    const paymentStatusUpper = (
+        primaryPurchase.paymentStatus ||
+        (primaryPurchase.paymentMode?.toLowerCase() === 'credit' ? 'DUE' : 'PAID')
+    ).toUpperCase();
     const isPaid = paymentStatusUpper === 'PAID' || paymentStatusUpper === 'RECEIVED';
     const isDue = paymentStatusUpper === 'DUE' || paymentStatusUpper === 'UNPAID';
 
+    const rawDate = primaryPurchase.date || primaryPurchase.createdAt || primaryPurchase.billDate;
+    const formattedDate = rawDate ? formatDate(rawDate) : 'N/A';
+
+    const supplierName =
+        primaryPurchase.supplierName ||
+        (primaryPurchase.category?.name ? `${primaryPurchase.category.name} Vendor` : 'Walk-In Supplier');
+
+    // Calculate totals
+    const totalAmount = purchase.amount ?? itemsList.reduce(
+        (sum, item) => sum + (item.amount || ((item.quantity || 1) * (item.unitPrice || item.rate || 0))),
+        0
+    );
+    const totalTaxAmount = itemsList.reduce((sum, item) => sum + (item.taxAmount || 0), 0);
+    const totalVatAmount = itemsList.reduce((sum, item) => sum + (item.vatAmount || 0), 0);
+    const rawSubtotal = itemsList.reduce((sum, item) => {
+        const q = item.quantity ?? 1;
+        const u = item.unitPrice ?? item.rate ?? 0;
+        return sum + (q * u);
+    }, 0);
+    const subtotal = rawSubtotal > 0 ? rawSubtotal : (totalAmount - totalTaxAmount - totalVatAmount);
+
     return ReactDOM.createPortal(
-        <div className="modal-overlay" onClick={onClose} style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(3px)',
-            zIndex: 1050,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '16px',
-            boxSizing: 'border-box'
-        }}>
+        <div className="invoice-modal-backdrop" onClick={onClose}>
             <div
-                className="modal-content medium"
+                className="invoice-modal-container"
                 onClick={(e) => e.stopPropagation()}
-                style={{
-                    backgroundColor: '#ffffff',
-                    borderRadius: '16px',
-                    boxShadow: '0 20px 40px rgba(0, 0, 0, 0.2)',
-                    maxWidth: '720px',
-                    width: '100%',
-                    maxHeight: '90vh',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    overflow: 'hidden',
-                    boxSizing: 'border-box'
-                }}
             >
-                {/* Modal Header */}
-                <div style={{
-                    padding: '18px 24px',
-                    borderBottom: '1px solid #e2e8f0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    background: '#f8fafc'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '10px',
-                            background: 'linear-gradient(135deg, #255DCE 0%, #021861 100%)',
-                            color: '#ffffff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '1.2rem',
-                            flexShrink: 0
-                        }}>
-                            <i className="bi bi-cart-check" />
-                        </div>
-                        <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700, color: '#0f172a' }}>
-                                    Purchase Bill Details
-                                </h3>
-                                <span style={{
-                                    fontSize: '0.8rem',
-                                    fontWeight: 700,
-                                    padding: '2px 8px',
-                                    borderRadius: '6px',
-                                    background: '#e0e7ff',
-                                    color: '#3730a3'
-                                }}>
-                                    {purchase.purchaseNo || 'PUR-N/A'}
-                                </span>
-                            </div>
-                            <p style={{ margin: '3px 0 0', fontSize: '0.82rem', color: '#64748b' }}>
-                                Single procurement voucher and inventory entry details
-                            </p>
-                        </div>
+                {/* Action Bar Header */}
+                <div className="invoice-modal-header">
+                    <div className="invoice-modal-title">
+                        <span className="invoice-modal-badge purchase">Purchase Invoice</span>
+                        <h3>#{primaryPurchase.purchaseNo || 'PUR-N/A'}</h3>
                     </div>
 
-                    <button
-                        type="button"
-                        className="form-close-btn"
-                        onClick={onClose}
-                        aria-label="Close"
-                        title="Close"
-                        style={{
-                            width: '36px',
-                            height: '36px',
-                            borderRadius: '50%',
-                            border: '1px solid #e2e8f0',
-                            background: '#ffffff',
-                            color: '#64748b',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        <i className="bi bi-x-lg" />
-                    </button>
+                    <div className="invoice-modal-actions">
+                        {onDownloadPdf && (
+                            <button
+                                type="button"
+                                className="btn-invoice-download"
+                                onClick={() => onDownloadPdf(purchase)}
+                                title="Download Purchase Invoice as PDF"
+                            >
+                                <i className="bi bi-file-earmark-arrow-down" />
+                                <span>Download PDF</span>
+                            </button>
+                        )}
+
+                        {onPrint && (
+                            <button
+                                type="button"
+                                className="btn-invoice-print"
+                                onClick={() => onPrint(purchase)}
+                                title="Print Purchase Invoice"
+                            >
+                                <i className="bi bi-printer" />
+                                <span>Print</span>
+                            </button>
+                        )}
+
+                        {canEdit && onEdit && (
+                            <button
+                                type="button"
+                                className="btn-invoice-edit"
+                                onClick={() => onEdit(purchase)}
+                                title="Edit Purchase Bill"
+                            >
+                                <i className="bi bi-pencil" />
+                                <span>Edit Bill</span>
+                            </button>
+                        )}
+
+                        <button
+                            type="button"
+                            className="btn-invoice-close"
+                            onClick={onClose}
+                            title="Close Invoice"
+                            aria-label="Close"
+                        >
+                            <i className="bi bi-x-lg" />
+                        </button>
+                    </div>
                 </div>
 
-                {/* Modal Body */}
-                <div style={{
-                    padding: '20px 24px',
-                    overflowY: 'auto',
-                    flex: '1 1 auto',
-                    boxSizing: 'border-box'
-                }}>
+                {/* Invoice Body / Desk Viewport */}
+                <div className="invoice-modal-body">
                     {isLoading ? (
-                        <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>
-                            <div className="spinner-border text-primary mb-2" role="status" />
-                            <div>Loading purchase bill details...</div>
+                        <div style={{ padding: '60px 20px', textAlign: 'center', color: '#64748b' }}>
+                            <div className="spinner-border text-primary mb-3" role="status" />
+                            <div style={{ fontWeight: 600 }}>Loading purchase bill details...</div>
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {/* Top Details Grid */}
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                                gap: '12px'
-                            }}>
-                                <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Purchase No & ID</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
-                                        {purchase.purchaseNo || 'PUR-N/A'}
-                                    </div>
-                                    {purchase.id ? (
-                                        <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Record #{purchase.id}</div>
-                                    ) : null}
-                                </div>
-
-                                <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Purchase Date</div>
-                                    <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
-                                        {purchase.date ? formatDate(purchase.date) : 'N/A'}
+                        <div className="invoice-paper" id="view-purchase-bill-paper">
+                            {/* 1. Header & Store Branding */}
+                            <div className="invoice-paper-header">
+                                <div className="invoice-brand">
+                                    <img
+                                        src={logo}
+                                        alt="Logo"
+                                        className="invoice-logo-img"
+                                        onError={(e) => {
+                                            (e.target as HTMLElement).style.display = 'none';
+                                        }}
+                                    />
+                                    <div>
+                                        <h1 className="invoice-brand-title">{companyName}</h1>
+                                        <p className="invoice-brand-subtitle">
+                                            Point of Sale & Inventory Billing System
+                                        </p>
                                     </div>
                                 </div>
 
-                                <div style={{ background: '#f8fafc', padding: '12px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Payment Mode & Status</div>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px', flexWrap: 'wrap' }}>
-                                        <span style={{
-                                            fontSize: '0.78rem',
-                                            fontWeight: 700,
-                                            padding: '2px 8px',
-                                            borderRadius: '6px',
-                                            background: '#f1f5f9',
-                                            color: '#334155'
-                                        }}>
-                                            {(purchase.paymentMode || 'CASH').toUpperCase()}
+                                <div className="invoice-type-banner">
+                                    <h2 className="invoice-type-name" style={{ color: '#1d4ed8' }}>
+                                        PURCHASE INVOICE
+                                    </h2>
+                                    <div className="invoice-number-tag">
+                                        #{primaryPurchase.purchaseNo || 'PUR-N/A'}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* 2. Metadata & Parties Grid */}
+                            <div className="invoice-meta-grid">
+                                <div className="invoice-party-col">
+                                    <h4>Vendor / Supplier Information</h4>
+                                    <div
+                                        className="invoice-party-name"
+                                        style={{ color: '#1d4ed8', fontWeight: 700 }}
+                                    >
+                                        {supplierName}
+                                    </div>
+                                    <p className="invoice-party-detail">
+                                        {primaryPurchase.supplierId
+                                            ? `Supplier ID: #${primaryPurchase.supplierId}`
+                                            : 'Registered Vendor / Supplier'}
+                                    </p>
+                                    {primaryPurchase.category?.name && (
+                                        <p className="invoice-party-detail">
+                                            Category: {primaryPurchase.category.name}
+                                        </p>
+                                    )}
+                                    {primaryPurchase.remarks && (
+                                        <p className="invoice-party-detail" style={{ marginTop: '4px' }}>
+                                            <strong>Note:</strong> {primaryPurchase.remarks}
+                                        </p>
+                                    )}
+                                </div>
+
+                                <div className="invoice-dates-col">
+                                    <div className="invoice-info-row">
+                                        <span className="invoice-info-label">Purchase Date:</span>
+                                        <span className="invoice-info-val">{formattedDate}</span>
+                                    </div>
+                                    <div className="invoice-info-row">
+                                        <span className="invoice-info-label">Payment Mode:</span>
+                                        <span className="invoice-info-val" style={{ textTransform: 'uppercase' }}>
+                                            {primaryPurchase.paymentMode || 'CASH'}
                                         </span>
-                                        <span style={{
-                                            fontSize: '0.78rem',
-                                            fontWeight: 700,
-                                            padding: '2px 8px',
-                                            borderRadius: '6px',
-                                            background: isPaid ? '#dcfce7' : isDue ? '#fee2e2' : '#fef3c7',
-                                            color: isPaid ? '#15803d' : isDue ? '#b91c1c' : '#b45309'
-                                        }}>
+                                    </div>
+                                    <div className="invoice-info-row">
+                                        <span className="invoice-info-label">Payment Status:</span>
+                                        <span
+                                            className="badge-paid-status"
+                                            style={{
+                                                background: isPaid ? '#dcfce7' : isDue ? '#fee2e2' : '#fef3c7',
+                                                color: isPaid ? '#15803d' : isDue ? '#b91c1c' : '#b45309',
+                                            }}
+                                        >
                                             {paymentStatusUpper}
                                         </span>
                                     </div>
+                                    {primaryPurchase.createdBy && (
+                                        <div className="invoice-info-row">
+                                            <span className="invoice-info-label">Recorded By:</span>
+                                            <span className="invoice-info-val">{primaryPurchase.createdBy}</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* Item / Procurement Details Card */}
-                            <div style={{ border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-                                <div style={{ background: '#f1f5f9', padding: '10px 16px', fontWeight: 700, fontSize: '0.85rem', color: '#334155' }}>
-                                    Procured Inventory Product
-                                </div>
-                                <div style={{ padding: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '16px', flexWrap: 'wrap' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        {purchase.item?.imageUrl ? (
-                                            <img
-                                                src={purchase.item.imageUrl}
-                                                alt={purchase.item.name || 'Product'}
-                                                style={{ width: '48px', height: '48px', borderRadius: '8px', objectFit: 'cover', border: '1px solid #e2e8f0' }}
-                                            />
-                                        ) : (
-                                            <div style={{
-                                                width: '48px',
-                                                height: '48px',
-                                                borderRadius: '8px',
-                                                background: '#f1f5f9',
-                                                color: '#64748b',
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                fontSize: '1.4rem'
-                                            }}>
-                                                <i className="bi bi-box-seam" />
-                                            </div>
-                                        )}
-                                        <div>
-                                            <div style={{ fontWeight: 700, fontSize: '1rem', color: '#0f172a' }}>
-                                                {purchase.item?.name || 'Inventory Product'}
-                                            </div>
-                                            <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '2px' }}>
-                                                Category: <strong>{purchase.category?.name || 'General Inventory'}</strong>
-                                            </div>
-                                        </div>
-                                    </div>
+                            {/* 3. Items Table */}
+                            <div className="invoice-table-container">
+                                <table className="invoice-paper-table">
+                                    <thead>
+                                        <tr>
+                                            <th style={{ width: '45px', textAlign: 'center' }}>#</th>
+                                            <th>Item & Description</th>
+                                            <th className="text-center" style={{ width: '70px' }}>Qty</th>
+                                            <th className="text-end" style={{ width: '120px' }}>Unit Rate</th>
+                                            <th className="text-end" style={{ width: '120px' }}>Tax / VAT</th>
+                                            <th className="text-end" style={{ width: '130px' }}>Total Amount</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {itemsList.map((item, index) => {
+                                            const qty = item.quantity ?? item.itemCount ?? 1;
+                                            const lineAmt = item.amount ?? item.totalPrice ?? 0;
+                                            const unitPrice = item.unitPrice ?? item.rate ?? (qty > 0 && lineAmt > 0 ? (lineAmt / qty) : 0);
+                                            const taxVal = (item.taxAmount || 0) + (item.vatAmount || 0);
+                                            const itemTotal = item.amount ?? (qty * unitPrice);
+                                            const itemName = item.item?.name || item.name || item.itemName || item.productName || (typeof item.item === 'string' ? item.item : '') || 'Purchase Item';
+                                            const categoryName = item.category?.name || item.categoryName || (primaryPurchase.category?.name || '');
+                                            const code = item.itemId || item.productId || item.item?.id || item.id;
 
-                                    <div style={{ textAlign: 'right' }}>
-                                        <div style={{ fontSize: '0.78rem', color: '#64748b' }}>Total Purchase Cost</div>
-                                        <div style={{ fontSize: '1.35rem', fontWeight: 800, color: '#dc2626' }}>
-                                            Rs. {formatNumber(purchase.amount || 0)}
+                                            return (
+                                                <tr key={item.id || index}>
+                                                    <td className="text-center" style={{ color: '#64748b', fontWeight: 600 }}>
+                                                        {index + 1}
+                                                    </td>
+                                                    <td>
+                                                        <div className="item-name-cell">{itemName}</div>
+                                                        <div className="item-category-sub">
+                                                            {categoryName ? `${categoryName}` : ''}
+                                                            {code ? ` • Code: #${code}` : ''}
+                                                        </div>
+                                                    </td>
+                                                    <td className="text-center" style={{ fontWeight: 600 }}>
+                                                        {qty}
+                                                    </td>
+                                                    <td className="text-end" style={{ color: '#475569' }}>
+                                                        Rs. {formatNumber(unitPrice)}
+                                                    </td>
+                                                    <td className="text-end" style={{ color: '#475569' }}>
+                                                        Rs. {formatNumber(taxVal)}
+                                                        {(item.taxPercentage || item.vatPercentage) ? (
+                                                            <div style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
+                                                                {item.taxPercentage ? `Tax ${item.taxPercentage}%` : ''}
+                                                                {item.vatPercentage ? ` VAT ${item.vatPercentage}%` : ''}
+                                                            </div>
+                                                        ) : null}
+                                                    </td>
+                                                    <td className="text-end" style={{ fontWeight: 700, color: '#0f172a' }}>
+                                                        Rs. {formatNumber(itemTotal)}
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {/* 4. Financial Summary & Notes Grid */}
+                            <div className="invoice-bottom-grid">
+                                <div className="invoice-notes-box">
+                                    <h5>Terms & Remarks</h5>
+                                    {primaryPurchase.remarks && (
+                                        <p style={{ marginBottom: '6px' }}>
+                                            <strong>Remarks:</strong> {primaryPurchase.remarks}
+                                        </p>
+                                    )}
+                                    <p>
+                                        1. Stock items received in good order and verified against supplier bill.<br />
+                                        2. Recorded for official accounting and inventory ledger audit.
+                                    </p>
+                                </div>
+
+                                <div className="invoice-totals-box">
+                                    <div className="total-summary-line">
+                                        <span>Items Subtotal:</span>
+                                        <span>Rs. {formatNumber(subtotal)}</span>
+                                    </div>
+                                    {totalTaxAmount > 0 && (
+                                        <div className="total-summary-line">
+                                            <span>Tax Amount:</span>
+                                            <span>Rs. {formatNumber(totalTaxAmount)}</span>
                                         </div>
+                                    )}
+                                    {totalVatAmount > 0 && (
+                                        <div className="total-summary-line">
+                                            <span>VAT Amount:</span>
+                                            <span>Rs. {formatNumber(totalVatAmount)}</span>
+                                        </div>
+                                    )}
+                                    <div className="total-summary-line grand">
+                                        <span>Grand Total:</span>
+                                        <span className="grand-amount-val">
+                                            Rs. {formatNumber(totalAmount)}
+                                        </span>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Remarks (if present) */}
-                            {purchase.remarks && (
-                                <div style={{ background: '#f1f5f9', padding: '12px 16px', borderRadius: '10px' }}>
-                                    <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#475569', textTransform: 'uppercase' }}>Remarks</div>
-                                    <div style={{ fontSize: '0.88rem', color: '#1e293b', marginTop: '2px' }}>{purchase.remarks}</div>
+                            {/* 5. Signatures & Footer Disclaimer */}
+                            <div className="invoice-signatures">
+                                <div className="sig-box">
+                                    <div className="sig-line" />
+                                    <div className="sig-title">Received By</div>
                                 </div>
-                            )}
+                                <div className="sig-box">
+                                    <div className="sig-line" />
+                                    <div className="sig-title">Authorized Signatory</div>
+                                </div>
+                            </div>
 
-                            {/* Attached Bill Document Preview (if present) */}
-                            {purchase.photoPath && (
-                                <div>
-                                    <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#64748b', marginBottom: '6px' }}>Attached Bill Document</div>
+                            <div className="invoice-disclaimer">
+                                Inventory and supplier invoice recorded successfully.
+                            </div>
+
+                            {/* Attached Bill Document / Photo (if present) */}
+                            {primaryPurchase.photoPath && (
+                                <div style={{ marginTop: '28px', paddingTop: '16px', borderTop: '1px dashed #cbd5e1' }}>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#475569', marginBottom: '8px' }}>
+                                        Attached Supplier Bill / Receipt
+                                    </div>
                                     <img
-                                        src={purchase.photoPath}
-                                        alt="Bill Attachment"
+                                        src={primaryPurchase.photoPath}
+                                        alt="Purchase Attachment"
                                         style={{
-                                            maxHeight: '160px',
+                                            maxHeight: '180px',
                                             borderRadius: '8px',
                                             border: '1px solid #e2e8f0',
-                                            objectFit: 'contain'
+                                            objectFit: 'contain',
                                         }}
                                     />
                                 </div>
@@ -268,108 +367,8 @@ export const ViewPurchaseBillModal: React.FC<ViewPurchaseBillModalProps> = ({
                         </div>
                     )}
                 </div>
-
-                {/* Modal Footer */}
-                <div style={{
-                    padding: '14px 24px',
-                    borderTop: '1px solid #e2e8f0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: '12px',
-                    background: '#f8fafc',
-                    flexWrap: 'wrap'
-                }}>
-                    <button
-                        type="button"
-                        onClick={onClose}
-                        style={{
-                            padding: '8px 18px',
-                            border: '1px solid #cbd5e1',
-                            borderRadius: '8px',
-                            background: '#ffffff',
-                            color: '#475569',
-                            fontWeight: 600,
-                            fontSize: '0.88rem',
-                            cursor: 'pointer'
-                        }}
-                    >
-                        Close
-                    </button>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        {onPrint && (
-                            <button
-                                type="button"
-                                onClick={() => onPrint(purchase)}
-                                style={{
-                                    padding: '8px 14px',
-                                    border: '1px solid #cbd5e1',
-                                    borderRadius: '8px',
-                                    background: '#ffffff',
-                                    color: '#0f172a',
-                                    fontWeight: 600,
-                                    fontSize: '0.88rem',
-                                    cursor: 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
-                            >
-                                <i className="bi bi-printer" /> Print
-                            </button>
-                        )}
-
-                        {onDownloadPdf && (
-                            <button
-                                type="button"
-                                onClick={() => onDownloadPdf(purchase)}
-                                style={{
-                                    padding: '8px 14px',
-                                    border: '1px solid #16a34a',
-                                    borderRadius: '8px',
-                                    background: '#ffffff',
-                                    color: '#16a34a',
-                                    fontWeight: 600,
-                                    fontSize: '0.88rem',
-                                    cursor: 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
-                            >
-                                <i className="bi bi-file-earmark-pdf" /> PDF
-                            </button>
-                        )}
-
-                        {canEdit && onEdit && (
-                            <button
-                                type="button"
-                                onClick={() => onEdit(purchase)}
-                                style={{
-                                    padding: '8px 18px',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    background: 'linear-gradient(135deg, #255DCE 0%, #021861 100%)',
-                                    color: '#ffffff',
-                                    fontWeight: 600,
-                                    fontSize: '0.88rem',
-                                    cursor: 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '6px'
-                                }}
-                            >
-                                <i className="bi bi-pencil" /> Edit Bill
-                            </button>
-                        )}
-                    </div>
-                </div>
             </div>
         </div>,
         document.body
     );
 };
-
-export default ViewPurchaseBillModal;
-

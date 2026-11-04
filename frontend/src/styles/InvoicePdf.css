@@ -139,6 +139,27 @@
   color: #0f172a;
 }
 
+.btn-invoice-edit {
+  background: #ffffff;
+  color: #255dce;
+  border: 1px solid #93c5fd;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-invoice-edit:hover {
+  background: #eff6ff;
+  border-color: #255dce;
+  color: #1d4ed8;
+}
+
 .btn-invoice-close {
   background: #f1f5f9;
   border: none;

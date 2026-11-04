@@ -33,6 +33,8 @@ public class GetAllPurchaseBillUC implements FluxUC<GetAllPurchaseBillUCRequest,
         return new GetAllPurchaseBillUCResponse(
                 bill.getId(),
                 bill.getPurchaseNo(),
+                bill.getSupplier() == null ? 0 : bill.getSupplier().getId(),
+                bill.getSupplierName() == null ? "Walk-In Supplier" : bill.getSupplierName(),
                 bill.getPurchaseDate(),
                 bill.getAmount(),
                 bill.getPaymentMode(),

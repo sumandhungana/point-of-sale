@@ -1,5 +1,6 @@
 package com.puff.tech.inventorymanagement.repository;
 
+import io.micronaut.data.annotation.Join;
 import io.micronaut.data.annotation.Query;
 import io.micronaut.data.model.query.builder.sql.Dialect;
 import io.micronaut.data.r2dbc.annotation.R2dbcRepository;
@@ -25,8 +26,13 @@ public interface PurchaseBillRepository extends ReactorCrudRepository<PurchaseBi
             "WHERE member_id = :memberId AND purchase_no LIKE CONCAT('%BILL-', :memberId, '-%')")
     Mono<Long> findLastSequenceByMemberId(Long memberId);
 
+    @Join(value = "supplier", type = Join.Type.LEFT_FETCH)
+    @Join(value = "product", type = Join.Type.LEFT_FETCH)
     Flux<PurchaseBillEntity> findByMemberId(Long memberId);
     Mono<PurchaseBillEntity> findByIdAndMemberId(Integer id, Long memberId);
+
+    @Join(value = "supplier", type = Join.Type.LEFT_FETCH)
+    @Join(value = "product", type = Join.Type.LEFT_FETCH)
     Flux<PurchaseBillEntity> findByPurchaseNoAndMemberId(String purchaseNo, Long memberId);
 
     // --- Added Delete Method ---

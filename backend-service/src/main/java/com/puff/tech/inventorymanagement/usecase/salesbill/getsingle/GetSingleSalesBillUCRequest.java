@@ -5,6 +5,6 @@ import io.micronaut.serde.annotation.Serdeable;
 
 @Serdeable
 public record GetSingleSalesBillUCRequest(
-        Long id
+        String billNumber
 ) implements UCRequest {
 }

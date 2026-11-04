@@ -16,6 +16,7 @@ public record AddPurchaseBillUCRequest(
         @NotNull LocalDate purchaseDate,
         @NotBlank String paymentMode,
         String paymentStatus,
+        String supplierName,
         Long supplierId,
         String remarks,
         String photoPath,

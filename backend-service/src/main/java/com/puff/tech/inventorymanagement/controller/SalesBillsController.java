@@ -74,8 +74,9 @@ public class SalesBillsController {
 
     @Secured(permissions = {Permission.SALES_BILL_GET_SINGLE})
     @Get()
-    public Mono<RestResponse<GetSingleSalesBillUCResponse>> getSinglePurchaseBill(@QueryValue("id") Long id) {
-        return getSingleSalesBillUC.execute(new GetSingleSalesBillUCRequest(id))
+    public Mono<RestResponse<List<GetSingleSalesBillUCResponse>>> getSingleSalesBill(@QueryValue("billNumber") String billNumber) {
+        return getSingleSalesBillUC.execute(new GetSingleSalesBillUCRequest(billNumber))
+                .collectList()
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }

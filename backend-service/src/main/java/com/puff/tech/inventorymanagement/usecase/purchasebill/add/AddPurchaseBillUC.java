@@ -7,6 +7,7 @@ import com.puff.tech.inventorymanagement.repository.PurchaseBillEntity;
 import com.puff.tech.inventorymanagement.repository.PurchaseBillRepository;
 import com.puff.tech.onboarding.repository.MemberEntity;
 import com.puff.tech.security.UseCaseContext;
+import com.puff.tech.suppliermanagement.repository.SupplierEntity;
 import jakarta.inject.Singleton;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -97,6 +98,14 @@ public class AddPurchaseBillUC implements MonoUC<AddPurchaseBillUCRequest, AddPu
                             .orElseThrow(() -> new RuntimeException("Product not found in updated list: " + itemDto.productId()));
 
                     PurchaseBillEntity purchaseBill = new PurchaseBillEntity();
+                    if(request.supplierId() != null) {
+                        SupplierEntity supplier = new SupplierEntity();
+                        supplier.setId(Math.toIntExact(request.supplierId()));
+                        purchaseBill.setSupplier(supplier);
+                        purchaseBill.setSupplierName(request.supplierName());
+                    } else {
+                        purchaseBill.setSupplierName("Walk-In Supplier");
+                    }
                     purchaseBill.setProduct(matchedProduct);
                     purchaseBill.setPurchaseNo(request.purchaseNo());
                     purchaseBill.setPurchaseDate(request.purchaseDate() != null ? request.purchaseDate() : LocalDate.now());

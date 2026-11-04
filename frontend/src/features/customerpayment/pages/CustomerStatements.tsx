@@ -11,6 +11,7 @@ import { useAppSettings } from '@/context/AppSettingsContext';
 import { ReminderModal } from '@/components/ReminderModal';
 import { TransactionDetailModal, TransactionDetailData } from '@/components/TransactionDetailModal';
 import { AddSalesBillModal } from '@/features/inventoryManagement/pages/AddSalesBill';
+import { DepositModal } from '@/components/DepositModal';
 
 // Helper to handle double Base64 encoding and ensure valid Data URI scheme
 const formatImageSrc = (src?: string | null): string => {
@@ -120,6 +121,7 @@ export const CustomerStatements = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [showPopup, setShowPopup] = useState(false);
     const [showReceivedPopup, setShowReceivedPopup] = useState(false);
+    const [showDepositModal, setShowDepositModal] = useState(false);
     const [showReminderModal, setShowReminderModal] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetailData | null>(null);
     const [showTransactionModal, setShowTransactionModal] = useState(false);
@@ -406,7 +408,7 @@ export const CustomerStatements = () => {
                         <button
                             type="button"
                             className="btn-statement-action btn-deposit"
-                            onClick={() => navigate(`/parties/customers/deposit/${activeId}`)}
+                            onClick={() => setShowDepositModal(true)}
                             title="Make a deposit"
                         >
                             <i className="bi bi-cash-coin"></i>
@@ -485,7 +487,7 @@ export const CustomerStatements = () => {
                         <div className="statements-amount-box box-gave">
                             <div className="statements-amount-label">
                                 <i className="bi bi-arrow-up-circle me-2"></i>
-                                Total Due
+                                Receivable Amount
                             </div>
                             <div className="statements-amount-val val-gave">
                                 {formatCurrency(totals.given)}
@@ -624,7 +626,7 @@ export const CustomerStatements = () => {
                         onClick={() => setShowPopup(true)}
                     >
                         <i className="bi bi-arrow-up-circle"></i>
-                       Total Due
+                        Receivable Amount
                     </button>
 
                     <button
@@ -702,6 +704,16 @@ export const CustomerStatements = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Modal: Deposit */}
+                <DepositModal
+                    isOpen={showDepositModal}
+                    onClose={() => setShowDepositModal(false)}
+                    partyId={activeId}
+                    partyName={customerData.name}
+                    partyType="CUSTOMER"
+                    onSuccess={fetchPayments}
+                />
 
                 {/* Modal: Set Reminder */}
                 <ReminderModal

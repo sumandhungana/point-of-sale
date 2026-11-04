@@ -1,14 +1,16 @@
 package com.puff.tech.inventorymanagement.usecase.salesbill.getsingle;
 
+import com.puff.tech.core.usecases.FluxUC;
 import com.puff.tech.core.usecases.MonoUC;
 import com.puff.tech.inventorymanagement.repository.SalesBillEntity;
 import com.puff.tech.inventorymanagement.repository.SalesBillRepository;
 import com.puff.tech.security.UseCaseContext;
 import jakarta.inject.Singleton;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Singleton
-public class GetSingleSalesBillUC implements MonoUC<GetSingleSalesBillUCRequest, GetSingleSalesBillUCResponse> {
+public class GetSingleSalesBillUC implements FluxUC<GetSingleSalesBillUCRequest, GetSingleSalesBillUCResponse> {
     private final SalesBillRepository salesBillRepository;
 
     public GetSingleSalesBillUC(SalesBillRepository salesBillRepository) {
@@ -16,9 +18,9 @@ public class GetSingleSalesBillUC implements MonoUC<GetSingleSalesBillUCRequest,
     }
 
     @Override
-    public Mono<GetSingleSalesBillUCResponse> execute(GetSingleSalesBillUCRequest request, UseCaseContext context) {
+    public Flux<GetSingleSalesBillUCResponse> execute(GetSingleSalesBillUCRequest request, UseCaseContext context) {
         Long memberId = context.securityContext().memberId();
-        return this.salesBillRepository.findByIdAndMemberId(request.id(), memberId)
+        return this.salesBillRepository.findByBillNumberAndMemberId(request.billNumber(), memberId)
                 .map(this::prepareSalesBillResponse);
     }
 

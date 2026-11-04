@@ -70,8 +70,9 @@ public class PurchaseBillController {
 
     @Secured(permissions = {Permission.PURCHASE_BILL_GET_SINGLE})
     @Get()
-    public Mono<RestResponse<GetSinglePurchaseBillUCResponse>> getSinglePurchaseBill(@QueryValue("id") Integer id) {
-        return getSinglePurchaseBillUC.execute(new GetSinglePurchaseBillUCRequest(id))
+    public Mono<RestResponse<List<GetSinglePurchaseBillUCResponse>>> getSinglePurchaseBill(@QueryValue("purchaseNo") String purchaseNo) {
+        return getSinglePurchaseBillUC.execute(new GetSinglePurchaseBillUCRequest(purchaseNo))
+                .collectList()
                 .map(RestResponse::success)
                 .onErrorResume(err -> Mono.just(RestResponse.error("Unexpected happened:: " + err.getLocalizedMessage())));
     }

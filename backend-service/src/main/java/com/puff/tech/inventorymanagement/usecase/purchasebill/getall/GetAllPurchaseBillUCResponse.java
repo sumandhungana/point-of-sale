@@ -10,6 +10,8 @@ import java.time.LocalDate;
 public record GetAllPurchaseBillUCResponse(
         Integer id,
         String purchaseNo,
+        Integer supplierId,
+        String supplierName,
         LocalDate date,
         BigDecimal amount,
         String paymentMode,

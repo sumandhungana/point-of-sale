@@ -11,6 +11,8 @@ import { YouReceived } from '../../supplierpayment/components/YouReceived';
 import { useAppSettings } from '@/context/AppSettingsContext';
 import { ReminderModal } from '@/components/ReminderModal';
 import { TransactionDetailModal, TransactionDetailData } from '@/components/TransactionDetailModal';
+import { DepositModal } from '@/components/DepositModal';
+import { AddPurchaseModal } from '@/features/inventoryManagement/pages/AddPurchase';
 
 // Helper to handle double Base64 encoding and ensure valid Data URI scheme
 const formatImageSrc = (src?: string | null): string => {
@@ -103,6 +105,8 @@ export const SupplierStatements: React.FC = () => {
     const [showReminderModal, setShowReminderModal] = useState<boolean>(false);
     const [selectedTransaction, setSelectedTransaction] = useState<TransactionDetailData | null>(null);
     const [showTransactionModal, setShowTransactionModal] = useState<boolean>(false);
+    const [showDepositModal, setShowDepositModal] = useState<boolean>(false);
+    const [showPurchaseBillModal, setShowPurchaseBillModal] = useState<boolean>(false);
 
     const fetchPayments = useCallback(async () => {
         if (!id) return;
@@ -335,7 +339,7 @@ export const SupplierStatements: React.FC = () => {
                         <button
                             type="button"
                             className="btn-statement-action btn-deposit"
-                            onClick={() => navigate(`/parties/supplier/deposit/${id}`)}
+                            onClick={() => setShowDepositModal(true)}
                             title="Make a deposit"
                         >
                             <i className="bi bi-cash-coin"></i>
@@ -423,7 +427,7 @@ export const SupplierStatements: React.FC = () => {
                         <div className="statements-amount-box box-received">
                             <div className="statements-amount-label">
                                 <i className="bi bi-arrow-down-circle me-2"></i>
-                                You Received
+                                Payable Amount
                             </div>
                             <div className="statements-amount-val val-received">
                                 {formatCurrency(totals.received || 0)}
@@ -462,6 +466,15 @@ export const SupplierStatements: React.FC = () => {
                     >
                         <i className="bi bi-receipt"></i>
                         Invoice
+                    </button>
+                    <button
+                        type="button"
+                        className="btn-quick-action btn-qa-invoice"
+                        onClick={() => setShowPurchaseBillModal(true)}
+                        title="Add Purchase Bill"
+                    >
+                        <i className="bi bi-plus-circle"></i>
+                        Add purchase bill
                     </button>
                 </div>
 
@@ -565,7 +578,7 @@ export const SupplierStatements: React.FC = () => {
                         onClick={() => setShowReceivedPopup(true)}
                     >
                         <i className="bi bi-arrow-down-circle"></i>
-                        You Received
+                        Payable Amount
                     </button>
                 </div>
 
@@ -606,7 +619,7 @@ export const SupplierStatements: React.FC = () => {
                             <div className="popup-title-container">
                                 <h2 className="popup-title-received">
                                     <i className="bi bi-arrow-down-circle me-2"></i>
-                                    You Received
+                                    Payable Amount
                                 </h2>
                                 <button
                                     type="button"
@@ -628,6 +641,16 @@ export const SupplierStatements: React.FC = () => {
                         </div>
                     </div>
                 )}
+
+                {/* Modal: Deposit */}
+                <DepositModal
+                    isOpen={showDepositModal}
+                    onClose={() => setShowDepositModal(false)}
+                    partyId={parseInt(id || '0', 10)}
+                    partyName={supplierName}
+                    partyType="SUPPLIER"
+                    onSuccess={fetchPayments}
+                />
 
                 {/* Modal: Set Reminder */}
                 <ReminderModal
@@ -652,6 +675,24 @@ export const SupplierStatements: React.FC = () => {
                     onDeleteSuccess={fetchPayments}
                     onEdit={handleEditTransaction}
                 />
+
+                {/* Modal: Add Purchase Bill */}
+                {showPurchaseBillModal && (
+                    <AddPurchaseModal
+                        isOpen={showPurchaseBillModal}
+                        onClose={() => setShowPurchaseBillModal(false)}
+                        onSuccess={() => {
+                            setShowPurchaseBillModal(false);
+                            fetchPayments();
+                            toast.success('Purchase bill added successfully!');
+                        }}
+                        preselectedSupplier={{
+                            supplierId: parseInt(id || '0', 10),
+                            name: supplierName || '',
+                            phone: supplierPhone,
+                        }}
+                    />
+                )}
             </main>
         </div>
     );

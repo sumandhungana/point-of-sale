@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import ReactDOM from 'react-dom';
 import {useLocation, useNavigate} from 'react-router-dom';
 import {Sidebar} from '@/components/Sidebar';
 import Navbar from '../../../components/Navbar';
@@ -52,8 +53,25 @@ const QUANTITY_UNITS = [
     { value: 'other', label: 'Other...' },
 ];
 
+export interface AddPurchaseProps {
+    isModal?: boolean;
+    isOpen?: boolean;
+    onClose?: () => void;
+    onSuccess?: () => void;
+    preselectedSupplier?: {
+        supplierId: number;
+        name: string;
+        phone?: string | null;
+    } | null;
+}
 
-export const AddPurchase: React.FC = () => {
+export const AddPurchase: React.FC<AddPurchaseProps> = ({
+    isModal = false,
+    isOpen = true,
+    onClose,
+    onSuccess,
+    preselectedSupplier,
+}) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { formatCurrency, formatNumber, settings } = useAppSettings();
@@ -67,6 +85,14 @@ export const AddPurchase: React.FC = () => {
     const initialData = location.state?.purchase;
     const isEditMode = !!initialData;
     const canSave = isEditMode ? canEdit : canAdd;
+
+    const handleClose = () => {
+        if (isModal) {
+            onClose?.();
+        } else {
+            navigate('/bills/purchase');
+        }
+    };
 
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -102,9 +128,17 @@ export const AddPurchase: React.FC = () => {
     const [vatPercentage, setVatPercentage] = useState<number | ''>(13);
 
     // Supplier Search Dropdown
-    const [supplierSearch, setSupplierSearch] = useState('');
+    const [supplierSearch, setSupplierSearch] = useState(preselectedSupplier?.name || '');
     const [showSupplierDropdown, setShowSupplierDropdown] = useState(false);
-    const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
+    const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(
+        preselectedSupplier
+            ? {
+                  id: preselectedSupplier.supplierId,
+                  name: preselectedSupplier.name,
+                  phone: preselectedSupplier.phone || '',
+              }
+            : null
+    );
 
     // Item Search & Purchase Basket
     const [itemSearch, setItemSearch] = useState('');
@@ -126,16 +160,38 @@ export const AddPurchase: React.FC = () => {
 
                 if (isEditMode && initialData) {
                     let billDetails = initialData;
-                    if (initialData.id) {
+                    let rawItems: any[] = [];
+
+                    const lookupNo = initialData.purchaseNo || initialData.id;
+                    if (lookupNo) {
                         try {
-                            const freshData = await getSinglePurchaseBill(initialData.id);
+                            const freshData: any = await getSinglePurchaseBill(lookupNo);
                             if (freshData) {
-                                billDetails = { ...initialData, ...freshData };
+                                if (Array.isArray(freshData)) {
+                                    rawItems = freshData;
+                                    const first = freshData[0] || {};
+                                    billDetails = { ...initialData, ...first, items: freshData };
+                                } else if (Array.isArray(freshData.items)) {
+                                    rawItems = freshData.items;
+                                    billDetails = { ...initialData, ...freshData };
+                                } else {
+                                    rawItems = [freshData];
+                                    billDetails = { ...initialData, ...freshData, items: rawItems };
+                                }
                             }
                         } catch (apiErr) {
                             console.warn('Could not fetch single purchase bill details from API, using state data:', apiErr);
                         }
                     }
+
+                    if (rawItems.length === 0) {
+                        if (Array.isArray(billDetails.items) && billDetails.items.length > 0) {
+                            rawItems = billDetails.items;
+                        } else if (billDetails.item) {
+                            rawItems = [billDetails];
+                        }
+                    }
+
                     setPurchaseNo(billDetails.purchaseNo || '');
                     setDate(billDetails.date || billDetails.purchaseDate || billDetails.billDate || new Date().toISOString().split('T')[0]);
                     const mode = (billDetails.paymentMode || 'cash').toLowerCase();
@@ -144,30 +200,91 @@ export const AddPurchase: React.FC = () => {
                     const rawStatus = billDetails.paymentStatus || (mode === 'credit' ? 'due' : 'paid');
                     setPaymentStatus(String(rawStatus).toLowerCase());
                     setRemarks(billDetails.remarks || '');
-                    if (billDetails.supplier) {
+
+                    // Map Supplier
+                    const suppId = billDetails.supplierId || billDetails.supplier?.id;
+                    const suppName = billDetails.supplierName || billDetails.supplier?.name;
+                    if (suppId || suppName) {
+                        const matchedSupplier = (suppliersData || []).find(
+                            (s: any) => (suppId && s.id === suppId) || (suppName && s.name && s.name.trim().toLowerCase() === suppName.trim().toLowerCase())
+                        );
+                        if (matchedSupplier) {
+                            setSelectedSupplier(matchedSupplier);
+                            setSupplierSearch(matchedSupplier.name);
+                        } else if (suppName) {
+                            setSelectedSupplier({ id: suppId || 0, name: suppName });
+                            setSupplierSearch(suppName);
+                        }
+                    } else if (billDetails.supplier) {
                         setSelectedSupplier(billDetails.supplier);
                         setSupplierSearch(billDetails.supplier.name || '');
                     }
-                    if (billDetails.items && billDetails.items.length > 0) {
-                        setLineItems(
-                            billDetails.items.map((i: any) => ({
-                                ...i,
-                                unit: i.unit || 'pcs',
-                                stockUnit: i.unit || 'pcs',
-                                availableStock: i.availableStock ?? 0,
-                                quantity: i.quantity ?? 1,
-                                enteredAmount: i.enteredAmount ?? '',
-                            }))
-                        );
+
+                    // Map Line Items with loaded products
+                    const loadedProducts: Item[] = itemsData?.items || [];
+                    if (rawItems.length > 0) {
+                        const mappedLineItems: PurchaseLineItem[] = rawItems.map((i: any, idx: number) => {
+                            const rawItemName = (i.item?.name || i.name || i.productName || i.itemName || '').trim();
+                            const rawItemId = i.productId || i.itemId || i.item?.id;
+
+                            // Match product from loaded products
+                            const matched = loadedProducts.find((p) => {
+                                if (rawItemId && p.id === rawItemId) return true;
+                                if (rawItemName && p.name && p.name.trim().toLowerCase() === rawItemName.toLowerCase()) return true;
+                                return false;
+                            });
+
+                            const qty = parseFloat(String(i.quantity ?? i.itemCount ?? 1)) || 1;
+                            const lineAmount = parseFloat(String(i.amount ?? i.totalPrice ?? 0)) || 0;
+                            const unitRate = typeof i.unitPrice === 'number' && i.unitPrice > 0
+                                ? i.unitPrice
+                                : (qty > 0 && lineAmount > 0
+                                    ? lineAmount / qty
+                                    : (matched?.perUnitPurchasePrice ?? 0));
+
+                            const entered = i.enteredAmount !== undefined && i.enteredAmount !== ''
+                                ? i.enteredAmount
+                                : (pricingMode === 'gross' ? (lineAmount > 0 ? lineAmount : unitRate * qty) : unitRate);
+
+                            const computed = computeLineItem(qty, entered);
+
+                            return {
+                                itemId: matched?.id || rawItemId || i.id || (idx + 1),
+                                name: matched?.name || rawItemName || 'Item',
+                                categoryName: matched?.category?.name || i.category?.name || i.categoryName || 'General',
+                                unit: matched?.unit || i.unit || 'pcs',
+                                stockUnit: matched?.unit || i.stockUnit || i.unit || 'pcs',
+                                availableStock: matched?.itemCount ?? (typeof i.availableStock === 'number' ? i.availableStock : 0),
+                                sku: (matched as any)?.sku || i.sku || '',
+                                quantity: qty,
+                                enteredAmount: entered,
+                                unitPrice: computed.unitPrice,
+                                taxAmount: computed.taxAmount,
+                                vatAmount: computed.vatAmount,
+                                totalPrice: computed.totalPrice > 0 ? computed.totalPrice : (lineAmount > 0 ? lineAmount : computed.totalPrice),
+                            };
+                        });
+
+                        setLineItems(mappedLineItems);
                     }
+
                     if (billDetails.photoPath) {
-                        setSelectedImage(initialData.photoPath);
+                        setSelectedImage(billDetails.photoPath);
                     }
                 } else {
                     const billData = canGenerate ? await fetchPurchaseBillNumber() : null;
                     const lastNo = billData?.purchaseNo ?? '0';
 
                     setPurchaseNo(lastNo);
+
+                    if (preselectedSupplier) {
+                        setSupplierSearch(preselectedSupplier.name);
+                        setSelectedSupplier({
+                            id: preselectedSupplier.supplierId,
+                            name: preselectedSupplier.name,
+                            phone: preselectedSupplier.phone || '',
+                        });
+                    }
                 }
             } catch (err) {
                 setError(err instanceof Error ? err.message : 'Failed to initialize purchase form');
@@ -177,7 +294,7 @@ export const AddPurchase: React.FC = () => {
         };
 
         fetchData();
-    }, [isEditMode, initialData]);
+    }, [isEditMode, initialData, preselectedSupplier]);
 
     // Core Pricing & Tax Calculation Logic
     const computeLineItem = (quantity: number | string, enteredAmount: number | string) => {
@@ -428,6 +545,9 @@ export const AddPurchase: React.FC = () => {
         setError(null);
 
         try {
+            const supplierIdToSave = selectedSupplier?.id || (preselectedSupplier ? preselectedSupplier.supplierId : undefined);
+            const supplierNameToSave = selectedSupplier?.name || (preselectedSupplier ? preselectedSupplier.name : supplierSearch || undefined);
+
             // Map all line items to the request payload structure
             const payload: any = {
                 id: isEditMode ? initialData?.id : undefined,
@@ -435,7 +555,8 @@ export const AddPurchase: React.FC = () => {
                 purchaseDate: date,
                 paymentMode: paymentMode,
                 paymentStatus: paymentStatus || (paymentMode === 'credit' ? 'due' : 'paid'),
-                supplierId: selectedSupplier?.id,
+                supplierId: supplierIdToSave,
+                supplierName: supplierNameToSave,
                 remarks: remarks,
                 photoPath: selectedImage || undefined,
                 items: lineItems.map((item) => ({
@@ -446,7 +567,12 @@ export const AddPurchase: React.FC = () => {
             };
 
             await savePurchase(payload, isEditMode, initialData?.id);
-            navigate('/bills/purchase');
+            if (isModal) {
+                onSuccess?.();
+                onClose?.();
+            } else {
+                navigate('/bills/purchase');
+            }
         } catch (err) {
             setError(err instanceof Error ? err.message : 'An error occurred while saving the purchase bill.');
         } finally {
@@ -462,47 +588,16 @@ export const AddPurchase: React.FC = () => {
         sup.name.toLowerCase().includes(supplierSearch.toLowerCase())
     );
 
-    return (
-        <div className="invoice-layout-root">
-            <Sidebar/>
-            <div className="invoice-page-wrapper">
-                <div className="purchase-navbar-spacer">
-                    <Navbar/>
+    const formBody = (
+        <>
+            {error && (
+                <div className="purchase-alert-danger d-flex align-items-center mb-3">
+                    <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                    {error}
                 </div>
+            )}
 
-                <div className="invoice-container">
-                    {/* Header Banner - Clean Professional AddCustomer Style */}
-                    <div className="purchase-bill-page-header">
-                        <div className="purchase-bill-header-info">
-                            <div className="purchase-bill-header-icon">
-                                <i className="bi bi-cart-check-fill" />
-                            </div>
-                            <div>
-                                <h1 className="purchase-bill-header-title">{isEditMode ? 'Edit Purchase Bill' : 'Add Purchase Bill'}</h1>
-
-                            </div>
-                        </div>
-
-                        {/* Top Right Cross Button */}
-                        <button
-                            type="button"
-                            className="form-close-btn"
-                            onClick={() => navigate('/bills/purchase')}
-                            aria-label="Close"
-                            title="Close"
-                        >
-                            <i className="bi bi-x-lg" />
-                        </button>
-                    </div>
-
-                    {error && (
-                        <div className="purchase-alert-danger d-flex align-items-center mb-3">
-                            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                            {error}
-                        </div>
-                    )}
-
-                    <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit}>
                         {/* Section 1: Invoice Information */}
                         <div className="purchase-card invoice-info-card mb-3">
                             <h3 className="purchase-card-title">
@@ -1220,7 +1315,7 @@ export const AddPurchase: React.FC = () => {
                             <button
                                 type="button"
                                 className="btn-form-cancel"
-                                onClick={() => navigate('/bills/purchase')}
+                                onClick={handleClose}
                                 disabled={loading}
                             >
                                 Cancel
@@ -1412,8 +1507,93 @@ export const AddPurchase: React.FC = () => {
                             </div>
                         </div>
                     )}
+        </>
+    );
+
+    if (isModal) {
+        if (!isOpen) return null;
+
+        return ReactDOM.createPortal(
+            <div className="add-purchase-bill-modal-overlay" onClick={handleClose}>
+                <div className="add-purchase-bill-modal-dialog" onClick={(e) => e.stopPropagation()}>
+                    <div className="add-purchase-bill-modal-header">
+                        <div className="purchase-bill-header-info">
+                            <div className="purchase-bill-header-icon">
+                                <i className="bi bi-cart-check-fill" />
+                            </div>
+                            <div>
+                                <h2 className="purchase-bill-header-title" style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#0f172a' }}>
+                                    {isEditMode ? 'Edit Purchase Bill' : 'Add Purchase Bill'}
+                                </h2>
+                                {selectedSupplier && (
+                                    <div style={{ fontSize: '0.82rem', color: '#64748b', marginTop: '2px' }}>
+                                        Supplier: <strong style={{ color: '#255dce' }}>{selectedSupplier.name}</strong>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        <button
+                            type="button"
+                            className="form-close-btn"
+                            onClick={handleClose}
+                            aria-label="Close"
+                            title="Close"
+                        >
+                            <i className="bi bi-x-lg" />
+                        </button>
+                    </div>
+
+                    <div className="add-purchase-bill-modal-body">
+                        <div className="invoice-container modal-invoice-container">
+                            {formBody}
+                        </div>
+                    </div>
+                </div>
+            </div>,
+            document.body
+        );
+    }
+
+    return (
+        <div className="invoice-layout-root">
+            <Sidebar/>
+            <div className="invoice-page-wrapper">
+                <div className="purchase-navbar-spacer">
+                    <Navbar/>
+                </div>
+
+                <div className="invoice-container">
+                    {/* Header Banner - Clean Professional AddCustomer Style */}
+                    <div className="purchase-bill-page-header">
+                        <div className="purchase-bill-header-info">
+                            <div className="purchase-bill-header-icon">
+                                <i className="bi bi-cart-check-fill" />
+                            </div>
+                            <div>
+                                <h1 className="purchase-bill-header-title">{isEditMode ? 'Edit Purchase Bill' : 'Add Purchase Bill'}</h1>
+                            </div>
+                        </div>
+
+                        {/* Top Right Cross Button */}
+                        <button
+                            type="button"
+                            className="form-close-btn"
+                            onClick={handleClose}
+                            aria-label="Close"
+                            title="Close"
+                        >
+                            <i className="bi bi-x-lg" />
+                        </button>
+                    </div>
+
+                    {formBody}
                 </div>
             </div>
         </div>
     );
+};
+
+export const AddPurchaseModal: React.FC<AddPurchaseProps> = (props) => {
+    return <AddPurchase {...props} isModal={true} />;
 };
