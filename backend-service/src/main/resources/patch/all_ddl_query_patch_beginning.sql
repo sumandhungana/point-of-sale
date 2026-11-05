@@ -501,14 +501,14 @@ create table deposit
 (
     id            bigint generated always as identity
         primary key,
-    member_id     bigint       not null,
-    payment_party varchar(255) not null,
-    party_id      bigint       not null,
-    amount        numeric      not null,
-    remarks       varchar(255) not null,
-    created_by    varchar(255) not null,
+    member_id     bigint       ,
+    payment_party varchar(255) ,
+    party_id      bigint      ,
+    amount        numeric      ,
+    remarks       varchar(255) ,
+    created_by    varchar(255) ,
     created_at    timestamp,
-    updated_by    varchar(255) not null,
+    updated_by    varchar(255) ,
     updated_at    timestamp
 );
 

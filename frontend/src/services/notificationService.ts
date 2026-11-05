@@ -1,5 +1,6 @@
 import { getProduct } from '@/features/services/productService';
 import type { Loan } from '@/features/services/loanService';
+import { fetchAllLoans } from '@/features/services/loanService';
 import type { GetAllMember } from '@/features/services/organizationService';
 import { formatSystemCurrency, formatSystemDate } from '@/features/services/appSettingService';
 
@@ -13,13 +14,16 @@ export interface AppNotification {
   severity: 'warning' | 'info' | 'danger';
   read: boolean;
   countLabel?: string;
+  memberId?: number;
+  memberName?: string;
 }
 
 const READ_NOTIFS_KEY = 'khatabook_read_notifications';
 
-const getReadIds = (): Set<string> => {
+const getReadIds = (memberId?: number | string): Set<string> => {
   try {
-    const raw = localStorage.getItem(READ_NOTIFS_KEY);
+    const activeId = memberId || localStorage.getItem('selectedKhataBookId') || 'default';
+    const raw = localStorage.getItem(`${READ_NOTIFS_KEY}_${activeId}`);
     if (!raw) return new Set();
     const arr = JSON.parse(raw);
     return new Set(Array.isArray(arr) ? arr : []);
@@ -28,9 +32,11 @@ const getReadIds = (): Set<string> => {
   }
 };
 
-const saveReadIds = (set: Set<string>): void => {
+const saveReadIds = (set: Set<string>, memberId?: number | string): void => {
   try {
-    localStorage.setItem(READ_NOTIFS_KEY, JSON.stringify(Array.from(set)));
+    const activeId = memberId || localStorage.getItem('selectedKhataBookId') || 'default';
+    const jsonStr = JSON.stringify(Array.from(set));
+    localStorage.setItem(`${READ_NOTIFS_KEY}_${activeId}`, jsonStr);
   } catch (err) {
     console.error('Failed to save read notification IDs:', err);
   }
@@ -118,13 +124,15 @@ export const getOrganizationNotifications = (orgs: GetAllMember[]): AppNotificat
       notifications.push({
         id,
         type: 'NEW_ORGANIZATION',
-        title: `New Organization Registration`,
+        title: `New Member Registration: ${org.organizationName}`,
         message: `${org.organizationName} (${org.organizationType || 'Business'}) registered from login page is awaiting approval.`,
         timestamp: org.createdAt || new Date().toISOString(),
         link: '/organization',
         severity: 'info',
         read: readIds.has(id),
         countLabel: 'Pending Approval',
+        memberId: org.id,
+        memberName: org.organizationName,
       });
     }
   });
@@ -132,7 +140,7 @@ export const getOrganizationNotifications = (orgs: GetAllMember[]): AppNotificat
   return notifications;
 };
 
-let cachedNotifications: { data: AppNotification[]; timestamp: number } | null = null;
+let cachedNotifications: { key: string; data: AppNotification[]; timestamp: number } | null = null;
 const NOTIF_CACHE_TTL_MS = 60000; // 60 seconds
 
 export const invalidateNotificationCache = (): void => {
@@ -140,23 +148,30 @@ export const invalidateNotificationCache = (): void => {
 };
 
 /**
- * Global notifications fetch: Only fetches low stock alerts.
- * Strictly NEVER calls loan or organization APIs globally across dashboards.
- * Bypasses product check on rental routes to avoid unused All Products API requests.
+ * Global notifications fetch:
+ * Strictly scoped to the currently logged-in member.
+ * Does not include notifications for other members or other organizations.
  */
 export const fetchAllAppNotifications = async (forceRefresh: boolean = false): Promise<AppNotification[]> => {
+  const activeMemberId = Number(localStorage.getItem('selectedKhataBookId')) || undefined;
+  const activeMemberName =
+    localStorage.getItem('companyName') ||
+    localStorage.getItem('organizationName') ||
+    'Current Store';
+
+  const cacheKey = activeMemberId ? `member_${activeMemberId}` : 'default';
   const now = Date.now();
-  if (!forceRefresh && cachedNotifications && now - cachedNotifications.timestamp < NOTIF_CACHE_TTL_MS) {
+  if (!forceRefresh && cachedNotifications && cachedNotifications.key === cacheKey && now - cachedNotifications.timestamp < NOTIF_CACHE_TTL_MS) {
     return cachedNotifications.data;
   }
 
-  const readIds = getReadIds();
+  const readIds = getReadIds(activeMemberId);
   const notifications: AppNotification[] = [];
 
   // Rental items module does not use product inventory; skip All Products API call
   const isRentalRoute = typeof window !== 'undefined' && window.location.pathname.startsWith('/rental');
 
-  // Low Stock Alerts only
+  // 1. Low Stock Alerts for current logged-in member only
   if (!isRentalRoute) {
     try {
       const items = await getProduct();
@@ -184,6 +199,8 @@ export const fetchAllAppNotifications = async (forceRefresh: boolean = false): P
               severity: isOut ? 'danger' : 'warning',
               read: readIds.has(id),
               countLabel: `${count} left`,
+              memberId: activeMemberId,
+              memberName: activeMemberName,
             });
           }
         });
@@ -193,22 +210,37 @@ export const fetchAllAppNotifications = async (forceRefresh: boolean = false): P
     }
   }
 
+  // 2. Active Loan EMI notifications for current logged-in member only
+  try {
+    const loans = await fetchAllLoans();
+    if (Array.isArray(loans) && loans.length > 0) {
+      const loanNotifs = getLoanNotifications(loans).map((n) => ({
+        ...n,
+        memberId: activeMemberId,
+        memberName: activeMemberName,
+      }));
+      notifications.push(...loanNotifs);
+    }
+  } catch (err) {
+    // Silently skip if loan service is not active
+  }
+
   // Sort newest first
   const sorted = notifications.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-  cachedNotifications = { data: sorted, timestamp: Date.now() };
+  cachedNotifications = { key: cacheKey, data: sorted, timestamp: Date.now() };
   return sorted;
 };
 
-export const markNotificationAsRead = (id: string): void => {
-  const readIds = getReadIds();
+export const markNotificationAsRead = (id: string, memberId?: number | string): void => {
+  const readIds = getReadIds(memberId);
   readIds.add(id);
-  saveReadIds(readIds);
+  saveReadIds(readIds, memberId);
 };
 
-export const markAllNotificationsAsRead = (notifications: AppNotification[]): void => {
-  const readIds = getReadIds();
+export const markAllNotificationsAsRead = (notifications: AppNotification[], memberId?: number | string): void => {
+  const readIds = getReadIds(memberId);
   notifications.forEach((n) => readIds.add(n.id));
-  saveReadIds(readIds);
+  saveReadIds(readIds, memberId);
 };
 
 export const clearAllNotifications = (): void => {

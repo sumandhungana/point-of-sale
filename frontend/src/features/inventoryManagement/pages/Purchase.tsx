@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/Sidebar';
 import Navbar from '../../../components/Navbar';
@@ -15,6 +15,24 @@ import { useAppSettings } from '@/context/AppSettingsContext';
 import { usePermission } from '@/core/rbac/usePermission';
 import '../../../styles/Sales.css';
 import '../../../styles/Purchase.css';
+
+export interface GroupedPurchaseBill {
+  id: number;
+  purchaseNo: string;
+  date?: string;
+  supplierId?: number;
+  supplierName: string;
+  paymentMode: string;
+  paymentStatus?: string;
+  remarks?: string;
+  photoPath?: string;
+  category?: {
+    name?: string;
+  };
+  totalAmount: number;
+  productNames: string[];
+  items: GetAllPurchaseBillResponse[];
+}
 
 export const Purchase = () => {
   const navigate = useNavigate();
@@ -69,49 +87,96 @@ export const Purchase = () => {
     }
   };
 
-  const filteredPurchases = purchases
-      .filter((purchase) => {
-        const query = searchQuery.toLowerCase();
-        const matchesSearch =
-            (purchase.purchaseNo ?? '').toLowerCase().includes(query) ||
-            (purchase.supplierName ?? '').toLowerCase().includes(query) ||
-            (purchase.category?.name ?? '').toLowerCase().includes(query) ||
-            (purchase.item?.name ?? '').toLowerCase().includes(query) ||
-            (purchase.paymentMode ?? '').toLowerCase().includes(query);
+  // Group line-item records by unique purchase bill number and sum their amounts
+  const groupedPurchases: GroupedPurchaseBill[] = useMemo(() => {
+    const groups: { [purchaseNo: string]: GroupedPurchaseBill } = {};
 
-        const matchesPayment = filterBy
-            ? (purchase.paymentMode ?? '').toLowerCase() === filterBy.toLowerCase()
-            : true;
+    purchases.forEach((item) => {
+      const key = (item.purchaseNo && item.purchaseNo.trim() !== '') ? item.purchaseNo.trim() : `ID-${item.id}`;
+      const itemAmount = Number(item.amount) || 0;
 
-        return matchesSearch && matchesPayment;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'oldest') {
+      if (!groups[key]) {
+        groups[key] = {
+          id: item.id ?? 0,
+          purchaseNo: item.purchaseNo || 'PUR-N/A',
+          date: item.date,
+          supplierId: item.supplierId,
+          supplierName: item.supplierName || 'Walk-In Supplier',
+          paymentMode: item.paymentMode || 'CASH',
+          paymentStatus: item.paymentStatus,
+          remarks: item.remarks,
+          photoPath: item.photoPath,
+          category: item.category,
+          totalAmount: 0,
+          productNames: [],
+          items: [],
+        };
+      }
+
+      groups[key].totalAmount += itemAmount;
+      const itemName = item.item?.name || (item as any).productName || '';
+      if (itemName && !groups[key].productNames.includes(itemName)) {
+        groups[key].productNames.push(itemName);
+      }
+      if ((!groups[key].supplierName || groups[key].supplierName === 'Walk-In Supplier') && item.supplierName) {
+        groups[key].supplierName = item.supplierName;
+      }
+      if (!groups[key].remarks && item.remarks) {
+        groups[key].remarks = item.remarks;
+      }
+      if (!groups[key].photoPath && item.photoPath) {
+        groups[key].photoPath = item.photoPath;
+      }
+      if (!groups[key].date && item.date) {
+        groups[key].date = item.date;
+      }
+      groups[key].items.push(item);
+    });
+
+    return Object.values(groups);
+  }, [purchases]);
+
+  const filteredPurchases = useMemo(() => {
+    return groupedPurchases
+        .filter((purchase) => {
+          const query = searchQuery.toLowerCase();
+          const matchesSearch =
+              purchase.purchaseNo.toLowerCase().includes(query) ||
+              purchase.supplierName.toLowerCase().includes(query) ||
+              (purchase.remarks ?? '').toLowerCase().includes(query) ||
+              purchase.paymentMode.toLowerCase().includes(query) ||
+              purchase.items.some((i) => (i.item?.name ?? '').toLowerCase().includes(query));
+
+          const matchesPayment = filterBy
+              ? purchase.paymentMode.toLowerCase() === filterBy.toLowerCase()
+              : true;
+
+          return matchesSearch && matchesPayment;
+        })
+        .sort((a, b) => {
+          if (sortBy === 'oldest') {
+            const dateA = a.date ? new Date(a.date).getTime() : 0;
+            const dateB = b.date ? new Date(b.date).getTime() : 0;
+            return dateA - dateB;
+          }
+          if (sortBy === 'amount_desc') {
+            return (b.totalAmount ?? 0) - (a.totalAmount ?? 0);
+          }
+          if (sortBy === 'amount_asc') {
+            return (a.totalAmount ?? 0) - (b.totalAmount ?? 0);
+          }
+          if (sortBy === 'name_asc') {
+            return a.supplierName.localeCompare(b.supplierName);
+          }
+          if (sortBy === 'name_desc') {
+            return b.supplierName.localeCompare(a.supplierName);
+          }
+          // Default: newest first
           const dateA = a.date ? new Date(a.date).getTime() : 0;
           const dateB = b.date ? new Date(b.date).getTime() : 0;
-          return dateA - dateB;
-        }
-        if (sortBy === 'amount_desc') {
-          return (b.amount ?? 0) - (a.amount ?? 0);
-        }
-        if (sortBy === 'amount_asc') {
-          return (a.amount ?? 0) - (b.amount ?? 0);
-        }
-        if (sortBy === 'name_asc') {
-          const nameA = a.supplierName || a.item?.name || '';
-          const nameB = b.supplierName || b.item?.name || '';
-          return nameA.localeCompare(nameB);
-        }
-        if (sortBy === 'name_desc') {
-          const nameA = a.supplierName || a.item?.name || '';
-          const nameB = b.supplierName || b.item?.name || '';
-          return nameB.localeCompare(nameA);
-        }
-        // Default: newest first
-        const dateA = a.date ? new Date(a.date).getTime() : 0;
-        const dateB = b.date ? new Date(b.date).getTime() : 0;
-        return dateB - dateA;
-      });
+          return dateB - dateA;
+        });
+  }, [groupedPurchases, searchQuery, filterBy, sortBy]);
 
   const handleEditPurchase = (purchase: any) => {
     if (!hasEditAccess) return;
@@ -119,31 +184,31 @@ export const Purchase = () => {
     navigate('/bills/purchase/add', { state: { purchase } });
   };
 
-  const handleViewPurchase = async (purchase: GetAllPurchaseBillResponse) => {
+  const handleViewPurchase = async (purchase: GroupedPurchaseBill) => {
     if (!canViewSingle) return;
 
-    // Fast preview while single API loads
+    // Fast preview with all grouped items while single API loads
     const initialViewData: any = {
       id: purchase.id,
       purchaseNo: purchase.purchaseNo,
       supplierId: purchase.supplierId,
       supplierName: purchase.supplierName,
       date: purchase.date,
-      amount: purchase.amount,
+      amount: purchase.totalAmount,
       paymentMode: purchase.paymentMode,
       paymentStatus: purchase.paymentStatus,
       remarks: purchase.remarks,
       photoPath: purchase.photoPath,
-      items: [purchase],
-      item: purchase.item,
-      category: purchase.category,
+      items: purchase.items,
+      item: purchase.items[0]?.item || purchase.items[0],
+      category: purchase.items[0]?.category || purchase.category,
     };
 
     setViewingPurchase(initialViewData);
     setIsViewModalOpen(true);
 
-    // FIXED: Fetch using purchaseNo string instead of numeric id
-    if (purchase.purchaseNo) {
+    // Fetch full bill details using purchaseNo string if available
+    if (purchase.purchaseNo && purchase.purchaseNo !== 'PUR-N/A') {
       setIsSingleLoading(true);
       try {
         const fullData: any = await getSinglePurchaseBill(purchase.purchaseNo);
@@ -154,7 +219,7 @@ export const Purchase = () => {
           setViewingPurchase({
             ...initialViewData,
             items: itemsList,
-            amount: totalSum,
+            amount: totalSum > 0 ? totalSum : purchase.totalAmount,
             item: itemsList[0]?.item || itemsList[0],
             category: itemsList[0]?.category,
           });
@@ -167,7 +232,7 @@ export const Purchase = () => {
     }
   };
 
-  const handlePurchaseClick = (purchase: GetAllPurchaseBillResponse) => {
+  const handlePurchaseClick = (purchase: GroupedPurchaseBill) => {
     if (canViewSingle) {
       void handleViewPurchase(purchase);
     } else if (hasEditAccess) {
@@ -181,7 +246,7 @@ export const Purchase = () => {
 
   const formatPurchaseForInvoice = (purchase: any): InvoiceModalData => {
     const itemsList = Array.isArray(purchase.items) ? purchase.items : [purchase];
-    const amount = purchase.amount ?? itemsList.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
+    const amount = purchase.totalAmount ?? purchase.amount ?? itemsList.reduce((sum: number, i: any) => sum + (i.amount || 0), 0);
     const supplierName = purchase.supplierName || (purchase.category?.name ? `${purchase.category.name} Vendor` : 'Walk-In Supplier');
 
     return {
@@ -205,14 +270,14 @@ export const Purchase = () => {
     };
   };
 
-  const handleDownloadPurchasePdf = (purchase: GetAllPurchaseBillResponse) => {
+  const handleDownloadPurchasePdf = (purchase: GroupedPurchaseBill) => {
     const invData = formatPurchaseForInvoice(purchase);
     setSelectedInvoice(invData);
     setAutoDownloadInvoice(true);
     setIsInvoiceModalOpen(true);
   };
 
-  const handlePrintPurchaseDirectly = (purchase: GetAllPurchaseBillResponse) => {
+  const handlePrintPurchaseDirectly = (purchase: GroupedPurchaseBill) => {
     const invData = formatPurchaseForInvoice(purchase);
     printInvoiceDirectly(invData);
   };
@@ -235,41 +300,41 @@ export const Purchase = () => {
       number: p.purchaseNo ?? 'N/A',
       date: p.date ?? '',
       party: p.supplierName || (p.category?.name ? `${p.category.name} Vendor` : 'Supplier'),
-      itemsSummary: `${p.item?.name ?? 'Item'}${p.category?.name ? ` (${p.category.name})` : ''}`,
+      itemsSummary: p.productNames.join(', ') || `${p.items.length} Product${p.items.length > 1 ? 's' : ''}`,
       paymentMode: p.paymentMode ?? 'CASH',
-      amount: p.amount ?? 0,
+      amount: p.totalAmount ?? 0,
     }));
 
     setReportData({
       reportType: 'PURCHASE',
       title: 'Vendor Purchases Summary Report',
       subtitle: 'Comprehensive record of all inventory purchases and vendor invoices',
-      totalAmount: filteredPurchases.reduce((sum, p) => sum + (p.amount ?? 0), 0),
+      totalAmount: filteredPurchases.reduce((sum, p) => sum + (p.totalAmount ?? 0), 0),
       totalCount: filteredPurchases.length,
       rows,
     });
     setIsReportModalOpen(true);
   };
 
-  const totalPurchases = purchases.reduce((sum, purchase) => sum + (purchase.amount ?? 0), 0);
-  const cashPurchases = purchases
+  const totalPurchases = groupedPurchases.reduce((sum, purchase) => sum + (purchase.totalAmount ?? 0), 0);
+  const cashPurchases = groupedPurchases
       .filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CASH')
-      .reduce((sum, p) => sum + (p.amount ?? 0), 0);
-  const onlinePurchases = purchases
+      .reduce((sum, p) => sum + (p.totalAmount ?? 0), 0);
+  const onlinePurchases = groupedPurchases
       .filter((p) => {
         const mode = (p.paymentMode || '').trim().toUpperCase();
         return ['CARD', 'UPI', 'BANK', 'BANK_TRANSFER', 'ONLINE', 'DIGITAL', 'QR', 'WALLET'].includes(mode) || (mode !== 'CASH' && mode !== 'CREDIT' && mode !== 'DUE' && mode !== '');
       })
-      .reduce((sum, p) => sum + (p.amount ?? 0), 0);
+      .reduce((sum, p) => sum + (p.totalAmount ?? 0), 0);
 
-  const cashCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CASH').length;
-  const cardCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CARD').length;
-  const upiCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'UPI').length;
-  const bankCount = purchases.filter((p) => {
+  const cashCount = groupedPurchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CASH').length;
+  const cardCount = groupedPurchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CARD').length;
+  const upiCount = groupedPurchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'UPI').length;
+  const bankCount = groupedPurchases.filter((p) => {
     const m = (p.paymentMode || '').trim().toUpperCase();
     return m === 'BANK' || m === 'BANK_TRANSFER';
   }).length;
-  const creditCount = purchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CREDIT').length;
+  const creditCount = groupedPurchases.filter((p) => (p.paymentMode || '').trim().toUpperCase() === 'CREDIT').length;
 
   return (
       <div className="user-management-page-wrapper">
@@ -342,7 +407,7 @@ export const Purchase = () => {
                     title="Click to reset filters and view all purchase bills"
                 >
                   <i className="bi bi-receipt"></i>
-                  Invoices ({purchases.length})
+                  Invoices ({groupedPurchases.length})
                 </button>
 
                 <div className="sales-search-input-wrapper">
@@ -431,7 +496,6 @@ export const Purchase = () => {
               ) : (
                   filteredPurchases.map((purchase) => {
                     const supplierName = purchase.supplierName || 'Walk-In Supplier';
-                    const itemName = purchase.item?.name || 'Item';
                     const initials = supplierName
                         ? supplierName
                             .split(' ')
@@ -444,13 +508,13 @@ export const Purchase = () => {
                     return (
                         <div
                             className="role-item-card clickable-card"
-                            key={purchase?.id ?? purchase.purchaseNo ?? Math.random()}
+                            key={purchase.purchaseNo || purchase.id}
                             onClick={() => handlePurchaseClick(purchase)}
                         >
-                          {purchase.item?.imageUrl ? (
+                          {purchase.photoPath ? (
                               <img
-                                  src={purchase.item.imageUrl}
-                                  alt={itemName}
+                                  src={purchase.photoPath}
+                                  alt={supplierName}
                                   className="role-avatar"
                                   style={{ objectFit: 'cover' }}
                                   onError={(e) => {
@@ -462,7 +526,7 @@ export const Purchase = () => {
                           ) : null}
                           <div
                               className="role-avatar"
-                              style={{ display: purchase.item?.imageUrl ? 'none' : 'flex' }}
+                              style={{ display: purchase.photoPath ? 'none' : 'flex' }}
                           >
                             {initials}
                           </div>
@@ -470,9 +534,9 @@ export const Purchase = () => {
                           <div className="role-main-details">
                             <div className="role-title-row">
                               <span className="role-card-name">{purchase.purchaseNo || 'PUR-N/A'}</span>
-                              <span className="sales-item-box" title={itemName}>
+                              <span className="sales-item-box" title={purchase.productNames.join(', ') || 'N/A'}>
                                 <i className="bi bi-box-seam me-1"></i>
-                                {itemName}
+                                {purchase.productNames.join(', ') || 'N/A'}
                               </span>
                             </div>
 
@@ -517,7 +581,7 @@ export const Purchase = () => {
                             <div className="vertical-divider"></div>
 
                             <div className="sales-amount-tag" style={{ color: '#255DCE', fontWeight: 'bold', fontSize: '16px' }}>
-                              Rs. {formatNumber(purchase.amount ?? 0)}
+                              Rs. {formatNumber(purchase.totalAmount)}
                             </div>
                           </div>
                         </div>

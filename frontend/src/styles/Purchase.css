@@ -403,7 +403,6 @@
   font-size: 14px;
 }
 
-
 @media (max-width: 576px) {
   .btn-export-pdf {
     width: 100%;
@@ -411,3 +410,5 @@
     padding: 9px 16px;
   }
 }
+
+

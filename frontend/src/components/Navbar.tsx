@@ -42,10 +42,10 @@ const Navbar: React.FC = () => {
   const [imageError, setImageError] = useState(false);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
-  // Notification States
+  // Notification States (Logged-in member only)
   const [isNotifOpen, setIsNotifOpen] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
-  const [notifFilter, setNotifFilter] = useState<'ALL' | 'LOW_STOCK' | 'LOAN_EMI' | 'NEW_ORGANIZATION'>('ALL');
+  const [notifFilter, setNotifFilter] = useState<'ALL' | 'LOW_STOCK' | 'LOAN_EMI'>('ALL');
   const [isRefreshingNotifs, setIsRefreshingNotifs] = useState(false);
 
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -54,12 +54,12 @@ const Navbar: React.FC = () => {
   const { settings } = useAppSettings();
   const navigate = useNavigate();
 
-  // Load live notifications
+  // Load live notifications for currently logged-in member
   const loadNotifications = useCallback(async () => {
     setIsRefreshingNotifs(true);
     try {
-      const data = await fetchAllAppNotifications();
-      setNotifications(data);
+      const notifsData = await fetchAllAppNotifications();
+      setNotifications(notifsData);
     } catch (err) {
       console.error('Failed to load notifications in Navbar:', err);
     } finally {
@@ -119,12 +119,14 @@ const Navbar: React.FC = () => {
     return user?.name || user?.username || 'User';
   };
 
-  // Notification Actions
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  // Current logged-in member info
+  const currentMemberName = localStorage.getItem('companyName') || localStorage.getItem('organizationName') || '';
+  const currentMemberId = Number(localStorage.getItem('selectedKhataBookId')) || undefined;
 
+  // Notification Counts (Scoped to logged-in member)
+  const unreadCount = notifications.filter((n) => !n.read).length;
   const stockCount = notifications.filter((n) => n.type === 'LOW_STOCK').length;
   const loanCount = notifications.filter((n) => n.type === 'LOAN_EMI').length;
-  const orgCount = notifications.filter((n) => n.type === 'NEW_ORGANIZATION').length;
 
   const filteredNotifications = notifications.filter((n) => {
     if (notifFilter === 'ALL') return true;
@@ -132,7 +134,7 @@ const Navbar: React.FC = () => {
   });
 
   const handleNotificationClick = (notif: AppNotification) => {
-    markNotificationAsRead(notif.id);
+    markNotificationAsRead(notif.id, currentMemberId);
     setNotifications((prev) =>
       prev.map((item) => (item.id === notif.id ? { ...item, read: true } : item))
     );
@@ -143,7 +145,7 @@ const Navbar: React.FC = () => {
   };
 
   const handleMarkAllRead = () => {
-    markAllNotificationsAsRead(notifications);
+    markAllNotificationsAsRead(notifications, currentMemberId);
     setNotifications((prev) => prev.map((item) => ({ ...item, read: true })));
   };
 
@@ -258,6 +260,12 @@ const Navbar: React.FC = () => {
               <div className="notif-header">
                 <div className="notif-title-wrap">
                   <h4>Notifications</h4>
+                  {currentMemberName && (
+                    <span className="notif-logged-in-member" title="Logged in member store">
+                      <i className="bi bi-shop me-1" />
+                      {currentMemberName}
+                    </span>
+                  )}
                   {unreadCount > 0 && (
                     <span className="notif-unread-pill">{unreadCount} new</span>
                   )}
@@ -311,15 +319,6 @@ const Navbar: React.FC = () => {
                     Loan EMIs <span className="tab-badge">{loanCount}</span>
                   </button>
                 )}
-                {orgCount > 0 && (
-                  <button
-                    type="button"
-                    className={`notif-tab ${notifFilter === 'NEW_ORGANIZATION' ? 'active' : ''}`}
-                    onClick={() => setNotifFilter('NEW_ORGANIZATION')}
-                  >
-                    New Orgs <span className="tab-badge">{orgCount}</span>
-                  </button>
-                )}
               </div>
 
               {/* Notification List */}
@@ -350,6 +349,13 @@ const Navbar: React.FC = () => {
                             {!notif.read && <span className="notif-unread-dot" />}
                           </div>
 
+                          {notif.memberName && (
+                            <div className="notif-member-tag">
+                              <i className="bi bi-building me-1" />
+                              {notif.memberName}
+                            </div>
+                          )}
+
                           <p className="notif-item-msg">{notif.message}</p>
 
                           <div className="notif-item-footer">
@@ -374,9 +380,8 @@ const Navbar: React.FC = () => {
                   className="notif-footer-link"
                   onClick={() => {
                     setIsNotifOpen(false);
-                    if (notifFilter === 'LOW_STOCK') navigate('/items');
-                    else if (notifFilter === 'LOAN_EMI') navigate('/loans');
-                    else if (notifFilter === 'NEW_ORGANIZATION') navigate('/organization');
+                    if (notifFilter === 'LOW_STOCK') navigate('/inventory/items');
+                    else if (notifFilter === 'LOAN_EMI') navigate('/others/loan');
                     else navigate('/dashboard');
                   }}
                 >
